@@ -7,6 +7,20 @@ next to the game's own screenshots it read as a different project. These are
 hand-laid-out instead, in the game's own colours (see Sources/Shared/
 TPGraphics.swift's UI enum) with a monospaced face to match its UI.
 
+Layout follows the schematic-diagram conventions of the mosikdo-guide skill:
+rounded nodes (r=12) 44-92 tall, one shared arrowhead marker, a three-step
+type scale (title / label / caption), a "no" sign for anything impossible,
+and a one-line conclusion under every figure.
+
+    COLOUR CARRIES MEANING -- keep this mapping when editing.
+
+    blue    the build machinery: steps you or GitHub perform
+    green   a finished, playable result (a star marks the recommended one)
+    amber   works, but with a caveat: expiry, signing, extra tools
+    red     impossible, drawn with the "no" sign
+    violet  files you supply yourself -- the mons folder, everywhere it appears
+    grey    dashed, de-emphasised: not part of this path
+
 Written as a generator rather than twelve hand-edited files so the English
 and Korean versions can never drift apart in layout, and so a palette or
 spacing change is one edit rather than twelve.
@@ -22,7 +36,8 @@ import pathlib
 OUT = pathlib.Path(__file__).resolve().parent.parent / "docs" / "img"
 
 # --- palette ---------------------------------------------------------------
-# The game's UI colours, converted from the RGB565 constants it draws with.
+# The game's UI colours, converted from the RGB565 constants it draws with,
+# plus a soft tint of each for panels and filled nodes.
 BG      = "#faf5ea"   # UI.bgDay
 EDGE    = "#e6dcc8"
 INK     = "#2b3550"   # UI.ink
@@ -33,6 +48,9 @@ RED     = "#e05c5c"   # UI.barBad
 AMBER   = "#e2a33d"   # UI.barWarn
 VIOLET  = "#8b7bd8"
 WHITE   = "#ffffff"
+
+SOFT = {GREEN: "#e9f5ed", BLUE: "#e7f0fb", AMBER: "#fbf1de",
+        RED: "#fbeaea", VIOLET: "#efecfb", MUTED: "#f1f0ec"}
 
 MONO = ("ui-monospace,'SF Mono',SFMono-Regular,Menlo,Consolas,"
         "'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',monospace")
@@ -73,7 +91,7 @@ class Canvas:
             f'stroke-width="{sw}" stroke-linecap="round"{d}{a}/>')
 
     def elbow(self, x1, y1, x2, y2, stroke=MUTED, sw=2, dash=None, arrow=True):
-        """Right-angled connector: down from the source, across, into the target."""
+        """Right-angled connector: out from the source, across, into the target."""
         my = (y1 + y2) / 2
         d = f' stroke-dasharray="{dash}"' if dash else ""
         a = ' marker-end="url(#ah)"' if arrow else ""
@@ -83,9 +101,11 @@ class Canvas:
             f'stroke-linecap="round"{d}{a}/>')
 
     # -- composites ---------------------------------------------------------
-    def card(self, x, y, w, h, lines, accent=INK, fill=WHITE, star=False,
-             muted_from=1, size=14, dash=None):
+    def card(self, x, y, w, h, lines, accent=INK, fill=None, star=False,
+             muted_from=1, size=14, dash=None, tint=False):
         """A node: coloured left bar, title line, then dimmer detail lines."""
+        if fill is None:
+            fill = SOFT.get(accent, WHITE) if tint else WHITE
         self.rect(x, y, w, h, 12, fill, accent, 2, dash)
         self.parts.append(
             f'<path d="M{x+1} {y+13} L{x+1} {y+h-13}" stroke="{accent}" '
@@ -103,6 +123,18 @@ class Canvas:
                 f'<circle cx="{x + w - 15}" cy="{y + 15}" r="11" fill="{accent}"/>')
             self.text(x + w - 15, y + 20, "★", size=13, fill=WHITE, weight="bold")
 
+    def step(self, x, y, w, h, n, title, sub, accent=BLUE):
+        """A numbered step in a left-to-right flow."""
+        self.rect(x, y, w, h, 12, SOFT.get(accent, WHITE), accent, 2)
+        self.parts.append(
+            f'<circle cx="{x+30}" cy="{y+h/2}" r="16" fill="{accent}"/>')
+        self.text(x + 30, y + h / 2 + 6, str(n), size=16, fill=WHITE,
+                  weight="bold")
+        self.text(x + 58, y + h / 2 - 4, title, size=14, weight="bold",
+                  anchor="start")
+        self.text(x + 58, y + h / 2 + 16, sub, size=11.5, fill=MUTED,
+                  anchor="start", font=SANS)
+
     def diamond(self, cx, cy, w, h, lines, accent=INK):
         self.parts.append(
             f'<path d="M{cx} {cy-h/2} L{cx+w/2} {cy} L{cx} {cy+h/2} L{cx-w/2} {cy} Z" '
@@ -111,6 +143,15 @@ class Canvas:
         top = cy - (n - 1) * 17 / 2 + 5
         for i, ln in enumerate(lines):
             self.text(cx, top + i * 17, ln, size=13, weight="bold")
+
+    def deny(self, cx, cy, r=21):
+        """The "no" sign: a circle with a bar through it. Marks the impossible."""
+        self.parts.append(
+            f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="{BG}" stroke="{RED}" '
+            f'stroke-width="3.5"/>')
+        self.parts.append(
+            f'<rect x="{cx-r*0.72}" y="{cy-3.5}" width="{r*1.44}" height="7" '
+            f'rx="3.5" fill="{RED}" transform="rotate(-45 {cx} {cy})"/>')
 
     def label(self, x, y, s, size=12, fill=MUTED, anchor="middle"):
         """Edge label on a small plate, so it stays readable over a line."""
@@ -121,6 +162,10 @@ class Canvas:
     def title(self, x, y, s):
         self.text(x, y, s, size=13, fill=MUTED, weight="bold", anchor="start",
                   font=SANS)
+
+    def caption(self, s):
+        """The one-line conclusion every figure ends with."""
+        self.text(self.w / 2, self.h - 18, s, size=12.5, fill=MUTED, font=SANS)
 
     def svg(self):
         body = "\n  ".join(self.parts)
@@ -145,45 +190,45 @@ def write(name, canvas):
 
 # --- diagram 1: overview (README) -----------------------------------------
 def overview(t):
-    c = Canvas(880, 330)
+    c = Canvas(880, 344)
     c.title(24, 30, t["title"])
-    # left: your fork
-    c.rect(24, 48, 250, 200, 14, "#fffdf7", EDGE, 2, "6 5")
-    c.text(149, 72, t["fork_group"], size=12, fill=MUTED, weight="bold", font=SANS)
-    c.card(44, 88, 210, 58, [t["fork"], t["fork_sub"]], VIOLET)
-    c.card(44, 166, 210, 58, [t["build"], t["build_sub"]], VIOLET)
+    # left: the build machinery, in blue
+    c.rect(24, 48, 250, 200, 14, SOFT[BLUE], BLUE, 2, "6 5")
+    c.text(149, 72, t["fork_group"], size=12, fill=BLUE, weight="bold", font=SANS)
+    c.card(44, 88, 210, 58, [t["fork"], t["fork_sub"]], BLUE)
+    c.card(44, 166, 210, 58, [t["build"], t["build_sub"]], BLUE)
     c.line(149, 146, 149, 160)
-    # outputs
-    c.card(350, 60, 216, 62, [t["web"], t["web_sub"]], GREEN, star=True)
-    c.card(350, 140, 216, 62, [t["apk"], t["apk_sub"]], BLUE)
-    c.card(350, 220, 216, 62, [t["ipa"], t["ipa_sub"]], MUTED, dash="5 4")
+    # outputs: green = ready to play, amber = one more step (signing)
+    c.card(350, 60, 216, 62, [t["web"], t["web_sub"]], GREEN, star=True, tint=True)
+    c.card(350, 140, 216, 62, [t["apk"], t["apk_sub"]], GREEN, tint=True)
+    c.card(350, 220, 216, 62, [t["ipa"], t["ipa_sub"]], AMBER, dash="5 4")
     # fan out from the right edge of the fork group, not from inside it
     for y in (91, 171, 251):
         c.elbow(278, 195, 346, y)
-    # assets, feeding all three from the right
+    # violet, here and in every other diagram, is the files you supply
     c.card(632, 108, 224, 92,
-           [t["mons"], t["mons_1"], t["mons_2"], t["mons_3"]], AMBER,
-           fill="#fdf6e6")
+           [t["mons"], t["mons_1"], t["mons_2"], t["mons_3"]], VIOLET, tint=True)
     for y in (91, 171, 251):
-        c.line(628, 154, 572, y)
-    c.text(440, 312, t["foot"], size=12, fill=MUTED, font=SANS)
+        c.line(628, 154, 572, y, stroke=VIOLET)
+    c.caption(t["foot"])
     return c
 
 
 # --- diagram 2: which path (INSTALL) --------------------------------------
 def paths(t):
-    c = Canvas(880, 452)
+    c = Canvas(880, 468)
     c.title(24, 30, t["title"])
     c.diamond(180, 100, 250, 92, [t["q1"], t["q1b"]], INK)
-    c.card(620, 64, 230, 72, [t["b"], t["b1"], t["b2"]], BLUE)
+    c.card(620, 64, 230, 72, [t["b"], t["b1"], t["b2"]], BLUE, tint=True)
     c.line(305, 92, 616, 96)
     c.label(460, 84, t["yes"])
     c.diamond(180, 274, 250, 92, [t["q2"], t["q2b"]], INK)
     c.line(180, 146, 180, 226)
     c.label(180, 188, t["no"])
-    c.card(408, 168, 210, 78, [t["d"], t["d1"], t["d2"]], GREEN, star=True)
+    c.card(408, 168, 210, 78, [t["d"], t["d1"], t["d2"]], GREEN, star=True,
+           tint=True)
     c.card(408, 264, 210, 62, [t["a"], t["a1"]], AMBER)
-    c.card(408, 344, 210, 62, [t["c"], t["c1"]], VIOLET)
+    c.card(408, 344, 210, 62, [t["c"], t["c1"]], AMBER)
     c.line(306, 262, 404, 207)
     c.line(306, 274, 404, 295)
     c.line(306, 288, 404, 375)
@@ -193,94 +238,101 @@ def paths(t):
     # notes go under the diamonds, where nothing else is
     c.text(40, 384, t["note"], size=12, fill=MUTED, anchor="start", font=SANS)
     c.text(40, 406, t["note2"], size=12, fill=MUTED, anchor="start", font=SANS)
+    c.caption(t["foot"])
     return c
 
 
 # --- diagram 3: Path D flow ------------------------------------------------
 def pathd(t):
-    c = Canvas(880, 250)
+    c = Canvas(940, 268)
     c.title(24, 30, t["title"])
-    steps = [(t["s1"], t["s1b"], VIOLET), (t["s2"], t["s2b"], VIOLET),
-             (t["s3"], t["s3b"], BLUE)]
-    for i, (a, b, col) in enumerate(steps):
-        x = 24 + i * 292
-        c.card(x, 52, 254, 66, [f"{i+1}. {a}", b], col)
+    row1 = [(t["s1"], t["s1b"], BLUE), (t["s2"], t["s2b"], BLUE),
+            (t["s3"], t["s3b"], BLUE)]
+    for i, (a, b, col) in enumerate(row1):
+        x = 24 + i * 310
+        c.step(x, 48, 272, 64, i + 1, a, b, col)
         if i < 2:
-            c.line(x + 258, 85, x + 288, 85)
-    steps2 = [(t["s4"], t["s4b"], BLUE), (t["s5"], t["s5b"], AMBER),
-              (t["s6"], t["s6b"], GREEN)]
-    for i, (a, b, col) in enumerate(steps2):
-        x = 24 + i * 292
-        c.card(x, 152, 254, 66, [f"{i+4}. {a}", b], col)
+            c.line(x + 276, 80, x + 306, 80)
+    row2 = [(t["s4"], t["s4b"], BLUE), (t["s5"], t["s5b"], BLUE),
+            (t["s6"], t["s6b"], GREEN)]
+    for i, (a, b, col) in enumerate(row2):
+        x = 24 + i * 310
+        c.step(x, 142, 272, 64, i + 4, a, b, col)
         if i < 2:
-            c.line(x + 258, 185, x + 288, 185)
+            c.line(x + 276, 174, x + 306, 174)
     # No wrap connector between the rows: drawn as a bracket it reads as a
     # rule across the whole diagram. The numbering carries the order.
+    c.caption(t["foot"])
     return c
 
 
 # --- diagram 4: where things are stored ------------------------------------
 def storage(t):
-    c = Canvas(880, 340)
+    c = Canvas(880, 352)
     c.title(24, 30, t["title"])
     c.rect(24, 46, 402, 268, 16, "#fffdf7", EDGE, 2, "6 5")
     c.text(225, 70, t["phone"], size=12, fill=MUTED, weight="bold", font=SANS)
-    c.card(44, 86, 362, 76, [t["icon"], t["icon_1"], t["icon_2"]], GREEN, star=True)
+    c.card(44, 86, 362, 76, [t["icon"], t["icon_1"], t["icon_2"]], GREEN,
+           star=True, tint=True)
     c.card(44, 196, 362, 76, [t["tab"], t["tab_1"], t["tab_2"]], RED, dash="6 4")
-    c.parts.append(
-        f'<path d="M225 168 L225 190" stroke="{RED}" stroke-width="2" '
-        f'stroke-dasharray="4 5"/>')
-    c.label(225, 182, t["never"], fill=RED)
+    # the two never see each other's storage -- say it with the "no" sign
+    c.deny(94, 179, 18)
+    c.text(124, 184, t["never"], size=12, fill=RED, weight="bold",
+           anchor="start", font=SANS)
     c.card(536, 100, 320, 140,
-           [t["files"], t["f1"], t["f2"], t["f3"], t["f4"]], AMBER,
-           fill="#fdf6e6")
+           [t["files"], t["f1"], t["f2"], t["f3"], t["f4"]], VIOLET, tint=True)
     # in: files picked from the folder; out: the save exported back to it
-    c.line(532, 126, 414, 112)
-    c.label(478, 98, t["load"], size=11)
-    c.line(414, 146, 532, 196)
-    c.label(478, 186, t["save"], size=11)
-    c.text(440, 330, t["foot"], size=12, fill=MUTED, font=SANS)
+    c.line(532, 126, 414, 112, stroke=VIOLET)
+    c.label(478, 98, t["load"], size=11, fill=VIOLET)
+    c.line(414, 146, 532, 196, stroke=VIOLET)
+    c.label(478, 186, t["save"], size=11, fill=VIOLET)
+    c.caption(t["foot"])
     return c
 
 
 # --- diagram 5: Apple Watch / developer account ----------------------------
 def watch(t):
-    c = Canvas(880, 330)
+    c = Canvas(880, 362)
     c.title(24, 30, t["title"])
     c.diamond(150, 110, 240, 88, [t["q"], t["qb"]], INK)
-    c.card(336, 62, 280, 78, [t["reg"], t["reg1"], t["reg2"]], BLUE)
-    c.card(644, 70, 212, 62, [t["ok"], t["ok1"]], GREEN)
+    c.card(336, 62, 280, 78, [t["reg"], t["reg1"], t["reg2"]], BLUE, tint=True)
+    c.card(644, 70, 212, 62, [t["ok"], t["ok1"]], GREEN, tint=True)
     c.line(272, 92, 332, 96)
     c.label(302, 74, t["paid"], size=11, fill=BLUE)
     c.line(620, 101, 640, 101)
     c.card(336, 178, 280, 78, [t["free"], t["free1"], t["free2"]], AMBER)
     c.line(272, 126, 332, 200)
-    c.label(300, 152, t["nopaid"], size=11, fill=AMBER)
-    c.card(336, 272, 306, 56, [t["never"], t["never2"]], RED, dash="6 4")
-    c.line(272, 140, 332, 296)
-    c.text(646, 190, t["note"], size=12, fill=MUTED, anchor="start", font=SANS)
-    c.text(646, 212, t["note2"], size=12, fill=MUTED, anchor="start", font=SANS)
-    c.text(646, 234, t["note3"], size=12, fill=MUTED, anchor="start", font=SANS)
+    c.label(312, 166, t["nopaid"], size=11, fill=AMBER)
+    c.card(384, 272, 306, 56, [t["never"], t["never2"]], RED, dash="6 4")
+    c.line(272, 140, 380, 296)
+    c.deny(346, 300, 19)
+    c.text(636, 190, t["note"], size=11.5, fill=MUTED, anchor="start", font=SANS)
+    c.text(636, 212, t["note2"], size=11.5, fill=MUTED, anchor="start", font=SANS)
+    c.text(636, 234, t["note3"], size=11.5, fill=MUTED, anchor="start", font=SANS)
+    c.caption(t["foot"])
     return c
 
 
 # --- diagram 6: Path A flow ------------------------------------------------
 def patha(t):
-    c = Canvas(880, 250)
+    c = Canvas(940, 268)
     c.title(24, 30, t["title"])
-    row1 = [(t["s1"], t["s1b"]), (t["s2"], t["s2b"]), (t["s3"], t["s3b"])]
-    for i, (a, b) in enumerate(row1):
-        x = 24 + i * 292
-        c.card(x, 52, 254, 66, [f"{i+1}. {a}", b], AMBER)
+    row1 = [(t["s1"], t["s1b"], BLUE), (t["s2"], t["s2b"], BLUE),
+            (t["s3"], t["s3b"], BLUE)]
+    for i, (a, b, col) in enumerate(row1):
+        x = 24 + i * 310
+        c.step(x, 48, 272, 64, i + 1, a, b, col)
         if i < 2:
-            c.line(x + 258, 85, x + 288, 85)
-    row2 = [(t["s4"], t["s4b"]), (t["s5"], t["s5b"]), (t["s6"], t["s6b"])]
-    for i, (a, b) in enumerate(row2):
-        x = 24 + i * 292
-        col = RED if i == 2 else AMBER
-        c.card(x, 152, 254, 66, [f"{i+4}. {a}", b], col)
+            c.line(x + 276, 80, x + 306, 80)
+    # 5 is the mons folder (violet, as everywhere); 6 is the 7-day catch (amber)
+    row2 = [(t["s4"], t["s4b"], BLUE), (t["s5"], t["s5b"], VIOLET),
+            (t["s6"], t["s6b"], AMBER)]
+    for i, (a, b, col) in enumerate(row2):
+        x = 24 + i * 310
+        c.step(x, 142, 272, 64, i + 4, a, b, col)
         if i < 2:
-            c.line(x + 258, 185, x + 288, 185)
+            c.line(x + 276, 174, x + 306, 174)
+    c.caption(t["foot"])
     return c
 
 
@@ -307,7 +359,8 @@ EN = {
         c="Path C", c1="build in Xcode, Watch too",
         best="start here",
         note="Every path installs without creature art —",
-        note2="you add it yourself afterwards."),
+        note2="you add it yourself afterwards.",
+        foot="Without a paid account, Path D is the only one that never expires."),
     "pathd": dict(
         title="PATH D, END TO END",
         s1="Fork", s1b="your own copy on GitHub",
@@ -315,7 +368,8 @@ EN = {
         s3="Run the workflow", s3b="Build (browser), about 5 min",
         s4="Your own link", s4b="username.github.io/iTamaPoke",
         s5="Install on the phone", s5b="Add to Home Screen, or the APK",
-        s6="Load the mons folder", s6b="then it plays offline"),
+        s6="Load the mons folder", s6b="then it plays offline",
+        foot="Six steps, no Mac, and nothing to renew afterwards."),
     "storage": dict(
         title="WHERE THINGS ARE KEPT",
         phone="ON THE PHONE",
@@ -330,7 +384,7 @@ EN = {
         f3="dex_entries_ko.txt … dex text",
         f4="iTamaPoke-save.tpsave … backup",
         load="Load sprites…", save="Save file…",
-        foot="Loaded files live in the app, not in the folder — the folder is only where you pick them from."),
+        foot="Load your files in the home-screen app — sprites loaded in a browser tab stay in that tab."),
     "watch": dict(
         title="APPLE WATCH: WHAT DECIDES IT",
         q="Want it on the", qb="Apple Watch?",
@@ -344,7 +398,8 @@ EN = {
         never2="sideloading cannot sign the watch app",
         note="A signed build installs only on devices",
         note2="whose UDID is in its profile — and the",
-        note3="workflow cannot register them for you."),
+        note3="workflow cannot register them for you.",
+        foot="The Watch needs a Mac, an account, or both — the workflow alone cannot deliver it."),
     "patha": dict(
         title="PATH A, END TO END",
         s1="Download the .ipa", s1b="Actions → Build (unsigned)",
@@ -352,7 +407,8 @@ EN = {
         s3="Sign and install", s3b="with your own Apple ID",
         s4="Trust the developer", s4b="Settings → General → VPN & Device",
         s5="Add the mons folder", s5b="Files → On My iPhone → iTamaPoke",
-        s6="Renew every 7 days", s6b="free Apple IDs expire"),
+        s6="Renew every 7 days", s6b="free Apple IDs expire",
+        foot="Step 6 comes back every week — that is the price of a free Apple ID."),
 }
 
 KO = {
@@ -378,7 +434,8 @@ KO = {
         c="경로 C", c1="Xcode 빌드, 워치까지",
         best="처음이라면 이것",
         note="어느 경로든 캐릭터 그림 없이 설치되고,",
-        note2="그림은 설치 후 직접 넣습니다."),
+        note2="그림은 설치 후 직접 넣습니다.",
+        foot="유료 계정이 없다면, 만료되지 않는 경로는 D 하나뿐입니다."),
     "pathd": dict(
         title="경로 D 전체 흐름",
         s1="Fork", s1b="GitHub에 내 사본 만들기",
@@ -386,7 +443,8 @@ KO = {
         s3="워크플로 실행", s3b="Build (browser), 약 5분",
         s4="내 링크 생성", s4b="내아이디.github.io/iTamaPoke",
         s5="폰에 설치", s5b="홈 화면에 추가, 또는 APK",
-        s6="mons 폴더 넣기", s6b="이후 오프라인으로 플레이"),
+        s6="mons 폴더 넣기", s6b="이후 오프라인으로 플레이",
+        foot="여섯 단계, Mac 불필요, 이후 갱신할 것도 없습니다."),
     "storage": dict(
         title="무엇이 어디에 저장되나",
         phone="폰 안",
@@ -401,7 +459,7 @@ KO = {
         f3="dex_entries_ko.txt … 도감 설명문",
         f4="iTamaPoke-save.tpsave … 백업",
         load="Load sprites…", save="Save file…",
-        foot="넣은 파일은 폴더가 아니라 앱 안에 저장됩니다. 폴더는 고르는 출처일 뿐입니다."),
+        foot="파일은 홈 화면 앱에서 넣으세요. 브라우저 탭에서 넣은 스프라이트는 그 탭에만 남습니다."),
     "watch": dict(
         title="애플워치: 무엇이 갈리는가",
         q="애플워치에도", qb="넣고 싶다",
@@ -415,7 +473,8 @@ KO = {
         never2="사이드로딩은 워치 앱을 서명하지 못함",
         note="서명된 빌드는 프로파일에 UDID가 든",
         note2="기기에만 설치됩니다. 워크플로는 기기를",
-        note3="대신 등록해 주지 못합니다."),
+        note3="대신 등록해 주지 못합니다.",
+        foot="워치는 Mac이나 계정, 또는 둘 다가 필요합니다. 워크플로만으로는 넣을 수 없습니다."),
     "patha": dict(
         title="경로 A 전체 흐름",
         s1=".ipa 다운로드", s1b="Actions → Build (unsigned)",
@@ -423,7 +482,8 @@ KO = {
         s3="서명하고 설치", s3b="본인 Apple ID로",
         s4="개발자 신뢰", s4b="설정 → 일반 → VPN 및 기기 관리",
         s5="mons 폴더 넣기", s5b="파일 → 나의 iPhone → iTamaPoke",
-        s6="7일마다 갱신", s6b="무료 Apple ID는 만료됨"),
+        s6="7일마다 갱신", s6b="무료 Apple ID는 만료됨",
+        foot="6번은 매주 돌아옵니다. 무료 Apple ID의 대가입니다."),
 }
 
 BUILDERS = {"overview": overview, "paths": paths, "pathd": pathd,

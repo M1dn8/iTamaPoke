@@ -309,6 +309,8 @@ private:
   uint32_t evoDeclinedAge = 0;  // auf Lv.100: wieder anbieten ab diesem Alter
   uint32_t farDeclinedAge = 0;  // "quedaros juntos": no ofrecer despedida hasta esta edad
   bool starterPick = false;     // primera partida: esperando que el jugador elija inicial
+  // Persisted by save()/load() here, unlike upstream, where it is RAM only.
+  // Local modification (the third one -- see upstream-expanded/README.md).
   uint8_t neglectTicks = 0;
   uint16_t goodTicks = 0;  // racha bien cuidado: forja la DEF
   uint32_t ceremonyUntil = 0;

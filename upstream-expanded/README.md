@@ -24,10 +24,29 @@ it is given. A save written here and then opened by an unmodified build
 would truncate a long name, which only matters if you move a save between
 this port and the firmware.
 
+## Local modification: `neglectTicks` is saved
+
+`Pet::save`/`load` gained one key, `negl`. Upstream keeps `neglectTicks` --
+the count of consecutive minutes with all four bars at zero, which is what
+arms the runaway ending after 60 of them -- in RAM only, so it restarts at
+zero every boot. On the board that reads as "the runaway needs an hour with
+the device switched on", which is a fair rule for hardware.
+
+It is not a fair rule for a web app. Closing an installed PWA destroys the
+WASM module outright, so the counter reset on every close and the sad
+ending was unreachable in practice: it would have taken an unbroken hour
+with the app in the foreground and every bar already at zero. Persisting it
+puts the browser back on the same footing as the phone app, whose process
+merely suspends and therefore kept the counter across a close anyway.
+
+Saves stay compatible in both directions: `getUChar("negl", 0)` means a save
+from an unmodified build simply starts the counter at zero, and an
+unmodified build ignores the extra key.
+
 ## Local modification: the dex runs to 386, not 151
 
-These files are otherwise vendored verbatim, with two deliberate exceptions
-(this one and the `nick` widening above).
+These files are otherwise vendored verbatim, with three deliberate
+exceptions (this one, the `nick` widening and the `neglectTicks` save above).
 `dex.h` has been extended from the fork's 151 species to **386** (gen 1-3),
 with the extra rows transcribed from a third fork,
 [DylanPDao/TamaPoke](https://github.com/DylanPDao/TamaPoke) (`dex.h`, commit

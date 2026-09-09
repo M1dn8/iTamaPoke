@@ -1201,6 +1201,10 @@ void Pet::save() {
   prefs.putShort("eggT2", eggTarget);
   prefs.putUChar("crack", eggTaps);
   prefs.putUChar("mist", careMistakes);
+  // Local modification (the third one -- see upstream-expanded/README.md):
+  // neglectTicks is persisted so the runaway ending stays reachable on a
+  // platform whose process does not survive being closed.
+  prefs.putUChar("negl", neglectTicks);
   prefs.putBool("sleep", sleeping);
   prefs.putUChar("lend", lastEnd);
   // millis()-Deadlines sind nach einem Neustart ungueltig. Der Marker sorgt
@@ -1286,6 +1290,7 @@ void Pet::load() {
   }
   eggTaps = prefs.getUChar("crack", 0);
   careMistakes = prefs.getUChar("mist", 0);
+  neglectTicks = prefs.getUChar("negl", 0);  // local modification, see save()
   sleeping = prefs.getBool("sleep", false);
   lastEnd = prefs.getUChar("lend", CER_NONE);
   uint8_t pendingCeremony = prefs.getUChar("cerp", CER_NONE);

@@ -512,8 +512,41 @@ void putU32(std::vector<uint8_t> &b, uint32_t v) {
 }
 } // namespace
 
+// Pushes the live Pet into the Preferences map, which is the only thing
+// tp_export_state() below can see.
+//
+// Everything Pet::tick() does -- the per-minute stat decay, careMistakes,
+// neglectTicks -- lands in the Pet object's own fields and reaches the store
+// only when Pet::save() runs. tick() just raises pendingSave every fifth
+// tick and leaves the writing to Pet::flushSave(), which the firmware calls
+// from loop() and iOS calls after -update; this build had no equivalent, so
+// the store was written only as a side effect of syncClock()'s save() every
+// five minutes.
+//
+// On iOS that omission is invisible: backgrounding suspends the process, the
+// C++ Pet survives in memory, and nothing re-reads the store. Here, closing
+// the app destroys the WASM module outright and the next launch loads from
+// IndexedDB -- so any session shorter than that five-minute window had its
+// whole decay thrown away, and the value that came back was the last one
+// syncClock() wrote, i.e. one that had just been through the offline
+// catch-up's mercy floor of 15. Bars sat at exactly 15 for ever, and the
+// neglect path behind the runaway ending (careMistakes needs lowestStat()
+// <= 10, neglectTicks needs all four at 0) could never begin to accumulate.
+//
+// setClock() is the fix rather than flushSave(): it is public, it saves
+// unconditionally instead of waiting on pendingSave, and it also records
+// "state is current as of now" -- which stops syncClock() re-walking minutes
+// the live tick already applied. That double-walk was ageing the creature at
+// twice the intended rate for as long as the app stayed open.
+static void flushPetToStore() {
+  if (!gStarted) return;  // before begin(), saving would write defaults over
+                          // a stored save that has not been loaded yet
+  gPet.setClock((uint32_t)std::time(nullptr));
+}
+
 EMSCRIPTEN_KEEPALIVE
 int tp_export_state() {
+  flushPetToStore();
   gExportBuf.clear();
   auto &s = Preferences::store();
   putU32(gExportBuf, (uint32_t)s.size());

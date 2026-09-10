@@ -43,10 +43,32 @@ Saves stay compatible in both directions: `getUChar("negl", 0)` means a save
 from an unmodified build simply starts the counter at zero, and an
 unmodified build ignores the extra key.
 
+## Local modification: neglect accrues while the app is shut
+
+`Pet::syncClock`'s catch-up loop now advances `neglectTicks` exactly as
+`tick()` does. Upstream leaves it out on purpose -- *"sin descuidos ni
+escapadas en ausencia"* -- and on the board that is the kind rule: absence
+there means the power went out, which is not the player's doing.
+
+On a phone absence is the normal state. The app is shut nearly all the time,
+so the same line quietly changed the runaway ending's condition from "an
+hour of neglect" into "an hour of holding the app open and watching it",
+which is not something anyone does on purpose. Measured on a replay of a
+phone-shaped usage pattern, arming the ending wanted 78-108 minutes of
+screen time; with this it wants 17-29, and the last hour passes on the wall
+clock the way it does on hardware.
+
+This cannot punish someone for going away. The mercy floor above is
+untouched, so bars left alone stop at 15 and never reach zero by themselves
+-- the run can only begin once all four are already flat, which takes
+repeated visits that fed the creature nothing. A fortnight away and a single
+visit still finds it hungry at 15 with the counter at zero.
+
 ## Local modification: the dex runs to 386, not 151
 
-These files are otherwise vendored verbatim, with three deliberate
-exceptions (this one, the `nick` widening and the `neglectTicks` save above).
+These files are otherwise vendored verbatim, with four deliberate exceptions
+(this one, the `nick` widening, the `neglectTicks` save and the neglect
+accrual above).
 `dex.h` has been extended from the fork's 151 species to **386** (gen 1-3),
 with the extra rows transcribed from a third fork,
 [DylanPDao/TamaPoke](https://github.com/DylanPDao/TamaPoke) (`dex.h`, commit

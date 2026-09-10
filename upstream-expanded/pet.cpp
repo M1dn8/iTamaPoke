@@ -101,6 +101,26 @@ void Pet::syncClock(uint32_t nowEpoch) {
     energy = dropTo(energy, 1, 15);
     hygiene = dropTo(hygiene, 1, 15);
     joy = dropTo(joy, 1, 15);
+    // Local modification (the fourth one -- see upstream-expanded/README.md):
+    // the neglect run advances here too, matching tick() exactly.
+    //
+    // Upstream deliberately leaves it out ("sin descuidos ni escapadas en
+    // ausencia"), and on the board that is the kind rule: absence there means
+    // the power went out, which is not the player's doing. On a phone absence
+    // is the normal state -- the app is shut nearly all the time -- so the
+    // same line turned "an hour of neglect" into "an hour of holding the app
+    // open", which is not a thing anyone would do on purpose.
+    //
+    // The mercy floor above still means a creature left alone never reaches
+    // zero on its own, so this cannot punish a holiday: the run can only
+    // start once the bars are already flat, which takes visits that fed it
+    // nothing. What it restores is that the last hour then passes on the
+    // wall clock, the way it does on hardware, instead of on screen time.
+    if (fullness == 0 && joy == 0 && energy == 0 && hygiene == 0) {
+      if (neglectTicks < RUNAWAY_TICKS) neglectTicks++;
+    } else {
+      neglectTicks = 0;  // un solo cuidado la salva, igual que en tick()
+    }
   }
   if (!isEgg()) {
     if (!sleeping) {  // durmiendo no ensucia

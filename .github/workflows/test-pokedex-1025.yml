@@ -5,6 +5,7 @@ on:
     branches:
       - pokedex-1025
       - pokedex-evolution
+      - komfort-a
 
 permissions:
   contents: read
@@ -17,6 +18,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      - name: Package A unit tests
+        run: |
+          node tests/package-a.test.js
+          for file in browser_ver/web/*.js; do node --check "$file"; done
+          g++ -std=c++17 -I browser_ver/core/shim -I upstream-expanded upstream-expanded/pet.cpp tests/package_a.cpp -o /tmp/package-a-test
+          /tmp/package-a-test
 
       - name: Install Emscripten
         uses: mymindstorm/setup-emsdk@v14

@@ -705,18 +705,32 @@ void Pet::declineEvolve() {
   save();
 }
 
-void Pet::evolve() {
-  if (!canEvolveNow()) return;
-  int16_t next = evolutionTarget(true);
-  if (!next) return;
+bool Pet::evolveTo(int16_t target) {
+  if (isEgg() || sleeping || ceremony != CER_NONE || evolving() || lowestStat() < 40) return false;
+  if (target < 1 || target > DEX_COUNT) return false;
+  bool allowed = false;
+  for (unsigned i = 0; i < TP_EVOLUTION_COUNT; ++i) {
+    const auto &r = TP_EVOLUTIONS[i];
+    if (r.from == speciesId && r.to == target &&
+        tpEvoRuleReady(r, level(), bond, dayPhaseFromEpoch(lastSeenEpoch), lastSeenEpoch != 0, careMistakes)) {
+      allowed = true;
+      break;
+    }
+  }
+  if (!allowed) return false;
   prevSpeciesId = speciesId;
-  speciesId = next;
+  speciesId = target;
   evoDeclinedLv = 0;
   evoDeclinedAge = 0;
   registerSpecies(speciesId);
   sfxPlay(SFX_EVOLVE);
   evolveUntil = millis() + EVOLVE_ANIM_MS;
   save();
+  return true;
+}
+void Pet::evolve() {
+  if (!canEvolveNow() || evolving()) return;
+  evolveTo(evolutionTarget(true));
 }
 
 void Pet::feed() {

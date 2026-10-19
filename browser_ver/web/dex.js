@@ -64,20 +64,14 @@ function dexVisible(dex) {
 }
 
 function dexFilteredCount() {
-  if (dexFilter === 0) return fns.dexCount();
-  let n = 0;
-  for (let d = 1; d <= fns.dexCount(); d++) if (dexVisible(d)) n++;
+  if (typeof tpComfortDexIds === "function") return tpComfortDexIds().length;
+  let n=0;for(let d=1;d<=fns.dexCount();d++)if(dexVisible(d))n++;
   return n;
 }
 
 function dexAt(index) {
-  let i = index;
-  const count = fns.dexCount();
-  for (let d = 1; d <= count; d++) {
-    if (!dexVisible(d)) continue;
-    if (i === 0) return d;
-    i--;
-  }
+  if (typeof tpComfortDexIds === "function") return tpComfortDexIds()[index] || 0;
+  let i=index;for(let d=1;d<=fns.dexCount();d++)if(dexVisible(d)){if(i--===0)return d;}
   return 0;
 }
 
@@ -123,6 +117,10 @@ function drawDexGrid() {
   }
 
   if (dexPage >= dexPageCount()) dexPage = 0;
+  if (dexFilteredCount() === 0) {
+    ctx.fillStyle = UI.ink; ctx.font = "18px monospace";
+    ctx.fillText("Keine Treffer - Dex-Suche pruefen", TP.cx, 230);
+  }
   for (let r = 0; r < 4; r++) {
     for (let c = 0; c < 4; c++) {
       const dex = dexAt(dexPage * 16 + r * 4 + c);
@@ -130,7 +128,7 @@ function drawDexGrid() {
       const x = GAL_X + c * GAL_CELL, y = GAL_Y + r * GAL_CELL;
       const registered = fns.dexRegistered(dex) !== 0;
       const caught = fns.dexCaught(dex) !== 0;
-      const known = registered || caught;
+      const known = dexLookupMode || registered || caught;
 
       ctx.fillStyle = known ? (registered ? "#bfe8c8" : "#f5dca0") : "#dfe3ea";
       roundRect(x, y, 64, 64, 10);
@@ -185,7 +183,7 @@ function drawDexDetail() {
   const dex = dexDetailDex;
   const registered = fns.dexRegistered(dex) !== 0;
   const caught = fns.dexCaught(dex) !== 0;
-  const known = registered || caught;
+  const known = dexLookupMode || registered || caught;
   const shiny = fns.dexShiny(dex) !== 0;
 
   ctx.fillStyle = UI.bgDay;

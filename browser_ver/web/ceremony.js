@@ -126,6 +126,11 @@ function choiceDialogTap(x, y) {
       // under 40 (or the pet fell asleep) since the button first appeared
       // -- give an explicit "denied" cue in that case rather than letting
       // the dialog just vanish with nothing happening.
+      if (window.TPComfort && !window.TPComfort.autoEvolve()) {
+        choice = "none";
+        window.TPComfort.openEvolution();
+        return;
+      }
       if (fns.canEvolveNow() !== 0) Module._tp_evolve();
       else playSfx(7); // deny
     } else {

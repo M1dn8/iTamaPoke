@@ -1,0 +1,16 @@
+const assert=require("node:assert/strict");
+const tools=require("../browser_ver/web/dex-tools.js");
+const data=require("../browser_ver/web/dex-meta.js");
+const filter=(f,s)=>data.filter(m=>tools.matches(m,f,s));
+assert.equal(data.length,1025);
+assert.equal(filter({query:"#0133"}).length,1);
+assert.equal(filter({query:"Evoli"})[0].id,133);
+assert.equal(filter({query:"FLABEBE"})[0].id,669);
+assert.equal(filter({gen:9}).length,120);
+assert(filter({type:2}).every(m=>m.types.includes(2)));
+assert.equal(filter({status:"missing"},{raised:true,caught:false}).length,0);
+assert.equal(filter({status:"missing"},{raised:false,caught:false}).length,1025);
+assert.equal(tools.family(data,133).length,9);
+assert.deepEqual(tools.family(data,387).map(m=>m.id),[387,388,389]);
+assert.equal(tools.normalize("Flabébé"),"FLABEBE");
+console.log("Package A dex tests passed.");

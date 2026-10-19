@@ -229,6 +229,7 @@ public:
   int16_t evolutionTarget(bool randomize = false) const;
   bool evolutionUnlocked() const;  // nivel reicht, Form kann sich noch entwickeln
   bool canEvolveNow() const;  // lista: unlocked + wach + alle Balken >= 40
+  bool evolveTo(int16_t target);
   void evolve();              // dispara la transformacion (la llama un toque del usuario)
   bool canFarewellNow() const;  // forma final + 7 dias: lista para despedirse (boton)
   bool canRunawayNow() const;   // abandono total 1h: lista para escaparse (boton triste)

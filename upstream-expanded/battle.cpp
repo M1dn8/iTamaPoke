@@ -238,7 +238,7 @@ static bool wildTypePreferred(uint8_t type1, uint8_t type2, uint8_t phase) {
   }
 }
 
-int16_t pickWildSpecies(uint8_t roll, uint8_t phase) {
+int16_t pickWildSpecies(uint32_t roll, uint8_t phase) {
   int16_t pool[DEX_COUNT];
   int count = 0;
   uint8_t targetRarity = (roll % 100) < 25 ? R_RARO : R_COMUN;
@@ -259,7 +259,7 @@ int16_t pickWildSpecies(uint8_t roll, uint8_t phase) {
     fill(R_COMUN, true);
     if (count == 0) fill(R_COMUN, false);
   }
-  return count > 0 ? pool[roll % count] : 1;
+  return count > 0 ? pool[(roll / 100U) % count] : 1;
 }
 
 BattleStats wildBattleStats(int16_t dex, uint8_t level) {

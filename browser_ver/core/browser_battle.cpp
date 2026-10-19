@@ -113,7 +113,7 @@ void startBattle(int16_t forcedDex, uint8_t forcedLevel) {
     gDex = forcedDex;
     gLevel = forcedLevel ? forcedLevel : wildLevelFor(pet.level(), rnd100());
   } else {
-    gDex = pickWildSpecies(rnd100(), phase);
+    gDex = pickWildSpecies(static_cast<uint32_t>(std::rand()), phase);
     gLevel = wildLevelFor(pet.level(), rnd100());
   }
   gPlayer = realPlayerStats();
@@ -204,7 +204,7 @@ void tp_battle_check_wild(int mainScreenReady) {
 
   Pet &pet = tp_battle_pet();
   uint8_t phase = dayPhaseNow();
-  int16_t cand = pickWildSpecies(rnd100(), phase);
+  int16_t cand = pickWildSpecies(static_cast<uint32_t>(std::rand()), phase);
   uint8_t chance = (phase == 3) ? 4 : (phase == 0 ? 7 : 8);
   if (phase == 3 && cand >= 1 && cand <= DEX_COUNT) {
     const DexEntry &d = DEX_TBL[cand];

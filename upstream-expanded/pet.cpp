@@ -275,9 +275,9 @@ int16_t Pet::pickEggSpecies() {
   // si la pokedex del tier esta completa, vale cualquiera del tier
   for (int pass = 0; pass < 2; pass++) {
     for (int t = tier; t >= R_COMUN; t--) {
-      int16_t cand[80];
+      int16_t cand[DEX_COUNT];
       int n = 0;
-      for (int16_t d = 1; d <= DEX_COUNT && n < 80; d++) {
+      for (int16_t d = 1; d <= DEX_COUNT; d++) {
         if (DEX_TBL[d].rarity != t) continue;
         if (pass == 0 && !lineHasUnregistered(d)) continue;
         cand[n++] = d;

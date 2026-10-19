@@ -171,14 +171,9 @@ function drawDexGrid() {
   }
 
   const pages = dexPageCount();
-  const dotsX = TP.cx - (pages - 1) * 7;
-  for (let i = 0; i < pages; i++) {
-    const cx = dotsX + i * 14;
-    ctx.beginPath();
-    ctx.arc(cx, 436, i === dexPage ? 4 : 3, 0, Math.PI * 2);
-    if (i === dexPage) { ctx.fillStyle = UI.ink; ctx.fill(); }
-    else { ctx.strokeStyle = UI.ink; ctx.lineWidth = 1; ctx.stroke(); }
-  }
+  ctx.fillStyle = UI.ink;
+  ctx.font = "bold 15px monospace";
+  ctx.fillText(`${dexPage + 1} / ${pages}`, TP.cx, 440);
   ctx.fillStyle = UI.track;
   ctx.font = "15px monospace";
   ctx.fillText("< prev · next >  ·  tap a tile", TP.cx, 456);

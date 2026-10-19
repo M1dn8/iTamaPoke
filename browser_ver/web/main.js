@@ -1320,17 +1320,19 @@ async function loadSave() {
   }
 }
 
-async function writeSave(bytes) {
+async function writeSave(bytes, force = false) {
+  if (tpSaveReplacing && !force) return;
   try {
     const db = await openDb();
-    await new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, "readwrite");
-      tx.objectStore(STORE_NAME).put(bytes, SAVE_KEY);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
+    if (tpSaveReplacing && !force) return;
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORE_NAME,"readwrite");
+      tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error("Save transaction aborted"));
+      tx.objectStore(STORE_NAME).put(bytes,SAVE_KEY);
     });
-  } catch (e) {
-    console.warn("[save] write failed:", e);
+  } catch(e) {
+    console.warn("[save] write failed:",e);
+    if(force)throw e;
   }
 }
 
@@ -1352,65 +1354,19 @@ function importStateBytes(mod, bytes) {
 }
 
 async function saveNow(mod) {
-  if (!mod) return;   // cleared by "Reset game…" while the page unloads
+  if (!mod || tpSaveReplacing) return;   // replacement/reset owns storage
   await writeSave(exportStateBytes(mod));
 }
 
-// --- Sprite file picker ---------------------------------------------------
-//
-// Local-only, per README's licensing note: files picked here go straight
-// into this browser's own IndexedDB and nowhere else. Re-picking the same
-// dex just overwrites that entry; nothing needs clearing first.
-const spriteLoadBtn = document.getElementById("spriteLoad");
-const spriteInput = document.getElementById("spriteInput");
-spriteLoadBtn.addEventListener("click", () => spriteInput.click());
-spriteInput.addEventListener("change", async () => {
-  const files = Array.from(spriteInput.files || []);
-  spriteInput.value = "";
-  if (files.length === 0) return;
-  spriteLoadBtn.textContent = "Loading…";
-  const n = await importSpriteFiles(files);
-  spriteCache.clear(); // a re-picked file may replace one already parsed
-  spriteLoading.clear(); // ...and an in-flight lookup must not block the refetch:
-                     // spriteFor() skips species whose key is still in here, so a
-                     // load that was mid-air during the import would otherwise
-                     // leave that species stuck on its fallback until a reload
-  currentDex = 0;    // force ensureSprite() to re-fetch for the active species
-  loadingDex = -1;   // ...including one it already (unsuccessfully) tried
-  await refreshThumbs();   // thumbs.bin may have been among the picked files
-  spriteLoadBtn.textContent = n > 0 ? `Loaded ${n} file(s)` : "No p<dex>.bin / thumbs.bin found";
-  setTimeout(() => { spriteLoadBtn.textContent = "Load sprites…"; }, 2500);
-});
-
-// --- Dex entry text file picker -------------------------------------------
-//
-// Same local-only rule as sprites -- picked files go into this browser's
-// own IndexedDB and nowhere else. See dexentry.js.
-const dexEntryLoadBtn = document.getElementById("dexEntryLoad");
-const dexEntryInput = document.getElementById("dexEntryInput");
-dexEntryLoadBtn.addEventListener("click", () => dexEntryInput.click());
-dexEntryInput.addEventListener("change", async () => {
-  const files = Array.from(dexEntryInput.files || []);
-  dexEntryInput.value = "";
-  if (files.length === 0) return;
-  dexEntryLoadBtn.textContent = "Loading…";
-  const n = await importDexEntryFiles(files);
-  dexEntryLoadBtn.textContent = n > 0 ? `Loaded ${n} language(s)` : "No dex_entries_<lang>.txt found";
-  setTimeout(() => { dexEntryLoadBtn.textContent = "Load dex text…"; }, 2500);
-});
-
-const cryLoadBtn = document.getElementById("cryLoad");
-const cryInput = document.getElementById("cryInput");
-cryLoadBtn.addEventListener("click", () => cryInput.click());
-cryInput.addEventListener("change", async () => {
-  const files = Array.from(cryInput.files || []);
-  cryInput.value = "";
-  if (files.length === 0) return;
-  cryLoadBtn.textContent = "Loading…";
-  const n = await importCryFiles(files);
-  cryLoadBtn.textContent = n > 0 ? `Loaded ${n} cry file(s)` : "No psnd<dex>.m4a files found";
-  setTimeout(() => { cryLoadBtn.textContent = "Load cries…"; }, 2500);
-});
+// Package B routes local asset pickers through validation and progress.
+for (const [buttonId,inputId,kind] of [["spriteLoad","spriteInput","sprites"],["dexEntryLoad","dexEntryInput","text"],["cryLoad","cryInput","cries"]]) {
+  const input=document.getElementById(inputId);
+  document.getElementById(buttonId).addEventListener("click",()=>input.click());
+  input.addEventListener("change",()=>{
+    const files=Array.from(input.files||[]);input.value="";
+    if(files.length)window.TPManager.importAssets(kind,files,false).catch(e=>alert(e.message||String(e)));
+  });
+}
 
 // --- Save file: export / import / reset --------------------------------------
 //
@@ -1423,63 +1379,17 @@ cryInput.addEventListener("change", async () => {
 // save (not the sprites) and starts a fresh egg.
 const SAVE_FILE_NAME = "iTamaPoke-save.tpsave";
 
-async function exportSaveFile() {
-  if (!Module) return;
-  const bytes = exportStateBytes(Module);
-  await writeSave(bytes);
-  const blob = new Blob([bytes], { type: "application/octet-stream" });
-  const file = new File([blob], SAVE_FILE_NAME, { type: "application/octet-stream" });
-  try {
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: "iTamaPoke save" });
-      return;
-    }
-  } catch (e) {
-    if (e && e.name === "AbortError") return;   // user closed the sheet
-  }
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = SAVE_FILE_NAME;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+async function exportSaveFile(){
+  try{await window.TPManager.exportCurrent(false);}catch(e){alert(e.message||String(e));}
 }
-
-document.getElementById("saveExport").addEventListener("click", () => { exportSaveFile(); });
-
-const saveInput = document.getElementById("saveInput");
-document.getElementById("saveImport").addEventListener("click", () => saveInput.click());
-saveInput.addEventListener("change", async () => {
-  const f = saveInput.files && saveInput.files[0];
-  saveInput.value = "";
-  if (!f) return;
-  const bytes = new Uint8Array(await f.arrayBuffer());
-  // Same sanity check tp_import_state does: a 4-byte entry count first.
-  if (bytes.length < 4) { alert("Not an iTamaPoke save file."); return; }
-  if (!confirm("Replace the current creature with this save file?")) return;
-  await writeSave(bytes);
-  window.location.reload();   // the core reads the store before its first tick
+document.getElementById("saveExport").addEventListener("click",exportSaveFile);
+const saveInput=document.getElementById("saveInput");
+document.getElementById("saveImport").addEventListener("click",()=>saveInput.click());
+saveInput.addEventListener("change",()=>{
+  const file=saveInput.files&&saveInput.files[0];saveInput.value="";
+  if(file)window.TPManager.importFile(file).catch(e=>alert(e.message||String(e)));
 });
-
-document.getElementById("gameReset").addEventListener("click", async () => {
-  if (!confirm("Start over with a new egg? The current creature, level and Pokédex are erased. Sprites stay.")) return;
-  if (!confirm("Really erase the save? This cannot be undone.")) return;
-  try {
-    const db = await openDb();
-    await new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, "readwrite");
-      tx.objectStore(STORE_NAME).delete(SAVE_KEY);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
-    });
-  } catch (e) {
-    console.warn("[save] reset failed:", e);
-  }
-  // Stop the periodic autosave from writing the old state back before the
-  // page has gone away.
-  Module = null;
-  window.location.reload();
-});
+document.getElementById("gameReset").addEventListener("click",()=>window.TPManager.resetGame().catch(e=>alert(e.message||String(e))));
 
 loadSoundMode();
 // Which species have a cry installed, so the dex detail's play control knows

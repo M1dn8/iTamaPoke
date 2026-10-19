@@ -39,7 +39,7 @@ function parseTPK2(buf) {
   const actions = new Array(12).fill(null);
   let p = 7 + pc * 2;
   for (let n = 0; n < nActs; n++) {
-    if (p + 4 > b.length) break;
+    if (p + 4 > b.length) return null;
     const id = b[p], w = b[p + 1], h = b[p + 2], nf = b[p + 3];
     p += 4;
     if (id >= actions.length || w <= 0 || h <= 0 || nf <= 0 || nf > 24 ||
@@ -157,9 +157,11 @@ async function importSpriteFiles(files) {
     // p<dex>.bin / ps<dex>.bin sprites, plus the gallery's thumbs.bin atlas
     // (thumbs.js) -- everything upstream's mons/ folder holds for art.
     const isThumbs = /^thumbs\.bin$/i.test(f.name);
-    const m = /^(ps?)(\d{1,3})\.bin$/i.exec(f.name);
+    const m = /^(ps?)(\d{1,4})\.bin$/i.exec(f.name);
     if (!m && !isThumbs) continue;
-    entries.push([f.name.toLowerCase(), await f.arrayBuffer()]);
+    const info = TPStoreTools.canonicalSprite(f.name);
+    if (!info) continue;
+    entries.push([info.key, await f.arrayBuffer()]);
   }
   if (entries.length === 0) return 0;
 

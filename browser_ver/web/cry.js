@@ -38,7 +38,7 @@ async function refreshCryIndex() {
       req.onerror = () => rej(req.error);
     });
     for (const name of names) {
-      const m = /^psnd(\d{1,3})\./i.exec(String(name));
+      const m = /^psnd(\d{1,4})\./i.exec(String(name));
       if (m) cryAvailable.add(parseInt(m[1], 10));
     }
   } catch { /* no DB yet: nothing installed, every hasCry() is false */ }
@@ -55,7 +55,7 @@ async function importCryFiles(files) {
   const db = await openCryDb();
   let n = 0;
   for (const file of files) {
-    if (!/^psnd\d{1,3}\.(m4a|mp3|wav|ogg)$/i.test(file.name)) continue;
+    if (!/^psnd\d{1,4}\.(m4a|mp3|wav|ogg)$/i.test(file.name)) continue;
     const buf = await file.arrayBuffer();
     await new Promise((res, rej) => {
       const tx = db.transaction(CRY_STORE, "readwrite");

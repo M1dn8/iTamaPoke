@@ -146,7 +146,7 @@ EMSCRIPTEN_KEEPALIVE void tp_egg_tap() { gPet.eggTap(); }
 // --- Starter picker, mirroring TPPet.mm's kStarterDex/TPStarterCount/
 // TPStarterDex. Upstream offers gen 1's three; this build offers each
 // generation's trio in dex order, one trio per picker page.
-static const int16_t kStarterDex[] = { 1, 4, 7, 152, 155, 158, 252, 255, 258 };
+static const int16_t kStarterDex[] = { 1, 4, 7, 152, 155, 158, 252, 255, 258, 387, 390, 393, 495, 498, 501, 650, 653, 656, 722, 725, 728, 810, 813, 816, 906, 909, 912 };
 static const int kStarterCount = sizeof(kStarterDex) / sizeof(kStarterDex[0]);
 EMSCRIPTEN_KEEPALIVE int tp_awaiting_starter() { return gPet.awaitingStarter() ? 1 : 0; }
 EMSCRIPTEN_KEEPALIVE int tp_starter_count() { return kStarterCount; }
@@ -893,23 +893,23 @@ static const DexEntry &tp_dex_entry(int16_t dex) {
 
 EMSCRIPTEN_KEEPALIVE
 const char *tp_evolution_status() {
-  const DexEntry &d = tp_dex_entry(gPet.speciesId);
-  if (d.evolvesTo == 0) return T(S_FINAL_FORM);
-  int needed = d.evolveLevel + gPet.careMistakes;
-  if (gPet.level() >= needed) return T(gPet.lowestStat() >= 40 ? S_EVO_READY : S_EVO_BLOCKED);
+  if (!gPet.hasEvolution()) return T(S_FINAL_FORM);
+  if (gPet.canEvolveNow()) return T(S_EVO_READY);
+  int needed = gPet.evolutionMinimumLevel();
   static std::string out;
-  char buf[40];
-  snprintf(buf, sizeof(buf), T(S_EVO_IN_FMT), needed - gPet.level());
-  out = buf;
+  char buf[80];
+  if (gPet.level() < needed) {
+    snprintf(buf, sizeof(buf), T(S_EVO_IN_FMT), needed - gPet.level());
+    out = buf;
+  } else {
+    out = tp_language() == 3 ? "Bindung / Zeit / Pflege pruefen" : "Check bond / time / care";
+  }
   return out.c_str();
 }
 EMSCRIPTEN_KEEPALIVE
 int tp_evolution_status_kind() {
-  const DexEntry &d = tp_dex_entry(gPet.speciesId);
-  if (d.evolvesTo == 0) return 0;
-  int needed = d.evolveLevel + gPet.careMistakes;
-  if (gPet.level() < needed) return 0;
-  return gPet.lowestStat() >= 40 ? 1 : 2;
+  if (!gPet.hasEvolution() || gPet.level() < gPet.evolutionMinimumLevel()) return 0;
+  return gPet.canEvolveNow() ? 1 : 2;
 }
 // Whether tapping "Evolve" right now would actually go through -- unlike
 // tp_wants_evolve (level-gated only, so the button can appear before the

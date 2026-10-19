@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - pokedex-1025
+      - pokedex-evolution
 
 permissions:
   contents: read

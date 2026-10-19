@@ -224,6 +224,9 @@ public:
     uint32_t left = deadlineRemaining(n, evolveUntil);
     return 1.0f - (float)left / (float)EVOLVE_ANIM_MS;
   }
+  bool hasEvolution() const;
+  uint8_t evolutionMinimumLevel() const;
+  int16_t evolutionTarget(bool randomize = false) const;
   bool evolutionUnlocked() const;  // nivel reicht, Form kann sich noch entwickeln
   bool canEvolveNow() const;  // lista: unlocked + wach + alle Balken >= 40
   void evolve();              // dispara la transformacion (la llama un toque del usuario)

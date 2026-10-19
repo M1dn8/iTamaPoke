@@ -1,5 +1,6 @@
 #include "battle.h"
 #include "dex.h"
+#include "evolution_rules.h"
 
 namespace {
 constexpr uint8_t MAX_BATTLE_ROUNDS = 50;
@@ -247,7 +248,7 @@ int16_t pickWildSpecies(uint32_t roll, uint8_t phase) {
     count = 0;
     for (int16_t dex = 1; dex <= DEX_COUNT; dex++) {
       const DexEntry &entry = DEX_TBL[dex];
-      if (entry.rarity != rarity) continue;
+      if (tpWildRarity(dex) != rarity) continue;
       if (prefer && !wildTypePreferred(entry.type1, entry.type2, phase)) continue;
       pool[count++] = dex;
     }

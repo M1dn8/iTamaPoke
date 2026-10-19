@@ -31,1031 +31,1031 @@ struct DexEntry {
 
 static const DexEntry DEX_TBL[DEX_COUNT + 1] = {
   { "?", 0, 0, 0, 0x2946, 50, 50, 50, 50, TYPE_NONE, TYPE_NONE, 0 },  // 0: sin usar
-  { "BULBASAUR", 2, 16, R_COMUN, 0x3C49, 45, 49, 49, 45, TYPE_GRASS, TYPE_POISON, 2 },  // 1 grass/poison
-  { "IVYSAUR", 3, 32, R_EVO, 0x3C49, 60, 62, 63, 60, TYPE_GRASS, TYPE_POISON, 2 },  // 2 grass/poison
-  { "VENUSAUR", 0, 0, R_EVO, 0x3C49, 80, 82, 83, 80, TYPE_GRASS, TYPE_POISON, 2 },  // 3 grass/poison
-  { "CHARMANDER", 5, 16, R_COMUN, 0xEA87, 39, 52, 43, 65, TYPE_FIRE, TYPE_NONE, 3 },  // 4 fire
-  { "CHARMELEON", 6, 36, R_EVO, 0xEA87, 58, 64, 58, 80, TYPE_FIRE, TYPE_NONE, 3 },  // 5 fire
-  { "CHARIZARD", 0, 0, R_EVO, 0xEA87, 78, 84, 78, 100, TYPE_FIRE, TYPE_FLYING, 3 },  // 6 fire/flying
-  { "SQUIRTLE", 8, 16, R_COMUN, 0x4C98, 44, 48, 65, 43, TYPE_WATER, TYPE_NONE, 1 },  // 7 water
-  { "WARTORTLE", 9, 36, R_EVO, 0x4C98, 59, 63, 80, 58, TYPE_WATER, TYPE_NONE, 1 },  // 8 water
-  { "BLASTOISE", 0, 0, R_EVO, 0x4C98, 79, 83, 100, 78, TYPE_WATER, TYPE_NONE, 1 },  // 9 water
-  { "CATERPIE", 11, 7, R_COMUN, 0x7CC4, 45, 30, 35, 45, TYPE_BUG, TYPE_NONE, 2 },  // 10 bug
-  { "METAPOD", 12, 10, R_EVO, 0x7CC4, 50, 20, 55, 30, TYPE_BUG, TYPE_NONE, 2 },  // 11 bug
-  { "BUTTERFREE", 0, 0, R_EVO, 0x7CC4, 60, 45, 50, 70, TYPE_BUG, TYPE_FLYING, 2 },  // 12 bug/flying
-  { "WEEDLE", 14, 7, R_COMUN, 0x7CC4, 40, 35, 30, 50, TYPE_BUG, TYPE_POISON, 2 },  // 13 bug/poison
-  { "KAKUNA", 15, 10, R_EVO, 0x7CC4, 45, 25, 50, 35, TYPE_BUG, TYPE_POISON, 2 },  // 14 bug/poison
-  { "BEEDRILL", 0, 0, R_EVO, 0x7CC4, 65, 90, 40, 75, TYPE_BUG, TYPE_POISON, 2 },  // 15 bug/poison
-  { "PIDGEY", 17, 18, R_COMUN, 0x8C4D, 40, 45, 40, 56, TYPE_NORMAL, TYPE_FLYING, 0 },  // 16 normal/flying
-  { "PIDGEOTTO", 18, 36, R_EVO, 0x8C4D, 63, 60, 55, 71, TYPE_NORMAL, TYPE_FLYING, 0 },  // 17 normal/flying
-  { "PIDGEOT", 0, 0, R_EVO, 0x8C4D, 83, 80, 75, 101, TYPE_NORMAL, TYPE_FLYING, 0 },  // 18 normal/flying
-  { "RATTATA", 20, 20, R_COMUN, 0x8C4D, 30, 56, 35, 72, TYPE_NORMAL, TYPE_NONE, 0 },  // 19 normal
-  { "RATICATE", 0, 0, R_EVO, 0x8C4D, 55, 81, 60, 97, TYPE_NORMAL, TYPE_NONE, 0 },  // 20 normal
-  { "SPEAROW", 22, 20, R_COMUN, 0x8C4D, 40, 60, 30, 70, TYPE_NORMAL, TYPE_FLYING, 0 },  // 21 normal/flying
-  { "FEAROW", 0, 0, R_EVO, 0x8C4D, 65, 90, 65, 100, TYPE_NORMAL, TYPE_FLYING, 0 },  // 22 normal/flying
-  { "EKANS", 24, 22, R_COMUN, 0x8A73, 35, 60, 44, 55, TYPE_POISON, TYPE_NONE, 0 },  // 23 poison
-  { "ARBOK", 0, 0, R_EVO, 0x8A73, 60, 95, 69, 80, TYPE_POISON, TYPE_NONE, 0 },  // 24 poison
-  { "PIKACHU", 26, 30, R_COMUN, 0xBCA1, 35, 55, 40, 90, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 25 electric
-  { "RAICHU", 0, 0, R_EVO, 0xBCA1, 60, 90, 55, 110, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 26 electric
-  { "SANDSHREW", 28, 22, R_COMUN, 0xB447, 50, 75, 85, 40, TYPE_GROUND, TYPE_NONE, 4 },  // 27 ground
-  { "SANDSLASH", 0, 0, R_EVO, 0xB447, 75, 100, 110, 65, TYPE_GROUND, TYPE_NONE, 4 },  // 28 ground
-  { "NIDORAN H", 30, 16, R_COMUN, 0x8A73, 55, 47, 52, 41, TYPE_POISON, TYPE_NONE, 0 },  // 29 poison
-  { "NIDORINA", 31, 30, R_EVO, 0x8A73, 70, 62, 67, 56, TYPE_POISON, TYPE_NONE, 0 },  // 30 poison
-  { "NIDOQUEEN", 0, 0, R_EVO, 0x8A73, 90, 92, 87, 76, TYPE_POISON, TYPE_GROUND, 0 },  // 31 poison/ground
-  { "NIDORAN M", 33, 16, R_COMUN, 0x8A73, 46, 57, 40, 50, TYPE_POISON, TYPE_NONE, 0 },  // 32 poison
-  { "NIDORINO", 34, 30, R_EVO, 0x8A73, 61, 72, 57, 65, TYPE_POISON, TYPE_NONE, 0 },  // 33 poison
-  { "NIDOKING", 0, 0, R_EVO, 0x8A73, 81, 102, 77, 85, TYPE_POISON, TYPE_GROUND, 0 },  // 34 poison/ground
-  { "CLEFAIRY", 36, 30, R_COMUN, 0x8C4D, 70, 45, 48, 35, TYPE_FAIRY, TYPE_NONE, 0 },  // 35 fairy
-  { "CLEFABLE", 0, 0, R_EVO, 0x8C4D, 95, 70, 73, 60, TYPE_FAIRY, TYPE_NONE, 0 },  // 36 fairy
-  { "VULPIX", 38, 30, R_COMUN, 0xEA87, 38, 41, 40, 65, TYPE_FIRE, TYPE_NONE, 3 },  // 37 fire
-  { "NINETALES", 0, 0, R_EVO, 0xEA87, 73, 76, 75, 100, TYPE_FIRE, TYPE_NONE, 3 },  // 38 fire
-  { "JIGGLYPUFF", 40, 30, R_COMUN, 0x8C4D, 115, 45, 20, 20, TYPE_NORMAL, TYPE_FAIRY, 0 },  // 39 normal/fairy
-  { "WIGGLYTUFF", 0, 0, R_EVO, 0x8C4D, 140, 70, 45, 45, TYPE_NORMAL, TYPE_FAIRY, 0 },  // 40 normal/fairy
-  { "ZUBAT", 42, 22, R_COMUN, 0x8A73, 40, 45, 35, 55, TYPE_POISON, TYPE_FLYING, 0 },  // 41 poison/flying
-  { "GOLBAT", 169, 25, R_EVO, 0x8A73, 75, 80, 70, 90, TYPE_POISON, TYPE_FLYING, 0 },  // 42 poison/flying
-  { "ODDISH", 44, 21, R_COMUN, 0x3C49, 45, 50, 55, 30, TYPE_GRASS, TYPE_POISON, 2 },  // 43 grass/poison
-  { "GLOOM", 45, 36, R_EVO, 0x3C49, 60, 65, 70, 40, TYPE_GRASS, TYPE_POISON, 2 },  // 44 grass/poison
-  { "VILEPLUME", 0, 0, R_EVO, 0x3C49, 75, 80, 85, 50, TYPE_GRASS, TYPE_POISON, 2 },  // 45 grass/poison
-  { "PARAS", 47, 24, R_COMUN, 0x7CC4, 35, 70, 55, 25, TYPE_BUG, TYPE_GRASS, 2 },  // 46 bug/grass
-  { "PARASECT", 0, 0, R_EVO, 0x7CC4, 60, 95, 80, 30, TYPE_BUG, TYPE_GRASS, 2 },  // 47 bug/grass
-  { "VENONAT", 49, 31, R_COMUN, 0x7CC4, 60, 55, 50, 45, TYPE_BUG, TYPE_POISON, 2 },  // 48 bug/poison
-  { "VENOMOTH", 0, 0, R_EVO, 0x7CC4, 70, 65, 60, 90, TYPE_BUG, TYPE_POISON, 2 },  // 49 bug/poison
-  { "DIGLETT", 51, 26, R_COMUN, 0xB447, 10, 55, 25, 95, TYPE_GROUND, TYPE_NONE, 4 },  // 50 ground
-  { "DUGTRIO", 0, 0, R_EVO, 0xB447, 35, 100, 50, 120, TYPE_GROUND, TYPE_NONE, 4 },  // 51 ground
-  { "MEOWTH", 53, 28, R_COMUN, 0x8C4D, 40, 45, 35, 90, TYPE_NORMAL, TYPE_NONE, 0 },  // 52 normal
-  { "PERSIAN", 0, 0, R_EVO, 0x8C4D, 65, 70, 60, 115, TYPE_NORMAL, TYPE_NONE, 0 },  // 53 normal
-  { "PSYDUCK", 55, 33, R_COMUN, 0x4C98, 50, 52, 48, 55, TYPE_WATER, TYPE_NONE, 1 },  // 54 water
-  { "GOLDUCK", 0, 0, R_EVO, 0x4C98, 80, 82, 78, 85, TYPE_WATER, TYPE_NONE, 1 },  // 55 water
-  { "MANKEY", 57, 28, R_COMUN, 0xA2A5, 40, 80, 35, 70, TYPE_FIGHTING, TYPE_NONE, 0 },  // 56 fighting
-  { "PRIMEAPE", 0, 0, R_EVO, 0xA2A5, 65, 105, 60, 95, TYPE_FIGHTING, TYPE_NONE, 0 },  // 57 fighting
-  { "GROWLITHE", 59, 30, R_RARO, 0xEA87, 55, 70, 45, 60, TYPE_FIRE, TYPE_NONE, 3 },  // 58 fire
-  { "ARCANINE", 0, 0, R_EVO, 0xEA87, 90, 110, 80, 95, TYPE_FIRE, TYPE_NONE, 3 },  // 59 fire
-  { "POLIWAG", 61, 25, R_COMUN, 0x4C98, 40, 50, 40, 90, TYPE_WATER, TYPE_NONE, 1 },  // 60 water
-  { "POLIWHIRL", 62, 36, R_EVO, 0x4C98, 65, 65, 65, 90, TYPE_WATER, TYPE_NONE, 1 },  // 61 water
-  { "POLIWRATH", 0, 0, R_EVO, 0x4C98, 90, 95, 95, 70, TYPE_WATER, TYPE_FIGHTING, 1 },  // 62 water/fighting
-  { "ABRA", 64, 16, R_COMUN, 0xD28F, 25, 20, 15, 90, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 63 psychic
-  { "KADABRA", 65, 40, R_EVO, 0xD28F, 40, 35, 30, 105, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 64 psychic
-  { "ALAKAZAM", 0, 0, R_EVO, 0xD28F, 55, 50, 45, 120, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 65 psychic
-  { "MACHOP", 67, 28, R_COMUN, 0xA2A5, 70, 80, 50, 35, TYPE_FIGHTING, TYPE_NONE, 0 },  // 66 fighting
-  { "MACHOKE", 68, 40, R_EVO, 0xA2A5, 80, 100, 70, 45, TYPE_FIGHTING, TYPE_NONE, 0 },  // 67 fighting
-  { "MACHAMP", 0, 0, R_EVO, 0xA2A5, 90, 130, 80, 55, TYPE_FIGHTING, TYPE_NONE, 0 },  // 68 fighting
-  { "BELLSPROUT", 70, 21, R_COMUN, 0x3C49, 50, 75, 35, 40, TYPE_GRASS, TYPE_POISON, 2 },  // 69 grass/poison
-  { "WEEPINBELL", 71, 36, R_EVO, 0x3C49, 65, 90, 50, 55, TYPE_GRASS, TYPE_POISON, 2 },  // 70 grass/poison
-  { "VICTREEBEL", 0, 0, R_EVO, 0x3C49, 80, 105, 65, 70, TYPE_GRASS, TYPE_POISON, 2 },  // 71 grass/poison
-  { "TENTACOOL", 73, 30, R_COMUN, 0x4C98, 40, 40, 35, 70, TYPE_WATER, TYPE_POISON, 1 },  // 72 water/poison
-  { "TENTACRUEL", 0, 0, R_EVO, 0x4C98, 80, 70, 65, 100, TYPE_WATER, TYPE_POISON, 1 },  // 73 water/poison
-  { "GEODUDE", 75, 25, R_COMUN, 0x9407, 40, 80, 100, 20, TYPE_ROCK, TYPE_GROUND, 4 },  // 74 rock/ground
-  { "GRAVELER", 76, 40, R_EVO, 0x9407, 55, 95, 115, 35, TYPE_ROCK, TYPE_GROUND, 4 },  // 75 rock/ground
-  { "GOLEM", 0, 0, R_EVO, 0x9407, 80, 120, 130, 45, TYPE_ROCK, TYPE_GROUND, 4 },  // 76 rock/ground
-  { "PONYTA", 78, 40, R_RARO, 0xEA87, 50, 85, 55, 90, TYPE_FIRE, TYPE_NONE, 3 },  // 77 fire
-  { "RAPIDASH", 0, 0, R_EVO, 0xEA87, 65, 100, 70, 105, TYPE_FIRE, TYPE_NONE, 3 },  // 78 fire
-  { "SLOWPOKE", 80, 37, R_COMUN, 0x4C98, 90, 65, 65, 15, TYPE_WATER, TYPE_PSYCHIC, 1 },  // 79 water/psychic
-  { "SLOWBRO", 0, 0, R_EVO, 0x4C98, 95, 75, 110, 30, TYPE_WATER, TYPE_PSYCHIC, 1 },  // 80 water/psychic
-  { "MAGNEMITE", 82, 30, R_COMUN, 0xBCA1, 25, 35, 70, 45, TYPE_ELECTRIC, TYPE_STEEL, 0 },  // 81 electric/steel
-  { "MAGNETON", 0, 0, R_EVO, 0xBCA1, 50, 60, 95, 70, TYPE_ELECTRIC, TYPE_STEEL, 0 },  // 82 electric/steel
-  { "FARFETCHD", 0, 0, R_RARO, 0x8C4D, 52, 90, 55, 60, TYPE_NORMAL, TYPE_FLYING, 0 },  // 83 normal/flying
-  { "DODUO", 85, 31, R_COMUN, 0x8C4D, 35, 85, 45, 75, TYPE_NORMAL, TYPE_FLYING, 0 },  // 84 normal/flying
-  { "DODRIO", 0, 0, R_EVO, 0x8C4D, 60, 110, 70, 110, TYPE_NORMAL, TYPE_FLYING, 0 },  // 85 normal/flying
-  { "SEEL", 87, 34, R_COMUN, 0x4C98, 65, 45, 55, 45, TYPE_WATER, TYPE_NONE, 1 },  // 86 water
-  { "DEWGONG", 0, 0, R_EVO, 0x4C98, 90, 70, 80, 70, TYPE_WATER, TYPE_ICE, 1 },  // 87 water/ice
-  { "GRIMER", 89, 38, R_RARO, 0x8A73, 80, 80, 50, 25, TYPE_POISON, TYPE_NONE, 0 },  // 88 poison
-  { "MUK", 0, 0, R_EVO, 0x8A73, 105, 105, 75, 50, TYPE_POISON, TYPE_NONE, 0 },  // 89 poison
-  { "SHELLDER", 91, 30, R_COMUN, 0x4C98, 30, 65, 100, 40, TYPE_WATER, TYPE_NONE, 1 },  // 90 water
-  { "CLOYSTER", 0, 0, R_EVO, 0x4C98, 50, 95, 180, 70, TYPE_WATER, TYPE_ICE, 1 },  // 91 water/ice
-  { "GASTLY", 93, 25, R_COMUN, 0x6AD3, 30, 35, 30, 80, TYPE_GHOST, TYPE_POISON, 0 },  // 92 ghost/poison
-  { "HAUNTER", 94, 40, R_EVO, 0x6AD3, 45, 50, 45, 95, TYPE_GHOST, TYPE_POISON, 0 },  // 93 ghost/poison
-  { "GENGAR", 0, 0, R_EVO, 0x6AD3, 60, 65, 60, 110, TYPE_GHOST, TYPE_POISON, 0 },  // 94 ghost/poison
-  { "ONIX", 208, 40, R_RARO, 0x9407, 35, 45, 160, 70, TYPE_ROCK, TYPE_GROUND, 4 },  // 95 rock/ground
-  { "DROWZEE", 97, 26, R_COMUN, 0xD28F, 60, 48, 45, 42, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 96 psychic
-  { "HYPNO", 0, 0, R_EVO, 0xD28F, 85, 73, 70, 67, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 97 psychic
-  { "KRABBY", 99, 28, R_COMUN, 0x4C98, 30, 105, 90, 50, TYPE_WATER, TYPE_NONE, 1 },  // 98 water
-  { "KINGLER", 0, 0, R_EVO, 0x4C98, 55, 130, 115, 75, TYPE_WATER, TYPE_NONE, 1 },  // 99 water
-  { "VOLTORB", 101, 30, R_COMUN, 0xBCA1, 40, 30, 50, 100, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 100 electric
-  { "ELECTRODE", 0, 0, R_EVO, 0xBCA1, 60, 50, 70, 150, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 101 electric
-  { "EXEGGCUTE", 103, 30, R_COMUN, 0x3C49, 60, 40, 80, 40, TYPE_GRASS, TYPE_PSYCHIC, 2 },  // 102 grass/psychic
-  { "EXEGGUTOR", 0, 0, R_EVO, 0x3C49, 95, 95, 85, 55, TYPE_GRASS, TYPE_PSYCHIC, 2 },  // 103 grass/psychic
-  { "CUBONE", 105, 28, R_COMUN, 0xB447, 50, 50, 95, 35, TYPE_GROUND, TYPE_NONE, 4 },  // 104 ground
-  { "MAROWAK", 0, 0, R_EVO, 0xB447, 60, 80, 110, 45, TYPE_GROUND, TYPE_NONE, 4 },  // 105 ground
-  { "HITMONLEE", 0, 0, R_RARO, 0xA2A5, 50, 120, 53, 87, TYPE_FIGHTING, TYPE_NONE, 0 },  // 106 fighting
-  { "HITMONCHAN", 0, 0, R_RARO, 0xA2A5, 50, 105, 79, 76, TYPE_FIGHTING, TYPE_NONE, 0 },  // 107 fighting
-  { "LICKITUNG", 0, 0, R_RARO, 0x8C4D, 90, 55, 75, 30, TYPE_NORMAL, TYPE_NONE, 0 },  // 108 normal
-  { "KOFFING", 110, 35, R_COMUN, 0x8A73, 40, 65, 95, 35, TYPE_POISON, TYPE_NONE, 0 },  // 109 poison
-  { "WEEZING", 0, 0, R_EVO, 0x8A73, 65, 90, 120, 60, TYPE_POISON, TYPE_NONE, 0 },  // 110 poison
-  { "RHYHORN", 112, 42, R_RARO, 0xB447, 80, 85, 95, 25, TYPE_GROUND, TYPE_ROCK, 4 },  // 111 ground/rock
-  { "RHYDON", 0, 0, R_EVO, 0xB447, 105, 130, 120, 40, TYPE_GROUND, TYPE_ROCK, 4 },  // 112 ground/rock
-  { "CHANSEY", 242, 25, R_RARO, 0x8C4D, 250, 5, 5, 50, TYPE_NORMAL, TYPE_NONE, 0 },  // 113 normal
-  { "TANGELA", 0, 0, R_RARO, 0x3C49, 65, 55, 115, 60, TYPE_GRASS, TYPE_NONE, 2 },  // 114 grass
-  { "KANGASKHAN", 0, 0, R_RARO, 0x8C4D, 105, 95, 80, 90, TYPE_NORMAL, TYPE_NONE, 0 },  // 115 normal
-  { "HORSEA", 117, 32, R_COMUN, 0x4C98, 30, 40, 70, 60, TYPE_WATER, TYPE_NONE, 1 },  // 116 water
-  { "SEADRA", 230, 40, R_EVO, 0x4C98, 55, 65, 95, 85, TYPE_WATER, TYPE_NONE, 1 },  // 117 water
-  { "GOLDEEN", 119, 33, R_COMUN, 0x4C98, 45, 67, 60, 63, TYPE_WATER, TYPE_NONE, 1 },  // 118 water
-  { "SEAKING", 0, 0, R_EVO, 0x4C98, 80, 92, 65, 68, TYPE_WATER, TYPE_NONE, 1 },  // 119 water
-  { "STARYU", 121, 30, R_COMUN, 0x4C98, 30, 45, 55, 85, TYPE_WATER, TYPE_NONE, 1 },  // 120 water
-  { "STARMIE", 0, 0, R_EVO, 0x4C98, 60, 75, 85, 115, TYPE_WATER, TYPE_PSYCHIC, 1 },  // 121 water/psychic
-  { "MR. MIME", 0, 0, R_RARO, 0xD28F, 40, 45, 65, 90, TYPE_PSYCHIC, TYPE_FAIRY, 0 },  // 122 psychic/fairy
-  { "SCYTHER", 212, 40, R_RARO, 0x7CC4, 70, 110, 80, 105, TYPE_BUG, TYPE_FLYING, 2 },  // 123 bug/flying
-  { "JYNX", 0, 0, R_RARO, 0x4DB8, 65, 50, 35, 95, TYPE_ICE, TYPE_PSYCHIC, 5 },  // 124 ice/psychic
-  { "ELECTABUZZ", 0, 0, R_RARO, 0xBCA1, 65, 83, 57, 105, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 125 electric
-  { "MAGMAR", 0, 0, R_RARO, 0xEA87, 65, 95, 57, 93, TYPE_FIRE, TYPE_NONE, 3 },  // 126 fire
-  { "PINSIR", 0, 0, R_RARO, 0x7CC4, 65, 125, 100, 85, TYPE_BUG, TYPE_NONE, 2 },  // 127 bug
-  { "TAUROS", 0, 0, R_RARO, 0x8C4D, 75, 100, 95, 110, TYPE_NORMAL, TYPE_NONE, 0 },  // 128 normal
-  { "MAGIKARP", 130, 20, R_COMUN, 0x4C98, 20, 10, 55, 80, TYPE_WATER, TYPE_NONE, 1 },  // 129 water
-  { "GYARADOS", 0, 0, R_EVO, 0x4C98, 95, 125, 79, 81, TYPE_WATER, TYPE_FLYING, 1 },  // 130 water/flying
-  { "LAPRAS", 0, 0, R_RARO, 0x4C98, 130, 85, 80, 60, TYPE_WATER, TYPE_ICE, 1 },  // 131 water/ice
-  { "DITTO", 0, 0, R_RARO, 0x8C4D, 48, 48, 48, 48, TYPE_NORMAL, TYPE_NONE, 0 },  // 132 normal
-  { "EEVEE", 134, 30, R_COMUN, 0x8C4D, 55, 55, 50, 55, TYPE_NORMAL, TYPE_NONE, 0 },  // 133 normal
-  { "VAPOREON", 0, 0, R_EVO, 0x4C98, 130, 65, 60, 65, TYPE_WATER, TYPE_NONE, 1 },  // 134 water
-  { "JOLTEON", 0, 0, R_EVO, 0xBCA1, 65, 65, 60, 130, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 135 electric
-  { "FLAREON", 0, 0, R_EVO, 0xEA87, 65, 130, 60, 65, TYPE_FIRE, TYPE_NONE, 3 },  // 136 fire
-  { "PORYGON", 233, 40, R_RARO, 0x8C4D, 65, 60, 70, 40, TYPE_NORMAL, TYPE_NONE, 0 },  // 137 normal
-  { "OMANYTE", 139, 40, R_RARO, 0x9407, 35, 40, 100, 35, TYPE_ROCK, TYPE_WATER, 1 },  // 138 rock/water
-  { "OMASTAR", 0, 0, R_EVO, 0x9407, 70, 60, 125, 55, TYPE_ROCK, TYPE_WATER, 1 },  // 139 rock/water
-  { "KABUTO", 141, 40, R_RARO, 0x9407, 30, 80, 90, 55, TYPE_ROCK, TYPE_WATER, 1 },  // 140 rock/water
-  { "KABUTOPS", 0, 0, R_EVO, 0x9407, 60, 115, 105, 80, TYPE_ROCK, TYPE_WATER, 1 },  // 141 rock/water
-  { "AERODACTYL", 0, 0, R_RARO, 0x9407, 80, 105, 65, 130, TYPE_ROCK, TYPE_FLYING, 4 },  // 142 rock/flying
-  { "SNORLAX", 0, 0, R_RARO, 0x8C4D, 160, 110, 65, 30, TYPE_NORMAL, TYPE_NONE, 0 },  // 143 normal
-  { "ARTICUNO", 0, 0, R_LEGENDARIO, 0x4DB8, 90, 85, 100, 85, TYPE_ICE, TYPE_FLYING, 5 },  // 144 ice/flying
-  { "ZAPDOS", 0, 0, R_LEGENDARIO, 0xBCA1, 90, 90, 85, 100, TYPE_ELECTRIC, TYPE_FLYING, 0 },  // 145 electric/flying
-  { "MOLTRES", 0, 0, R_LEGENDARIO, 0xEA87, 90, 100, 90, 90, TYPE_FIRE, TYPE_FLYING, 3 },  // 146 fire/flying
-  { "DRATINI", 148, 30, R_RARO, 0x5A98, 41, 64, 45, 50, TYPE_DRAGON, TYPE_NONE, 1 },  // 147 dragon
-  { "DRAGONAIR", 149, 55, R_EVO, 0x5A98, 61, 84, 65, 70, TYPE_DRAGON, TYPE_NONE, 1 },  // 148 dragon
-  { "DRAGONITE", 0, 0, R_EVO, 0x5A98, 91, 134, 95, 80, TYPE_DRAGON, TYPE_FLYING, 1 },  // 149 dragon/flying
-  { "MEWTWO", 0, 0, R_LEGENDARIO, 0xD28F, 106, 110, 90, 130, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 150 psychic
-  { "MEW", 0, 0, R_LEGENDARIO, 0xD28F, 100, 100, 100, 100, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 151 psychic
-  { "CHIKORITA", 153, 16, R_RARO, 0x3C49, 45, 49, 65, 45, TYPE_GRASS, TYPE_NONE, 2 },  // 152 grass
-  { "BAYLEEF", 154, 32, R_EVO, 0x3C49, 60, 62, 80, 60, TYPE_GRASS, TYPE_NONE, 2 },  // 153 grass
-  { "MEGANIUM", 0, 0, R_EVO, 0x3C49, 80, 82, 100, 80, TYPE_GRASS, TYPE_NONE, 2 },  // 154 grass
-  { "CYNDAQUIL", 156, 14, R_RARO, 0xEA87, 39, 52, 43, 65, TYPE_FIRE, TYPE_NONE, 3 },  // 155 fire
-  { "QUILAVA", 157, 36, R_EVO, 0xEA87, 58, 64, 58, 80, TYPE_FIRE, TYPE_NONE, 3 },  // 156 fire
-  { "TYPHLOSION", 0, 0, R_EVO, 0xEA87, 78, 84, 78, 100, TYPE_FIRE, TYPE_NONE, 3 },  // 157 fire
-  { "TOTODILE", 159, 18, R_RARO, 0x4C98, 50, 65, 64, 43, TYPE_WATER, TYPE_NONE, 1 },  // 158 water
-  { "CROCONAW", 160, 30, R_EVO, 0x4C98, 65, 80, 80, 58, TYPE_WATER, TYPE_NONE, 1 },  // 159 water
-  { "FERALIGATR", 0, 0, R_EVO, 0x4C98, 85, 105, 100, 78, TYPE_WATER, TYPE_NONE, 1 },  // 160 water
-  { "SENTRET", 162, 15, R_COMUN, 0x8C4D, 35, 46, 34, 20, TYPE_NORMAL, TYPE_NONE, 0 },  // 161 normal
-  { "FURRET", 0, 0, R_EVO, 0x8C4D, 85, 76, 64, 90, TYPE_NORMAL, TYPE_NONE, 0 },  // 162 normal
-  { "HOOTHOOT", 164, 20, R_COMUN, 0x8C4D, 60, 30, 30, 50, TYPE_NORMAL, TYPE_FLYING, 0 },  // 163 normal/flying
-  { "NOCTOWL", 0, 0, R_EVO, 0x8C4D, 100, 50, 50, 70, TYPE_NORMAL, TYPE_FLYING, 0 },  // 164 normal/flying
-  { "LEDYBA", 166, 18, R_COMUN, 0x7CC4, 40, 20, 30, 55, TYPE_BUG, TYPE_FLYING, 2 },  // 165 bug/flying
-  { "LEDIAN", 0, 0, R_EVO, 0x7CC4, 55, 35, 50, 85, TYPE_BUG, TYPE_FLYING, 2 },  // 166 bug/flying
-  { "SPINARAK", 168, 22, R_COMUN, 0x7CC4, 40, 60, 40, 30, TYPE_BUG, TYPE_POISON, 2 },  // 167 bug/poison
-  { "ARIADOS", 0, 0, R_EVO, 0x7CC4, 70, 90, 70, 40, TYPE_BUG, TYPE_POISON, 2 },  // 168 bug/poison
-  { "CROBAT", 0, 0, R_EVO, 0x8A73, 85, 90, 80, 130, TYPE_POISON, TYPE_FLYING, 0 },  // 169 poison/flying
-  { "CHINCHOU", 171, 27, R_COMUN, 0x4C98, 75, 38, 38, 67, TYPE_WATER, TYPE_ELECTRIC, 1 },  // 170 water/electric
-  { "LANTURN", 0, 0, R_EVO, 0x4C98, 125, 58, 58, 67, TYPE_WATER, TYPE_ELECTRIC, 1 },  // 171 water/electric
-  { "PICHU", 25, 25, R_COMUN, 0xBCA1, 20, 40, 15, 60, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 172 electric
-  { "CLEFFA", 35, 25, R_COMUN, 0xC333, 50, 25, 28, 15, TYPE_FAIRY, TYPE_NONE, 0 },  // 173 fairy
-  { "IGGLYBUFF", 39, 25, R_COMUN, 0x8C4D, 90, 30, 15, 15, TYPE_NORMAL, TYPE_FAIRY, 0 },  // 174 normal/fairy
-  { "TOGEPI", 176, 25, R_COMUN, 0xC333, 35, 20, 65, 20, TYPE_FAIRY, TYPE_NONE, 0 },  // 175 fairy
-  { "TOGETIC", 0, 0, R_EVO, 0xC333, 55, 40, 85, 40, TYPE_FAIRY, TYPE_FLYING, 0 },  // 176 fairy/flying
-  { "NATU", 178, 25, R_COMUN, 0xD28F, 40, 50, 45, 70, TYPE_PSYCHIC, TYPE_FLYING, 0 },  // 177 psychic/flying
-  { "XATU", 0, 0, R_EVO, 0xD28F, 65, 75, 70, 95, TYPE_PSYCHIC, TYPE_FLYING, 0 },  // 178 psychic/flying
-  { "MAREEP", 180, 15, R_COMUN, 0xBCA1, 55, 40, 40, 35, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 179 electric
-  { "FLAAFFY", 181, 30, R_EVO, 0xBCA1, 70, 55, 55, 45, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 180 electric
-  { "AMPHAROS", 0, 0, R_EVO, 0xBCA1, 90, 75, 85, 55, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 181 electric
-  { "BELLOSSOM", 0, 0, R_RARO, 0x3C49, 75, 80, 95, 50, TYPE_GRASS, TYPE_NONE, 2 },  // 182 grass
-  { "MARILL", 184, 18, R_EVO, 0x4C98, 70, 20, 50, 40, TYPE_WATER, TYPE_FAIRY, 1 },  // 183 water/fairy
-  { "AZUMARILL", 0, 0, R_EVO, 0x4C98, 100, 50, 80, 50, TYPE_WATER, TYPE_FAIRY, 1 },  // 184 water/fairy
-  { "SUDOWOODO", 0, 0, R_EVO, 0x9407, 70, 100, 115, 30, TYPE_ROCK, TYPE_NONE, 4 },  // 185 rock
-  { "POLITOED", 0, 0, R_RARO, 0x4C98, 90, 75, 75, 70, TYPE_WATER, TYPE_NONE, 1 },  // 186 water
-  { "HOPPIP", 188, 18, R_COMUN, 0x3C49, 35, 35, 40, 50, TYPE_GRASS, TYPE_FLYING, 2 },  // 187 grass/flying
-  { "SKIPLOOM", 189, 27, R_EVO, 0x3C49, 55, 45, 50, 80, TYPE_GRASS, TYPE_FLYING, 2 },  // 188 grass/flying
-  { "JUMPLUFF", 0, 0, R_EVO, 0x3C49, 75, 55, 70, 110, TYPE_GRASS, TYPE_FLYING, 2 },  // 189 grass/flying
-  { "AIPOM", 0, 0, R_RARO, 0x8C4D, 55, 70, 55, 85, TYPE_NORMAL, TYPE_NONE, 0 },  // 190 normal
-  { "SUNKERN", 192, 30, R_COMUN, 0x3C49, 30, 30, 30, 30, TYPE_GRASS, TYPE_NONE, 2 },  // 191 grass
-  { "SUNFLORA", 0, 0, R_EVO, 0x3C49, 75, 75, 55, 30, TYPE_GRASS, TYPE_NONE, 2 },  // 192 grass
-  { "YANMA", 0, 0, R_COMUN, 0x7CC4, 65, 65, 45, 95, TYPE_BUG, TYPE_FLYING, 2 },  // 193 bug/flying
-  { "WOOPER", 195, 20, R_COMUN, 0x4C98, 55, 45, 45, 15, TYPE_WATER, TYPE_GROUND, 1 },  // 194 water/ground
-  { "QUAGSIRE", 0, 0, R_EVO, 0x4C98, 95, 85, 85, 35, TYPE_WATER, TYPE_GROUND, 1 },  // 195 water/ground
-  { "ESPEON", 0, 0, R_RARO, 0xD28F, 65, 65, 60, 110, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 196 psychic
-  { "UMBREON", 0, 0, R_RARO, 0x5A47, 95, 65, 110, 65, TYPE_DARK, TYPE_NONE, 2 },  // 197 dark
-  { "MURKROW", 0, 0, R_RARO, 0x5A47, 60, 85, 42, 91, TYPE_DARK, TYPE_FLYING, 2 },  // 198 dark/flying
-  { "SLOWKING", 0, 0, R_COMUN, 0x4C98, 95, 75, 80, 30, TYPE_WATER, TYPE_PSYCHIC, 1 },  // 199 water/psychic
-  { "MISDREAVUS", 0, 0, R_RARO, 0x6AD3, 60, 60, 60, 85, TYPE_GHOST, TYPE_NONE, 0 },  // 200 ghost
-  { "UNOWN", 0, 0, R_COMUN, 0xD28F, 48, 72, 48, 48, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 201 psychic
-  { "WOBBUFFET", 0, 0, R_EVO, 0xD28F, 190, 33, 58, 33, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 202 psychic
-  { "GIRAFARIG", 0, 0, R_COMUN, 0x8C4D, 70, 80, 65, 85, TYPE_NORMAL, TYPE_PSYCHIC, 0 },  // 203 normal/psychic
-  { "PINECO", 205, 31, R_COMUN, 0x7CC4, 50, 65, 90, 15, TYPE_BUG, TYPE_NONE, 2 },  // 204 bug
-  { "FORRETRESS", 0, 0, R_EVO, 0x7CC4, 75, 90, 140, 40, TYPE_BUG, TYPE_STEEL, 2 },  // 205 bug/steel
-  { "DUNSPARCE", 0, 0, R_COMUN, 0x8C4D, 100, 70, 70, 45, TYPE_NORMAL, TYPE_NONE, 0 },  // 206 normal
-  { "GLIGAR", 0, 0, R_COMUN, 0xB447, 65, 75, 105, 85, TYPE_GROUND, TYPE_FLYING, 4 },  // 207 ground/flying
-  { "STEELIX", 0, 0, R_EVO, 0x6BF1, 75, 85, 200, 30, TYPE_STEEL, TYPE_GROUND, 4 },  // 208 steel/ground
-  { "SNUBBULL", 210, 23, R_COMUN, 0xC333, 60, 80, 50, 30, TYPE_FAIRY, TYPE_NONE, 0 },  // 209 fairy
-  { "GRANBULL", 0, 0, R_EVO, 0xC333, 90, 120, 75, 45, TYPE_FAIRY, TYPE_NONE, 0 },  // 210 fairy
-  { "QWILFISH", 0, 0, R_RARO, 0x4C98, 65, 95, 85, 85, TYPE_WATER, TYPE_POISON, 1 },  // 211 water/poison
-  { "SCIZOR", 0, 0, R_EVO, 0x7CC4, 70, 130, 100, 65, TYPE_BUG, TYPE_STEEL, 2 },  // 212 bug/steel
-  { "SHUCKLE", 0, 0, R_COMUN, 0x7CC4, 20, 10, 230, 5, TYPE_BUG, TYPE_ROCK, 2 },  // 213 bug/rock
-  { "HERACROSS", 0, 0, R_RARO, 0x7CC4, 80, 125, 75, 85, TYPE_BUG, TYPE_FIGHTING, 2 },  // 214 bug/fighting
-  { "SNEASEL", 0, 0, R_COMUN, 0x5A47, 55, 95, 55, 115, TYPE_DARK, TYPE_ICE, 2 },  // 215 dark/ice
-  { "TEDDIURSA", 217, 30, R_COMUN, 0x8C4D, 60, 80, 50, 40, TYPE_NORMAL, TYPE_NONE, 0 },  // 216 normal
-  { "URSARING", 0, 0, R_EVO, 0x8C4D, 90, 130, 75, 55, TYPE_NORMAL, TYPE_NONE, 0 },  // 217 normal
-  { "SLUGMA", 219, 38, R_COMUN, 0xEA87, 40, 40, 40, 20, TYPE_FIRE, TYPE_NONE, 3 },  // 218 fire
-  { "MAGCARGO", 0, 0, R_EVO, 0xEA87, 60, 50, 120, 30, TYPE_FIRE, TYPE_ROCK, 3 },  // 219 fire/rock
-  { "SWINUB", 221, 33, R_COMUN, 0x4DB8, 50, 50, 40, 50, TYPE_ICE, TYPE_GROUND, 5 },  // 220 ice/ground
-  { "PILOSWINE", 0, 0, R_EVO, 0x4DB8, 100, 100, 80, 50, TYPE_ICE, TYPE_GROUND, 5 },  // 221 ice/ground
-  { "CORSOLA", 0, 0, R_COMUN, 0x4C98, 65, 55, 95, 35, TYPE_WATER, TYPE_ROCK, 1 },  // 222 water/rock
-  { "REMORAID", 224, 25, R_COMUN, 0x4C98, 35, 65, 35, 65, TYPE_WATER, TYPE_NONE, 1 },  // 223 water
-  { "OCTILLERY", 0, 0, R_EVO, 0x4C98, 75, 105, 75, 45, TYPE_WATER, TYPE_NONE, 1 },  // 224 water
-  { "DELIBIRD", 0, 0, R_RARO, 0x4DB8, 45, 55, 45, 75, TYPE_ICE, TYPE_FLYING, 5 },  // 225 ice/flying
-  { "MANTINE", 0, 0, R_EVO, 0x4C98, 85, 40, 70, 70, TYPE_WATER, TYPE_FLYING, 1 },  // 226 water/flying
-  { "SKARMORY", 0, 0, R_RARO, 0x6BF1, 65, 80, 140, 70, TYPE_STEEL, TYPE_FLYING, 4 },  // 227 steel/flying
-  { "HOUNDOUR", 229, 24, R_COMUN, 0x5A47, 45, 60, 30, 65, TYPE_DARK, TYPE_FIRE, 2 },  // 228 dark/fire
-  { "HOUNDOOM", 0, 0, R_EVO, 0x5A47, 75, 90, 50, 95, TYPE_DARK, TYPE_FIRE, 2 },  // 229 dark/fire
-  { "KINGDRA", 0, 0, R_EVO, 0x4C98, 75, 95, 95, 85, TYPE_WATER, TYPE_DRAGON, 1 },  // 230 water/dragon
-  { "PHANPY", 232, 25, R_COMUN, 0xB447, 90, 60, 60, 40, TYPE_GROUND, TYPE_NONE, 4 },  // 231 ground
-  { "DONPHAN", 0, 0, R_EVO, 0xB447, 90, 120, 120, 50, TYPE_GROUND, TYPE_NONE, 4 },  // 232 ground
-  { "PORYGON2", 0, 0, R_EVO, 0x8C4D, 85, 80, 90, 60, TYPE_NORMAL, TYPE_NONE, 0 },  // 233 normal
-  { "STANTLER", 0, 0, R_RARO, 0x8C4D, 73, 95, 62, 85, TYPE_NORMAL, TYPE_NONE, 0 },  // 234 normal
-  { "SMEARGLE", 0, 0, R_RARO, 0x8C4D, 55, 20, 35, 75, TYPE_NORMAL, TYPE_NONE, 0 },  // 235 normal
-  { "TYROGUE", 106, 20, R_COMUN, 0xA2A5, 35, 35, 35, 35, TYPE_FIGHTING, TYPE_NONE, 0 },  // 236 fighting
-  { "HITMONTOP", 0, 0, R_RARO, 0xA2A5, 50, 95, 95, 70, TYPE_FIGHTING, TYPE_NONE, 0 },  // 237 fighting
-  { "SMOOCHUM", 124, 30, R_RARO, 0x4DB8, 45, 30, 15, 65, TYPE_ICE, TYPE_PSYCHIC, 5 },  // 238 ice/psychic
-  { "ELEKID", 125, 30, R_RARO, 0xBCA1, 45, 63, 37, 95, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 239 electric
-  { "MAGBY", 126, 30, R_RARO, 0xEA87, 45, 75, 37, 83, TYPE_FIRE, TYPE_NONE, 3 },  // 240 fire
-  { "MILTANK", 0, 0, R_RARO, 0x8C4D, 95, 80, 105, 100, TYPE_NORMAL, TYPE_NONE, 0 },  // 241 normal
-  { "BLISSEY", 0, 0, R_EVO, 0x8C4D, 255, 10, 10, 55, TYPE_NORMAL, TYPE_NONE, 0 },  // 242 normal
-  { "RAIKOU", 0, 0, R_LEGENDARIO, 0xBCA1, 90, 85, 75, 115, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 243 electric
-  { "ENTEI", 0, 0, R_LEGENDARIO, 0xEA87, 115, 115, 85, 100, TYPE_FIRE, TYPE_NONE, 3 },  // 244 fire
-  { "SUICUNE", 0, 0, R_LEGENDARIO, 0x4C98, 100, 75, 115, 85, TYPE_WATER, TYPE_NONE, 1 },  // 245 water
-  { "LARVITAR", 247, 30, R_RARO, 0x9407, 50, 64, 50, 41, TYPE_ROCK, TYPE_GROUND, 4 },  // 246 rock/ground
-  { "PUPITAR", 248, 55, R_EVO, 0x9407, 70, 84, 70, 51, TYPE_ROCK, TYPE_GROUND, 4 },  // 247 rock/ground
-  { "TYRANITAR", 0, 0, R_EVO, 0x9407, 100, 134, 110, 61, TYPE_ROCK, TYPE_DARK, 4 },  // 248 rock/dark
-  { "LUGIA", 0, 0, R_LEGENDARIO, 0xD28F, 106, 90, 130, 110, TYPE_PSYCHIC, TYPE_FLYING, 0 },  // 249 psychic/flying
-  { "HO-OH", 0, 0, R_LEGENDARIO, 0xEA87, 106, 130, 90, 90, TYPE_FIRE, TYPE_FLYING, 3 },  // 250 fire/flying
-  { "CELEBI", 0, 0, R_LEGENDARIO, 0xD28F, 100, 100, 100, 100, TYPE_PSYCHIC, TYPE_GRASS, 0 },  // 251 psychic/grass
-  { "TREECKO", 253, 16, R_RARO, 0x3C49, 40, 45, 35, 70, TYPE_GRASS, TYPE_NONE, 2 },  // 252 grass
-  { "GROVYLE", 254, 36, R_EVO, 0x3C49, 50, 65, 45, 95, TYPE_GRASS, TYPE_NONE, 2 },  // 253 grass
-  { "SCEPTILE", 0, 0, R_EVO, 0x3C49, 70, 85, 65, 120, TYPE_GRASS, TYPE_NONE, 2 },  // 254 grass
-  { "TORCHIC", 256, 16, R_RARO, 0xEA87, 45, 60, 40, 45, TYPE_FIRE, TYPE_NONE, 3 },  // 255 fire
-  { "COMBUSKEN", 257, 36, R_EVO, 0xEA87, 60, 85, 60, 55, TYPE_FIRE, TYPE_FIGHTING, 3 },  // 256 fire/fighting
-  { "BLAZIKEN", 0, 0, R_EVO, 0xEA87, 80, 120, 70, 80, TYPE_FIRE, TYPE_FIGHTING, 3 },  // 257 fire/fighting
-  { "MUDKIP", 259, 16, R_RARO, 0x4C98, 50, 70, 50, 40, TYPE_WATER, TYPE_NONE, 1 },  // 258 water
-  { "MARSHTOMP", 260, 36, R_EVO, 0x4C98, 70, 85, 70, 50, TYPE_WATER, TYPE_GROUND, 1 },  // 259 water/ground
-  { "SWAMPERT", 0, 0, R_EVO, 0x4C98, 100, 110, 90, 60, TYPE_WATER, TYPE_GROUND, 1 },  // 260 water/ground
-  { "POOCHYENA", 262, 18, R_COMUN, 0x5A47, 35, 55, 35, 35, TYPE_DARK, TYPE_NONE, 2 },  // 261 dark
-  { "MIGHTYENA", 0, 0, R_EVO, 0x5A47, 70, 90, 70, 70, TYPE_DARK, TYPE_NONE, 2 },  // 262 dark
-  { "ZIGZAGOON", 264, 20, R_COMUN, 0x8C4D, 38, 30, 41, 60, TYPE_NORMAL, TYPE_NONE, 0 },  // 263 normal
-  { "LINOONE", 0, 0, R_EVO, 0x8C4D, 78, 70, 61, 100, TYPE_NORMAL, TYPE_NONE, 0 },  // 264 normal
-  { "WURMPLE", 266, 7, R_COMUN, 0x7CC4, 45, 45, 35, 20, TYPE_BUG, TYPE_NONE, 2 },  // 265 bug
-  { "SILCOON", 267, 10, R_EVO, 0x7CC4, 50, 35, 55, 15, TYPE_BUG, TYPE_NONE, 2 },  // 266 bug
-  { "BEAUTIFLY", 0, 0, R_EVO, 0x7CC4, 60, 70, 50, 65, TYPE_BUG, TYPE_FLYING, 2 },  // 267 bug/flying
-  { "CASCOON", 269, 10, R_COMUN, 0x7CC4, 50, 35, 55, 15, TYPE_BUG, TYPE_NONE, 2 },  // 268 bug
-  { "DUSTOX", 0, 0, R_EVO, 0x7CC4, 60, 50, 70, 65, TYPE_BUG, TYPE_POISON, 2 },  // 269 bug/poison
-  { "LOTAD", 271, 14, R_COMUN, 0x4C98, 40, 30, 30, 30, TYPE_WATER, TYPE_GRASS, 1 },  // 270 water/grass
-  { "LOMBRE", 272, 30, R_EVO, 0x4C98, 60, 50, 50, 50, TYPE_WATER, TYPE_GRASS, 1 },  // 271 water/grass
-  { "LUDICOLO", 0, 0, R_EVO, 0x4C98, 80, 70, 70, 70, TYPE_WATER, TYPE_GRASS, 1 },  // 272 water/grass
-  { "SEEDOT", 274, 14, R_COMUN, 0x3C49, 40, 40, 50, 30, TYPE_GRASS, TYPE_NONE, 2 },  // 273 grass
-  { "NUZLEAF", 275, 30, R_EVO, 0x3C49, 70, 70, 40, 60, TYPE_GRASS, TYPE_DARK, 2 },  // 274 grass/dark
-  { "SHIFTRY", 0, 0, R_EVO, 0x3C49, 90, 100, 60, 80, TYPE_GRASS, TYPE_DARK, 2 },  // 275 grass/dark
-  { "TAILLOW", 277, 22, R_COMUN, 0x8C4D, 40, 55, 30, 85, TYPE_NORMAL, TYPE_FLYING, 0 },  // 276 normal/flying
-  { "SWELLOW", 0, 0, R_EVO, 0x8C4D, 60, 85, 60, 125, TYPE_NORMAL, TYPE_FLYING, 0 },  // 277 normal/flying
-  { "WINGULL", 279, 25, R_COMUN, 0x4C98, 40, 30, 30, 85, TYPE_WATER, TYPE_FLYING, 1 },  // 278 water/flying
-  { "PELIPPER", 0, 0, R_EVO, 0x4C98, 60, 50, 100, 65, TYPE_WATER, TYPE_FLYING, 1 },  // 279 water/flying
-  { "RALTS", 281, 20, R_COMUN, 0xD28F, 28, 25, 25, 40, TYPE_PSYCHIC, TYPE_FAIRY, 0 },  // 280 psychic/fairy
-  { "KIRLIA", 282, 30, R_EVO, 0xD28F, 38, 35, 35, 50, TYPE_PSYCHIC, TYPE_FAIRY, 0 },  // 281 psychic/fairy
-  { "GARDEVOIR", 0, 0, R_EVO, 0xD28F, 68, 65, 65, 80, TYPE_PSYCHIC, TYPE_FAIRY, 0 },  // 282 psychic/fairy
-  { "SURSKIT", 284, 22, R_COMUN, 0x7CC4, 40, 30, 32, 65, TYPE_BUG, TYPE_WATER, 2 },  // 283 bug/water
-  { "MASQUERAIN", 0, 0, R_EVO, 0x7CC4, 70, 60, 62, 80, TYPE_BUG, TYPE_FLYING, 2 },  // 284 bug/flying
-  { "SHROOMISH", 286, 23, R_COMUN, 0x3C49, 60, 40, 60, 35, TYPE_GRASS, TYPE_NONE, 2 },  // 285 grass
-  { "BRELOOM", 0, 0, R_EVO, 0x3C49, 60, 130, 80, 70, TYPE_GRASS, TYPE_FIGHTING, 2 },  // 286 grass/fighting
-  { "SLAKOTH", 288, 18, R_COMUN, 0x8C4D, 60, 60, 60, 30, TYPE_NORMAL, TYPE_NONE, 0 },  // 287 normal
-  { "VIGOROTH", 289, 36, R_EVO, 0x8C4D, 80, 80, 80, 90, TYPE_NORMAL, TYPE_NONE, 0 },  // 288 normal
-  { "SLAKING", 0, 0, R_EVO, 0x8C4D, 150, 160, 100, 100, TYPE_NORMAL, TYPE_NONE, 0 },  // 289 normal
-  { "NINCADA", 291, 20, R_COMUN, 0x7CC4, 31, 45, 90, 40, TYPE_BUG, TYPE_GROUND, 2 },  // 290 bug/ground
-  { "NINJASK", 0, 0, R_EVO, 0x7CC4, 61, 90, 45, 160, TYPE_BUG, TYPE_FLYING, 2 },  // 291 bug/flying
-  { "SHEDINJA", 0, 0, R_RARO, 0x7CC4, 1, 90, 45, 40, TYPE_BUG, TYPE_GHOST, 2 },  // 292 bug/ghost
-  { "WHISMUR", 294, 20, R_COMUN, 0x8C4D, 64, 51, 23, 28, TYPE_NORMAL, TYPE_NONE, 0 },  // 293 normal
-  { "LOUDRED", 295, 40, R_EVO, 0x8C4D, 84, 71, 43, 48, TYPE_NORMAL, TYPE_NONE, 0 },  // 294 normal
-  { "EXPLOUD", 0, 0, R_EVO, 0x8C4D, 104, 91, 63, 68, TYPE_NORMAL, TYPE_NONE, 0 },  // 295 normal
-  { "MAKUHITA", 297, 24, R_COMUN, 0xA2A5, 72, 60, 30, 25, TYPE_FIGHTING, TYPE_NONE, 0 },  // 296 fighting
-  { "HARIYAMA", 0, 0, R_EVO, 0xA2A5, 144, 120, 60, 50, TYPE_FIGHTING, TYPE_NONE, 0 },  // 297 fighting
-  { "AZURILL", 183, 25, R_COMUN, 0x8C4D, 50, 20, 40, 20, TYPE_NORMAL, TYPE_FAIRY, 0 },  // 298 normal/fairy
-  { "NOSEPASS", 0, 0, R_COMUN, 0x9407, 30, 45, 135, 30, TYPE_ROCK, TYPE_NONE, 4 },  // 299 rock
-  { "SKITTY", 301, 30, R_COMUN, 0x8C4D, 50, 45, 45, 50, TYPE_NORMAL, TYPE_NONE, 0 },  // 300 normal
-  { "DELCATTY", 0, 0, R_EVO, 0x8C4D, 70, 65, 65, 90, TYPE_NORMAL, TYPE_NONE, 0 },  // 301 normal
-  { "SABLEYE", 0, 0, R_RARO, 0x5A47, 50, 75, 75, 50, TYPE_DARK, TYPE_GHOST, 2 },  // 302 dark/ghost
-  { "MAWILE", 0, 0, R_RARO, 0x6BF1, 50, 85, 85, 50, TYPE_STEEL, TYPE_FAIRY, 4 },  // 303 steel/fairy
-  { "ARON", 305, 32, R_COMUN, 0x6BF1, 50, 70, 100, 30, TYPE_STEEL, TYPE_ROCK, 4 },  // 304 steel/rock
-  { "LAIRON", 306, 42, R_EVO, 0x6BF1, 60, 90, 140, 40, TYPE_STEEL, TYPE_ROCK, 4 },  // 305 steel/rock
-  { "AGGRON", 0, 0, R_EVO, 0x6BF1, 70, 110, 180, 50, TYPE_STEEL, TYPE_ROCK, 4 },  // 306 steel/rock
-  { "MEDITITE", 308, 37, R_COMUN, 0xA2A5, 30, 40, 55, 60, TYPE_FIGHTING, TYPE_PSYCHIC, 0 },  // 307 fighting/psychic
-  { "MEDICHAM", 0, 0, R_EVO, 0xA2A5, 60, 60, 75, 80, TYPE_FIGHTING, TYPE_PSYCHIC, 0 },  // 308 fighting/psychic
-  { "ELECTRIKE", 310, 26, R_COMUN, 0xBCA1, 40, 45, 40, 65, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 309 electric
-  { "MANECTRIC", 0, 0, R_EVO, 0xBCA1, 70, 75, 60, 105, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 310 electric
-  { "PLUSLE", 0, 0, R_COMUN, 0xBCA1, 60, 50, 40, 95, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 311 electric
-  { "MINUN", 0, 0, R_COMUN, 0xBCA1, 60, 40, 50, 95, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 312 electric
-  { "VOLBEAT", 0, 0, R_COMUN, 0x7CC4, 65, 73, 75, 85, TYPE_BUG, TYPE_NONE, 2 },  // 313 bug
-  { "ILLUMISE", 0, 0, R_COMUN, 0x7CC4, 65, 47, 75, 85, TYPE_BUG, TYPE_NONE, 2 },  // 314 bug
-  { "ROSELIA", 0, 0, R_EVO, 0x3C49, 50, 60, 45, 65, TYPE_GRASS, TYPE_POISON, 2 },  // 315 grass/poison
-  { "GULPIN", 317, 26, R_COMUN, 0x8A73, 70, 43, 53, 40, TYPE_POISON, TYPE_NONE, 0 },  // 316 poison
-  { "SWALOT", 0, 0, R_EVO, 0x8A73, 100, 73, 83, 55, TYPE_POISON, TYPE_NONE, 0 },  // 317 poison
-  { "CARVANHA", 319, 30, R_COMUN, 0x4C98, 45, 90, 20, 65, TYPE_WATER, TYPE_DARK, 1 },  // 318 water/dark
-  { "SHARPEDO", 0, 0, R_EVO, 0x4C98, 70, 120, 40, 95, TYPE_WATER, TYPE_DARK, 1 },  // 319 water/dark
-  { "WAILMER", 321, 40, R_COMUN, 0x4C98, 130, 70, 35, 60, TYPE_WATER, TYPE_NONE, 1 },  // 320 water
-  { "WAILORD", 0, 0, R_EVO, 0x4C98, 170, 90, 45, 60, TYPE_WATER, TYPE_NONE, 1 },  // 321 water
-  { "NUMEL", 323, 33, R_COMUN, 0xEA87, 60, 60, 40, 35, TYPE_FIRE, TYPE_GROUND, 3 },  // 322 fire/ground
-  { "CAMERUPT", 0, 0, R_EVO, 0xEA87, 70, 100, 70, 40, TYPE_FIRE, TYPE_GROUND, 3 },  // 323 fire/ground
-  { "TORKOAL", 0, 0, R_COMUN, 0xEA87, 70, 85, 140, 20, TYPE_FIRE, TYPE_NONE, 3 },  // 324 fire
-  { "SPOINK", 326, 32, R_COMUN, 0xD28F, 60, 25, 35, 60, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 325 psychic
-  { "GRUMPIG", 0, 0, R_EVO, 0xD28F, 80, 45, 65, 80, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 326 psychic
-  { "SPINDA", 0, 0, R_COMUN, 0x8C4D, 60, 60, 60, 60, TYPE_NORMAL, TYPE_NONE, 0 },  // 327 normal
-  { "TRAPINCH", 329, 35, R_COMUN, 0xB447, 45, 100, 45, 10, TYPE_GROUND, TYPE_NONE, 4 },  // 328 ground
-  { "VIBRAVA", 330, 45, R_EVO, 0xB447, 50, 70, 50, 70, TYPE_GROUND, TYPE_DRAGON, 4 },  // 329 ground/dragon
-  { "FLYGON", 0, 0, R_EVO, 0xB447, 80, 100, 80, 100, TYPE_GROUND, TYPE_DRAGON, 4 },  // 330 ground/dragon
-  { "CACNEA", 332, 32, R_COMUN, 0x3C49, 50, 85, 40, 35, TYPE_GRASS, TYPE_NONE, 2 },  // 331 grass
-  { "CACTURNE", 0, 0, R_EVO, 0x3C49, 70, 115, 60, 55, TYPE_GRASS, TYPE_DARK, 2 },  // 332 grass/dark
-  { "SWABLU", 334, 35, R_COMUN, 0x8C4D, 45, 40, 60, 50, TYPE_NORMAL, TYPE_FLYING, 0 },  // 333 normal/flying
-  { "ALTARIA", 0, 0, R_EVO, 0x5A98, 75, 70, 90, 80, TYPE_DRAGON, TYPE_FLYING, 1 },  // 334 dragon/flying
-  { "ZANGOOSE", 0, 0, R_COMUN, 0x8C4D, 73, 115, 60, 90, TYPE_NORMAL, TYPE_NONE, 0 },  // 335 normal
-  { "SEVIPER", 0, 0, R_COMUN, 0x8A73, 73, 100, 60, 65, TYPE_POISON, TYPE_NONE, 0 },  // 336 poison
-  { "LUNATONE", 0, 0, R_RARO, 0x9407, 90, 55, 65, 70, TYPE_ROCK, TYPE_PSYCHIC, 4 },  // 337 rock/psychic
-  { "SOLROCK", 0, 0, R_RARO, 0x9407, 90, 95, 85, 70, TYPE_ROCK, TYPE_PSYCHIC, 4 },  // 338 rock/psychic
-  { "BARBOACH", 340, 30, R_COMUN, 0x4C98, 50, 48, 43, 60, TYPE_WATER, TYPE_GROUND, 1 },  // 339 water/ground
-  { "WHISCASH", 0, 0, R_EVO, 0x4C98, 110, 78, 73, 60, TYPE_WATER, TYPE_GROUND, 1 },  // 340 water/ground
-  { "CORPHISH", 342, 30, R_COMUN, 0x4C98, 43, 80, 65, 35, TYPE_WATER, TYPE_NONE, 1 },  // 341 water
-  { "CRAWDAUNT", 0, 0, R_EVO, 0x4C98, 63, 120, 85, 55, TYPE_WATER, TYPE_DARK, 1 },  // 342 water/dark
-  { "BALTOY", 344, 36, R_COMUN, 0xB447, 40, 40, 55, 55, TYPE_GROUND, TYPE_PSYCHIC, 4 },  // 343 ground/psychic
-  { "CLAYDOL", 0, 0, R_EVO, 0xB447, 60, 70, 105, 75, TYPE_GROUND, TYPE_PSYCHIC, 4 },  // 344 ground/psychic
-  { "LILEEP", 346, 40, R_RARO, 0x9407, 66, 41, 77, 23, TYPE_ROCK, TYPE_GRASS, 4 },  // 345 rock/grass
-  { "CRADILY", 0, 0, R_EVO, 0x9407, 86, 81, 97, 43, TYPE_ROCK, TYPE_GRASS, 4 },  // 346 rock/grass
-  { "ANORITH", 348, 40, R_RARO, 0x9407, 45, 95, 50, 75, TYPE_ROCK, TYPE_BUG, 4 },  // 347 rock/bug
-  { "ARMALDO", 0, 0, R_EVO, 0x9407, 75, 125, 100, 45, TYPE_ROCK, TYPE_BUG, 4 },  // 348 rock/bug
-  { "FEEBAS", 350, 40, R_COMUN, 0x4C98, 20, 15, 20, 80, TYPE_WATER, TYPE_NONE, 1 },  // 349 water
-  { "MILOTIC", 0, 0, R_EVO, 0x4C98, 95, 60, 79, 81, TYPE_WATER, TYPE_NONE, 1 },  // 350 water
-  { "CASTFORM", 0, 0, R_RARO, 0x8C4D, 70, 70, 70, 70, TYPE_NORMAL, TYPE_NONE, 0 },  // 351 normal
-  { "KECLEON", 0, 0, R_COMUN, 0x8C4D, 60, 90, 70, 40, TYPE_NORMAL, TYPE_NONE, 0 },  // 352 normal
-  { "SHUPPET", 354, 37, R_COMUN, 0x6AD3, 44, 75, 35, 45, TYPE_GHOST, TYPE_NONE, 0 },  // 353 ghost
-  { "BANETTE", 0, 0, R_EVO, 0x6AD3, 64, 115, 65, 65, TYPE_GHOST, TYPE_NONE, 0 },  // 354 ghost
-  { "DUSKULL", 356, 37, R_COMUN, 0x6AD3, 20, 40, 90, 25, TYPE_GHOST, TYPE_NONE, 0 },  // 355 ghost
-  { "DUSCLOPS", 0, 0, R_EVO, 0x6AD3, 40, 70, 130, 25, TYPE_GHOST, TYPE_NONE, 0 },  // 356 ghost
-  { "TROPIUS", 0, 0, R_COMUN, 0x3C49, 99, 68, 83, 51, TYPE_GRASS, TYPE_FLYING, 2 },  // 357 grass/flying
-  { "CHIMECHO", 0, 0, R_EVO, 0xD28F, 75, 50, 80, 65, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 358 psychic
-  { "ABSOL", 0, 0, R_RARO, 0x5A47, 65, 130, 60, 75, TYPE_DARK, TYPE_NONE, 2 },  // 359 dark
-  { "WYNAUT", 202, 15, R_COMUN, 0xD28F, 95, 23, 48, 23, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 360 psychic
-  { "SNORUNT", 362, 42, R_COMUN, 0x4DB8, 50, 50, 50, 50, TYPE_ICE, TYPE_NONE, 5 },  // 361 ice
-  { "GLALIE", 0, 0, R_EVO, 0x4DB8, 80, 80, 80, 80, TYPE_ICE, TYPE_NONE, 5 },  // 362 ice
-  { "SPHEAL", 364, 32, R_COMUN, 0x4DB8, 70, 40, 50, 25, TYPE_ICE, TYPE_WATER, 5 },  // 363 ice/water
-  { "SEALEO", 365, 44, R_EVO, 0x4DB8, 90, 60, 70, 45, TYPE_ICE, TYPE_WATER, 5 },  // 364 ice/water
-  { "WALREIN", 0, 0, R_EVO, 0x4DB8, 110, 80, 90, 65, TYPE_ICE, TYPE_WATER, 5 },  // 365 ice/water
-  { "CLAMPERL", 367, 40, R_COMUN, 0x4C98, 35, 64, 85, 32, TYPE_WATER, TYPE_NONE, 1 },  // 366 water
-  { "HUNTAIL", 0, 0, R_EVO, 0x4C98, 55, 104, 105, 52, TYPE_WATER, TYPE_NONE, 1 },  // 367 water
-  { "GOREBYSS", 0, 0, R_COMUN, 0x4C98, 55, 84, 105, 52, TYPE_WATER, TYPE_NONE, 1 },  // 368 water
-  { "RELICANTH", 0, 0, R_RARO, 0x4C98, 100, 90, 130, 55, TYPE_WATER, TYPE_ROCK, 1 },  // 369 water/rock
-  { "LUVDISC", 0, 0, R_COMUN, 0x4C98, 43, 30, 55, 97, TYPE_WATER, TYPE_NONE, 1 },  // 370 water
-  { "BAGON", 372, 30, R_RARO, 0x5A98, 45, 75, 60, 50, TYPE_DRAGON, TYPE_NONE, 1 },  // 371 dragon
-  { "SHELGON", 373, 50, R_EVO, 0x5A98, 65, 95, 100, 50, TYPE_DRAGON, TYPE_NONE, 1 },  // 372 dragon
-  { "SALAMENCE", 0, 0, R_EVO, 0x5A98, 95, 135, 80, 100, TYPE_DRAGON, TYPE_FLYING, 1 },  // 373 dragon/flying
-  { "BELDUM", 375, 20, R_RARO, 0x6BF1, 40, 55, 80, 30, TYPE_STEEL, TYPE_PSYCHIC, 4 },  // 374 steel/psychic
-  { "METANG", 376, 45, R_EVO, 0x6BF1, 60, 75, 100, 50, TYPE_STEEL, TYPE_PSYCHIC, 4 },  // 375 steel/psychic
-  { "METAGROSS", 0, 0, R_EVO, 0x6BF1, 80, 135, 130, 70, TYPE_STEEL, TYPE_PSYCHIC, 4 },  // 376 steel/psychic
-  { "REGIROCK", 0, 0, R_LEGENDARIO, 0x9407, 80, 100, 200, 50, TYPE_ROCK, TYPE_NONE, 4 },  // 377 rock
-  { "REGICE", 0, 0, R_LEGENDARIO, 0x4DB8, 80, 50, 100, 50, TYPE_ICE, TYPE_NONE, 5 },  // 378 ice
-  { "REGISTEEL", 0, 0, R_LEGENDARIO, 0x6BF1, 80, 75, 150, 50, TYPE_STEEL, TYPE_NONE, 4 },  // 379 steel
-  { "LATIAS", 0, 0, R_LEGENDARIO, 0x5A98, 80, 80, 90, 110, TYPE_DRAGON, TYPE_PSYCHIC, 1 },  // 380 dragon/psychic
-  { "LATIOS", 0, 0, R_LEGENDARIO, 0x5A98, 80, 90, 80, 110, TYPE_DRAGON, TYPE_PSYCHIC, 1 },  // 381 dragon/psychic
-  { "KYOGRE", 0, 0, R_LEGENDARIO, 0x4C98, 100, 100, 90, 90, TYPE_WATER, TYPE_NONE, 1 },  // 382 water
-  { "GROUDON", 0, 0, R_LEGENDARIO, 0xB447, 100, 150, 140, 90, TYPE_GROUND, TYPE_NONE, 4 },  // 383 ground
-  { "RAYQUAZA", 0, 0, R_LEGENDARIO, 0x5A98, 105, 150, 90, 95, TYPE_DRAGON, TYPE_FLYING, 1 },  // 384 dragon/flying
-  { "JIRACHI", 0, 0, R_LEGENDARIO, 0x6BF1, 100, 100, 100, 100, TYPE_STEEL, TYPE_PSYCHIC, 4 },  // 385 steel/psychic
-  { "DEOXYS", 0, 0, R_LEGENDARIO, 0xD28F, 50, 150, 50, 150, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 386 psychic
-  { "TURTWIG", 0, 0, R_RARO, 0x3C49, 55, 68, 64, 31, TYPE_GRASS, TYPE_NONE, 2 },  // 387: standalone egg; evolution not configured
-  { "GROTLE", 0, 0, R_RARO, 0x3C49, 75, 89, 85, 36, TYPE_GRASS, TYPE_NONE, 2 },  // 388: standalone egg; evolution not configured
-  { "TORTERRA", 0, 0, R_RARO, 0x3C49, 95, 109, 105, 56, TYPE_GRASS, TYPE_GROUND, 2 },  // 389: standalone egg; evolution not configured
-  { "CHIMCHAR", 0, 0, R_RARO, 0xEA87, 44, 58, 44, 61, TYPE_FIRE, TYPE_NONE, 3 },  // 390: standalone egg; evolution not configured
-  { "MONFERNO", 0, 0, R_RARO, 0xEA87, 64, 78, 52, 81, TYPE_FIRE, TYPE_FIGHTING, 3 },  // 391: standalone egg; evolution not configured
-  { "INFERNAPE", 0, 0, R_RARO, 0xEA87, 76, 104, 71, 108, TYPE_FIRE, TYPE_FIGHTING, 3 },  // 392: standalone egg; evolution not configured
-  { "PIPLUP", 0, 0, R_RARO, 0x4C98, 53, 51, 53, 40, TYPE_WATER, TYPE_NONE, 1 },  // 393: standalone egg; evolution not configured
-  { "PRINPLUP", 0, 0, R_RARO, 0x4C98, 64, 66, 68, 50, TYPE_WATER, TYPE_NONE, 1 },  // 394: standalone egg; evolution not configured
-  { "EMPOLEON", 0, 0, R_RARO, 0x4C98, 84, 86, 88, 60, TYPE_WATER, TYPE_STEEL, 1 },  // 395: standalone egg; evolution not configured
-  { "STARLY", 0, 0, R_RARO, 0x8C4D, 40, 55, 30, 60, TYPE_NORMAL, TYPE_FLYING, 0 },  // 396: standalone egg; evolution not configured
-  { "STARAVIA", 0, 0, R_RARO, 0x8C4D, 55, 75, 50, 80, TYPE_NORMAL, TYPE_FLYING, 0 },  // 397: standalone egg; evolution not configured
-  { "STARAPTOR", 0, 0, R_RARO, 0x8C4D, 85, 120, 70, 100, TYPE_NORMAL, TYPE_FLYING, 0 },  // 398: standalone egg; evolution not configured
-  { "BIDOOF", 0, 0, R_RARO, 0x8C4D, 59, 45, 40, 31, TYPE_NORMAL, TYPE_NONE, 0 },  // 399: standalone egg; evolution not configured
-  { "BIBAREL", 0, 0, R_RARO, 0x8C4D, 79, 85, 60, 71, TYPE_NORMAL, TYPE_WATER, 1 },  // 400: standalone egg; evolution not configured
-  { "KRICKETOT", 0, 0, R_RARO, 0x7CC4, 37, 25, 41, 25, TYPE_BUG, TYPE_NONE, 2 },  // 401: standalone egg; evolution not configured
-  { "KRICKETUNE", 0, 0, R_RARO, 0x7CC4, 77, 85, 51, 65, TYPE_BUG, TYPE_NONE, 2 },  // 402: standalone egg; evolution not configured
-  { "SHINX", 0, 0, R_RARO, 0xBCA1, 45, 65, 34, 45, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 403: standalone egg; evolution not configured
-  { "LUXIO", 0, 0, R_RARO, 0xBCA1, 60, 85, 49, 60, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 404: standalone egg; evolution not configured
-  { "LUXRAY", 0, 0, R_RARO, 0xBCA1, 80, 120, 79, 70, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 405: standalone egg; evolution not configured
-  { "BUDEW", 0, 0, R_RARO, 0x3C49, 40, 30, 35, 55, TYPE_GRASS, TYPE_POISON, 2 },  // 406: standalone egg; evolution not configured
-  { "ROSERADE", 0, 0, R_RARO, 0x3C49, 60, 70, 65, 90, TYPE_GRASS, TYPE_POISON, 2 },  // 407: standalone egg; evolution not configured
-  { "CRANIDOS", 0, 0, R_RARO, 0x9407, 67, 125, 40, 58, TYPE_ROCK, TYPE_NONE, 4 },  // 408: standalone egg; evolution not configured
-  { "RAMPARDOS", 0, 0, R_RARO, 0x9407, 97, 165, 60, 58, TYPE_ROCK, TYPE_NONE, 4 },  // 409: standalone egg; evolution not configured
-  { "SHIELDON", 0, 0, R_RARO, 0x9407, 30, 42, 118, 30, TYPE_ROCK, TYPE_STEEL, 4 },  // 410: standalone egg; evolution not configured
-  { "BASTIODON", 0, 0, R_RARO, 0x9407, 60, 52, 168, 30, TYPE_ROCK, TYPE_STEEL, 4 },  // 411: standalone egg; evolution not configured
-  { "BURMY", 0, 0, R_RARO, 0x7CC4, 40, 29, 45, 36, TYPE_BUG, TYPE_NONE, 2 },  // 412: standalone egg; evolution not configured
-  { "WORMADAM", 0, 0, R_RARO, 0x7CC4, 60, 59, 85, 36, TYPE_BUG, TYPE_GRASS, 2 },  // 413: standalone egg; evolution not configured
-  { "MOTHIM", 0, 0, R_RARO, 0x7CC4, 70, 94, 50, 66, TYPE_BUG, TYPE_FLYING, 2 },  // 414: standalone egg; evolution not configured
-  { "COMBEE", 0, 0, R_RARO, 0x7CC4, 30, 30, 42, 70, TYPE_BUG, TYPE_FLYING, 2 },  // 415: standalone egg; evolution not configured
-  { "VESPIQUEN", 0, 0, R_RARO, 0x7CC4, 70, 80, 102, 40, TYPE_BUG, TYPE_FLYING, 2 },  // 416: standalone egg; evolution not configured
-  { "PACHIRISU", 0, 0, R_RARO, 0xBCA1, 60, 45, 70, 95, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 417: standalone egg; evolution not configured
-  { "BUIZEL", 0, 0, R_RARO, 0x4C98, 55, 65, 35, 85, TYPE_WATER, TYPE_NONE, 1 },  // 418: standalone egg; evolution not configured
-  { "FLOATZEL", 0, 0, R_RARO, 0x4C98, 85, 105, 55, 115, TYPE_WATER, TYPE_NONE, 1 },  // 419: standalone egg; evolution not configured
-  { "CHERUBI", 0, 0, R_RARO, 0x3C49, 45, 35, 45, 35, TYPE_GRASS, TYPE_NONE, 2 },  // 420: standalone egg; evolution not configured
-  { "CHERRIM", 0, 0, R_RARO, 0x3C49, 70, 60, 70, 85, TYPE_GRASS, TYPE_NONE, 2 },  // 421: standalone egg; evolution not configured
-  { "SHELLOS", 0, 0, R_RARO, 0x4C98, 76, 48, 48, 34, TYPE_WATER, TYPE_NONE, 1 },  // 422: standalone egg; evolution not configured
-  { "GASTRODON", 0, 0, R_RARO, 0x4C98, 111, 83, 68, 39, TYPE_WATER, TYPE_GROUND, 1 },  // 423: standalone egg; evolution not configured
-  { "AMBIPOM", 0, 0, R_RARO, 0x8C4D, 75, 100, 66, 115, TYPE_NORMAL, TYPE_NONE, 0 },  // 424: standalone egg; evolution not configured
-  { "DRIFLOON", 0, 0, R_RARO, 0x6AD3, 90, 50, 34, 70, TYPE_GHOST, TYPE_FLYING, 0 },  // 425: standalone egg; evolution not configured
-  { "DRIFBLIM", 0, 0, R_RARO, 0x6AD3, 150, 80, 44, 80, TYPE_GHOST, TYPE_FLYING, 0 },  // 426: standalone egg; evolution not configured
-  { "BUNEARY", 0, 0, R_RARO, 0x8C4D, 55, 66, 44, 85, TYPE_NORMAL, TYPE_NONE, 0 },  // 427: standalone egg; evolution not configured
-  { "LOPUNNY", 0, 0, R_RARO, 0x8C4D, 65, 76, 84, 105, TYPE_NORMAL, TYPE_NONE, 0 },  // 428: standalone egg; evolution not configured
-  { "MISMAGIUS", 0, 0, R_RARO, 0x6AD3, 60, 60, 60, 105, TYPE_GHOST, TYPE_NONE, 0 },  // 429: standalone egg; evolution not configured
-  { "HONCHKROW", 0, 0, R_RARO, 0x5A47, 100, 125, 52, 71, TYPE_DARK, TYPE_FLYING, 2 },  // 430: standalone egg; evolution not configured
-  { "GLAMEOW", 0, 0, R_RARO, 0x8C4D, 49, 55, 42, 85, TYPE_NORMAL, TYPE_NONE, 0 },  // 431: standalone egg; evolution not configured
-  { "PURUGLY", 0, 0, R_RARO, 0x8C4D, 71, 82, 64, 112, TYPE_NORMAL, TYPE_NONE, 0 },  // 432: standalone egg; evolution not configured
-  { "CHINGLING", 0, 0, R_RARO, 0xD28F, 45, 30, 50, 45, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 433: standalone egg; evolution not configured
-  { "STUNKY", 0, 0, R_RARO, 0x8A73, 63, 63, 47, 74, TYPE_POISON, TYPE_DARK, 2 },  // 434: standalone egg; evolution not configured
-  { "SKUNTANK", 0, 0, R_RARO, 0x8A73, 103, 93, 67, 84, TYPE_POISON, TYPE_DARK, 2 },  // 435: standalone egg; evolution not configured
-  { "BRONZOR", 0, 0, R_RARO, 0x6BF1, 57, 24, 86, 23, TYPE_STEEL, TYPE_PSYCHIC, 4 },  // 436: standalone egg; evolution not configured
-  { "BRONZONG", 0, 0, R_RARO, 0x6BF1, 67, 89, 116, 33, TYPE_STEEL, TYPE_PSYCHIC, 4 },  // 437: standalone egg; evolution not configured
-  { "BONSLY", 0, 0, R_RARO, 0x9407, 50, 80, 95, 10, TYPE_ROCK, TYPE_NONE, 4 },  // 438: standalone egg; evolution not configured
-  { "MIME JR.", 0, 0, R_RARO, 0xD28F, 20, 25, 45, 60, TYPE_PSYCHIC, TYPE_FAIRY, 0 },  // 439: standalone egg; evolution not configured
-  { "HAPPINY", 0, 0, R_RARO, 0x8C4D, 100, 5, 5, 30, TYPE_NORMAL, TYPE_NONE, 0 },  // 440: standalone egg; evolution not configured
-  { "CHATOT", 0, 0, R_RARO, 0x8C4D, 76, 65, 45, 91, TYPE_NORMAL, TYPE_FLYING, 0 },  // 441: standalone egg; evolution not configured
-  { "SPIRITOMB", 0, 0, R_RARO, 0x6AD3, 50, 92, 108, 35, TYPE_GHOST, TYPE_DARK, 2 },  // 442: standalone egg; evolution not configured
-  { "GIBLE", 0, 0, R_RARO, 0x5A98, 58, 70, 45, 42, TYPE_DRAGON, TYPE_GROUND, 4 },  // 443: standalone egg; evolution not configured
-  { "GABITE", 0, 0, R_RARO, 0x5A98, 68, 90, 65, 82, TYPE_DRAGON, TYPE_GROUND, 4 },  // 444: standalone egg; evolution not configured
-  { "GARCHOMP", 0, 0, R_RARO, 0x5A98, 108, 130, 95, 102, TYPE_DRAGON, TYPE_GROUND, 4 },  // 445: standalone egg; evolution not configured
-  { "MUNCHLAX", 0, 0, R_RARO, 0x8C4D, 135, 85, 40, 5, TYPE_NORMAL, TYPE_NONE, 0 },  // 446: standalone egg; evolution not configured
-  { "RIOLU", 0, 0, R_RARO, 0xA2A5, 40, 70, 40, 60, TYPE_FIGHTING, TYPE_NONE, 0 },  // 447: standalone egg; evolution not configured
-  { "LUCARIO", 0, 0, R_RARO, 0xA2A5, 70, 110, 70, 90, TYPE_FIGHTING, TYPE_STEEL, 4 },  // 448: standalone egg; evolution not configured
-  { "HIPPOPOTAS", 0, 0, R_RARO, 0xB447, 68, 72, 78, 32, TYPE_GROUND, TYPE_NONE, 4 },  // 449: standalone egg; evolution not configured
-  { "HIPPOWDON", 0, 0, R_RARO, 0xB447, 108, 112, 118, 47, TYPE_GROUND, TYPE_NONE, 4 },  // 450: standalone egg; evolution not configured
-  { "SKORUPI", 0, 0, R_RARO, 0x8A73, 40, 50, 90, 65, TYPE_POISON, TYPE_BUG, 2 },  // 451: standalone egg; evolution not configured
-  { "DRAPION", 0, 0, R_RARO, 0x8A73, 70, 90, 110, 95, TYPE_POISON, TYPE_DARK, 2 },  // 452: standalone egg; evolution not configured
-  { "CROAGUNK", 0, 0, R_RARO, 0x8A73, 48, 61, 40, 50, TYPE_POISON, TYPE_FIGHTING, 0 },  // 453: standalone egg; evolution not configured
-  { "TOXICROAK", 0, 0, R_RARO, 0x8A73, 83, 106, 65, 85, TYPE_POISON, TYPE_FIGHTING, 0 },  // 454: standalone egg; evolution not configured
-  { "CARNIVINE", 0, 0, R_RARO, 0x3C49, 74, 100, 72, 46, TYPE_GRASS, TYPE_NONE, 2 },  // 455: standalone egg; evolution not configured
-  { "FINNEON", 0, 0, R_RARO, 0x4C98, 49, 49, 56, 66, TYPE_WATER, TYPE_NONE, 1 },  // 456: standalone egg; evolution not configured
-  { "LUMINEON", 0, 0, R_RARO, 0x4C98, 69, 69, 76, 91, TYPE_WATER, TYPE_NONE, 1 },  // 457: standalone egg; evolution not configured
-  { "MANTYKE", 0, 0, R_RARO, 0x4C98, 45, 20, 50, 50, TYPE_WATER, TYPE_FLYING, 1 },  // 458: standalone egg; evolution not configured
-  { "SNOVER", 0, 0, R_RARO, 0x3C49, 60, 62, 50, 40, TYPE_GRASS, TYPE_ICE, 5 },  // 459: standalone egg; evolution not configured
-  { "ABOMASNOW", 0, 0, R_RARO, 0x3C49, 90, 92, 75, 60, TYPE_GRASS, TYPE_ICE, 5 },  // 460: standalone egg; evolution not configured
-  { "WEAVILE", 0, 0, R_RARO, 0x5A47, 70, 120, 65, 125, TYPE_DARK, TYPE_ICE, 5 },  // 461: standalone egg; evolution not configured
-  { "MAGNEZONE", 0, 0, R_RARO, 0xBCA1, 70, 70, 115, 60, TYPE_ELECTRIC, TYPE_STEEL, 4 },  // 462: standalone egg; evolution not configured
-  { "LICKILICKY", 0, 0, R_RARO, 0x8C4D, 110, 85, 95, 50, TYPE_NORMAL, TYPE_NONE, 0 },  // 463: standalone egg; evolution not configured
-  { "RHYPERIOR", 0, 0, R_RARO, 0xB447, 115, 140, 130, 40, TYPE_GROUND, TYPE_ROCK, 4 },  // 464: standalone egg; evolution not configured
-  { "TANGROWTH", 0, 0, R_RARO, 0x3C49, 100, 100, 125, 50, TYPE_GRASS, TYPE_NONE, 2 },  // 465: standalone egg; evolution not configured
-  { "ELECTIVIRE", 0, 0, R_RARO, 0xBCA1, 75, 123, 67, 95, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 466: standalone egg; evolution not configured
-  { "MAGMORTAR", 0, 0, R_RARO, 0xEA87, 75, 95, 67, 83, TYPE_FIRE, TYPE_NONE, 3 },  // 467: standalone egg; evolution not configured
-  { "TOGEKISS", 0, 0, R_RARO, 0xC333, 85, 50, 95, 80, TYPE_FAIRY, TYPE_FLYING, 0 },  // 468: standalone egg; evolution not configured
-  { "YANMEGA", 0, 0, R_RARO, 0x7CC4, 86, 76, 86, 95, TYPE_BUG, TYPE_FLYING, 2 },  // 469: standalone egg; evolution not configured
-  { "LEAFEON", 0, 0, R_RARO, 0x3C49, 65, 110, 130, 95, TYPE_GRASS, TYPE_NONE, 2 },  // 470: standalone egg; evolution not configured
-  { "GLACEON", 0, 0, R_RARO, 0x4DB8, 65, 60, 110, 65, TYPE_ICE, TYPE_NONE, 5 },  // 471: standalone egg; evolution not configured
-  { "GLISCOR", 0, 0, R_RARO, 0xB447, 75, 95, 125, 95, TYPE_GROUND, TYPE_FLYING, 4 },  // 472: standalone egg; evolution not configured
-  { "MAMOSWINE", 0, 0, R_RARO, 0x4DB8, 110, 130, 80, 80, TYPE_ICE, TYPE_GROUND, 5 },  // 473: standalone egg; evolution not configured
-  { "PORYGON-Z", 0, 0, R_RARO, 0x8C4D, 85, 80, 70, 90, TYPE_NORMAL, TYPE_NONE, 0 },  // 474: standalone egg; evolution not configured
-  { "GALLADE", 0, 0, R_RARO, 0xD28F, 68, 125, 65, 80, TYPE_PSYCHIC, TYPE_FIGHTING, 0 },  // 475: standalone egg; evolution not configured
-  { "PROBOPASS", 0, 0, R_RARO, 0x9407, 60, 55, 145, 40, TYPE_ROCK, TYPE_STEEL, 4 },  // 476: standalone egg; evolution not configured
-  { "DUSKNOIR", 0, 0, R_RARO, 0x6AD3, 45, 100, 135, 45, TYPE_GHOST, TYPE_NONE, 0 },  // 477: standalone egg; evolution not configured
-  { "FROSLASS", 0, 0, R_RARO, 0x4DB8, 70, 80, 70, 110, TYPE_ICE, TYPE_GHOST, 5 },  // 478: standalone egg; evolution not configured
-  { "ROTOM", 0, 0, R_RARO, 0xBCA1, 50, 50, 77, 91, TYPE_ELECTRIC, TYPE_GHOST, 0 },  // 479: standalone egg; evolution not configured
-  { "UXIE", 0, 0, R_LEGENDARIO, 0xD28F, 75, 75, 130, 95, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 480: standalone egg; evolution not configured
-  { "MESPRIT", 0, 0, R_LEGENDARIO, 0xD28F, 80, 105, 105, 80, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 481: standalone egg; evolution not configured
-  { "AZELF", 0, 0, R_LEGENDARIO, 0xD28F, 75, 125, 70, 115, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 482: standalone egg; evolution not configured
-  { "DIALGA", 0, 0, R_LEGENDARIO, 0x6BF1, 100, 120, 120, 90, TYPE_STEEL, TYPE_DRAGON, 4 },  // 483: standalone egg; evolution not configured
-  { "PALKIA", 0, 0, R_LEGENDARIO, 0x4C98, 90, 120, 100, 100, TYPE_WATER, TYPE_DRAGON, 1 },  // 484: standalone egg; evolution not configured
-  { "HEATRAN", 0, 0, R_LEGENDARIO, 0xEA87, 91, 90, 106, 77, TYPE_FIRE, TYPE_STEEL, 3 },  // 485: standalone egg; evolution not configured
-  { "REGIGIGAS", 0, 0, R_LEGENDARIO, 0x8C4D, 110, 160, 110, 100, TYPE_NORMAL, TYPE_NONE, 0 },  // 486: standalone egg; evolution not configured
-  { "GIRATINA", 0, 0, R_LEGENDARIO, 0x6AD3, 150, 100, 120, 90, TYPE_GHOST, TYPE_DRAGON, 0 },  // 487: standalone egg; evolution not configured
-  { "CRESSELIA", 0, 0, R_LEGENDARIO, 0xD28F, 120, 70, 110, 85, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 488: standalone egg; evolution not configured
-  { "PHIONE", 0, 0, R_LEGENDARIO, 0x4C98, 80, 80, 80, 80, TYPE_WATER, TYPE_NONE, 1 },  // 489: standalone egg; evolution not configured
-  { "MANAPHY", 0, 0, R_LEGENDARIO, 0x4C98, 100, 100, 100, 100, TYPE_WATER, TYPE_NONE, 1 },  // 490: standalone egg; evolution not configured
-  { "DARKRAI", 0, 0, R_LEGENDARIO, 0x5A47, 70, 90, 90, 125, TYPE_DARK, TYPE_NONE, 2 },  // 491: standalone egg; evolution not configured
-  { "SHAYMIN", 0, 0, R_LEGENDARIO, 0x3C49, 100, 100, 100, 100, TYPE_GRASS, TYPE_NONE, 2 },  // 492: standalone egg; evolution not configured
-  { "ARCEUS", 0, 0, R_LEGENDARIO, 0x8C4D, 120, 120, 120, 120, TYPE_NORMAL, TYPE_NONE, 0 },  // 493: standalone egg; evolution not configured
-  { "VICTINI", 0, 0, R_LEGENDARIO, 0xD28F, 100, 100, 100, 100, TYPE_PSYCHIC, TYPE_FIRE, 3 },  // 494: standalone egg; evolution not configured
-  { "SNIVY", 0, 0, R_RARO, 0x3C49, 45, 45, 55, 63, TYPE_GRASS, TYPE_NONE, 2 },  // 495: standalone egg; evolution not configured
-  { "SERVINE", 0, 0, R_RARO, 0x3C49, 60, 60, 75, 83, TYPE_GRASS, TYPE_NONE, 2 },  // 496: standalone egg; evolution not configured
-  { "SERPERIOR", 0, 0, R_RARO, 0x3C49, 75, 75, 95, 113, TYPE_GRASS, TYPE_NONE, 2 },  // 497: standalone egg; evolution not configured
-  { "TEPIG", 0, 0, R_RARO, 0xEA87, 65, 63, 45, 45, TYPE_FIRE, TYPE_NONE, 3 },  // 498: standalone egg; evolution not configured
-  { "PIGNITE", 0, 0, R_RARO, 0xEA87, 90, 93, 55, 55, TYPE_FIRE, TYPE_FIGHTING, 3 },  // 499: standalone egg; evolution not configured
-  { "EMBOAR", 0, 0, R_RARO, 0xEA87, 110, 123, 65, 65, TYPE_FIRE, TYPE_FIGHTING, 3 },  // 500: standalone egg; evolution not configured
-  { "OSHAWOTT", 0, 0, R_RARO, 0x4C98, 55, 55, 45, 45, TYPE_WATER, TYPE_NONE, 1 },  // 501: standalone egg; evolution not configured
-  { "DEWOTT", 0, 0, R_RARO, 0x4C98, 75, 75, 60, 60, TYPE_WATER, TYPE_NONE, 1 },  // 502: standalone egg; evolution not configured
-  { "SAMUROTT", 0, 0, R_RARO, 0x4C98, 95, 100, 85, 70, TYPE_WATER, TYPE_NONE, 1 },  // 503: standalone egg; evolution not configured
-  { "PATRAT", 0, 0, R_RARO, 0x8C4D, 45, 55, 39, 42, TYPE_NORMAL, TYPE_NONE, 0 },  // 504: standalone egg; evolution not configured
-  { "WATCHOG", 0, 0, R_RARO, 0x8C4D, 60, 85, 69, 77, TYPE_NORMAL, TYPE_NONE, 0 },  // 505: standalone egg; evolution not configured
-  { "LILLIPUP", 0, 0, R_RARO, 0x8C4D, 45, 60, 45, 55, TYPE_NORMAL, TYPE_NONE, 0 },  // 506: standalone egg; evolution not configured
-  { "HERDIER", 0, 0, R_RARO, 0x8C4D, 65, 80, 65, 60, TYPE_NORMAL, TYPE_NONE, 0 },  // 507: standalone egg; evolution not configured
-  { "STOUTLAND", 0, 0, R_RARO, 0x8C4D, 85, 110, 90, 80, TYPE_NORMAL, TYPE_NONE, 0 },  // 508: standalone egg; evolution not configured
-  { "PURRLOIN", 0, 0, R_RARO, 0x5A47, 41, 50, 37, 66, TYPE_DARK, TYPE_NONE, 2 },  // 509: standalone egg; evolution not configured
-  { "LIEPARD", 0, 0, R_RARO, 0x5A47, 64, 88, 50, 106, TYPE_DARK, TYPE_NONE, 2 },  // 510: standalone egg; evolution not configured
-  { "PANSAGE", 0, 0, R_RARO, 0x3C49, 50, 53, 48, 64, TYPE_GRASS, TYPE_NONE, 2 },  // 511: standalone egg; evolution not configured
-  { "SIMISAGE", 0, 0, R_RARO, 0x3C49, 75, 98, 63, 101, TYPE_GRASS, TYPE_NONE, 2 },  // 512: standalone egg; evolution not configured
-  { "PANSEAR", 0, 0, R_RARO, 0xEA87, 50, 53, 48, 64, TYPE_FIRE, TYPE_NONE, 3 },  // 513: standalone egg; evolution not configured
-  { "SIMISEAR", 0, 0, R_RARO, 0xEA87, 75, 98, 63, 101, TYPE_FIRE, TYPE_NONE, 3 },  // 514: standalone egg; evolution not configured
-  { "PANPOUR", 0, 0, R_RARO, 0x4C98, 50, 53, 48, 64, TYPE_WATER, TYPE_NONE, 1 },  // 515: standalone egg; evolution not configured
-  { "SIMIPOUR", 0, 0, R_RARO, 0x4C98, 75, 98, 63, 101, TYPE_WATER, TYPE_NONE, 1 },  // 516: standalone egg; evolution not configured
-  { "MUNNA", 0, 0, R_RARO, 0xD28F, 76, 25, 45, 24, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 517: standalone egg; evolution not configured
-  { "MUSHARNA", 0, 0, R_RARO, 0xD28F, 116, 55, 85, 29, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 518: standalone egg; evolution not configured
-  { "PIDOVE", 0, 0, R_RARO, 0x8C4D, 50, 55, 50, 43, TYPE_NORMAL, TYPE_FLYING, 0 },  // 519: standalone egg; evolution not configured
-  { "TRANQUILL", 0, 0, R_RARO, 0x8C4D, 62, 77, 62, 65, TYPE_NORMAL, TYPE_FLYING, 0 },  // 520: standalone egg; evolution not configured
-  { "UNFEZANT", 0, 0, R_RARO, 0x8C4D, 80, 115, 80, 93, TYPE_NORMAL, TYPE_FLYING, 0 },  // 521: standalone egg; evolution not configured
-  { "BLITZLE", 0, 0, R_RARO, 0xBCA1, 45, 60, 32, 76, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 522: standalone egg; evolution not configured
-  { "ZEBSTRIKA", 0, 0, R_RARO, 0xBCA1, 75, 100, 63, 116, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 523: standalone egg; evolution not configured
-  { "ROGGENROLA", 0, 0, R_RARO, 0x9407, 55, 75, 85, 15, TYPE_ROCK, TYPE_NONE, 4 },  // 524: standalone egg; evolution not configured
-  { "BOLDORE", 0, 0, R_RARO, 0x9407, 70, 105, 105, 20, TYPE_ROCK, TYPE_NONE, 4 },  // 525: standalone egg; evolution not configured
-  { "GIGALITH", 0, 0, R_RARO, 0x9407, 85, 135, 130, 25, TYPE_ROCK, TYPE_NONE, 4 },  // 526: standalone egg; evolution not configured
-  { "WOOBAT", 0, 0, R_RARO, 0xD28F, 65, 45, 43, 72, TYPE_PSYCHIC, TYPE_FLYING, 0 },  // 527: standalone egg; evolution not configured
-  { "SWOOBAT", 0, 0, R_RARO, 0xD28F, 67, 57, 55, 114, TYPE_PSYCHIC, TYPE_FLYING, 0 },  // 528: standalone egg; evolution not configured
-  { "DRILBUR", 0, 0, R_RARO, 0xB447, 60, 85, 40, 68, TYPE_GROUND, TYPE_NONE, 4 },  // 529: standalone egg; evolution not configured
-  { "EXCADRILL", 0, 0, R_RARO, 0xB447, 110, 135, 60, 88, TYPE_GROUND, TYPE_STEEL, 4 },  // 530: standalone egg; evolution not configured
-  { "AUDINO", 0, 0, R_RARO, 0x8C4D, 103, 60, 86, 50, TYPE_NORMAL, TYPE_NONE, 0 },  // 531: standalone egg; evolution not configured
-  { "TIMBURR", 0, 0, R_RARO, 0xA2A5, 75, 80, 55, 35, TYPE_FIGHTING, TYPE_NONE, 0 },  // 532: standalone egg; evolution not configured
-  { "GURDURR", 0, 0, R_RARO, 0xA2A5, 85, 105, 85, 40, TYPE_FIGHTING, TYPE_NONE, 0 },  // 533: standalone egg; evolution not configured
-  { "CONKELDURR", 0, 0, R_RARO, 0xA2A5, 105, 140, 95, 45, TYPE_FIGHTING, TYPE_NONE, 0 },  // 534: standalone egg; evolution not configured
-  { "TYMPOLE", 0, 0, R_RARO, 0x4C98, 50, 50, 40, 64, TYPE_WATER, TYPE_NONE, 1 },  // 535: standalone egg; evolution not configured
-  { "PALPITOAD", 0, 0, R_RARO, 0x4C98, 75, 65, 55, 69, TYPE_WATER, TYPE_GROUND, 1 },  // 536: standalone egg; evolution not configured
-  { "SEISMITOAD", 0, 0, R_RARO, 0x4C98, 105, 95, 75, 74, TYPE_WATER, TYPE_GROUND, 1 },  // 537: standalone egg; evolution not configured
-  { "THROH", 0, 0, R_RARO, 0xA2A5, 120, 100, 85, 45, TYPE_FIGHTING, TYPE_NONE, 0 },  // 538: standalone egg; evolution not configured
-  { "SAWK", 0, 0, R_RARO, 0xA2A5, 75, 125, 75, 85, TYPE_FIGHTING, TYPE_NONE, 0 },  // 539: standalone egg; evolution not configured
-  { "SEWADDLE", 0, 0, R_RARO, 0x7CC4, 45, 53, 70, 42, TYPE_BUG, TYPE_GRASS, 2 },  // 540: standalone egg; evolution not configured
-  { "SWADLOON", 0, 0, R_RARO, 0x7CC4, 55, 63, 90, 42, TYPE_BUG, TYPE_GRASS, 2 },  // 541: standalone egg; evolution not configured
-  { "LEAVANNY", 0, 0, R_RARO, 0x7CC4, 75, 103, 80, 92, TYPE_BUG, TYPE_GRASS, 2 },  // 542: standalone egg; evolution not configured
-  { "VENIPEDE", 0, 0, R_RARO, 0x7CC4, 30, 45, 59, 57, TYPE_BUG, TYPE_POISON, 2 },  // 543: standalone egg; evolution not configured
-  { "WHIRLIPEDE", 0, 0, R_RARO, 0x7CC4, 40, 55, 99, 47, TYPE_BUG, TYPE_POISON, 2 },  // 544: standalone egg; evolution not configured
-  { "SCOLIPEDE", 0, 0, R_RARO, 0x7CC4, 60, 100, 89, 112, TYPE_BUG, TYPE_POISON, 2 },  // 545: standalone egg; evolution not configured
-  { "COTTONEE", 0, 0, R_RARO, 0x3C49, 40, 27, 60, 66, TYPE_GRASS, TYPE_FAIRY, 2 },  // 546: standalone egg; evolution not configured
-  { "WHIMSICOTT", 0, 0, R_RARO, 0x3C49, 60, 67, 85, 116, TYPE_GRASS, TYPE_FAIRY, 2 },  // 547: standalone egg; evolution not configured
-  { "PETILIL", 0, 0, R_RARO, 0x3C49, 45, 35, 50, 30, TYPE_GRASS, TYPE_NONE, 2 },  // 548: standalone egg; evolution not configured
-  { "LILLIGANT", 0, 0, R_RARO, 0x3C49, 70, 60, 75, 90, TYPE_GRASS, TYPE_NONE, 2 },  // 549: standalone egg; evolution not configured
-  { "BASCULIN", 0, 0, R_RARO, 0x4C98, 70, 92, 65, 98, TYPE_WATER, TYPE_NONE, 1 },  // 550: standalone egg; evolution not configured
-  { "SANDILE", 0, 0, R_RARO, 0xB447, 50, 72, 35, 65, TYPE_GROUND, TYPE_DARK, 2 },  // 551: standalone egg; evolution not configured
-  { "KROKOROK", 0, 0, R_RARO, 0xB447, 60, 82, 45, 74, TYPE_GROUND, TYPE_DARK, 2 },  // 552: standalone egg; evolution not configured
-  { "KROOKODILE", 0, 0, R_RARO, 0xB447, 95, 117, 80, 92, TYPE_GROUND, TYPE_DARK, 2 },  // 553: standalone egg; evolution not configured
-  { "DARUMAKA", 0, 0, R_RARO, 0xEA87, 70, 90, 45, 50, TYPE_FIRE, TYPE_NONE, 3 },  // 554: standalone egg; evolution not configured
-  { "DARMANITAN", 0, 0, R_RARO, 0xEA87, 105, 140, 55, 95, TYPE_FIRE, TYPE_NONE, 3 },  // 555: standalone egg; evolution not configured
-  { "MARACTUS", 0, 0, R_RARO, 0x3C49, 75, 86, 67, 60, TYPE_GRASS, TYPE_NONE, 2 },  // 556: standalone egg; evolution not configured
-  { "DWEBBLE", 0, 0, R_RARO, 0x7CC4, 50, 65, 85, 55, TYPE_BUG, TYPE_ROCK, 2 },  // 557: standalone egg; evolution not configured
-  { "CRUSTLE", 0, 0, R_RARO, 0x7CC4, 70, 105, 125, 45, TYPE_BUG, TYPE_ROCK, 2 },  // 558: standalone egg; evolution not configured
-  { "SCRAGGY", 0, 0, R_RARO, 0x5A47, 50, 75, 70, 48, TYPE_DARK, TYPE_FIGHTING, 2 },  // 559: standalone egg; evolution not configured
-  { "SCRAFTY", 0, 0, R_RARO, 0x5A47, 65, 90, 115, 58, TYPE_DARK, TYPE_FIGHTING, 2 },  // 560: standalone egg; evolution not configured
-  { "SIGILYPH", 0, 0, R_RARO, 0xD28F, 72, 58, 80, 97, TYPE_PSYCHIC, TYPE_FLYING, 0 },  // 561: standalone egg; evolution not configured
-  { "YAMASK", 0, 0, R_RARO, 0x6AD3, 38, 30, 85, 30, TYPE_GHOST, TYPE_NONE, 0 },  // 562: standalone egg; evolution not configured
-  { "COFAGRIGUS", 0, 0, R_RARO, 0x6AD3, 58, 50, 145, 30, TYPE_GHOST, TYPE_NONE, 0 },  // 563: standalone egg; evolution not configured
-  { "TIRTOUGA", 0, 0, R_RARO, 0x4C98, 54, 78, 103, 22, TYPE_WATER, TYPE_ROCK, 1 },  // 564: standalone egg; evolution not configured
-  { "CARRACOSTA", 0, 0, R_RARO, 0x4C98, 74, 108, 133, 32, TYPE_WATER, TYPE_ROCK, 1 },  // 565: standalone egg; evolution not configured
-  { "ARCHEN", 0, 0, R_RARO, 0x9407, 55, 112, 45, 70, TYPE_ROCK, TYPE_FLYING, 4 },  // 566: standalone egg; evolution not configured
-  { "ARCHEOPS", 0, 0, R_RARO, 0x9407, 75, 140, 65, 110, TYPE_ROCK, TYPE_FLYING, 4 },  // 567: standalone egg; evolution not configured
-  { "TRUBBISH", 0, 0, R_RARO, 0x8A73, 50, 50, 62, 65, TYPE_POISON, TYPE_NONE, 0 },  // 568: standalone egg; evolution not configured
-  { "GARBODOR", 0, 0, R_RARO, 0x8A73, 80, 95, 82, 75, TYPE_POISON, TYPE_NONE, 0 },  // 569: standalone egg; evolution not configured
-  { "ZORUA", 0, 0, R_RARO, 0x5A47, 40, 65, 40, 65, TYPE_DARK, TYPE_NONE, 2 },  // 570: standalone egg; evolution not configured
-  { "ZOROARK", 0, 0, R_RARO, 0x5A47, 60, 105, 60, 105, TYPE_DARK, TYPE_NONE, 2 },  // 571: standalone egg; evolution not configured
-  { "MINCCINO", 0, 0, R_RARO, 0x8C4D, 55, 50, 40, 75, TYPE_NORMAL, TYPE_NONE, 0 },  // 572: standalone egg; evolution not configured
-  { "CINCCINO", 0, 0, R_RARO, 0x8C4D, 75, 95, 60, 115, TYPE_NORMAL, TYPE_NONE, 0 },  // 573: standalone egg; evolution not configured
-  { "GOTHITA", 0, 0, R_RARO, 0xD28F, 45, 30, 50, 45, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 574: standalone egg; evolution not configured
-  { "GOTHORITA", 0, 0, R_RARO, 0xD28F, 60, 45, 70, 55, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 575: standalone egg; evolution not configured
-  { "GOTHITELLE", 0, 0, R_RARO, 0xD28F, 70, 55, 95, 65, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 576: standalone egg; evolution not configured
-  { "SOLOSIS", 0, 0, R_RARO, 0xD28F, 45, 30, 40, 20, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 577: standalone egg; evolution not configured
-  { "DUOSION", 0, 0, R_RARO, 0xD28F, 65, 40, 50, 30, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 578: standalone egg; evolution not configured
-  { "REUNICLUS", 0, 0, R_RARO, 0xD28F, 110, 65, 75, 30, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 579: standalone egg; evolution not configured
-  { "DUCKLETT", 0, 0, R_RARO, 0x4C98, 62, 44, 50, 55, TYPE_WATER, TYPE_FLYING, 1 },  // 580: standalone egg; evolution not configured
-  { "SWANNA", 0, 0, R_RARO, 0x4C98, 75, 87, 63, 98, TYPE_WATER, TYPE_FLYING, 1 },  // 581: standalone egg; evolution not configured
-  { "VANILLITE", 0, 0, R_RARO, 0x4DB8, 36, 50, 50, 44, TYPE_ICE, TYPE_NONE, 5 },  // 582: standalone egg; evolution not configured
-  { "VANILLISH", 0, 0, R_RARO, 0x4DB8, 51, 65, 65, 59, TYPE_ICE, TYPE_NONE, 5 },  // 583: standalone egg; evolution not configured
-  { "VANILLUXE", 0, 0, R_RARO, 0x4DB8, 71, 95, 85, 79, TYPE_ICE, TYPE_NONE, 5 },  // 584: standalone egg; evolution not configured
-  { "DEERLING", 0, 0, R_RARO, 0x8C4D, 60, 60, 50, 75, TYPE_NORMAL, TYPE_GRASS, 2 },  // 585: standalone egg; evolution not configured
-  { "SAWSBUCK", 0, 0, R_RARO, 0x8C4D, 80, 100, 70, 95, TYPE_NORMAL, TYPE_GRASS, 2 },  // 586: standalone egg; evolution not configured
-  { "EMOLGA", 0, 0, R_RARO, 0xBCA1, 55, 75, 60, 103, TYPE_ELECTRIC, TYPE_FLYING, 0 },  // 587: standalone egg; evolution not configured
-  { "KARRABLAST", 0, 0, R_RARO, 0x7CC4, 50, 75, 45, 60, TYPE_BUG, TYPE_NONE, 2 },  // 588: standalone egg; evolution not configured
-  { "ESCAVALIER", 0, 0, R_RARO, 0x7CC4, 70, 135, 105, 20, TYPE_BUG, TYPE_STEEL, 2 },  // 589: standalone egg; evolution not configured
-  { "FOONGUS", 0, 0, R_RARO, 0x3C49, 69, 55, 45, 15, TYPE_GRASS, TYPE_POISON, 2 },  // 590: standalone egg; evolution not configured
-  { "AMOONGUSS", 0, 0, R_RARO, 0x3C49, 114, 85, 70, 30, TYPE_GRASS, TYPE_POISON, 2 },  // 591: standalone egg; evolution not configured
-  { "FRILLISH", 0, 0, R_RARO, 0x4C98, 55, 40, 50, 40, TYPE_WATER, TYPE_GHOST, 1 },  // 592: standalone egg; evolution not configured
-  { "JELLICENT", 0, 0, R_RARO, 0x4C98, 100, 60, 70, 60, TYPE_WATER, TYPE_GHOST, 1 },  // 593: standalone egg; evolution not configured
-  { "ALOMOMOLA", 0, 0, R_RARO, 0x4C98, 165, 75, 80, 65, TYPE_WATER, TYPE_NONE, 1 },  // 594: standalone egg; evolution not configured
-  { "JOLTIK", 0, 0, R_RARO, 0x7CC4, 50, 47, 50, 65, TYPE_BUG, TYPE_ELECTRIC, 2 },  // 595: standalone egg; evolution not configured
-  { "GALVANTULA", 0, 0, R_RARO, 0x7CC4, 70, 77, 60, 108, TYPE_BUG, TYPE_ELECTRIC, 2 },  // 596: standalone egg; evolution not configured
-  { "FERROSEED", 0, 0, R_RARO, 0x3C49, 44, 50, 91, 10, TYPE_GRASS, TYPE_STEEL, 2 },  // 597: standalone egg; evolution not configured
-  { "FERROTHORN", 0, 0, R_RARO, 0x3C49, 74, 94, 131, 20, TYPE_GRASS, TYPE_STEEL, 2 },  // 598: standalone egg; evolution not configured
-  { "KLINK", 0, 0, R_RARO, 0x6BF1, 40, 55, 70, 30, TYPE_STEEL, TYPE_NONE, 4 },  // 599: standalone egg; evolution not configured
-  { "KLANG", 0, 0, R_RARO, 0x6BF1, 60, 80, 95, 50, TYPE_STEEL, TYPE_NONE, 4 },  // 600: standalone egg; evolution not configured
-  { "KLINKLANG", 0, 0, R_RARO, 0x6BF1, 60, 100, 115, 90, TYPE_STEEL, TYPE_NONE, 4 },  // 601: standalone egg; evolution not configured
-  { "TYNAMO", 0, 0, R_RARO, 0xBCA1, 35, 55, 40, 60, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 602: standalone egg; evolution not configured
-  { "EELEKTRIK", 0, 0, R_RARO, 0xBCA1, 65, 85, 70, 40, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 603: standalone egg; evolution not configured
-  { "EELEKTROSS", 0, 0, R_RARO, 0xBCA1, 85, 115, 80, 50, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 604: standalone egg; evolution not configured
-  { "ELGYEM", 0, 0, R_RARO, 0xD28F, 55, 55, 55, 30, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 605: standalone egg; evolution not configured
-  { "BEHEEYEM", 0, 0, R_RARO, 0xD28F, 75, 75, 75, 40, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 606: standalone egg; evolution not configured
-  { "LITWICK", 0, 0, R_RARO, 0x6AD3, 50, 30, 55, 20, TYPE_GHOST, TYPE_FIRE, 3 },  // 607: standalone egg; evolution not configured
-  { "LAMPENT", 0, 0, R_RARO, 0x6AD3, 60, 40, 60, 55, TYPE_GHOST, TYPE_FIRE, 3 },  // 608: standalone egg; evolution not configured
-  { "CHANDELURE", 0, 0, R_RARO, 0x6AD3, 60, 55, 90, 80, TYPE_GHOST, TYPE_FIRE, 3 },  // 609: standalone egg; evolution not configured
-  { "AXEW", 0, 0, R_RARO, 0x5A98, 46, 87, 60, 57, TYPE_DRAGON, TYPE_NONE, 0 },  // 610: standalone egg; evolution not configured
-  { "FRAXURE", 0, 0, R_RARO, 0x5A98, 66, 117, 70, 67, TYPE_DRAGON, TYPE_NONE, 0 },  // 611: standalone egg; evolution not configured
-  { "HAXORUS", 0, 0, R_RARO, 0x5A98, 76, 147, 90, 97, TYPE_DRAGON, TYPE_NONE, 0 },  // 612: standalone egg; evolution not configured
-  { "CUBCHOO", 0, 0, R_RARO, 0x4DB8, 55, 70, 40, 40, TYPE_ICE, TYPE_NONE, 5 },  // 613: standalone egg; evolution not configured
-  { "BEARTIC", 0, 0, R_RARO, 0x4DB8, 95, 130, 80, 50, TYPE_ICE, TYPE_NONE, 5 },  // 614: standalone egg; evolution not configured
-  { "CRYOGONAL", 0, 0, R_RARO, 0x4DB8, 80, 50, 50, 105, TYPE_ICE, TYPE_NONE, 5 },  // 615: standalone egg; evolution not configured
-  { "SHELMET", 0, 0, R_RARO, 0x7CC4, 50, 40, 85, 25, TYPE_BUG, TYPE_NONE, 2 },  // 616: standalone egg; evolution not configured
-  { "ACCELGOR", 0, 0, R_RARO, 0x7CC4, 80, 70, 40, 145, TYPE_BUG, TYPE_NONE, 2 },  // 617: standalone egg; evolution not configured
-  { "STUNFISK", 0, 0, R_RARO, 0xB447, 109, 66, 84, 32, TYPE_GROUND, TYPE_ELECTRIC, 4 },  // 618: standalone egg; evolution not configured
-  { "MIENFOO", 0, 0, R_RARO, 0xA2A5, 45, 85, 50, 65, TYPE_FIGHTING, TYPE_NONE, 0 },  // 619: standalone egg; evolution not configured
-  { "MIENSHAO", 0, 0, R_RARO, 0xA2A5, 65, 125, 60, 105, TYPE_FIGHTING, TYPE_NONE, 0 },  // 620: standalone egg; evolution not configured
-  { "DRUDDIGON", 0, 0, R_RARO, 0x5A98, 77, 120, 90, 48, TYPE_DRAGON, TYPE_NONE, 0 },  // 621: standalone egg; evolution not configured
-  { "GOLETT", 0, 0, R_RARO, 0xB447, 59, 74, 50, 35, TYPE_GROUND, TYPE_GHOST, 4 },  // 622: standalone egg; evolution not configured
-  { "GOLURK", 0, 0, R_RARO, 0xB447, 89, 124, 80, 55, TYPE_GROUND, TYPE_GHOST, 4 },  // 623: standalone egg; evolution not configured
-  { "PAWNIARD", 0, 0, R_RARO, 0x5A47, 45, 85, 70, 60, TYPE_DARK, TYPE_STEEL, 2 },  // 624: standalone egg; evolution not configured
-  { "BISHARP", 0, 0, R_RARO, 0x5A47, 65, 125, 100, 70, TYPE_DARK, TYPE_STEEL, 2 },  // 625: standalone egg; evolution not configured
-  { "BOUFFALANT", 0, 0, R_RARO, 0x8C4D, 95, 110, 95, 55, TYPE_NORMAL, TYPE_NONE, 0 },  // 626: standalone egg; evolution not configured
-  { "RUFFLET", 0, 0, R_RARO, 0x8C4D, 70, 83, 50, 60, TYPE_NORMAL, TYPE_FLYING, 0 },  // 627: standalone egg; evolution not configured
-  { "BRAVIARY", 0, 0, R_RARO, 0x8C4D, 100, 123, 75, 80, TYPE_NORMAL, TYPE_FLYING, 0 },  // 628: standalone egg; evolution not configured
-  { "VULLABY", 0, 0, R_RARO, 0x5A47, 70, 55, 75, 60, TYPE_DARK, TYPE_FLYING, 2 },  // 629: standalone egg; evolution not configured
-  { "MANDIBUZZ", 0, 0, R_RARO, 0x5A47, 110, 65, 105, 80, TYPE_DARK, TYPE_FLYING, 2 },  // 630: standalone egg; evolution not configured
-  { "HEATMOR", 0, 0, R_RARO, 0xEA87, 85, 97, 66, 65, TYPE_FIRE, TYPE_NONE, 3 },  // 631: standalone egg; evolution not configured
-  { "DURANT", 0, 0, R_RARO, 0x7CC4, 58, 109, 112, 109, TYPE_BUG, TYPE_STEEL, 2 },  // 632: standalone egg; evolution not configured
-  { "DEINO", 0, 0, R_RARO, 0x5A47, 52, 65, 50, 38, TYPE_DARK, TYPE_DRAGON, 2 },  // 633: standalone egg; evolution not configured
-  { "ZWEILOUS", 0, 0, R_RARO, 0x5A47, 72, 85, 70, 58, TYPE_DARK, TYPE_DRAGON, 2 },  // 634: standalone egg; evolution not configured
-  { "HYDREIGON", 0, 0, R_RARO, 0x5A47, 92, 105, 90, 98, TYPE_DARK, TYPE_DRAGON, 2 },  // 635: standalone egg; evolution not configured
-  { "LARVESTA", 0, 0, R_RARO, 0x7CC4, 55, 85, 55, 60, TYPE_BUG, TYPE_FIRE, 3 },  // 636: standalone egg; evolution not configured
-  { "VOLCARONA", 0, 0, R_RARO, 0x7CC4, 85, 60, 65, 100, TYPE_BUG, TYPE_FIRE, 3 },  // 637: standalone egg; evolution not configured
-  { "COBALION", 0, 0, R_LEGENDARIO, 0x6BF1, 91, 90, 129, 108, TYPE_STEEL, TYPE_FIGHTING, 4 },  // 638: standalone egg; evolution not configured
-  { "TERRAKION", 0, 0, R_LEGENDARIO, 0x9407, 91, 129, 90, 108, TYPE_ROCK, TYPE_FIGHTING, 4 },  // 639: standalone egg; evolution not configured
-  { "VIRIZION", 0, 0, R_LEGENDARIO, 0x3C49, 91, 90, 72, 108, TYPE_GRASS, TYPE_FIGHTING, 2 },  // 640: standalone egg; evolution not configured
-  { "TORNADUS", 0, 0, R_LEGENDARIO, 0x8C4D, 79, 115, 70, 111, TYPE_FLYING, TYPE_NONE, 0 },  // 641: standalone egg; evolution not configured
-  { "THUNDURUS", 0, 0, R_LEGENDARIO, 0xBCA1, 79, 115, 70, 111, TYPE_ELECTRIC, TYPE_FLYING, 0 },  // 642: standalone egg; evolution not configured
-  { "RESHIRAM", 0, 0, R_LEGENDARIO, 0x5A98, 100, 120, 100, 90, TYPE_DRAGON, TYPE_FIRE, 3 },  // 643: standalone egg; evolution not configured
-  { "ZEKROM", 0, 0, R_LEGENDARIO, 0x5A98, 100, 150, 120, 90, TYPE_DRAGON, TYPE_ELECTRIC, 0 },  // 644: standalone egg; evolution not configured
-  { "LANDORUS", 0, 0, R_LEGENDARIO, 0xB447, 89, 125, 90, 101, TYPE_GROUND, TYPE_FLYING, 4 },  // 645: standalone egg; evolution not configured
-  { "KYUREM", 0, 0, R_LEGENDARIO, 0x5A98, 125, 130, 90, 95, TYPE_DRAGON, TYPE_ICE, 5 },  // 646: standalone egg; evolution not configured
-  { "KELDEO", 0, 0, R_LEGENDARIO, 0x4C98, 91, 72, 90, 108, TYPE_WATER, TYPE_FIGHTING, 1 },  // 647: standalone egg; evolution not configured
-  { "MELOETTA", 0, 0, R_LEGENDARIO, 0x8C4D, 100, 77, 77, 90, TYPE_NORMAL, TYPE_PSYCHIC, 0 },  // 648: standalone egg; evolution not configured
-  { "GENESECT", 0, 0, R_LEGENDARIO, 0x7CC4, 71, 120, 95, 99, TYPE_BUG, TYPE_STEEL, 2 },  // 649: standalone egg; evolution not configured
-  { "CHESPIN", 0, 0, R_RARO, 0x3C49, 56, 61, 65, 38, TYPE_GRASS, TYPE_NONE, 2 },  // 650: standalone egg; evolution not configured
-  { "QUILLADIN", 0, 0, R_RARO, 0x3C49, 61, 78, 95, 57, TYPE_GRASS, TYPE_NONE, 2 },  // 651: standalone egg; evolution not configured
-  { "CHESNAUGHT", 0, 0, R_RARO, 0x3C49, 88, 107, 122, 64, TYPE_GRASS, TYPE_FIGHTING, 2 },  // 652: standalone egg; evolution not configured
-  { "FENNEKIN", 0, 0, R_RARO, 0xEA87, 40, 45, 40, 60, TYPE_FIRE, TYPE_NONE, 3 },  // 653: standalone egg; evolution not configured
-  { "BRAIXEN", 0, 0, R_RARO, 0xEA87, 59, 59, 58, 73, TYPE_FIRE, TYPE_NONE, 3 },  // 654: standalone egg; evolution not configured
-  { "DELPHOX", 0, 0, R_RARO, 0xEA87, 75, 69, 72, 104, TYPE_FIRE, TYPE_PSYCHIC, 3 },  // 655: standalone egg; evolution not configured
-  { "FROAKIE", 0, 0, R_RARO, 0x4C98, 41, 56, 40, 71, TYPE_WATER, TYPE_NONE, 1 },  // 656: standalone egg; evolution not configured
-  { "FROGADIER", 0, 0, R_RARO, 0x4C98, 54, 63, 52, 97, TYPE_WATER, TYPE_NONE, 1 },  // 657: standalone egg; evolution not configured
-  { "GRENINJA", 0, 0, R_RARO, 0x4C98, 72, 95, 67, 122, TYPE_WATER, TYPE_DARK, 1 },  // 658: standalone egg; evolution not configured
-  { "BUNNELBY", 0, 0, R_RARO, 0x8C4D, 38, 36, 38, 57, TYPE_NORMAL, TYPE_NONE, 0 },  // 659: standalone egg; evolution not configured
-  { "DIGGERSBY", 0, 0, R_RARO, 0x8C4D, 85, 56, 77, 78, TYPE_NORMAL, TYPE_GROUND, 4 },  // 660: standalone egg; evolution not configured
-  { "FLETCHLING", 0, 0, R_RARO, 0x8C4D, 45, 50, 43, 62, TYPE_NORMAL, TYPE_FLYING, 0 },  // 661: standalone egg; evolution not configured
-  { "FLETCHINDER", 0, 0, R_RARO, 0xEA87, 62, 73, 55, 84, TYPE_FIRE, TYPE_FLYING, 3 },  // 662: standalone egg; evolution not configured
-  { "TALONFLAME", 0, 0, R_RARO, 0xEA87, 78, 81, 71, 126, TYPE_FIRE, TYPE_FLYING, 3 },  // 663: standalone egg; evolution not configured
-  { "SCATTERBUG", 0, 0, R_RARO, 0x7CC4, 38, 35, 40, 35, TYPE_BUG, TYPE_NONE, 2 },  // 664: standalone egg; evolution not configured
-  { "SPEWPA", 0, 0, R_RARO, 0x7CC4, 45, 22, 60, 29, TYPE_BUG, TYPE_NONE, 2 },  // 665: standalone egg; evolution not configured
-  { "VIVILLON", 0, 0, R_RARO, 0x7CC4, 80, 52, 50, 89, TYPE_BUG, TYPE_FLYING, 2 },  // 666: standalone egg; evolution not configured
-  { "LITLEO", 0, 0, R_RARO, 0xEA87, 62, 50, 58, 72, TYPE_FIRE, TYPE_NORMAL, 3 },  // 667: standalone egg; evolution not configured
-  { "PYROAR", 0, 0, R_RARO, 0xEA87, 86, 68, 72, 106, TYPE_FIRE, TYPE_NORMAL, 3 },  // 668: standalone egg; evolution not configured
-  { "FLABÉBÉ", 0, 0, R_RARO, 0xC333, 44, 38, 39, 42, TYPE_FAIRY, TYPE_NONE, 0 },  // 669: standalone egg; evolution not configured
-  { "FLOETTE", 0, 0, R_RARO, 0xC333, 54, 45, 47, 52, TYPE_FAIRY, TYPE_NONE, 0 },  // 670: standalone egg; evolution not configured
-  { "FLORGES", 0, 0, R_RARO, 0xC333, 78, 65, 68, 75, TYPE_FAIRY, TYPE_NONE, 0 },  // 671: standalone egg; evolution not configured
-  { "SKIDDO", 0, 0, R_RARO, 0x3C49, 66, 65, 48, 52, TYPE_GRASS, TYPE_NONE, 2 },  // 672: standalone egg; evolution not configured
-  { "GOGOAT", 0, 0, R_RARO, 0x3C49, 123, 100, 62, 68, TYPE_GRASS, TYPE_NONE, 2 },  // 673: standalone egg; evolution not configured
-  { "PANCHAM", 0, 0, R_RARO, 0xA2A5, 67, 82, 62, 43, TYPE_FIGHTING, TYPE_NONE, 0 },  // 674: standalone egg; evolution not configured
-  { "PANGORO", 0, 0, R_RARO, 0xA2A5, 95, 124, 78, 58, TYPE_FIGHTING, TYPE_DARK, 2 },  // 675: standalone egg; evolution not configured
-  { "FURFROU", 0, 0, R_RARO, 0x8C4D, 75, 80, 60, 102, TYPE_NORMAL, TYPE_NONE, 0 },  // 676: standalone egg; evolution not configured
-  { "ESPURR", 0, 0, R_RARO, 0xD28F, 62, 48, 54, 68, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 677: standalone egg; evolution not configured
-  { "MEOWSTIC", 0, 0, R_RARO, 0xD28F, 74, 48, 76, 104, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 678: standalone egg; evolution not configured
-  { "HONEDGE", 0, 0, R_RARO, 0x6BF1, 45, 80, 100, 28, TYPE_STEEL, TYPE_GHOST, 4 },  // 679: standalone egg; evolution not configured
-  { "DOUBLADE", 0, 0, R_RARO, 0x6BF1, 59, 110, 150, 35, TYPE_STEEL, TYPE_GHOST, 4 },  // 680: standalone egg; evolution not configured
-  { "AEGISLASH", 0, 0, R_RARO, 0x6BF1, 60, 50, 140, 60, TYPE_STEEL, TYPE_GHOST, 4 },  // 681: standalone egg; evolution not configured
-  { "SPRITZEE", 0, 0, R_RARO, 0xC333, 78, 52, 60, 23, TYPE_FAIRY, TYPE_NONE, 0 },  // 682: standalone egg; evolution not configured
-  { "AROMATISSE", 0, 0, R_RARO, 0xC333, 101, 72, 72, 29, TYPE_FAIRY, TYPE_NONE, 0 },  // 683: standalone egg; evolution not configured
-  { "SWIRLIX", 0, 0, R_RARO, 0xC333, 62, 48, 66, 49, TYPE_FAIRY, TYPE_NONE, 0 },  // 684: standalone egg; evolution not configured
-  { "SLURPUFF", 0, 0, R_RARO, 0xC333, 82, 80, 86, 72, TYPE_FAIRY, TYPE_NONE, 0 },  // 685: standalone egg; evolution not configured
-  { "INKAY", 0, 0, R_RARO, 0x5A47, 53, 54, 53, 45, TYPE_DARK, TYPE_PSYCHIC, 2 },  // 686: standalone egg; evolution not configured
-  { "MALAMAR", 0, 0, R_RARO, 0x5A47, 86, 92, 88, 73, TYPE_DARK, TYPE_PSYCHIC, 2 },  // 687: standalone egg; evolution not configured
-  { "BINACLE", 0, 0, R_RARO, 0x9407, 42, 52, 67, 50, TYPE_ROCK, TYPE_WATER, 1 },  // 688: standalone egg; evolution not configured
-  { "BARBARACLE", 0, 0, R_RARO, 0x9407, 72, 105, 115, 68, TYPE_ROCK, TYPE_WATER, 1 },  // 689: standalone egg; evolution not configured
-  { "SKRELP", 0, 0, R_RARO, 0x8A73, 50, 60, 60, 30, TYPE_POISON, TYPE_WATER, 1 },  // 690: standalone egg; evolution not configured
-  { "DRAGALGE", 0, 0, R_RARO, 0x8A73, 65, 75, 90, 44, TYPE_POISON, TYPE_DRAGON, 0 },  // 691: standalone egg; evolution not configured
-  { "CLAUNCHER", 0, 0, R_RARO, 0x4C98, 50, 53, 62, 44, TYPE_WATER, TYPE_NONE, 1 },  // 692: standalone egg; evolution not configured
-  { "CLAWITZER", 0, 0, R_RARO, 0x4C98, 71, 73, 88, 59, TYPE_WATER, TYPE_NONE, 1 },  // 693: standalone egg; evolution not configured
-  { "HELIOPTILE", 0, 0, R_RARO, 0xBCA1, 44, 38, 33, 70, TYPE_ELECTRIC, TYPE_NORMAL, 0 },  // 694: standalone egg; evolution not configured
-  { "HELIOLISK", 0, 0, R_RARO, 0xBCA1, 62, 55, 52, 109, TYPE_ELECTRIC, TYPE_NORMAL, 0 },  // 695: standalone egg; evolution not configured
-  { "TYRUNT", 0, 0, R_RARO, 0x9407, 58, 89, 77, 48, TYPE_ROCK, TYPE_DRAGON, 4 },  // 696: standalone egg; evolution not configured
-  { "TYRANTRUM", 0, 0, R_RARO, 0x9407, 82, 121, 119, 71, TYPE_ROCK, TYPE_DRAGON, 4 },  // 697: standalone egg; evolution not configured
-  { "AMAURA", 0, 0, R_RARO, 0x9407, 77, 59, 50, 46, TYPE_ROCK, TYPE_ICE, 5 },  // 698: standalone egg; evolution not configured
-  { "AURORUS", 0, 0, R_RARO, 0x9407, 123, 77, 72, 58, TYPE_ROCK, TYPE_ICE, 5 },  // 699: standalone egg; evolution not configured
-  { "SYLVEON", 0, 0, R_RARO, 0xC333, 95, 65, 65, 60, TYPE_FAIRY, TYPE_NONE, 0 },  // 700: standalone egg; evolution not configured
-  { "HAWLUCHA", 0, 0, R_RARO, 0xA2A5, 78, 92, 75, 118, TYPE_FIGHTING, TYPE_FLYING, 0 },  // 701: standalone egg; evolution not configured
-  { "DEDENNE", 0, 0, R_RARO, 0xBCA1, 67, 58, 57, 101, TYPE_ELECTRIC, TYPE_FAIRY, 0 },  // 702: standalone egg; evolution not configured
-  { "CARBINK", 0, 0, R_RARO, 0x9407, 50, 50, 150, 50, TYPE_ROCK, TYPE_FAIRY, 4 },  // 703: standalone egg; evolution not configured
-  { "GOOMY", 0, 0, R_RARO, 0x5A98, 45, 50, 35, 40, TYPE_DRAGON, TYPE_NONE, 0 },  // 704: standalone egg; evolution not configured
-  { "SLIGGOO", 0, 0, R_RARO, 0x5A98, 68, 75, 53, 60, TYPE_DRAGON, TYPE_NONE, 0 },  // 705: standalone egg; evolution not configured
-  { "GOODRA", 0, 0, R_RARO, 0x5A98, 90, 100, 70, 80, TYPE_DRAGON, TYPE_NONE, 0 },  // 706: standalone egg; evolution not configured
-  { "KLEFKI", 0, 0, R_RARO, 0x6BF1, 57, 80, 91, 75, TYPE_STEEL, TYPE_FAIRY, 4 },  // 707: standalone egg; evolution not configured
-  { "PHANTUMP", 0, 0, R_RARO, 0x6AD3, 43, 70, 48, 38, TYPE_GHOST, TYPE_GRASS, 2 },  // 708: standalone egg; evolution not configured
-  { "TREVENANT", 0, 0, R_RARO, 0x6AD3, 85, 110, 76, 56, TYPE_GHOST, TYPE_GRASS, 2 },  // 709: standalone egg; evolution not configured
-  { "PUMPKABOO", 0, 0, R_RARO, 0x6AD3, 49, 66, 70, 51, TYPE_GHOST, TYPE_GRASS, 2 },  // 710: standalone egg; evolution not configured
-  { "GOURGEIST", 0, 0, R_RARO, 0x6AD3, 65, 90, 122, 84, TYPE_GHOST, TYPE_GRASS, 2 },  // 711: standalone egg; evolution not configured
-  { "BERGMITE", 0, 0, R_RARO, 0x4DB8, 55, 69, 85, 28, TYPE_ICE, TYPE_NONE, 5 },  // 712: standalone egg; evolution not configured
-  { "AVALUGG", 0, 0, R_RARO, 0x4DB8, 95, 117, 184, 28, TYPE_ICE, TYPE_NONE, 5 },  // 713: standalone egg; evolution not configured
-  { "NOIBAT", 0, 0, R_RARO, 0x8C4D, 40, 30, 35, 55, TYPE_FLYING, TYPE_DRAGON, 0 },  // 714: standalone egg; evolution not configured
-  { "NOIVERN", 0, 0, R_RARO, 0x8C4D, 85, 70, 80, 123, TYPE_FLYING, TYPE_DRAGON, 0 },  // 715: standalone egg; evolution not configured
-  { "XERNEAS", 0, 0, R_LEGENDARIO, 0xC333, 126, 131, 95, 99, TYPE_FAIRY, TYPE_NONE, 0 },  // 716: standalone egg; evolution not configured
-  { "YVELTAL", 0, 0, R_LEGENDARIO, 0x5A47, 126, 131, 95, 99, TYPE_DARK, TYPE_FLYING, 2 },  // 717: standalone egg; evolution not configured
-  { "ZYGARDE", 0, 0, R_LEGENDARIO, 0x5A98, 108, 100, 121, 95, TYPE_DRAGON, TYPE_GROUND, 4 },  // 718: standalone egg; evolution not configured
-  { "DIANCIE", 0, 0, R_LEGENDARIO, 0x9407, 50, 100, 150, 50, TYPE_ROCK, TYPE_FAIRY, 4 },  // 719: standalone egg; evolution not configured
-  { "HOOPA", 0, 0, R_LEGENDARIO, 0xD28F, 80, 110, 60, 70, TYPE_PSYCHIC, TYPE_GHOST, 0 },  // 720: standalone egg; evolution not configured
-  { "VOLCANION", 0, 0, R_LEGENDARIO, 0xEA87, 80, 110, 120, 70, TYPE_FIRE, TYPE_WATER, 3 },  // 721: standalone egg; evolution not configured
-  { "ROWLET", 0, 0, R_RARO, 0x3C49, 68, 55, 55, 42, TYPE_GRASS, TYPE_FLYING, 2 },  // 722: standalone egg; evolution not configured
-  { "DARTRIX", 0, 0, R_RARO, 0x3C49, 78, 75, 75, 52, TYPE_GRASS, TYPE_FLYING, 2 },  // 723: standalone egg; evolution not configured
-  { "DECIDUEYE", 0, 0, R_RARO, 0x3C49, 78, 107, 75, 70, TYPE_GRASS, TYPE_GHOST, 2 },  // 724: standalone egg; evolution not configured
-  { "LITTEN", 0, 0, R_RARO, 0xEA87, 45, 65, 40, 70, TYPE_FIRE, TYPE_NONE, 3 },  // 725: standalone egg; evolution not configured
-  { "TORRACAT", 0, 0, R_RARO, 0xEA87, 65, 85, 50, 90, TYPE_FIRE, TYPE_NONE, 3 },  // 726: standalone egg; evolution not configured
-  { "INCINEROAR", 0, 0, R_RARO, 0xEA87, 95, 115, 90, 60, TYPE_FIRE, TYPE_DARK, 3 },  // 727: standalone egg; evolution not configured
-  { "POPPLIO", 0, 0, R_RARO, 0x4C98, 50, 54, 54, 40, TYPE_WATER, TYPE_NONE, 1 },  // 728: standalone egg; evolution not configured
-  { "BRIONNE", 0, 0, R_RARO, 0x4C98, 60, 69, 69, 50, TYPE_WATER, TYPE_NONE, 1 },  // 729: standalone egg; evolution not configured
-  { "PRIMARINA", 0, 0, R_RARO, 0x4C98, 80, 74, 74, 60, TYPE_WATER, TYPE_FAIRY, 1 },  // 730: standalone egg; evolution not configured
-  { "PIKIPEK", 0, 0, R_RARO, 0x8C4D, 35, 75, 30, 65, TYPE_NORMAL, TYPE_FLYING, 0 },  // 731: standalone egg; evolution not configured
-  { "TRUMBEAK", 0, 0, R_RARO, 0x8C4D, 55, 85, 50, 75, TYPE_NORMAL, TYPE_FLYING, 0 },  // 732: standalone egg; evolution not configured
-  { "TOUCANNON", 0, 0, R_RARO, 0x8C4D, 80, 120, 75, 60, TYPE_NORMAL, TYPE_FLYING, 0 },  // 733: standalone egg; evolution not configured
-  { "YUNGOOS", 0, 0, R_RARO, 0x8C4D, 48, 70, 30, 45, TYPE_NORMAL, TYPE_NONE, 0 },  // 734: standalone egg; evolution not configured
-  { "GUMSHOOS", 0, 0, R_RARO, 0x8C4D, 88, 110, 60, 45, TYPE_NORMAL, TYPE_NONE, 0 },  // 735: standalone egg; evolution not configured
-  { "GRUBBIN", 0, 0, R_RARO, 0x7CC4, 47, 62, 45, 46, TYPE_BUG, TYPE_NONE, 2 },  // 736: standalone egg; evolution not configured
-  { "CHARJABUG", 0, 0, R_RARO, 0x7CC4, 57, 82, 95, 36, TYPE_BUG, TYPE_ELECTRIC, 2 },  // 737: standalone egg; evolution not configured
-  { "VIKAVOLT", 0, 0, R_RARO, 0x7CC4, 77, 70, 90, 43, TYPE_BUG, TYPE_ELECTRIC, 2 },  // 738: standalone egg; evolution not configured
-  { "CRABRAWLER", 0, 0, R_RARO, 0xA2A5, 47, 82, 57, 63, TYPE_FIGHTING, TYPE_NONE, 0 },  // 739: standalone egg; evolution not configured
-  { "CRABOMINABLE", 0, 0, R_RARO, 0xA2A5, 97, 132, 77, 43, TYPE_FIGHTING, TYPE_ICE, 5 },  // 740: standalone egg; evolution not configured
-  { "ORICORIO", 0, 0, R_RARO, 0xEA87, 75, 70, 70, 93, TYPE_FIRE, TYPE_FLYING, 3 },  // 741: standalone egg; evolution not configured
-  { "CUTIEFLY", 0, 0, R_RARO, 0x7CC4, 40, 45, 40, 84, TYPE_BUG, TYPE_FAIRY, 2 },  // 742: standalone egg; evolution not configured
-  { "RIBOMBEE", 0, 0, R_RARO, 0x7CC4, 60, 55, 60, 124, TYPE_BUG, TYPE_FAIRY, 2 },  // 743: standalone egg; evolution not configured
-  { "ROCKRUFF", 0, 0, R_RARO, 0x9407, 45, 65, 40, 60, TYPE_ROCK, TYPE_NONE, 4 },  // 744: standalone egg; evolution not configured
-  { "LYCANROC", 0, 0, R_RARO, 0x9407, 75, 115, 65, 112, TYPE_ROCK, TYPE_NONE, 4 },  // 745: standalone egg; evolution not configured
-  { "WISHIWASHI", 0, 0, R_RARO, 0x4C98, 45, 20, 20, 40, TYPE_WATER, TYPE_NONE, 1 },  // 746: standalone egg; evolution not configured
-  { "MAREANIE", 0, 0, R_RARO, 0x8A73, 50, 53, 62, 45, TYPE_POISON, TYPE_WATER, 1 },  // 747: standalone egg; evolution not configured
-  { "TOXAPEX", 0, 0, R_RARO, 0x8A73, 50, 63, 152, 35, TYPE_POISON, TYPE_WATER, 1 },  // 748: standalone egg; evolution not configured
-  { "MUDBRAY", 0, 0, R_RARO, 0xB447, 70, 100, 70, 45, TYPE_GROUND, TYPE_NONE, 4 },  // 749: standalone egg; evolution not configured
-  { "MUDSDALE", 0, 0, R_RARO, 0xB447, 100, 125, 100, 35, TYPE_GROUND, TYPE_NONE, 4 },  // 750: standalone egg; evolution not configured
-  { "DEWPIDER", 0, 0, R_RARO, 0x4C98, 38, 40, 52, 27, TYPE_WATER, TYPE_BUG, 1 },  // 751: standalone egg; evolution not configured
-  { "ARAQUANID", 0, 0, R_RARO, 0x4C98, 68, 70, 92, 42, TYPE_WATER, TYPE_BUG, 1 },  // 752: standalone egg; evolution not configured
-  { "FOMANTIS", 0, 0, R_RARO, 0x3C49, 40, 55, 35, 35, TYPE_GRASS, TYPE_NONE, 2 },  // 753: standalone egg; evolution not configured
-  { "LURANTIS", 0, 0, R_RARO, 0x3C49, 70, 105, 90, 45, TYPE_GRASS, TYPE_NONE, 2 },  // 754: standalone egg; evolution not configured
-  { "MORELULL", 0, 0, R_RARO, 0x3C49, 40, 35, 55, 15, TYPE_GRASS, TYPE_FAIRY, 2 },  // 755: standalone egg; evolution not configured
-  { "SHIINOTIC", 0, 0, R_RARO, 0x3C49, 60, 45, 80, 30, TYPE_GRASS, TYPE_FAIRY, 2 },  // 756: standalone egg; evolution not configured
-  { "SALANDIT", 0, 0, R_RARO, 0x8A73, 48, 44, 40, 77, TYPE_POISON, TYPE_FIRE, 3 },  // 757: standalone egg; evolution not configured
-  { "SALAZZLE", 0, 0, R_RARO, 0x8A73, 68, 64, 60, 117, TYPE_POISON, TYPE_FIRE, 3 },  // 758: standalone egg; evolution not configured
-  { "STUFFUL", 0, 0, R_RARO, 0x8C4D, 70, 75, 50, 50, TYPE_NORMAL, TYPE_FIGHTING, 0 },  // 759: standalone egg; evolution not configured
-  { "BEWEAR", 0, 0, R_RARO, 0x8C4D, 120, 125, 80, 60, TYPE_NORMAL, TYPE_FIGHTING, 0 },  // 760: standalone egg; evolution not configured
-  { "BOUNSWEET", 0, 0, R_RARO, 0x3C49, 42, 30, 38, 32, TYPE_GRASS, TYPE_NONE, 2 },  // 761: standalone egg; evolution not configured
-  { "STEENEE", 0, 0, R_RARO, 0x3C49, 52, 40, 48, 62, TYPE_GRASS, TYPE_NONE, 2 },  // 762: standalone egg; evolution not configured
-  { "TSAREENA", 0, 0, R_RARO, 0x3C49, 72, 120, 98, 72, TYPE_GRASS, TYPE_NONE, 2 },  // 763: standalone egg; evolution not configured
-  { "COMFEY", 0, 0, R_RARO, 0xC333, 51, 52, 90, 100, TYPE_FAIRY, TYPE_NONE, 0 },  // 764: standalone egg; evolution not configured
-  { "ORANGURU", 0, 0, R_RARO, 0x8C4D, 90, 60, 80, 60, TYPE_NORMAL, TYPE_PSYCHIC, 0 },  // 765: standalone egg; evolution not configured
-  { "PASSIMIAN", 0, 0, R_RARO, 0xA2A5, 100, 120, 90, 80, TYPE_FIGHTING, TYPE_NONE, 0 },  // 766: standalone egg; evolution not configured
-  { "WIMPOD", 0, 0, R_RARO, 0x7CC4, 25, 35, 40, 80, TYPE_BUG, TYPE_WATER, 1 },  // 767: standalone egg; evolution not configured
-  { "GOLISOPOD", 0, 0, R_RARO, 0x7CC4, 75, 125, 140, 40, TYPE_BUG, TYPE_WATER, 1 },  // 768: standalone egg; evolution not configured
-  { "SANDYGAST", 0, 0, R_RARO, 0x6AD3, 55, 55, 80, 15, TYPE_GHOST, TYPE_GROUND, 4 },  // 769: standalone egg; evolution not configured
-  { "PALOSSAND", 0, 0, R_RARO, 0x6AD3, 85, 75, 110, 35, TYPE_GHOST, TYPE_GROUND, 4 },  // 770: standalone egg; evolution not configured
-  { "PYUKUMUKU", 0, 0, R_RARO, 0x4C98, 55, 60, 130, 5, TYPE_WATER, TYPE_NONE, 1 },  // 771: standalone egg; evolution not configured
-  { "TYPE: NULL", 0, 0, R_LEGENDARIO, 0x8C4D, 95, 95, 95, 59, TYPE_NORMAL, TYPE_NONE, 0 },  // 772: standalone egg; evolution not configured
-  { "SILVALLY", 0, 0, R_LEGENDARIO, 0x8C4D, 95, 95, 95, 95, TYPE_NORMAL, TYPE_NONE, 0 },  // 773: standalone egg; evolution not configured
-  { "MINIOR", 0, 0, R_RARO, 0x9407, 60, 60, 100, 60, TYPE_ROCK, TYPE_FLYING, 4 },  // 774: standalone egg; evolution not configured
-  { "KOMALA", 0, 0, R_RARO, 0x8C4D, 65, 115, 65, 65, TYPE_NORMAL, TYPE_NONE, 0 },  // 775: standalone egg; evolution not configured
-  { "TURTONATOR", 0, 0, R_RARO, 0xEA87, 60, 78, 135, 36, TYPE_FIRE, TYPE_DRAGON, 3 },  // 776: standalone egg; evolution not configured
-  { "TOGEDEMARU", 0, 0, R_RARO, 0xBCA1, 65, 98, 63, 96, TYPE_ELECTRIC, TYPE_STEEL, 4 },  // 777: standalone egg; evolution not configured
-  { "MIMIKYU", 0, 0, R_RARO, 0x6AD3, 55, 90, 80, 96, TYPE_GHOST, TYPE_FAIRY, 0 },  // 778: standalone egg; evolution not configured
-  { "BRUXISH", 0, 0, R_RARO, 0x4C98, 68, 105, 70, 92, TYPE_WATER, TYPE_PSYCHIC, 1 },  // 779: standalone egg; evolution not configured
-  { "DRAMPA", 0, 0, R_RARO, 0x8C4D, 78, 60, 85, 36, TYPE_NORMAL, TYPE_DRAGON, 0 },  // 780: standalone egg; evolution not configured
-  { "DHELMISE", 0, 0, R_RARO, 0x6AD3, 70, 131, 100, 40, TYPE_GHOST, TYPE_GRASS, 2 },  // 781: standalone egg; evolution not configured
-  { "JANGMO-O", 0, 0, R_RARO, 0x5A98, 45, 55, 65, 45, TYPE_DRAGON, TYPE_NONE, 0 },  // 782: standalone egg; evolution not configured
-  { "HAKAMO-O", 0, 0, R_RARO, 0x5A98, 55, 75, 90, 65, TYPE_DRAGON, TYPE_FIGHTING, 0 },  // 783: standalone egg; evolution not configured
-  { "KOMMO-O", 0, 0, R_RARO, 0x5A98, 75, 110, 125, 85, TYPE_DRAGON, TYPE_FIGHTING, 0 },  // 784: standalone egg; evolution not configured
-  { "TAPU KOKO", 0, 0, R_LEGENDARIO, 0xBCA1, 70, 115, 85, 130, TYPE_ELECTRIC, TYPE_FAIRY, 0 },  // 785: standalone egg; evolution not configured
-  { "TAPU LELE", 0, 0, R_LEGENDARIO, 0xD28F, 70, 85, 75, 95, TYPE_PSYCHIC, TYPE_FAIRY, 0 },  // 786: standalone egg; evolution not configured
-  { "TAPU BULU", 0, 0, R_LEGENDARIO, 0x3C49, 70, 130, 115, 75, TYPE_GRASS, TYPE_FAIRY, 2 },  // 787: standalone egg; evolution not configured
-  { "TAPU FINI", 0, 0, R_LEGENDARIO, 0x4C98, 70, 75, 115, 85, TYPE_WATER, TYPE_FAIRY, 1 },  // 788: standalone egg; evolution not configured
-  { "COSMOG", 0, 0, R_LEGENDARIO, 0xD28F, 43, 29, 31, 37, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 789: standalone egg; evolution not configured
-  { "COSMOEM", 0, 0, R_LEGENDARIO, 0xD28F, 43, 29, 131, 37, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 790: standalone egg; evolution not configured
-  { "SOLGALEO", 0, 0, R_LEGENDARIO, 0xD28F, 137, 137, 107, 97, TYPE_PSYCHIC, TYPE_STEEL, 4 },  // 791: standalone egg; evolution not configured
-  { "LUNALA", 0, 0, R_LEGENDARIO, 0xD28F, 137, 113, 89, 97, TYPE_PSYCHIC, TYPE_GHOST, 0 },  // 792: standalone egg; evolution not configured
-  { "NIHILEGO", 0, 0, R_RARO, 0x9407, 109, 53, 47, 103, TYPE_ROCK, TYPE_POISON, 4 },  // 793: standalone egg; evolution not configured
-  { "BUZZWOLE", 0, 0, R_RARO, 0x7CC4, 107, 139, 139, 79, TYPE_BUG, TYPE_FIGHTING, 2 },  // 794: standalone egg; evolution not configured
-  { "PHEROMOSA", 0, 0, R_RARO, 0x7CC4, 71, 137, 37, 151, TYPE_BUG, TYPE_FIGHTING, 2 },  // 795: standalone egg; evolution not configured
-  { "XURKITREE", 0, 0, R_RARO, 0xBCA1, 83, 89, 71, 83, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 796: standalone egg; evolution not configured
-  { "CELESTEELA", 0, 0, R_RARO, 0x6BF1, 97, 101, 103, 61, TYPE_STEEL, TYPE_FLYING, 4 },  // 797: standalone egg; evolution not configured
-  { "KARTANA", 0, 0, R_RARO, 0x3C49, 59, 181, 131, 109, TYPE_GRASS, TYPE_STEEL, 2 },  // 798: standalone egg; evolution not configured
-  { "GUZZLORD", 0, 0, R_RARO, 0x5A47, 223, 101, 53, 43, TYPE_DARK, TYPE_DRAGON, 2 },  // 799: standalone egg; evolution not configured
-  { "NECROZMA", 0, 0, R_LEGENDARIO, 0xD28F, 97, 107, 101, 79, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 800: standalone egg; evolution not configured
-  { "MAGEARNA", 0, 0, R_LEGENDARIO, 0x6BF1, 80, 95, 115, 65, TYPE_STEEL, TYPE_FAIRY, 4 },  // 801: standalone egg; evolution not configured
-  { "MARSHADOW", 0, 0, R_LEGENDARIO, 0xA2A5, 90, 125, 80, 125, TYPE_FIGHTING, TYPE_GHOST, 0 },  // 802: standalone egg; evolution not configured
-  { "POIPOLE", 0, 0, R_RARO, 0x8A73, 67, 73, 67, 73, TYPE_POISON, TYPE_NONE, 0 },  // 803: standalone egg; evolution not configured
-  { "NAGANADEL", 0, 0, R_RARO, 0x8A73, 73, 73, 73, 121, TYPE_POISON, TYPE_DRAGON, 0 },  // 804: standalone egg; evolution not configured
-  { "STAKATAKA", 0, 0, R_RARO, 0x9407, 61, 131, 211, 13, TYPE_ROCK, TYPE_STEEL, 4 },  // 805: standalone egg; evolution not configured
-  { "BLACEPHALON", 0, 0, R_RARO, 0xEA87, 53, 127, 53, 107, TYPE_FIRE, TYPE_GHOST, 3 },  // 806: standalone egg; evolution not configured
-  { "ZERAORA", 0, 0, R_LEGENDARIO, 0xBCA1, 88, 112, 75, 143, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 807: standalone egg; evolution not configured
-  { "MELTAN", 0, 0, R_LEGENDARIO, 0x6BF1, 46, 65, 65, 34, TYPE_STEEL, TYPE_NONE, 4 },  // 808: standalone egg; evolution not configured
-  { "MELMETAL", 0, 0, R_LEGENDARIO, 0x6BF1, 135, 143, 143, 34, TYPE_STEEL, TYPE_NONE, 4 },  // 809: standalone egg; evolution not configured
-  { "GROOKEY", 0, 0, R_RARO, 0x3C49, 50, 65, 50, 65, TYPE_GRASS, TYPE_NONE, 2 },  // 810: standalone egg; evolution not configured
-  { "THWACKEY", 0, 0, R_RARO, 0x3C49, 70, 85, 70, 80, TYPE_GRASS, TYPE_NONE, 2 },  // 811: standalone egg; evolution not configured
-  { "RILLABOOM", 0, 0, R_RARO, 0x3C49, 100, 125, 90, 85, TYPE_GRASS, TYPE_NONE, 2 },  // 812: standalone egg; evolution not configured
-  { "SCORBUNNY", 0, 0, R_RARO, 0xEA87, 50, 71, 40, 69, TYPE_FIRE, TYPE_NONE, 3 },  // 813: standalone egg; evolution not configured
-  { "RABOOT", 0, 0, R_RARO, 0xEA87, 65, 86, 60, 94, TYPE_FIRE, TYPE_NONE, 3 },  // 814: standalone egg; evolution not configured
-  { "CINDERACE", 0, 0, R_RARO, 0xEA87, 80, 116, 75, 119, TYPE_FIRE, TYPE_NONE, 3 },  // 815: standalone egg; evolution not configured
-  { "SOBBLE", 0, 0, R_RARO, 0x4C98, 50, 40, 40, 70, TYPE_WATER, TYPE_NONE, 1 },  // 816: standalone egg; evolution not configured
-  { "DRIZZILE", 0, 0, R_RARO, 0x4C98, 65, 60, 55, 90, TYPE_WATER, TYPE_NONE, 1 },  // 817: standalone egg; evolution not configured
-  { "INTELEON", 0, 0, R_RARO, 0x4C98, 70, 85, 65, 120, TYPE_WATER, TYPE_NONE, 1 },  // 818: standalone egg; evolution not configured
-  { "SKWOVET", 0, 0, R_RARO, 0x8C4D, 70, 55, 55, 25, TYPE_NORMAL, TYPE_NONE, 0 },  // 819: standalone egg; evolution not configured
-  { "GREEDENT", 0, 0, R_RARO, 0x8C4D, 120, 95, 95, 20, TYPE_NORMAL, TYPE_NONE, 0 },  // 820: standalone egg; evolution not configured
-  { "ROOKIDEE", 0, 0, R_RARO, 0x8C4D, 38, 47, 35, 57, TYPE_FLYING, TYPE_NONE, 0 },  // 821: standalone egg; evolution not configured
-  { "CORVISQUIRE", 0, 0, R_RARO, 0x8C4D, 68, 67, 55, 77, TYPE_FLYING, TYPE_NONE, 0 },  // 822: standalone egg; evolution not configured
-  { "CORVIKNIGHT", 0, 0, R_RARO, 0x8C4D, 98, 87, 105, 67, TYPE_FLYING, TYPE_STEEL, 4 },  // 823: standalone egg; evolution not configured
-  { "BLIPBUG", 0, 0, R_RARO, 0x7CC4, 25, 20, 20, 45, TYPE_BUG, TYPE_NONE, 2 },  // 824: standalone egg; evolution not configured
-  { "DOTTLER", 0, 0, R_RARO, 0x7CC4, 50, 35, 80, 30, TYPE_BUG, TYPE_PSYCHIC, 2 },  // 825: standalone egg; evolution not configured
-  { "ORBEETLE", 0, 0, R_RARO, 0x7CC4, 60, 45, 110, 90, TYPE_BUG, TYPE_PSYCHIC, 2 },  // 826: standalone egg; evolution not configured
-  { "NICKIT", 0, 0, R_RARO, 0x5A47, 40, 28, 28, 50, TYPE_DARK, TYPE_NONE, 2 },  // 827: standalone egg; evolution not configured
-  { "THIEVUL", 0, 0, R_RARO, 0x5A47, 70, 58, 58, 90, TYPE_DARK, TYPE_NONE, 2 },  // 828: standalone egg; evolution not configured
-  { "GOSSIFLEUR", 0, 0, R_RARO, 0x3C49, 40, 40, 60, 10, TYPE_GRASS, TYPE_NONE, 2 },  // 829: standalone egg; evolution not configured
-  { "ELDEGOSS", 0, 0, R_RARO, 0x3C49, 60, 50, 90, 60, TYPE_GRASS, TYPE_NONE, 2 },  // 830: standalone egg; evolution not configured
-  { "WOOLOO", 0, 0, R_RARO, 0x8C4D, 42, 40, 55, 48, TYPE_NORMAL, TYPE_NONE, 0 },  // 831: standalone egg; evolution not configured
-  { "DUBWOOL", 0, 0, R_RARO, 0x8C4D, 72, 80, 100, 88, TYPE_NORMAL, TYPE_NONE, 0 },  // 832: standalone egg; evolution not configured
-  { "CHEWTLE", 0, 0, R_RARO, 0x4C98, 50, 64, 50, 44, TYPE_WATER, TYPE_NONE, 1 },  // 833: standalone egg; evolution not configured
-  { "DREDNAW", 0, 0, R_RARO, 0x4C98, 90, 115, 90, 74, TYPE_WATER, TYPE_ROCK, 1 },  // 834: standalone egg; evolution not configured
-  { "YAMPER", 0, 0, R_RARO, 0xBCA1, 59, 45, 50, 26, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 835: standalone egg; evolution not configured
-  { "BOLTUND", 0, 0, R_RARO, 0xBCA1, 69, 90, 60, 121, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 836: standalone egg; evolution not configured
-  { "ROLYCOLY", 0, 0, R_RARO, 0x9407, 30, 40, 50, 30, TYPE_ROCK, TYPE_NONE, 4 },  // 837: standalone egg; evolution not configured
-  { "CARKOL", 0, 0, R_RARO, 0x9407, 80, 60, 90, 50, TYPE_ROCK, TYPE_FIRE, 3 },  // 838: standalone egg; evolution not configured
-  { "COALOSSAL", 0, 0, R_RARO, 0x9407, 110, 80, 120, 30, TYPE_ROCK, TYPE_FIRE, 3 },  // 839: standalone egg; evolution not configured
-  { "APPLIN", 0, 0, R_RARO, 0x3C49, 40, 40, 80, 20, TYPE_GRASS, TYPE_DRAGON, 2 },  // 840: standalone egg; evolution not configured
-  { "FLAPPLE", 0, 0, R_RARO, 0x3C49, 70, 110, 80, 70, TYPE_GRASS, TYPE_DRAGON, 2 },  // 841: standalone egg; evolution not configured
-  { "APPLETUN", 0, 0, R_RARO, 0x3C49, 110, 85, 80, 30, TYPE_GRASS, TYPE_DRAGON, 2 },  // 842: standalone egg; evolution not configured
-  { "SILICOBRA", 0, 0, R_RARO, 0xB447, 52, 57, 75, 46, TYPE_GROUND, TYPE_NONE, 4 },  // 843: standalone egg; evolution not configured
-  { "SANDACONDA", 0, 0, R_RARO, 0xB447, 72, 107, 125, 71, TYPE_GROUND, TYPE_NONE, 4 },  // 844: standalone egg; evolution not configured
-  { "CRAMORANT", 0, 0, R_RARO, 0x8C4D, 70, 85, 55, 85, TYPE_FLYING, TYPE_WATER, 1 },  // 845: standalone egg; evolution not configured
-  { "ARROKUDA", 0, 0, R_RARO, 0x4C98, 41, 63, 40, 66, TYPE_WATER, TYPE_NONE, 1 },  // 846: standalone egg; evolution not configured
-  { "BARRASKEWDA", 0, 0, R_RARO, 0x4C98, 61, 123, 60, 136, TYPE_WATER, TYPE_NONE, 1 },  // 847: standalone egg; evolution not configured
-  { "TOXEL", 0, 0, R_RARO, 0xBCA1, 40, 38, 35, 40, TYPE_ELECTRIC, TYPE_POISON, 0 },  // 848: standalone egg; evolution not configured
-  { "TOXTRICITY", 0, 0, R_RARO, 0xBCA1, 75, 98, 70, 75, TYPE_ELECTRIC, TYPE_POISON, 0 },  // 849: standalone egg; evolution not configured
-  { "SIZZLIPEDE", 0, 0, R_RARO, 0xEA87, 50, 65, 45, 45, TYPE_FIRE, TYPE_BUG, 3 },  // 850: standalone egg; evolution not configured
-  { "CENTISKORCH", 0, 0, R_RARO, 0xEA87, 100, 115, 65, 65, TYPE_FIRE, TYPE_BUG, 3 },  // 851: standalone egg; evolution not configured
-  { "CLOBBOPUS", 0, 0, R_RARO, 0xA2A5, 50, 68, 60, 32, TYPE_FIGHTING, TYPE_NONE, 0 },  // 852: standalone egg; evolution not configured
-  { "GRAPPLOCT", 0, 0, R_RARO, 0xA2A5, 80, 118, 90, 42, TYPE_FIGHTING, TYPE_NONE, 0 },  // 853: standalone egg; evolution not configured
-  { "SINISTEA", 0, 0, R_RARO, 0x6AD3, 40, 45, 45, 50, TYPE_GHOST, TYPE_NONE, 0 },  // 854: standalone egg; evolution not configured
-  { "POLTEAGEIST", 0, 0, R_RARO, 0x6AD3, 60, 65, 65, 70, TYPE_GHOST, TYPE_NONE, 0 },  // 855: standalone egg; evolution not configured
-  { "HATENNA", 0, 0, R_RARO, 0xD28F, 42, 30, 45, 39, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 856: standalone egg; evolution not configured
-  { "HATTREM", 0, 0, R_RARO, 0xD28F, 57, 40, 65, 49, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 857: standalone egg; evolution not configured
-  { "HATTERENE", 0, 0, R_RARO, 0xD28F, 57, 90, 95, 29, TYPE_PSYCHIC, TYPE_FAIRY, 0 },  // 858: standalone egg; evolution not configured
-  { "IMPIDIMP", 0, 0, R_RARO, 0x5A47, 45, 45, 30, 50, TYPE_DARK, TYPE_FAIRY, 2 },  // 859: standalone egg; evolution not configured
-  { "MORGREM", 0, 0, R_RARO, 0x5A47, 65, 60, 45, 70, TYPE_DARK, TYPE_FAIRY, 2 },  // 860: standalone egg; evolution not configured
-  { "GRIMMSNARL", 0, 0, R_RARO, 0x5A47, 95, 120, 65, 60, TYPE_DARK, TYPE_FAIRY, 2 },  // 861: standalone egg; evolution not configured
-  { "OBSTAGOON", 0, 0, R_RARO, 0x5A47, 93, 90, 101, 95, TYPE_DARK, TYPE_NORMAL, 2 },  // 862: standalone egg; evolution not configured
-  { "PERRSERKER", 0, 0, R_RARO, 0x6BF1, 70, 110, 100, 50, TYPE_STEEL, TYPE_NONE, 4 },  // 863: standalone egg; evolution not configured
-  { "CURSOLA", 0, 0, R_RARO, 0x6AD3, 60, 95, 50, 30, TYPE_GHOST, TYPE_NONE, 0 },  // 864: standalone egg; evolution not configured
-  { "SIRFETCH’D", 0, 0, R_RARO, 0xA2A5, 62, 135, 95, 65, TYPE_FIGHTING, TYPE_NONE, 0 },  // 865: standalone egg; evolution not configured
-  { "MR. RIME", 0, 0, R_RARO, 0x4DB8, 80, 85, 75, 70, TYPE_ICE, TYPE_PSYCHIC, 5 },  // 866: standalone egg; evolution not configured
-  { "RUNERIGUS", 0, 0, R_RARO, 0xB447, 58, 95, 145, 30, TYPE_GROUND, TYPE_GHOST, 4 },  // 867: standalone egg; evolution not configured
-  { "MILCERY", 0, 0, R_RARO, 0xC333, 45, 40, 40, 34, TYPE_FAIRY, TYPE_NONE, 0 },  // 868: standalone egg; evolution not configured
-  { "ALCREMIE", 0, 0, R_RARO, 0xC333, 65, 60, 75, 64, TYPE_FAIRY, TYPE_NONE, 0 },  // 869: standalone egg; evolution not configured
-  { "FALINKS", 0, 0, R_RARO, 0xA2A5, 65, 100, 100, 75, TYPE_FIGHTING, TYPE_NONE, 0 },  // 870: standalone egg; evolution not configured
-  { "PINCURCHIN", 0, 0, R_RARO, 0xBCA1, 48, 101, 95, 15, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 871: standalone egg; evolution not configured
-  { "SNOM", 0, 0, R_RARO, 0x4DB8, 30, 25, 35, 20, TYPE_ICE, TYPE_BUG, 5 },  // 872: standalone egg; evolution not configured
-  { "FROSMOTH", 0, 0, R_RARO, 0x4DB8, 70, 65, 60, 65, TYPE_ICE, TYPE_BUG, 5 },  // 873: standalone egg; evolution not configured
-  { "STONJOURNER", 0, 0, R_RARO, 0x9407, 100, 125, 135, 70, TYPE_ROCK, TYPE_NONE, 4 },  // 874: standalone egg; evolution not configured
-  { "EISCUE", 0, 0, R_RARO, 0x4DB8, 75, 80, 110, 50, TYPE_ICE, TYPE_NONE, 5 },  // 875: standalone egg; evolution not configured
-  { "INDEEDEE", 0, 0, R_RARO, 0xD28F, 60, 65, 55, 95, TYPE_PSYCHIC, TYPE_NORMAL, 0 },  // 876: standalone egg; evolution not configured
-  { "MORPEKO", 0, 0, R_RARO, 0xBCA1, 58, 95, 58, 97, TYPE_ELECTRIC, TYPE_DARK, 2 },  // 877: standalone egg; evolution not configured
-  { "CUFANT", 0, 0, R_RARO, 0x6BF1, 72, 80, 49, 40, TYPE_STEEL, TYPE_NONE, 4 },  // 878: standalone egg; evolution not configured
-  { "COPPERAJAH", 0, 0, R_RARO, 0x6BF1, 122, 130, 69, 30, TYPE_STEEL, TYPE_NONE, 4 },  // 879: standalone egg; evolution not configured
-  { "DRACOZOLT", 0, 0, R_RARO, 0xBCA1, 90, 100, 90, 75, TYPE_ELECTRIC, TYPE_DRAGON, 0 },  // 880: standalone egg; evolution not configured
-  { "ARCTOZOLT", 0, 0, R_RARO, 0xBCA1, 90, 100, 90, 55, TYPE_ELECTRIC, TYPE_ICE, 5 },  // 881: standalone egg; evolution not configured
-  { "DRACOVISH", 0, 0, R_RARO, 0x4C98, 90, 90, 100, 75, TYPE_WATER, TYPE_DRAGON, 1 },  // 882: standalone egg; evolution not configured
-  { "ARCTOVISH", 0, 0, R_RARO, 0x4C98, 90, 90, 100, 55, TYPE_WATER, TYPE_ICE, 5 },  // 883: standalone egg; evolution not configured
-  { "DURALUDON", 0, 0, R_RARO, 0x6BF1, 70, 95, 115, 85, TYPE_STEEL, TYPE_DRAGON, 4 },  // 884: standalone egg; evolution not configured
-  { "DREEPY", 0, 0, R_RARO, 0x5A98, 28, 60, 30, 82, TYPE_DRAGON, TYPE_GHOST, 0 },  // 885: standalone egg; evolution not configured
-  { "DRAKLOAK", 0, 0, R_RARO, 0x5A98, 68, 80, 50, 102, TYPE_DRAGON, TYPE_GHOST, 0 },  // 886: standalone egg; evolution not configured
-  { "DRAGAPULT", 0, 0, R_RARO, 0x5A98, 88, 120, 75, 142, TYPE_DRAGON, TYPE_GHOST, 0 },  // 887: standalone egg; evolution not configured
-  { "ZACIAN", 0, 0, R_LEGENDARIO, 0xC333, 92, 120, 115, 138, TYPE_FAIRY, TYPE_NONE, 0 },  // 888: standalone egg; evolution not configured
-  { "ZAMAZENTA", 0, 0, R_LEGENDARIO, 0xA2A5, 92, 120, 115, 138, TYPE_FIGHTING, TYPE_NONE, 0 },  // 889: standalone egg; evolution not configured
-  { "ETERNATUS", 0, 0, R_LEGENDARIO, 0x8A73, 140, 85, 95, 130, TYPE_POISON, TYPE_DRAGON, 0 },  // 890: standalone egg; evolution not configured
-  { "KUBFU", 0, 0, R_LEGENDARIO, 0xA2A5, 60, 90, 60, 72, TYPE_FIGHTING, TYPE_NONE, 0 },  // 891: standalone egg; evolution not configured
-  { "URSHIFU", 0, 0, R_LEGENDARIO, 0xA2A5, 100, 130, 100, 97, TYPE_FIGHTING, TYPE_DARK, 2 },  // 892: standalone egg; evolution not configured
-  { "ZARUDE", 0, 0, R_LEGENDARIO, 0x5A47, 105, 120, 105, 105, TYPE_DARK, TYPE_GRASS, 2 },  // 893: standalone egg; evolution not configured
-  { "REGIELEKI", 0, 0, R_LEGENDARIO, 0xBCA1, 80, 100, 50, 200, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 894: standalone egg; evolution not configured
-  { "REGIDRAGO", 0, 0, R_LEGENDARIO, 0x5A98, 200, 100, 50, 80, TYPE_DRAGON, TYPE_NONE, 0 },  // 895: standalone egg; evolution not configured
-  { "GLASTRIER", 0, 0, R_LEGENDARIO, 0x4DB8, 100, 145, 130, 30, TYPE_ICE, TYPE_NONE, 5 },  // 896: standalone egg; evolution not configured
-  { "SPECTRIER", 0, 0, R_LEGENDARIO, 0x6AD3, 100, 65, 60, 130, TYPE_GHOST, TYPE_NONE, 0 },  // 897: standalone egg; evolution not configured
-  { "CALYREX", 0, 0, R_LEGENDARIO, 0xD28F, 100, 80, 80, 80, TYPE_PSYCHIC, TYPE_GRASS, 2 },  // 898: standalone egg; evolution not configured
-  { "WYRDEER", 0, 0, R_RARO, 0x8C4D, 103, 105, 72, 65, TYPE_NORMAL, TYPE_PSYCHIC, 0 },  // 899: standalone egg; evolution not configured
-  { "KLEAVOR", 0, 0, R_RARO, 0x7CC4, 70, 135, 95, 85, TYPE_BUG, TYPE_ROCK, 2 },  // 900: standalone egg; evolution not configured
-  { "URSALUNA", 0, 0, R_RARO, 0xB447, 130, 140, 105, 50, TYPE_GROUND, TYPE_NORMAL, 4 },  // 901: standalone egg; evolution not configured
-  { "BASCULEGION", 0, 0, R_RARO, 0x4C98, 120, 112, 65, 78, TYPE_WATER, TYPE_GHOST, 1 },  // 902: standalone egg; evolution not configured
-  { "SNEASLER", 0, 0, R_RARO, 0xA2A5, 80, 130, 60, 120, TYPE_FIGHTING, TYPE_POISON, 0 },  // 903: standalone egg; evolution not configured
-  { "OVERQWIL", 0, 0, R_RARO, 0x5A47, 85, 115, 95, 85, TYPE_DARK, TYPE_POISON, 2 },  // 904: standalone egg; evolution not configured
-  { "ENAMORUS", 0, 0, R_LEGENDARIO, 0xC333, 74, 115, 70, 106, TYPE_FAIRY, TYPE_FLYING, 0 },  // 905: standalone egg; evolution not configured
-  { "SPRIGATITO", 0, 0, R_RARO, 0x3C49, 40, 61, 54, 65, TYPE_GRASS, TYPE_NONE, 2 },  // 906: standalone egg; evolution not configured
-  { "FLORAGATO", 0, 0, R_RARO, 0x3C49, 61, 80, 63, 83, TYPE_GRASS, TYPE_NONE, 2 },  // 907: standalone egg; evolution not configured
-  { "MEOWSCARADA", 0, 0, R_RARO, 0x3C49, 76, 110, 70, 123, TYPE_GRASS, TYPE_DARK, 2 },  // 908: standalone egg; evolution not configured
-  { "FUECOCO", 0, 0, R_RARO, 0xEA87, 67, 45, 59, 36, TYPE_FIRE, TYPE_NONE, 3 },  // 909: standalone egg; evolution not configured
-  { "CROCALOR", 0, 0, R_RARO, 0xEA87, 81, 55, 78, 49, TYPE_FIRE, TYPE_NONE, 3 },  // 910: standalone egg; evolution not configured
-  { "SKELEDIRGE", 0, 0, R_RARO, 0xEA87, 104, 75, 100, 66, TYPE_FIRE, TYPE_GHOST, 3 },  // 911: standalone egg; evolution not configured
-  { "QUAXLY", 0, 0, R_RARO, 0x4C98, 55, 65, 45, 50, TYPE_WATER, TYPE_NONE, 1 },  // 912: standalone egg; evolution not configured
-  { "QUAXWELL", 0, 0, R_RARO, 0x4C98, 70, 85, 65, 65, TYPE_WATER, TYPE_NONE, 1 },  // 913: standalone egg; evolution not configured
-  { "QUAQUAVAL", 0, 0, R_RARO, 0x4C98, 85, 120, 80, 85, TYPE_WATER, TYPE_FIGHTING, 1 },  // 914: standalone egg; evolution not configured
-  { "LECHONK", 0, 0, R_RARO, 0x8C4D, 54, 45, 40, 35, TYPE_NORMAL, TYPE_NONE, 0 },  // 915: standalone egg; evolution not configured
-  { "OINKOLOGNE", 0, 0, R_RARO, 0x8C4D, 110, 100, 75, 65, TYPE_NORMAL, TYPE_NONE, 0 },  // 916: standalone egg; evolution not configured
-  { "TAROUNTULA", 0, 0, R_RARO, 0x7CC4, 35, 41, 45, 20, TYPE_BUG, TYPE_NONE, 2 },  // 917: standalone egg; evolution not configured
-  { "SPIDOPS", 0, 0, R_RARO, 0x7CC4, 60, 79, 92, 35, TYPE_BUG, TYPE_NONE, 2 },  // 918: standalone egg; evolution not configured
-  { "NYMBLE", 0, 0, R_RARO, 0x7CC4, 33, 46, 40, 45, TYPE_BUG, TYPE_NONE, 2 },  // 919: standalone egg; evolution not configured
-  { "LOKIX", 0, 0, R_RARO, 0x7CC4, 71, 102, 78, 92, TYPE_BUG, TYPE_DARK, 2 },  // 920: standalone egg; evolution not configured
-  { "PAWMI", 0, 0, R_RARO, 0xBCA1, 45, 50, 20, 60, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 921: standalone egg; evolution not configured
-  { "PAWMO", 0, 0, R_RARO, 0xBCA1, 60, 75, 40, 85, TYPE_ELECTRIC, TYPE_FIGHTING, 0 },  // 922: standalone egg; evolution not configured
-  { "PAWMOT", 0, 0, R_RARO, 0xBCA1, 70, 115, 70, 105, TYPE_ELECTRIC, TYPE_FIGHTING, 0 },  // 923: standalone egg; evolution not configured
-  { "TANDEMAUS", 0, 0, R_RARO, 0x8C4D, 50, 50, 45, 75, TYPE_NORMAL, TYPE_NONE, 0 },  // 924: standalone egg; evolution not configured
-  { "MAUSHOLD", 0, 0, R_RARO, 0x8C4D, 74, 75, 70, 111, TYPE_NORMAL, TYPE_NONE, 0 },  // 925: standalone egg; evolution not configured
-  { "FIDOUGH", 0, 0, R_RARO, 0xC333, 37, 55, 70, 65, TYPE_FAIRY, TYPE_NONE, 0 },  // 926: standalone egg; evolution not configured
-  { "DACHSBUN", 0, 0, R_RARO, 0xC333, 57, 80, 115, 95, TYPE_FAIRY, TYPE_NONE, 0 },  // 927: standalone egg; evolution not configured
-  { "SMOLIV", 0, 0, R_RARO, 0x3C49, 41, 35, 45, 30, TYPE_GRASS, TYPE_NORMAL, 2 },  // 928: standalone egg; evolution not configured
-  { "DOLLIV", 0, 0, R_RARO, 0x3C49, 52, 53, 60, 33, TYPE_GRASS, TYPE_NORMAL, 2 },  // 929: standalone egg; evolution not configured
-  { "ARBOLIVA", 0, 0, R_RARO, 0x3C49, 78, 69, 90, 39, TYPE_GRASS, TYPE_NORMAL, 2 },  // 930: standalone egg; evolution not configured
-  { "SQUAWKABILLY", 0, 0, R_RARO, 0x8C4D, 82, 96, 51, 92, TYPE_NORMAL, TYPE_FLYING, 0 },  // 931: standalone egg; evolution not configured
-  { "NACLI", 0, 0, R_RARO, 0x9407, 55, 55, 75, 25, TYPE_ROCK, TYPE_NONE, 4 },  // 932: standalone egg; evolution not configured
-  { "NACLSTACK", 0, 0, R_RARO, 0x9407, 60, 60, 100, 35, TYPE_ROCK, TYPE_NONE, 4 },  // 933: standalone egg; evolution not configured
-  { "GARGANACL", 0, 0, R_RARO, 0x9407, 100, 100, 130, 35, TYPE_ROCK, TYPE_NONE, 4 },  // 934: standalone egg; evolution not configured
-  { "CHARCADET", 0, 0, R_RARO, 0xEA87, 40, 50, 40, 35, TYPE_FIRE, TYPE_NONE, 3 },  // 935: standalone egg; evolution not configured
-  { "ARMAROUGE", 0, 0, R_RARO, 0xEA87, 85, 60, 100, 75, TYPE_FIRE, TYPE_PSYCHIC, 3 },  // 936: standalone egg; evolution not configured
-  { "CERULEDGE", 0, 0, R_RARO, 0xEA87, 75, 125, 80, 85, TYPE_FIRE, TYPE_GHOST, 3 },  // 937: standalone egg; evolution not configured
-  { "TADBULB", 0, 0, R_RARO, 0xBCA1, 61, 31, 41, 45, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 938: standalone egg; evolution not configured
-  { "BELLIBOLT", 0, 0, R_RARO, 0xBCA1, 109, 64, 91, 45, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 939: standalone egg; evolution not configured
-  { "WATTREL", 0, 0, R_RARO, 0xBCA1, 40, 40, 35, 70, TYPE_ELECTRIC, TYPE_FLYING, 0 },  // 940: standalone egg; evolution not configured
-  { "KILOWATTREL", 0, 0, R_RARO, 0xBCA1, 70, 70, 60, 125, TYPE_ELECTRIC, TYPE_FLYING, 0 },  // 941: standalone egg; evolution not configured
-  { "MASCHIFF", 0, 0, R_RARO, 0x5A47, 60, 78, 60, 51, TYPE_DARK, TYPE_NONE, 2 },  // 942: standalone egg; evolution not configured
-  { "MABOSSTIFF", 0, 0, R_RARO, 0x5A47, 80, 120, 90, 85, TYPE_DARK, TYPE_NONE, 2 },  // 943: standalone egg; evolution not configured
-  { "SHROODLE", 0, 0, R_RARO, 0x8A73, 40, 65, 35, 75, TYPE_POISON, TYPE_NORMAL, 0 },  // 944: standalone egg; evolution not configured
-  { "GRAFAIAI", 0, 0, R_RARO, 0x8A73, 63, 95, 65, 110, TYPE_POISON, TYPE_NORMAL, 0 },  // 945: standalone egg; evolution not configured
-  { "BRAMBLIN", 0, 0, R_RARO, 0x3C49, 40, 65, 30, 60, TYPE_GRASS, TYPE_GHOST, 2 },  // 946: standalone egg; evolution not configured
-  { "BRAMBLEGHAST", 0, 0, R_RARO, 0x3C49, 55, 115, 70, 90, TYPE_GRASS, TYPE_GHOST, 2 },  // 947: standalone egg; evolution not configured
-  { "TOEDSCOOL", 0, 0, R_RARO, 0xB447, 40, 40, 35, 70, TYPE_GROUND, TYPE_GRASS, 2 },  // 948: standalone egg; evolution not configured
-  { "TOEDSCRUEL", 0, 0, R_RARO, 0xB447, 80, 70, 65, 100, TYPE_GROUND, TYPE_GRASS, 2 },  // 949: standalone egg; evolution not configured
-  { "KLAWF", 0, 0, R_RARO, 0x9407, 70, 100, 115, 75, TYPE_ROCK, TYPE_NONE, 4 },  // 950: standalone egg; evolution not configured
-  { "CAPSAKID", 0, 0, R_RARO, 0x3C49, 50, 62, 40, 50, TYPE_GRASS, TYPE_NONE, 2 },  // 951: standalone egg; evolution not configured
-  { "SCOVILLAIN", 0, 0, R_RARO, 0x3C49, 65, 108, 65, 75, TYPE_GRASS, TYPE_FIRE, 3 },  // 952: standalone egg; evolution not configured
-  { "RELLOR", 0, 0, R_RARO, 0x7CC4, 41, 50, 60, 30, TYPE_BUG, TYPE_NONE, 2 },  // 953: standalone egg; evolution not configured
-  { "RABSCA", 0, 0, R_RARO, 0x7CC4, 75, 50, 85, 45, TYPE_BUG, TYPE_PSYCHIC, 2 },  // 954: standalone egg; evolution not configured
-  { "FLITTLE", 0, 0, R_RARO, 0xD28F, 30, 35, 30, 75, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 955: standalone egg; evolution not configured
-  { "ESPATHRA", 0, 0, R_RARO, 0xD28F, 95, 60, 60, 105, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 956: standalone egg; evolution not configured
-  { "TINKATINK", 0, 0, R_RARO, 0xC333, 50, 45, 45, 58, TYPE_FAIRY, TYPE_STEEL, 4 },  // 957: standalone egg; evolution not configured
-  { "TINKATUFF", 0, 0, R_RARO, 0xC333, 65, 55, 55, 78, TYPE_FAIRY, TYPE_STEEL, 4 },  // 958: standalone egg; evolution not configured
-  { "TINKATON", 0, 0, R_RARO, 0xC333, 85, 75, 77, 94, TYPE_FAIRY, TYPE_STEEL, 4 },  // 959: standalone egg; evolution not configured
-  { "WIGLETT", 0, 0, R_RARO, 0x4C98, 10, 55, 25, 95, TYPE_WATER, TYPE_NONE, 1 },  // 960: standalone egg; evolution not configured
-  { "WUGTRIO", 0, 0, R_RARO, 0x4C98, 35, 100, 50, 120, TYPE_WATER, TYPE_NONE, 1 },  // 961: standalone egg; evolution not configured
-  { "BOMBIRDIER", 0, 0, R_RARO, 0x8C4D, 70, 103, 85, 82, TYPE_FLYING, TYPE_DARK, 2 },  // 962: standalone egg; evolution not configured
-  { "FINIZEN", 0, 0, R_RARO, 0x4C98, 70, 45, 40, 75, TYPE_WATER, TYPE_NONE, 1 },  // 963: standalone egg; evolution not configured
-  { "PALAFIN", 0, 0, R_RARO, 0x4C98, 100, 70, 72, 100, TYPE_WATER, TYPE_NONE, 1 },  // 964: standalone egg; evolution not configured
-  { "VAROOM", 0, 0, R_RARO, 0x6BF1, 45, 70, 63, 47, TYPE_STEEL, TYPE_POISON, 4 },  // 965: standalone egg; evolution not configured
-  { "REVAVROOM", 0, 0, R_RARO, 0x6BF1, 80, 119, 90, 90, TYPE_STEEL, TYPE_POISON, 4 },  // 966: standalone egg; evolution not configured
-  { "CYCLIZAR", 0, 0, R_RARO, 0x5A98, 70, 95, 65, 121, TYPE_DRAGON, TYPE_NORMAL, 0 },  // 967: standalone egg; evolution not configured
-  { "ORTHWORM", 0, 0, R_RARO, 0x6BF1, 70, 85, 145, 65, TYPE_STEEL, TYPE_NONE, 4 },  // 968: standalone egg; evolution not configured
-  { "GLIMMET", 0, 0, R_RARO, 0x9407, 48, 35, 42, 60, TYPE_ROCK, TYPE_POISON, 4 },  // 969: standalone egg; evolution not configured
-  { "GLIMMORA", 0, 0, R_RARO, 0x9407, 83, 55, 90, 86, TYPE_ROCK, TYPE_POISON, 4 },  // 970: standalone egg; evolution not configured
-  { "GREAVARD", 0, 0, R_RARO, 0x6AD3, 50, 61, 60, 34, TYPE_GHOST, TYPE_NONE, 0 },  // 971: standalone egg; evolution not configured
-  { "HOUNDSTONE", 0, 0, R_RARO, 0x6AD3, 72, 101, 100, 68, TYPE_GHOST, TYPE_NONE, 0 },  // 972: standalone egg; evolution not configured
-  { "FLAMIGO", 0, 0, R_RARO, 0x8C4D, 82, 115, 74, 90, TYPE_FLYING, TYPE_FIGHTING, 0 },  // 973: standalone egg; evolution not configured
-  { "CETODDLE", 0, 0, R_RARO, 0x4DB8, 108, 68, 45, 43, TYPE_ICE, TYPE_NONE, 5 },  // 974: standalone egg; evolution not configured
-  { "CETITAN", 0, 0, R_RARO, 0x4DB8, 170, 113, 65, 73, TYPE_ICE, TYPE_NONE, 5 },  // 975: standalone egg; evolution not configured
-  { "VELUZA", 0, 0, R_RARO, 0x4C98, 90, 102, 73, 70, TYPE_WATER, TYPE_PSYCHIC, 1 },  // 976: standalone egg; evolution not configured
-  { "DONDOZO", 0, 0, R_RARO, 0x4C98, 150, 100, 115, 35, TYPE_WATER, TYPE_NONE, 1 },  // 977: standalone egg; evolution not configured
-  { "TATSUGIRI", 0, 0, R_RARO, 0x5A98, 68, 50, 60, 82, TYPE_DRAGON, TYPE_WATER, 1 },  // 978: standalone egg; evolution not configured
-  { "ANNIHILAPE", 0, 0, R_RARO, 0xA2A5, 110, 115, 80, 90, TYPE_FIGHTING, TYPE_GHOST, 0 },  // 979: standalone egg; evolution not configured
-  { "CLODSIRE", 0, 0, R_RARO, 0x8A73, 130, 75, 60, 20, TYPE_POISON, TYPE_GROUND, 4 },  // 980: standalone egg; evolution not configured
-  { "FARIGIRAF", 0, 0, R_RARO, 0x8C4D, 120, 90, 70, 60, TYPE_NORMAL, TYPE_PSYCHIC, 0 },  // 981: standalone egg; evolution not configured
-  { "DUDUNSPARCE", 0, 0, R_RARO, 0x8C4D, 125, 100, 80, 55, TYPE_NORMAL, TYPE_NONE, 0 },  // 982: standalone egg; evolution not configured
-  { "KINGAMBIT", 0, 0, R_RARO, 0x5A47, 100, 135, 120, 50, TYPE_DARK, TYPE_STEEL, 2 },  // 983: standalone egg; evolution not configured
-  { "GREAT TUSK", 0, 0, R_RARO, 0xB447, 115, 131, 131, 87, TYPE_GROUND, TYPE_FIGHTING, 4 },  // 984: standalone egg; evolution not configured
-  { "SCREAM TAIL", 0, 0, R_RARO, 0xC333, 115, 65, 99, 111, TYPE_FAIRY, TYPE_PSYCHIC, 0 },  // 985: standalone egg; evolution not configured
-  { "BRUTE BONNET", 0, 0, R_RARO, 0x3C49, 111, 127, 99, 55, TYPE_GRASS, TYPE_DARK, 2 },  // 986: standalone egg; evolution not configured
-  { "FLUTTER MANE", 0, 0, R_RARO, 0x6AD3, 55, 55, 55, 135, TYPE_GHOST, TYPE_FAIRY, 0 },  // 987: standalone egg; evolution not configured
-  { "SLITHER WING", 0, 0, R_RARO, 0x7CC4, 85, 135, 79, 81, TYPE_BUG, TYPE_FIGHTING, 2 },  // 988: standalone egg; evolution not configured
-  { "SANDY SHOCKS", 0, 0, R_RARO, 0xBCA1, 85, 81, 97, 101, TYPE_ELECTRIC, TYPE_GROUND, 4 },  // 989: standalone egg; evolution not configured
-  { "IRON TREADS", 0, 0, R_RARO, 0xB447, 90, 112, 120, 106, TYPE_GROUND, TYPE_STEEL, 4 },  // 990: standalone egg; evolution not configured
-  { "IRON BUNDLE", 0, 0, R_RARO, 0x4DB8, 56, 80, 114, 136, TYPE_ICE, TYPE_WATER, 5 },  // 991: standalone egg; evolution not configured
-  { "IRON HANDS", 0, 0, R_RARO, 0xA2A5, 154, 140, 108, 50, TYPE_FIGHTING, TYPE_ELECTRIC, 0 },  // 992: standalone egg; evolution not configured
-  { "IRON JUGULIS", 0, 0, R_RARO, 0x5A47, 94, 80, 86, 108, TYPE_DARK, TYPE_FLYING, 2 },  // 993: standalone egg; evolution not configured
-  { "IRON MOTH", 0, 0, R_RARO, 0xEA87, 80, 70, 60, 110, TYPE_FIRE, TYPE_POISON, 3 },  // 994: standalone egg; evolution not configured
-  { "IRON THORNS", 0, 0, R_RARO, 0x9407, 100, 134, 110, 72, TYPE_ROCK, TYPE_ELECTRIC, 4 },  // 995: standalone egg; evolution not configured
-  { "FRIGIBAX", 0, 0, R_RARO, 0x5A98, 65, 75, 45, 55, TYPE_DRAGON, TYPE_ICE, 5 },  // 996: standalone egg; evolution not configured
-  { "ARCTIBAX", 0, 0, R_RARO, 0x5A98, 90, 95, 66, 62, TYPE_DRAGON, TYPE_ICE, 5 },  // 997: standalone egg; evolution not configured
-  { "BAXCALIBUR", 0, 0, R_RARO, 0x5A98, 115, 145, 92, 87, TYPE_DRAGON, TYPE_ICE, 5 },  // 998: standalone egg; evolution not configured
-  { "GIMMIGHOUL", 0, 0, R_RARO, 0x6AD3, 45, 30, 70, 10, TYPE_GHOST, TYPE_NONE, 0 },  // 999: standalone egg; evolution not configured
-  { "GHOLDENGO", 0, 0, R_RARO, 0x6BF1, 87, 60, 95, 84, TYPE_STEEL, TYPE_GHOST, 4 },  // 1000: standalone egg; evolution not configured
-  { "WO-CHIEN", 0, 0, R_LEGENDARIO, 0x5A47, 85, 85, 100, 70, TYPE_DARK, TYPE_GRASS, 2 },  // 1001: standalone egg; evolution not configured
-  { "CHIEN-PAO", 0, 0, R_LEGENDARIO, 0x5A47, 80, 120, 80, 135, TYPE_DARK, TYPE_ICE, 5 },  // 1002: standalone egg; evolution not configured
-  { "TING-LU", 0, 0, R_LEGENDARIO, 0x5A47, 155, 110, 125, 45, TYPE_DARK, TYPE_GROUND, 2 },  // 1003: standalone egg; evolution not configured
-  { "CHI-YU", 0, 0, R_LEGENDARIO, 0x5A47, 55, 80, 80, 100, TYPE_DARK, TYPE_FIRE, 3 },  // 1004: standalone egg; evolution not configured
-  { "ROARING MOON", 0, 0, R_RARO, 0x5A98, 105, 139, 71, 119, TYPE_DRAGON, TYPE_DARK, 2 },  // 1005: standalone egg; evolution not configured
-  { "IRON VALIANT", 0, 0, R_RARO, 0xC333, 74, 130, 90, 116, TYPE_FAIRY, TYPE_FIGHTING, 0 },  // 1006: standalone egg; evolution not configured
-  { "KORAIDON", 0, 0, R_LEGENDARIO, 0xA2A5, 100, 135, 115, 135, TYPE_FIGHTING, TYPE_DRAGON, 0 },  // 1007: standalone egg; evolution not configured
-  { "MIRAIDON", 0, 0, R_LEGENDARIO, 0xBCA1, 100, 85, 100, 135, TYPE_ELECTRIC, TYPE_DRAGON, 0 },  // 1008: standalone egg; evolution not configured
-  { "WALKING WAKE", 0, 0, R_RARO, 0x4C98, 99, 83, 91, 109, TYPE_WATER, TYPE_DRAGON, 1 },  // 1009: standalone egg; evolution not configured
-  { "IRON LEAVES", 0, 0, R_RARO, 0x3C49, 90, 130, 88, 104, TYPE_GRASS, TYPE_PSYCHIC, 2 },  // 1010: standalone egg; evolution not configured
-  { "DIPPLIN", 0, 0, R_RARO, 0x3C49, 80, 80, 110, 40, TYPE_GRASS, TYPE_DRAGON, 2 },  // 1011: standalone egg; evolution not configured
-  { "POLTCHAGEIST", 0, 0, R_RARO, 0x3C49, 40, 45, 45, 50, TYPE_GRASS, TYPE_GHOST, 2 },  // 1012: standalone egg; evolution not configured
-  { "SINISTCHA", 0, 0, R_RARO, 0x3C49, 71, 60, 106, 70, TYPE_GRASS, TYPE_GHOST, 2 },  // 1013: standalone egg; evolution not configured
-  { "OKIDOGI", 0, 0, R_LEGENDARIO, 0x8A73, 88, 128, 115, 80, TYPE_POISON, TYPE_FIGHTING, 0 },  // 1014: standalone egg; evolution not configured
-  { "MUNKIDORI", 0, 0, R_LEGENDARIO, 0x8A73, 88, 75, 66, 106, TYPE_POISON, TYPE_PSYCHIC, 0 },  // 1015: standalone egg; evolution not configured
-  { "FEZANDIPITI", 0, 0, R_LEGENDARIO, 0x8A73, 88, 91, 82, 99, TYPE_POISON, TYPE_FAIRY, 0 },  // 1016: standalone egg; evolution not configured
-  { "OGERPON", 0, 0, R_LEGENDARIO, 0x3C49, 80, 120, 84, 110, TYPE_GRASS, TYPE_NONE, 2 },  // 1017: standalone egg; evolution not configured
-  { "ARCHALUDON", 0, 0, R_RARO, 0x6BF1, 90, 105, 130, 85, TYPE_STEEL, TYPE_DRAGON, 4 },  // 1018: standalone egg; evolution not configured
-  { "HYDRAPPLE", 0, 0, R_RARO, 0x3C49, 106, 80, 110, 44, TYPE_GRASS, TYPE_DRAGON, 2 },  // 1019: standalone egg; evolution not configured
-  { "GOUGING FIRE", 0, 0, R_RARO, 0xEA87, 105, 115, 121, 91, TYPE_FIRE, TYPE_DRAGON, 3 },  // 1020: standalone egg; evolution not configured
-  { "RAGING BOLT", 0, 0, R_RARO, 0xBCA1, 125, 73, 91, 75, TYPE_ELECTRIC, TYPE_DRAGON, 0 },  // 1021: standalone egg; evolution not configured
-  { "IRON BOULDER", 0, 0, R_RARO, 0x9407, 90, 120, 80, 124, TYPE_ROCK, TYPE_PSYCHIC, 4 },  // 1022: standalone egg; evolution not configured
-  { "IRON CROWN", 0, 0, R_RARO, 0x6BF1, 90, 72, 100, 98, TYPE_STEEL, TYPE_PSYCHIC, 4 },  // 1023: standalone egg; evolution not configured
-  { "TERAPAGOS", 0, 0, R_LEGENDARIO, 0x8C4D, 90, 65, 85, 60, TYPE_NORMAL, TYPE_NONE, 0 },  // 1024: standalone egg; evolution not configured
-  { "PECHARUNT", 0, 0, R_LEGENDARIO, 0x8A73, 88, 88, 160, 88, TYPE_POISON, TYPE_GHOST, 0 },  // 1025: standalone egg; evolution not configured
+  { "BULBASAUR", 2, 16, R_COMUN, 0x3C49, 45, 49, 49, 45, TYPE_GRASS, TYPE_POISON, 2 },  // 1
+  { "IVYSAUR", 3, 32, R_EVO, 0x3C49, 60, 62, 63, 60, TYPE_GRASS, TYPE_POISON, 2 },  // 2
+  { "VENUSAUR", 0, 0, R_EVO, 0x3C49, 80, 82, 83, 80, TYPE_GRASS, TYPE_POISON, 2 },  // 3
+  { "CHARMANDER", 5, 16, R_COMUN, 0xEA87, 39, 52, 43, 65, TYPE_FIRE, TYPE_NONE, 3 },  // 4
+  { "CHARMELEON", 6, 36, R_EVO, 0xEA87, 58, 64, 58, 80, TYPE_FIRE, TYPE_NONE, 3 },  // 5
+  { "CHARIZARD", 0, 0, R_EVO, 0xEA87, 78, 84, 78, 100, TYPE_FIRE, TYPE_FLYING, 3 },  // 6
+  { "SQUIRTLE", 8, 16, R_COMUN, 0x4C98, 44, 48, 65, 43, TYPE_WATER, TYPE_NONE, 1 },  // 7
+  { "WARTORTLE", 9, 36, R_EVO, 0x4C98, 59, 63, 80, 58, TYPE_WATER, TYPE_NONE, 1 },  // 8
+  { "BLASTOISE", 0, 0, R_EVO, 0x4C98, 79, 83, 100, 78, TYPE_WATER, TYPE_NONE, 1 },  // 9
+  { "CATERPIE", 11, 7, R_COMUN, 0x7CC4, 45, 30, 35, 45, TYPE_BUG, TYPE_NONE, 2 },  // 10
+  { "METAPOD", 12, 10, R_EVO, 0x7CC4, 50, 20, 55, 30, TYPE_BUG, TYPE_NONE, 2 },  // 11
+  { "BUTTERFREE", 0, 0, R_EVO, 0x7CC4, 60, 45, 50, 70, TYPE_BUG, TYPE_FLYING, 2 },  // 12
+  { "WEEDLE", 14, 7, R_COMUN, 0x7CC4, 40, 35, 30, 50, TYPE_BUG, TYPE_POISON, 2 },  // 13
+  { "KAKUNA", 15, 10, R_EVO, 0x7CC4, 45, 25, 50, 35, TYPE_BUG, TYPE_POISON, 2 },  // 14
+  { "BEEDRILL", 0, 0, R_EVO, 0x7CC4, 65, 90, 40, 75, TYPE_BUG, TYPE_POISON, 2 },  // 15
+  { "PIDGEY", 17, 18, R_COMUN, 0x8C4D, 40, 45, 40, 56, TYPE_NORMAL, TYPE_FLYING, 0 },  // 16
+  { "PIDGEOTTO", 18, 36, R_EVO, 0x8C4D, 63, 60, 55, 71, TYPE_NORMAL, TYPE_FLYING, 0 },  // 17
+  { "PIDGEOT", 0, 0, R_EVO, 0x8C4D, 83, 80, 75, 101, TYPE_NORMAL, TYPE_FLYING, 0 },  // 18
+  { "RATTATA", 20, 20, R_COMUN, 0x8C4D, 30, 56, 35, 72, TYPE_NORMAL, TYPE_NONE, 0 },  // 19
+  { "RATICATE", 0, 0, R_EVO, 0x8C4D, 55, 81, 60, 97, TYPE_NORMAL, TYPE_NONE, 0 },  // 20
+  { "SPEAROW", 22, 20, R_COMUN, 0x8C4D, 40, 60, 30, 70, TYPE_NORMAL, TYPE_FLYING, 0 },  // 21
+  { "FEAROW", 0, 0, R_EVO, 0x8C4D, 65, 90, 65, 100, TYPE_NORMAL, TYPE_FLYING, 0 },  // 22
+  { "EKANS", 24, 22, R_COMUN, 0x8A73, 35, 60, 44, 55, TYPE_POISON, TYPE_NONE, 0 },  // 23
+  { "ARBOK", 0, 0, R_EVO, 0x8A73, 60, 95, 69, 80, TYPE_POISON, TYPE_NONE, 0 },  // 24
+  { "PIKACHU", 26, 30, R_EVO, 0xBCA1, 35, 55, 40, 90, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 25
+  { "RAICHU", 0, 0, R_EVO, 0xBCA1, 60, 90, 55, 110, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 26
+  { "SANDSHREW", 28, 22, R_COMUN, 0xB447, 50, 75, 85, 40, TYPE_GROUND, TYPE_NONE, 4 },  // 27
+  { "SANDSLASH", 0, 0, R_EVO, 0xB447, 75, 100, 110, 65, TYPE_GROUND, TYPE_NONE, 4 },  // 28
+  { "NIDORAN H", 30, 16, R_COMUN, 0x8A73, 55, 47, 52, 41, TYPE_POISON, TYPE_NONE, 0 },  // 29
+  { "NIDORINA", 31, 30, R_EVO, 0x8A73, 70, 62, 67, 56, TYPE_POISON, TYPE_NONE, 0 },  // 30
+  { "NIDOQUEEN", 0, 0, R_EVO, 0x8A73, 90, 92, 87, 76, TYPE_POISON, TYPE_GROUND, 0 },  // 31
+  { "NIDORAN M", 33, 16, R_COMUN, 0x8A73, 46, 57, 40, 50, TYPE_POISON, TYPE_NONE, 0 },  // 32
+  { "NIDORINO", 34, 30, R_EVO, 0x8A73, 61, 72, 57, 65, TYPE_POISON, TYPE_NONE, 0 },  // 33
+  { "NIDOKING", 0, 0, R_EVO, 0x8A73, 81, 102, 77, 85, TYPE_POISON, TYPE_GROUND, 0 },  // 34
+  { "CLEFAIRY", 36, 30, R_EVO, 0x8C4D, 70, 45, 48, 35, TYPE_FAIRY, TYPE_NONE, 0 },  // 35
+  { "CLEFABLE", 0, 0, R_EVO, 0x8C4D, 95, 70, 73, 60, TYPE_FAIRY, TYPE_NONE, 0 },  // 36
+  { "VULPIX", 38, 30, R_COMUN, 0xEA87, 38, 41, 40, 65, TYPE_FIRE, TYPE_NONE, 3 },  // 37
+  { "NINETALES", 0, 0, R_EVO, 0xEA87, 73, 76, 75, 100, TYPE_FIRE, TYPE_NONE, 3 },  // 38
+  { "JIGGLYPUFF", 40, 30, R_EVO, 0x8C4D, 115, 45, 20, 20, TYPE_NORMAL, TYPE_FAIRY, 0 },  // 39
+  { "WIGGLYTUFF", 0, 0, R_EVO, 0x8C4D, 140, 70, 45, 45, TYPE_NORMAL, TYPE_FAIRY, 0 },  // 40
+  { "ZUBAT", 42, 22, R_COMUN, 0x8A73, 40, 45, 35, 55, TYPE_POISON, TYPE_FLYING, 0 },  // 41
+  { "GOLBAT", 169, 20, R_EVO, 0x8A73, 75, 80, 70, 90, TYPE_POISON, TYPE_FLYING, 0 },  // 42
+  { "ODDISH", 44, 21, R_COMUN, 0x3C49, 45, 50, 55, 30, TYPE_GRASS, TYPE_POISON, 2 },  // 43
+  { "GLOOM", 45, 30, R_EVO, 0x3C49, 60, 65, 70, 40, TYPE_GRASS, TYPE_POISON, 2 },  // 44
+  { "VILEPLUME", 0, 0, R_EVO, 0x3C49, 75, 80, 85, 50, TYPE_GRASS, TYPE_POISON, 2 },  // 45
+  { "PARAS", 47, 24, R_COMUN, 0x7CC4, 35, 70, 55, 25, TYPE_BUG, TYPE_GRASS, 2 },  // 46
+  { "PARASECT", 0, 0, R_EVO, 0x7CC4, 60, 95, 80, 30, TYPE_BUG, TYPE_GRASS, 2 },  // 47
+  { "VENONAT", 49, 31, R_COMUN, 0x7CC4, 60, 55, 50, 45, TYPE_BUG, TYPE_POISON, 2 },  // 48
+  { "VENOMOTH", 0, 0, R_EVO, 0x7CC4, 70, 65, 60, 90, TYPE_BUG, TYPE_POISON, 2 },  // 49
+  { "DIGLETT", 51, 26, R_COMUN, 0xB447, 10, 55, 25, 95, TYPE_GROUND, TYPE_NONE, 4 },  // 50
+  { "DUGTRIO", 0, 0, R_EVO, 0xB447, 35, 100, 50, 120, TYPE_GROUND, TYPE_NONE, 4 },  // 51
+  { "MEOWTH", 53, 28, R_COMUN, 0x8C4D, 40, 45, 35, 90, TYPE_NORMAL, TYPE_NONE, 0 },  // 52
+  { "PERSIAN", 0, 0, R_EVO, 0x8C4D, 65, 70, 60, 115, TYPE_NORMAL, TYPE_NONE, 0 },  // 53
+  { "PSYDUCK", 55, 33, R_COMUN, 0x4C98, 50, 52, 48, 55, TYPE_WATER, TYPE_NONE, 1 },  // 54
+  { "GOLDUCK", 0, 0, R_EVO, 0x4C98, 80, 82, 78, 85, TYPE_WATER, TYPE_NONE, 1 },  // 55
+  { "MANKEY", 57, 28, R_COMUN, 0xA2A5, 40, 80, 35, 70, TYPE_FIGHTING, TYPE_NONE, 0 },  // 56
+  { "PRIMEAPE", 979, 30, R_EVO, 0xA2A5, 65, 105, 60, 95, TYPE_FIGHTING, TYPE_NONE, 0 },  // 57
+  { "GROWLITHE", 59, 30, R_RARO, 0xEA87, 55, 70, 45, 60, TYPE_FIRE, TYPE_NONE, 3 },  // 58
+  { "ARCANINE", 0, 0, R_EVO, 0xEA87, 90, 110, 80, 95, TYPE_FIRE, TYPE_NONE, 3 },  // 59
+  { "POLIWAG", 61, 25, R_COMUN, 0x4C98, 40, 50, 40, 90, TYPE_WATER, TYPE_NONE, 1 },  // 60
+  { "POLIWHIRL", 62, 30, R_EVO, 0x4C98, 65, 65, 65, 90, TYPE_WATER, TYPE_NONE, 1 },  // 61
+  { "POLIWRATH", 0, 0, R_EVO, 0x4C98, 90, 95, 95, 70, TYPE_WATER, TYPE_FIGHTING, 1 },  // 62
+  { "ABRA", 64, 16, R_COMUN, 0xD28F, 25, 20, 15, 90, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 63
+  { "KADABRA", 65, 30, R_EVO, 0xD28F, 40, 35, 30, 105, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 64
+  { "ALAKAZAM", 0, 0, R_EVO, 0xD28F, 55, 50, 45, 120, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 65
+  { "MACHOP", 67, 28, R_COMUN, 0xA2A5, 70, 80, 50, 35, TYPE_FIGHTING, TYPE_NONE, 0 },  // 66
+  { "MACHOKE", 68, 30, R_EVO, 0xA2A5, 80, 100, 70, 45, TYPE_FIGHTING, TYPE_NONE, 0 },  // 67
+  { "MACHAMP", 0, 0, R_EVO, 0xA2A5, 90, 130, 80, 55, TYPE_FIGHTING, TYPE_NONE, 0 },  // 68
+  { "BELLSPROUT", 70, 21, R_COMUN, 0x3C49, 50, 75, 35, 40, TYPE_GRASS, TYPE_POISON, 2 },  // 69
+  { "WEEPINBELL", 71, 30, R_EVO, 0x3C49, 65, 90, 50, 55, TYPE_GRASS, TYPE_POISON, 2 },  // 70
+  { "VICTREEBEL", 0, 0, R_EVO, 0x3C49, 80, 105, 65, 70, TYPE_GRASS, TYPE_POISON, 2 },  // 71
+  { "TENTACOOL", 73, 30, R_COMUN, 0x4C98, 40, 40, 35, 70, TYPE_WATER, TYPE_POISON, 1 },  // 72
+  { "TENTACRUEL", 0, 0, R_EVO, 0x4C98, 80, 70, 65, 100, TYPE_WATER, TYPE_POISON, 1 },  // 73
+  { "GEODUDE", 75, 25, R_COMUN, 0x9407, 40, 80, 100, 20, TYPE_ROCK, TYPE_GROUND, 4 },  // 74
+  { "GRAVELER", 76, 30, R_EVO, 0x9407, 55, 95, 115, 35, TYPE_ROCK, TYPE_GROUND, 4 },  // 75
+  { "GOLEM", 0, 0, R_EVO, 0x9407, 80, 120, 130, 45, TYPE_ROCK, TYPE_GROUND, 4 },  // 76
+  { "PONYTA", 78, 40, R_RARO, 0xEA87, 50, 85, 55, 90, TYPE_FIRE, TYPE_NONE, 3 },  // 77
+  { "RAPIDASH", 0, 0, R_EVO, 0xEA87, 65, 100, 70, 105, TYPE_FIRE, TYPE_NONE, 3 },  // 78
+  { "SLOWPOKE", 199, 30, R_COMUN, 0x4C98, 90, 65, 65, 15, TYPE_WATER, TYPE_PSYCHIC, 1 },  // 79
+  { "SLOWBRO", 0, 0, R_EVO, 0x4C98, 95, 75, 110, 30, TYPE_WATER, TYPE_PSYCHIC, 1 },  // 80
+  { "MAGNEMITE", 82, 30, R_COMUN, 0xBCA1, 25, 35, 70, 45, TYPE_ELECTRIC, TYPE_STEEL, 0 },  // 81
+  { "MAGNETON", 462, 30, R_EVO, 0xBCA1, 50, 60, 95, 70, TYPE_ELECTRIC, TYPE_STEEL, 0 },  // 82
+  { "FARFETCHD", 865, 30, R_RARO, 0x8C4D, 52, 90, 55, 60, TYPE_NORMAL, TYPE_FLYING, 0 },  // 83
+  { "DODUO", 85, 31, R_COMUN, 0x8C4D, 35, 85, 45, 75, TYPE_NORMAL, TYPE_FLYING, 0 },  // 84
+  { "DODRIO", 0, 0, R_EVO, 0x8C4D, 60, 110, 70, 110, TYPE_NORMAL, TYPE_FLYING, 0 },  // 85
+  { "SEEL", 87, 34, R_COMUN, 0x4C98, 65, 45, 55, 45, TYPE_WATER, TYPE_NONE, 1 },  // 86
+  { "DEWGONG", 0, 0, R_EVO, 0x4C98, 90, 70, 80, 70, TYPE_WATER, TYPE_ICE, 1 },  // 87
+  { "GRIMER", 89, 38, R_RARO, 0x8A73, 80, 80, 50, 25, TYPE_POISON, TYPE_NONE, 0 },  // 88
+  { "MUK", 0, 0, R_EVO, 0x8A73, 105, 105, 75, 50, TYPE_POISON, TYPE_NONE, 0 },  // 89
+  { "SHELLDER", 91, 30, R_COMUN, 0x4C98, 30, 65, 100, 40, TYPE_WATER, TYPE_NONE, 1 },  // 90
+  { "CLOYSTER", 0, 0, R_EVO, 0x4C98, 50, 95, 180, 70, TYPE_WATER, TYPE_ICE, 1 },  // 91
+  { "GASTLY", 93, 25, R_COMUN, 0x6AD3, 30, 35, 30, 80, TYPE_GHOST, TYPE_POISON, 0 },  // 92
+  { "HAUNTER", 94, 30, R_EVO, 0x6AD3, 45, 50, 45, 95, TYPE_GHOST, TYPE_POISON, 0 },  // 93
+  { "GENGAR", 0, 0, R_EVO, 0x6AD3, 60, 65, 60, 110, TYPE_GHOST, TYPE_POISON, 0 },  // 94
+  { "ONIX", 208, 30, R_RARO, 0x9407, 35, 45, 160, 70, TYPE_ROCK, TYPE_GROUND, 4 },  // 95
+  { "DROWZEE", 97, 26, R_COMUN, 0xD28F, 60, 48, 45, 42, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 96
+  { "HYPNO", 0, 0, R_EVO, 0xD28F, 85, 73, 70, 67, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 97
+  { "KRABBY", 99, 28, R_COMUN, 0x4C98, 30, 105, 90, 50, TYPE_WATER, TYPE_NONE, 1 },  // 98
+  { "KINGLER", 0, 0, R_EVO, 0x4C98, 55, 130, 115, 75, TYPE_WATER, TYPE_NONE, 1 },  // 99
+  { "VOLTORB", 101, 30, R_COMUN, 0xBCA1, 40, 30, 50, 100, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 100
+  { "ELECTRODE", 0, 0, R_EVO, 0xBCA1, 60, 50, 70, 150, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 101
+  { "EXEGGCUTE", 103, 30, R_COMUN, 0x3C49, 60, 40, 80, 40, TYPE_GRASS, TYPE_PSYCHIC, 2 },  // 102
+  { "EXEGGUTOR", 0, 0, R_EVO, 0x3C49, 95, 95, 85, 55, TYPE_GRASS, TYPE_PSYCHIC, 2 },  // 103
+  { "CUBONE", 105, 28, R_COMUN, 0xB447, 50, 50, 95, 35, TYPE_GROUND, TYPE_NONE, 4 },  // 104
+  { "MAROWAK", 0, 0, R_EVO, 0xB447, 60, 80, 110, 45, TYPE_GROUND, TYPE_NONE, 4 },  // 105
+  { "HITMONLEE", 0, 0, R_EVO, 0xA2A5, 50, 120, 53, 87, TYPE_FIGHTING, TYPE_NONE, 0 },  // 106
+  { "HITMONCHAN", 0, 0, R_EVO, 0xA2A5, 50, 105, 79, 76, TYPE_FIGHTING, TYPE_NONE, 0 },  // 107
+  { "LICKITUNG", 463, 30, R_RARO, 0x8C4D, 90, 55, 75, 30, TYPE_NORMAL, TYPE_NONE, 0 },  // 108
+  { "KOFFING", 110, 35, R_COMUN, 0x8A73, 40, 65, 95, 35, TYPE_POISON, TYPE_NONE, 0 },  // 109
+  { "WEEZING", 0, 0, R_EVO, 0x8A73, 65, 90, 120, 60, TYPE_POISON, TYPE_NONE, 0 },  // 110
+  { "RHYHORN", 112, 42, R_RARO, 0xB447, 80, 85, 95, 25, TYPE_GROUND, TYPE_ROCK, 4 },  // 111
+  { "RHYDON", 464, 30, R_EVO, 0xB447, 105, 130, 120, 40, TYPE_GROUND, TYPE_ROCK, 4 },  // 112
+  { "CHANSEY", 242, 20, R_EVO, 0x8C4D, 250, 5, 5, 50, TYPE_NORMAL, TYPE_NONE, 0 },  // 113
+  { "TANGELA", 465, 30, R_RARO, 0x3C49, 65, 55, 115, 60, TYPE_GRASS, TYPE_NONE, 2 },  // 114
+  { "KANGASKHAN", 0, 0, R_RARO, 0x8C4D, 105, 95, 80, 90, TYPE_NORMAL, TYPE_NONE, 0 },  // 115
+  { "HORSEA", 117, 32, R_COMUN, 0x4C98, 30, 40, 70, 60, TYPE_WATER, TYPE_NONE, 1 },  // 116
+  { "SEADRA", 230, 30, R_EVO, 0x4C98, 55, 65, 95, 85, TYPE_WATER, TYPE_NONE, 1 },  // 117
+  { "GOLDEEN", 119, 33, R_COMUN, 0x4C98, 45, 67, 60, 63, TYPE_WATER, TYPE_NONE, 1 },  // 118
+  { "SEAKING", 0, 0, R_EVO, 0x4C98, 80, 92, 65, 68, TYPE_WATER, TYPE_NONE, 1 },  // 119
+  { "STARYU", 121, 30, R_COMUN, 0x4C98, 30, 45, 55, 85, TYPE_WATER, TYPE_NONE, 1 },  // 120
+  { "STARMIE", 0, 0, R_EVO, 0x4C98, 60, 75, 85, 115, TYPE_WATER, TYPE_PSYCHIC, 1 },  // 121
+  { "MR. MIME", 866, 42, R_EVO, 0xD28F, 40, 45, 65, 90, TYPE_PSYCHIC, TYPE_FAIRY, 0 },  // 122
+  { "SCYTHER", 212, 30, R_RARO, 0x7CC4, 70, 110, 80, 105, TYPE_BUG, TYPE_FLYING, 2 },  // 123
+  { "JYNX", 0, 0, R_EVO, 0x4DB8, 65, 50, 35, 95, TYPE_ICE, TYPE_PSYCHIC, 5 },  // 124
+  { "ELECTABUZZ", 466, 30, R_EVO, 0xBCA1, 65, 83, 57, 105, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 125
+  { "MAGMAR", 467, 30, R_EVO, 0xEA87, 65, 95, 57, 93, TYPE_FIRE, TYPE_NONE, 3 },  // 126
+  { "PINSIR", 0, 0, R_RARO, 0x7CC4, 65, 125, 100, 85, TYPE_BUG, TYPE_NONE, 2 },  // 127
+  { "TAUROS", 0, 0, R_RARO, 0x8C4D, 75, 100, 95, 110, TYPE_NORMAL, TYPE_NONE, 0 },  // 128
+  { "MAGIKARP", 130, 20, R_COMUN, 0x4C98, 20, 10, 55, 80, TYPE_WATER, TYPE_NONE, 1 },  // 129
+  { "GYARADOS", 0, 0, R_EVO, 0x4C98, 95, 125, 79, 81, TYPE_WATER, TYPE_FLYING, 1 },  // 130
+  { "LAPRAS", 0, 0, R_RARO, 0x4C98, 130, 85, 80, 60, TYPE_WATER, TYPE_ICE, 1 },  // 131
+  { "DITTO", 0, 0, R_RARO, 0x8C4D, 48, 48, 48, 48, TYPE_NORMAL, TYPE_NONE, 0 },  // 132
+  { "EEVEE", 196, 20, R_COMUN, 0x8C4D, 55, 55, 50, 55, TYPE_NORMAL, TYPE_NONE, 0 },  // 133
+  { "VAPOREON", 0, 0, R_EVO, 0x4C98, 130, 65, 60, 65, TYPE_WATER, TYPE_NONE, 1 },  // 134
+  { "JOLTEON", 0, 0, R_EVO, 0xBCA1, 65, 65, 60, 130, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 135
+  { "FLAREON", 0, 0, R_EVO, 0xEA87, 65, 130, 60, 65, TYPE_FIRE, TYPE_NONE, 3 },  // 136
+  { "PORYGON", 233, 30, R_RARO, 0x8C4D, 65, 60, 70, 40, TYPE_NORMAL, TYPE_NONE, 0 },  // 137
+  { "OMANYTE", 139, 40, R_RARO, 0x9407, 35, 40, 100, 35, TYPE_ROCK, TYPE_WATER, 1 },  // 138
+  { "OMASTAR", 0, 0, R_EVO, 0x9407, 70, 60, 125, 55, TYPE_ROCK, TYPE_WATER, 1 },  // 139
+  { "KABUTO", 141, 40, R_RARO, 0x9407, 30, 80, 90, 55, TYPE_ROCK, TYPE_WATER, 1 },  // 140
+  { "KABUTOPS", 0, 0, R_EVO, 0x9407, 60, 115, 105, 80, TYPE_ROCK, TYPE_WATER, 1 },  // 141
+  { "AERODACTYL", 0, 0, R_RARO, 0x9407, 80, 105, 65, 130, TYPE_ROCK, TYPE_FLYING, 4 },  // 142
+  { "SNORLAX", 0, 0, R_EVO, 0x8C4D, 160, 110, 65, 30, TYPE_NORMAL, TYPE_NONE, 0 },  // 143
+  { "ARTICUNO", 0, 0, R_LEGENDARIO, 0x4DB8, 90, 85, 100, 85, TYPE_ICE, TYPE_FLYING, 5 },  // 144
+  { "ZAPDOS", 0, 0, R_LEGENDARIO, 0xBCA1, 90, 90, 85, 100, TYPE_ELECTRIC, TYPE_FLYING, 0 },  // 145
+  { "MOLTRES", 0, 0, R_LEGENDARIO, 0xEA87, 90, 100, 90, 90, TYPE_FIRE, TYPE_FLYING, 3 },  // 146
+  { "DRATINI", 148, 30, R_RARO, 0x5A98, 41, 64, 45, 50, TYPE_DRAGON, TYPE_NONE, 1 },  // 147
+  { "DRAGONAIR", 149, 55, R_EVO, 0x5A98, 61, 84, 65, 70, TYPE_DRAGON, TYPE_NONE, 1 },  // 148
+  { "DRAGONITE", 0, 0, R_EVO, 0x5A98, 91, 134, 95, 80, TYPE_DRAGON, TYPE_FLYING, 1 },  // 149
+  { "MEWTWO", 0, 0, R_LEGENDARIO, 0xD28F, 106, 110, 90, 130, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 150
+  { "MEW", 0, 0, R_LEGENDARIO, 0xD28F, 100, 100, 100, 100, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 151
+  { "CHIKORITA", 153, 16, R_RARO, 0x3C49, 45, 49, 65, 45, TYPE_GRASS, TYPE_NONE, 2 },  // 152
+  { "BAYLEEF", 154, 32, R_EVO, 0x3C49, 60, 62, 80, 60, TYPE_GRASS, TYPE_NONE, 2 },  // 153
+  { "MEGANIUM", 0, 0, R_EVO, 0x3C49, 80, 82, 100, 80, TYPE_GRASS, TYPE_NONE, 2 },  // 154
+  { "CYNDAQUIL", 156, 14, R_RARO, 0xEA87, 39, 52, 43, 65, TYPE_FIRE, TYPE_NONE, 3 },  // 155
+  { "QUILAVA", 157, 36, R_EVO, 0xEA87, 58, 64, 58, 80, TYPE_FIRE, TYPE_NONE, 3 },  // 156
+  { "TYPHLOSION", 0, 0, R_EVO, 0xEA87, 78, 84, 78, 100, TYPE_FIRE, TYPE_NONE, 3 },  // 157
+  { "TOTODILE", 159, 18, R_RARO, 0x4C98, 50, 65, 64, 43, TYPE_WATER, TYPE_NONE, 1 },  // 158
+  { "CROCONAW", 160, 30, R_EVO, 0x4C98, 65, 80, 80, 58, TYPE_WATER, TYPE_NONE, 1 },  // 159
+  { "FERALIGATR", 0, 0, R_EVO, 0x4C98, 85, 105, 100, 78, TYPE_WATER, TYPE_NONE, 1 },  // 160
+  { "SENTRET", 162, 15, R_COMUN, 0x8C4D, 35, 46, 34, 20, TYPE_NORMAL, TYPE_NONE, 0 },  // 161
+  { "FURRET", 0, 0, R_EVO, 0x8C4D, 85, 76, 64, 90, TYPE_NORMAL, TYPE_NONE, 0 },  // 162
+  { "HOOTHOOT", 164, 20, R_COMUN, 0x8C4D, 60, 30, 30, 50, TYPE_NORMAL, TYPE_FLYING, 0 },  // 163
+  { "NOCTOWL", 0, 0, R_EVO, 0x8C4D, 100, 50, 50, 70, TYPE_NORMAL, TYPE_FLYING, 0 },  // 164
+  { "LEDYBA", 166, 18, R_COMUN, 0x7CC4, 40, 20, 30, 55, TYPE_BUG, TYPE_FLYING, 2 },  // 165
+  { "LEDIAN", 0, 0, R_EVO, 0x7CC4, 55, 35, 50, 85, TYPE_BUG, TYPE_FLYING, 2 },  // 166
+  { "SPINARAK", 168, 22, R_COMUN, 0x7CC4, 40, 60, 40, 30, TYPE_BUG, TYPE_POISON, 2 },  // 167
+  { "ARIADOS", 0, 0, R_EVO, 0x7CC4, 70, 90, 70, 40, TYPE_BUG, TYPE_POISON, 2 },  // 168
+  { "CROBAT", 0, 0, R_EVO, 0x8A73, 85, 90, 80, 130, TYPE_POISON, TYPE_FLYING, 0 },  // 169
+  { "CHINCHOU", 171, 27, R_COMUN, 0x4C98, 75, 38, 38, 67, TYPE_WATER, TYPE_ELECTRIC, 1 },  // 170
+  { "LANTURN", 0, 0, R_EVO, 0x4C98, 125, 58, 58, 67, TYPE_WATER, TYPE_ELECTRIC, 1 },  // 171
+  { "PICHU", 25, 20, R_COMUN, 0xBCA1, 20, 40, 15, 60, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 172
+  { "CLEFFA", 35, 20, R_COMUN, 0xC333, 50, 25, 28, 15, TYPE_FAIRY, TYPE_NONE, 0 },  // 173
+  { "IGGLYBUFF", 39, 20, R_COMUN, 0x8C4D, 90, 30, 15, 15, TYPE_NORMAL, TYPE_FAIRY, 0 },  // 174
+  { "TOGEPI", 176, 20, R_COMUN, 0xC333, 35, 20, 65, 20, TYPE_FAIRY, TYPE_NONE, 0 },  // 175
+  { "TOGETIC", 468, 30, R_EVO, 0xC333, 55, 40, 85, 40, TYPE_FAIRY, TYPE_FLYING, 0 },  // 176
+  { "NATU", 178, 25, R_COMUN, 0xD28F, 40, 50, 45, 70, TYPE_PSYCHIC, TYPE_FLYING, 0 },  // 177
+  { "XATU", 0, 0, R_EVO, 0xD28F, 65, 75, 70, 95, TYPE_PSYCHIC, TYPE_FLYING, 0 },  // 178
+  { "MAREEP", 180, 15, R_COMUN, 0xBCA1, 55, 40, 40, 35, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 179
+  { "FLAAFFY", 181, 30, R_EVO, 0xBCA1, 70, 55, 55, 45, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 180
+  { "AMPHAROS", 0, 0, R_EVO, 0xBCA1, 90, 75, 85, 55, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 181
+  { "BELLOSSOM", 0, 0, R_EVO, 0x3C49, 75, 80, 95, 50, TYPE_GRASS, TYPE_NONE, 2 },  // 182
+  { "MARILL", 184, 18, R_EVO, 0x4C98, 70, 20, 50, 40, TYPE_WATER, TYPE_FAIRY, 1 },  // 183
+  { "AZUMARILL", 0, 0, R_EVO, 0x4C98, 100, 50, 80, 50, TYPE_WATER, TYPE_FAIRY, 1 },  // 184
+  { "SUDOWOODO", 0, 0, R_EVO, 0x9407, 70, 100, 115, 30, TYPE_ROCK, TYPE_NONE, 4 },  // 185
+  { "POLITOED", 0, 0, R_EVO, 0x4C98, 90, 75, 75, 70, TYPE_WATER, TYPE_NONE, 1 },  // 186
+  { "HOPPIP", 188, 18, R_COMUN, 0x3C49, 35, 35, 40, 50, TYPE_GRASS, TYPE_FLYING, 2 },  // 187
+  { "SKIPLOOM", 189, 27, R_EVO, 0x3C49, 55, 45, 50, 80, TYPE_GRASS, TYPE_FLYING, 2 },  // 188
+  { "JUMPLUFF", 0, 0, R_EVO, 0x3C49, 75, 55, 70, 110, TYPE_GRASS, TYPE_FLYING, 2 },  // 189
+  { "AIPOM", 424, 30, R_RARO, 0x8C4D, 55, 70, 55, 85, TYPE_NORMAL, TYPE_NONE, 0 },  // 190
+  { "SUNKERN", 192, 30, R_COMUN, 0x3C49, 30, 30, 30, 30, TYPE_GRASS, TYPE_NONE, 2 },  // 191
+  { "SUNFLORA", 0, 0, R_EVO, 0x3C49, 75, 75, 55, 30, TYPE_GRASS, TYPE_NONE, 2 },  // 192
+  { "YANMA", 469, 30, R_COMUN, 0x7CC4, 65, 65, 45, 95, TYPE_BUG, TYPE_FLYING, 2 },  // 193
+  { "WOOPER", 195, 20, R_COMUN, 0x4C98, 55, 45, 45, 15, TYPE_WATER, TYPE_GROUND, 1 },  // 194
+  { "QUAGSIRE", 0, 0, R_EVO, 0x4C98, 95, 85, 85, 35, TYPE_WATER, TYPE_GROUND, 1 },  // 195
+  { "ESPEON", 0, 0, R_EVO, 0xD28F, 65, 65, 60, 110, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 196
+  { "UMBREON", 0, 0, R_EVO, 0x5A47, 95, 65, 110, 65, TYPE_DARK, TYPE_NONE, 2 },  // 197
+  { "MURKROW", 430, 30, R_RARO, 0x5A47, 60, 85, 42, 91, TYPE_DARK, TYPE_FLYING, 2 },  // 198
+  { "SLOWKING", 0, 0, R_EVO, 0x4C98, 95, 75, 80, 30, TYPE_WATER, TYPE_PSYCHIC, 1 },  // 199
+  { "MISDREAVUS", 429, 30, R_RARO, 0x6AD3, 60, 60, 60, 85, TYPE_GHOST, TYPE_NONE, 0 },  // 200
+  { "UNOWN", 0, 0, R_COMUN, 0xD28F, 48, 72, 48, 48, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 201
+  { "WOBBUFFET", 0, 0, R_EVO, 0xD28F, 190, 33, 58, 33, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 202
+  { "GIRAFARIG", 981, 30, R_COMUN, 0x8C4D, 70, 80, 65, 85, TYPE_NORMAL, TYPE_PSYCHIC, 0 },  // 203
+  { "PINECO", 205, 31, R_COMUN, 0x7CC4, 50, 65, 90, 15, TYPE_BUG, TYPE_NONE, 2 },  // 204
+  { "FORRETRESS", 0, 0, R_EVO, 0x7CC4, 75, 90, 140, 40, TYPE_BUG, TYPE_STEEL, 2 },  // 205
+  { "DUNSPARCE", 982, 30, R_COMUN, 0x8C4D, 100, 70, 70, 45, TYPE_NORMAL, TYPE_NONE, 0 },  // 206
+  { "GLIGAR", 472, 30, R_COMUN, 0xB447, 65, 75, 105, 85, TYPE_GROUND, TYPE_FLYING, 4 },  // 207
+  { "STEELIX", 0, 0, R_EVO, 0x6BF1, 75, 85, 200, 30, TYPE_STEEL, TYPE_GROUND, 4 },  // 208
+  { "SNUBBULL", 210, 23, R_COMUN, 0xC333, 60, 80, 50, 30, TYPE_FAIRY, TYPE_NONE, 0 },  // 209
+  { "GRANBULL", 0, 0, R_EVO, 0xC333, 90, 120, 75, 45, TYPE_FAIRY, TYPE_NONE, 0 },  // 210
+  { "QWILFISH", 904, 30, R_RARO, 0x4C98, 65, 95, 85, 85, TYPE_WATER, TYPE_POISON, 1 },  // 211
+  { "SCIZOR", 0, 0, R_EVO, 0x7CC4, 70, 130, 100, 65, TYPE_BUG, TYPE_STEEL, 2 },  // 212
+  { "SHUCKLE", 0, 0, R_COMUN, 0x7CC4, 20, 10, 230, 5, TYPE_BUG, TYPE_ROCK, 2 },  // 213
+  { "HERACROSS", 0, 0, R_RARO, 0x7CC4, 80, 125, 75, 85, TYPE_BUG, TYPE_FIGHTING, 2 },  // 214
+  { "SNEASEL", 461, 30, R_COMUN, 0x5A47, 55, 95, 55, 115, TYPE_DARK, TYPE_ICE, 2 },  // 215
+  { "TEDDIURSA", 217, 30, R_COMUN, 0x8C4D, 60, 80, 50, 40, TYPE_NORMAL, TYPE_NONE, 0 },  // 216
+  { "URSARING", 901, 30, R_EVO, 0x8C4D, 90, 130, 75, 55, TYPE_NORMAL, TYPE_NONE, 0 },  // 217
+  { "SLUGMA", 219, 38, R_COMUN, 0xEA87, 40, 40, 40, 20, TYPE_FIRE, TYPE_NONE, 3 },  // 218
+  { "MAGCARGO", 0, 0, R_EVO, 0xEA87, 60, 50, 120, 30, TYPE_FIRE, TYPE_ROCK, 3 },  // 219
+  { "SWINUB", 221, 33, R_COMUN, 0x4DB8, 50, 50, 40, 50, TYPE_ICE, TYPE_GROUND, 5 },  // 220
+  { "PILOSWINE", 473, 30, R_EVO, 0x4DB8, 100, 100, 80, 50, TYPE_ICE, TYPE_GROUND, 5 },  // 221
+  { "CORSOLA", 864, 38, R_COMUN, 0x4C98, 65, 55, 95, 35, TYPE_WATER, TYPE_ROCK, 1 },  // 222
+  { "REMORAID", 224, 25, R_COMUN, 0x4C98, 35, 65, 35, 65, TYPE_WATER, TYPE_NONE, 1 },  // 223
+  { "OCTILLERY", 0, 0, R_EVO, 0x4C98, 75, 105, 75, 45, TYPE_WATER, TYPE_NONE, 1 },  // 224
+  { "DELIBIRD", 0, 0, R_RARO, 0x4DB8, 45, 55, 45, 75, TYPE_ICE, TYPE_FLYING, 5 },  // 225
+  { "MANTINE", 0, 0, R_EVO, 0x4C98, 85, 40, 70, 70, TYPE_WATER, TYPE_FLYING, 1 },  // 226
+  { "SKARMORY", 0, 0, R_RARO, 0x6BF1, 65, 80, 140, 70, TYPE_STEEL, TYPE_FLYING, 4 },  // 227
+  { "HOUNDOUR", 229, 24, R_COMUN, 0x5A47, 45, 60, 30, 65, TYPE_DARK, TYPE_FIRE, 2 },  // 228
+  { "HOUNDOOM", 0, 0, R_EVO, 0x5A47, 75, 90, 50, 95, TYPE_DARK, TYPE_FIRE, 2 },  // 229
+  { "KINGDRA", 0, 0, R_EVO, 0x4C98, 75, 95, 95, 85, TYPE_WATER, TYPE_DRAGON, 1 },  // 230
+  { "PHANPY", 232, 25, R_COMUN, 0xB447, 90, 60, 60, 40, TYPE_GROUND, TYPE_NONE, 4 },  // 231
+  { "DONPHAN", 0, 0, R_EVO, 0xB447, 90, 120, 120, 50, TYPE_GROUND, TYPE_NONE, 4 },  // 232
+  { "PORYGON2", 474, 30, R_EVO, 0x8C4D, 85, 80, 90, 60, TYPE_NORMAL, TYPE_NONE, 0 },  // 233
+  { "STANTLER", 899, 30, R_RARO, 0x8C4D, 73, 95, 62, 85, TYPE_NORMAL, TYPE_NONE, 0 },  // 234
+  { "SMEARGLE", 0, 0, R_RARO, 0x8C4D, 55, 20, 35, 75, TYPE_NORMAL, TYPE_NONE, 0 },  // 235
+  { "TYROGUE", 237, 20, R_COMUN, 0xA2A5, 35, 35, 35, 35, TYPE_FIGHTING, TYPE_NONE, 0 },  // 236
+  { "HITMONTOP", 0, 0, R_EVO, 0xA2A5, 50, 95, 95, 70, TYPE_FIGHTING, TYPE_NONE, 0 },  // 237
+  { "SMOOCHUM", 124, 30, R_RARO, 0x4DB8, 45, 30, 15, 65, TYPE_ICE, TYPE_PSYCHIC, 5 },  // 238
+  { "ELEKID", 125, 30, R_RARO, 0xBCA1, 45, 63, 37, 95, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 239
+  { "MAGBY", 126, 30, R_RARO, 0xEA87, 45, 75, 37, 83, TYPE_FIRE, TYPE_NONE, 3 },  // 240
+  { "MILTANK", 0, 0, R_RARO, 0x8C4D, 95, 80, 105, 100, TYPE_NORMAL, TYPE_NONE, 0 },  // 241
+  { "BLISSEY", 0, 0, R_EVO, 0x8C4D, 255, 10, 10, 55, TYPE_NORMAL, TYPE_NONE, 0 },  // 242
+  { "RAIKOU", 0, 0, R_LEGENDARIO, 0xBCA1, 90, 85, 75, 115, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 243
+  { "ENTEI", 0, 0, R_LEGENDARIO, 0xEA87, 115, 115, 85, 100, TYPE_FIRE, TYPE_NONE, 3 },  // 244
+  { "SUICUNE", 0, 0, R_LEGENDARIO, 0x4C98, 100, 75, 115, 85, TYPE_WATER, TYPE_NONE, 1 },  // 245
+  { "LARVITAR", 247, 30, R_RARO, 0x9407, 50, 64, 50, 41, TYPE_ROCK, TYPE_GROUND, 4 },  // 246
+  { "PUPITAR", 248, 55, R_EVO, 0x9407, 70, 84, 70, 51, TYPE_ROCK, TYPE_GROUND, 4 },  // 247
+  { "TYRANITAR", 0, 0, R_EVO, 0x9407, 100, 134, 110, 61, TYPE_ROCK, TYPE_DARK, 4 },  // 248
+  { "LUGIA", 0, 0, R_LEGENDARIO, 0xD28F, 106, 90, 130, 110, TYPE_PSYCHIC, TYPE_FLYING, 0 },  // 249
+  { "HO-OH", 0, 0, R_LEGENDARIO, 0xEA87, 106, 130, 90, 90, TYPE_FIRE, TYPE_FLYING, 3 },  // 250
+  { "CELEBI", 0, 0, R_LEGENDARIO, 0xD28F, 100, 100, 100, 100, TYPE_PSYCHIC, TYPE_GRASS, 0 },  // 251
+  { "TREECKO", 253, 16, R_RARO, 0x3C49, 40, 45, 35, 70, TYPE_GRASS, TYPE_NONE, 2 },  // 252
+  { "GROVYLE", 254, 36, R_EVO, 0x3C49, 50, 65, 45, 95, TYPE_GRASS, TYPE_NONE, 2 },  // 253
+  { "SCEPTILE", 0, 0, R_EVO, 0x3C49, 70, 85, 65, 120, TYPE_GRASS, TYPE_NONE, 2 },  // 254
+  { "TORCHIC", 256, 16, R_RARO, 0xEA87, 45, 60, 40, 45, TYPE_FIRE, TYPE_NONE, 3 },  // 255
+  { "COMBUSKEN", 257, 36, R_EVO, 0xEA87, 60, 85, 60, 55, TYPE_FIRE, TYPE_FIGHTING, 3 },  // 256
+  { "BLAZIKEN", 0, 0, R_EVO, 0xEA87, 80, 120, 70, 80, TYPE_FIRE, TYPE_FIGHTING, 3 },  // 257
+  { "MUDKIP", 259, 16, R_RARO, 0x4C98, 50, 70, 50, 40, TYPE_WATER, TYPE_NONE, 1 },  // 258
+  { "MARSHTOMP", 260, 36, R_EVO, 0x4C98, 70, 85, 70, 50, TYPE_WATER, TYPE_GROUND, 1 },  // 259
+  { "SWAMPERT", 0, 0, R_EVO, 0x4C98, 100, 110, 90, 60, TYPE_WATER, TYPE_GROUND, 1 },  // 260
+  { "POOCHYENA", 262, 18, R_COMUN, 0x5A47, 35, 55, 35, 35, TYPE_DARK, TYPE_NONE, 2 },  // 261
+  { "MIGHTYENA", 0, 0, R_EVO, 0x5A47, 70, 90, 70, 70, TYPE_DARK, TYPE_NONE, 2 },  // 262
+  { "ZIGZAGOON", 264, 20, R_COMUN, 0x8C4D, 38, 30, 41, 60, TYPE_NORMAL, TYPE_NONE, 0 },  // 263
+  { "LINOONE", 862, 35, R_EVO, 0x8C4D, 78, 70, 61, 100, TYPE_NORMAL, TYPE_NONE, 0 },  // 264
+  { "WURMPLE", 266, 30, R_COMUN, 0x7CC4, 45, 45, 35, 20, TYPE_BUG, TYPE_NONE, 2 },  // 265
+  { "SILCOON", 267, 10, R_EVO, 0x7CC4, 50, 35, 55, 15, TYPE_BUG, TYPE_NONE, 2 },  // 266
+  { "BEAUTIFLY", 0, 0, R_EVO, 0x7CC4, 60, 70, 50, 65, TYPE_BUG, TYPE_FLYING, 2 },  // 267
+  { "CASCOON", 269, 10, R_EVO, 0x7CC4, 50, 35, 55, 15, TYPE_BUG, TYPE_NONE, 2 },  // 268
+  { "DUSTOX", 0, 0, R_EVO, 0x7CC4, 60, 50, 70, 65, TYPE_BUG, TYPE_POISON, 2 },  // 269
+  { "LOTAD", 271, 14, R_COMUN, 0x4C98, 40, 30, 30, 30, TYPE_WATER, TYPE_GRASS, 1 },  // 270
+  { "LOMBRE", 272, 30, R_EVO, 0x4C98, 60, 50, 50, 50, TYPE_WATER, TYPE_GRASS, 1 },  // 271
+  { "LUDICOLO", 0, 0, R_EVO, 0x4C98, 80, 70, 70, 70, TYPE_WATER, TYPE_GRASS, 1 },  // 272
+  { "SEEDOT", 274, 14, R_COMUN, 0x3C49, 40, 40, 50, 30, TYPE_GRASS, TYPE_NONE, 2 },  // 273
+  { "NUZLEAF", 275, 30, R_EVO, 0x3C49, 70, 70, 40, 60, TYPE_GRASS, TYPE_DARK, 2 },  // 274
+  { "SHIFTRY", 0, 0, R_EVO, 0x3C49, 90, 100, 60, 80, TYPE_GRASS, TYPE_DARK, 2 },  // 275
+  { "TAILLOW", 277, 22, R_COMUN, 0x8C4D, 40, 55, 30, 85, TYPE_NORMAL, TYPE_FLYING, 0 },  // 276
+  { "SWELLOW", 0, 0, R_EVO, 0x8C4D, 60, 85, 60, 125, TYPE_NORMAL, TYPE_FLYING, 0 },  // 277
+  { "WINGULL", 279, 25, R_COMUN, 0x4C98, 40, 30, 30, 85, TYPE_WATER, TYPE_FLYING, 1 },  // 278
+  { "PELIPPER", 0, 0, R_EVO, 0x4C98, 60, 50, 100, 65, TYPE_WATER, TYPE_FLYING, 1 },  // 279
+  { "RALTS", 281, 20, R_COMUN, 0xD28F, 28, 25, 25, 40, TYPE_PSYCHIC, TYPE_FAIRY, 0 },  // 280
+  { "KIRLIA", 282, 30, R_EVO, 0xD28F, 38, 35, 35, 50, TYPE_PSYCHIC, TYPE_FAIRY, 0 },  // 281
+  { "GARDEVOIR", 0, 0, R_EVO, 0xD28F, 68, 65, 65, 80, TYPE_PSYCHIC, TYPE_FAIRY, 0 },  // 282
+  { "SURSKIT", 284, 22, R_COMUN, 0x7CC4, 40, 30, 32, 65, TYPE_BUG, TYPE_WATER, 2 },  // 283
+  { "MASQUERAIN", 0, 0, R_EVO, 0x7CC4, 70, 60, 62, 80, TYPE_BUG, TYPE_FLYING, 2 },  // 284
+  { "SHROOMISH", 286, 23, R_COMUN, 0x3C49, 60, 40, 60, 35, TYPE_GRASS, TYPE_NONE, 2 },  // 285
+  { "BRELOOM", 0, 0, R_EVO, 0x3C49, 60, 130, 80, 70, TYPE_GRASS, TYPE_FIGHTING, 2 },  // 286
+  { "SLAKOTH", 288, 18, R_COMUN, 0x8C4D, 60, 60, 60, 30, TYPE_NORMAL, TYPE_NONE, 0 },  // 287
+  { "VIGOROTH", 289, 36, R_EVO, 0x8C4D, 80, 80, 80, 90, TYPE_NORMAL, TYPE_NONE, 0 },  // 288
+  { "SLAKING", 0, 0, R_EVO, 0x8C4D, 150, 160, 100, 100, TYPE_NORMAL, TYPE_NONE, 0 },  // 289
+  { "NINCADA", 291, 20, R_COMUN, 0x7CC4, 31, 45, 90, 40, TYPE_BUG, TYPE_GROUND, 2 },  // 290
+  { "NINJASK", 0, 0, R_EVO, 0x7CC4, 61, 90, 45, 160, TYPE_BUG, TYPE_FLYING, 2 },  // 291
+  { "SHEDINJA", 0, 0, R_EVO, 0x7CC4, 1, 90, 45, 40, TYPE_BUG, TYPE_GHOST, 2 },  // 292
+  { "WHISMUR", 294, 20, R_COMUN, 0x8C4D, 64, 51, 23, 28, TYPE_NORMAL, TYPE_NONE, 0 },  // 293
+  { "LOUDRED", 295, 40, R_EVO, 0x8C4D, 84, 71, 43, 48, TYPE_NORMAL, TYPE_NONE, 0 },  // 294
+  { "EXPLOUD", 0, 0, R_EVO, 0x8C4D, 104, 91, 63, 68, TYPE_NORMAL, TYPE_NONE, 0 },  // 295
+  { "MAKUHITA", 297, 24, R_COMUN, 0xA2A5, 72, 60, 30, 25, TYPE_FIGHTING, TYPE_NONE, 0 },  // 296
+  { "HARIYAMA", 0, 0, R_EVO, 0xA2A5, 144, 120, 60, 50, TYPE_FIGHTING, TYPE_NONE, 0 },  // 297
+  { "AZURILL", 183, 20, R_COMUN, 0x8C4D, 50, 20, 40, 20, TYPE_NORMAL, TYPE_FAIRY, 0 },  // 298
+  { "NOSEPASS", 476, 30, R_COMUN, 0x9407, 30, 45, 135, 30, TYPE_ROCK, TYPE_NONE, 4 },  // 299
+  { "SKITTY", 301, 30, R_COMUN, 0x8C4D, 50, 45, 45, 50, TYPE_NORMAL, TYPE_NONE, 0 },  // 300
+  { "DELCATTY", 0, 0, R_EVO, 0x8C4D, 70, 65, 65, 90, TYPE_NORMAL, TYPE_NONE, 0 },  // 301
+  { "SABLEYE", 0, 0, R_RARO, 0x5A47, 50, 75, 75, 50, TYPE_DARK, TYPE_GHOST, 2 },  // 302
+  { "MAWILE", 0, 0, R_RARO, 0x6BF1, 50, 85, 85, 50, TYPE_STEEL, TYPE_FAIRY, 4 },  // 303
+  { "ARON", 305, 32, R_COMUN, 0x6BF1, 50, 70, 100, 30, TYPE_STEEL, TYPE_ROCK, 4 },  // 304
+  { "LAIRON", 306, 42, R_EVO, 0x6BF1, 60, 90, 140, 40, TYPE_STEEL, TYPE_ROCK, 4 },  // 305
+  { "AGGRON", 0, 0, R_EVO, 0x6BF1, 70, 110, 180, 50, TYPE_STEEL, TYPE_ROCK, 4 },  // 306
+  { "MEDITITE", 308, 37, R_COMUN, 0xA2A5, 30, 40, 55, 60, TYPE_FIGHTING, TYPE_PSYCHIC, 0 },  // 307
+  { "MEDICHAM", 0, 0, R_EVO, 0xA2A5, 60, 60, 75, 80, TYPE_FIGHTING, TYPE_PSYCHIC, 0 },  // 308
+  { "ELECTRIKE", 310, 26, R_COMUN, 0xBCA1, 40, 45, 40, 65, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 309
+  { "MANECTRIC", 0, 0, R_EVO, 0xBCA1, 70, 75, 60, 105, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 310
+  { "PLUSLE", 0, 0, R_COMUN, 0xBCA1, 60, 50, 40, 95, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 311
+  { "MINUN", 0, 0, R_COMUN, 0xBCA1, 60, 40, 50, 95, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 312
+  { "VOLBEAT", 0, 0, R_COMUN, 0x7CC4, 65, 73, 75, 85, TYPE_BUG, TYPE_NONE, 2 },  // 313
+  { "ILLUMISE", 0, 0, R_COMUN, 0x7CC4, 65, 47, 75, 85, TYPE_BUG, TYPE_NONE, 2 },  // 314
+  { "ROSELIA", 407, 30, R_EVO, 0x3C49, 50, 60, 45, 65, TYPE_GRASS, TYPE_POISON, 2 },  // 315
+  { "GULPIN", 317, 26, R_COMUN, 0x8A73, 70, 43, 53, 40, TYPE_POISON, TYPE_NONE, 0 },  // 316
+  { "SWALOT", 0, 0, R_EVO, 0x8A73, 100, 73, 83, 55, TYPE_POISON, TYPE_NONE, 0 },  // 317
+  { "CARVANHA", 319, 30, R_COMUN, 0x4C98, 45, 90, 20, 65, TYPE_WATER, TYPE_DARK, 1 },  // 318
+  { "SHARPEDO", 0, 0, R_EVO, 0x4C98, 70, 120, 40, 95, TYPE_WATER, TYPE_DARK, 1 },  // 319
+  { "WAILMER", 321, 40, R_COMUN, 0x4C98, 130, 70, 35, 60, TYPE_WATER, TYPE_NONE, 1 },  // 320
+  { "WAILORD", 0, 0, R_EVO, 0x4C98, 170, 90, 45, 60, TYPE_WATER, TYPE_NONE, 1 },  // 321
+  { "NUMEL", 323, 33, R_COMUN, 0xEA87, 60, 60, 40, 35, TYPE_FIRE, TYPE_GROUND, 3 },  // 322
+  { "CAMERUPT", 0, 0, R_EVO, 0xEA87, 70, 100, 70, 40, TYPE_FIRE, TYPE_GROUND, 3 },  // 323
+  { "TORKOAL", 0, 0, R_COMUN, 0xEA87, 70, 85, 140, 20, TYPE_FIRE, TYPE_NONE, 3 },  // 324
+  { "SPOINK", 326, 32, R_COMUN, 0xD28F, 60, 25, 35, 60, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 325
+  { "GRUMPIG", 0, 0, R_EVO, 0xD28F, 80, 45, 65, 80, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 326
+  { "SPINDA", 0, 0, R_COMUN, 0x8C4D, 60, 60, 60, 60, TYPE_NORMAL, TYPE_NONE, 0 },  // 327
+  { "TRAPINCH", 329, 35, R_COMUN, 0xB447, 45, 100, 45, 10, TYPE_GROUND, TYPE_NONE, 4 },  // 328
+  { "VIBRAVA", 330, 45, R_EVO, 0xB447, 50, 70, 50, 70, TYPE_GROUND, TYPE_DRAGON, 4 },  // 329
+  { "FLYGON", 0, 0, R_EVO, 0xB447, 80, 100, 80, 100, TYPE_GROUND, TYPE_DRAGON, 4 },  // 330
+  { "CACNEA", 332, 32, R_COMUN, 0x3C49, 50, 85, 40, 35, TYPE_GRASS, TYPE_NONE, 2 },  // 331
+  { "CACTURNE", 0, 0, R_EVO, 0x3C49, 70, 115, 60, 55, TYPE_GRASS, TYPE_DARK, 2 },  // 332
+  { "SWABLU", 334, 35, R_COMUN, 0x8C4D, 45, 40, 60, 50, TYPE_NORMAL, TYPE_FLYING, 0 },  // 333
+  { "ALTARIA", 0, 0, R_EVO, 0x5A98, 75, 70, 90, 80, TYPE_DRAGON, TYPE_FLYING, 1 },  // 334
+  { "ZANGOOSE", 0, 0, R_COMUN, 0x8C4D, 73, 115, 60, 90, TYPE_NORMAL, TYPE_NONE, 0 },  // 335
+  { "SEVIPER", 0, 0, R_COMUN, 0x8A73, 73, 100, 60, 65, TYPE_POISON, TYPE_NONE, 0 },  // 336
+  { "LUNATONE", 0, 0, R_RARO, 0x9407, 90, 55, 65, 70, TYPE_ROCK, TYPE_PSYCHIC, 4 },  // 337
+  { "SOLROCK", 0, 0, R_RARO, 0x9407, 90, 95, 85, 70, TYPE_ROCK, TYPE_PSYCHIC, 4 },  // 338
+  { "BARBOACH", 340, 30, R_COMUN, 0x4C98, 50, 48, 43, 60, TYPE_WATER, TYPE_GROUND, 1 },  // 339
+  { "WHISCASH", 0, 0, R_EVO, 0x4C98, 110, 78, 73, 60, TYPE_WATER, TYPE_GROUND, 1 },  // 340
+  { "CORPHISH", 342, 30, R_COMUN, 0x4C98, 43, 80, 65, 35, TYPE_WATER, TYPE_NONE, 1 },  // 341
+  { "CRAWDAUNT", 0, 0, R_EVO, 0x4C98, 63, 120, 85, 55, TYPE_WATER, TYPE_DARK, 1 },  // 342
+  { "BALTOY", 344, 36, R_COMUN, 0xB447, 40, 40, 55, 55, TYPE_GROUND, TYPE_PSYCHIC, 4 },  // 343
+  { "CLAYDOL", 0, 0, R_EVO, 0xB447, 60, 70, 105, 75, TYPE_GROUND, TYPE_PSYCHIC, 4 },  // 344
+  { "LILEEP", 346, 40, R_RARO, 0x9407, 66, 41, 77, 23, TYPE_ROCK, TYPE_GRASS, 4 },  // 345
+  { "CRADILY", 0, 0, R_EVO, 0x9407, 86, 81, 97, 43, TYPE_ROCK, TYPE_GRASS, 4 },  // 346
+  { "ANORITH", 348, 40, R_RARO, 0x9407, 45, 95, 50, 75, TYPE_ROCK, TYPE_BUG, 4 },  // 347
+  { "ARMALDO", 0, 0, R_EVO, 0x9407, 75, 125, 100, 45, TYPE_ROCK, TYPE_BUG, 4 },  // 348
+  { "FEEBAS", 350, 30, R_COMUN, 0x4C98, 20, 15, 20, 80, TYPE_WATER, TYPE_NONE, 1 },  // 349
+  { "MILOTIC", 0, 0, R_EVO, 0x4C98, 95, 60, 79, 81, TYPE_WATER, TYPE_NONE, 1 },  // 350
+  { "CASTFORM", 0, 0, R_RARO, 0x8C4D, 70, 70, 70, 70, TYPE_NORMAL, TYPE_NONE, 0 },  // 351
+  { "KECLEON", 0, 0, R_COMUN, 0x8C4D, 60, 90, 70, 40, TYPE_NORMAL, TYPE_NONE, 0 },  // 352
+  { "SHUPPET", 354, 37, R_COMUN, 0x6AD3, 44, 75, 35, 45, TYPE_GHOST, TYPE_NONE, 0 },  // 353
+  { "BANETTE", 0, 0, R_EVO, 0x6AD3, 64, 115, 65, 65, TYPE_GHOST, TYPE_NONE, 0 },  // 354
+  { "DUSKULL", 356, 37, R_COMUN, 0x6AD3, 20, 40, 90, 25, TYPE_GHOST, TYPE_NONE, 0 },  // 355
+  { "DUSCLOPS", 477, 30, R_EVO, 0x6AD3, 40, 70, 130, 25, TYPE_GHOST, TYPE_NONE, 0 },  // 356
+  { "TROPIUS", 0, 0, R_COMUN, 0x3C49, 99, 68, 83, 51, TYPE_GRASS, TYPE_FLYING, 2 },  // 357
+  { "CHIMECHO", 0, 0, R_EVO, 0xD28F, 75, 50, 80, 65, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 358
+  { "ABSOL", 0, 0, R_RARO, 0x5A47, 65, 130, 60, 75, TYPE_DARK, TYPE_NONE, 2 },  // 359
+  { "WYNAUT", 202, 15, R_COMUN, 0xD28F, 95, 23, 48, 23, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 360
+  { "SNORUNT", 478, 30, R_COMUN, 0x4DB8, 50, 50, 50, 50, TYPE_ICE, TYPE_NONE, 5 },  // 361
+  { "GLALIE", 0, 0, R_EVO, 0x4DB8, 80, 80, 80, 80, TYPE_ICE, TYPE_NONE, 5 },  // 362
+  { "SPHEAL", 364, 32, R_COMUN, 0x4DB8, 70, 40, 50, 25, TYPE_ICE, TYPE_WATER, 5 },  // 363
+  { "SEALEO", 365, 44, R_EVO, 0x4DB8, 90, 60, 70, 45, TYPE_ICE, TYPE_WATER, 5 },  // 364
+  { "WALREIN", 0, 0, R_EVO, 0x4DB8, 110, 80, 90, 65, TYPE_ICE, TYPE_WATER, 5 },  // 365
+  { "CLAMPERL", 367, 30, R_COMUN, 0x4C98, 35, 64, 85, 32, TYPE_WATER, TYPE_NONE, 1 },  // 366
+  { "HUNTAIL", 0, 0, R_EVO, 0x4C98, 55, 104, 105, 52, TYPE_WATER, TYPE_NONE, 1 },  // 367
+  { "GOREBYSS", 0, 0, R_EVO, 0x4C98, 55, 84, 105, 52, TYPE_WATER, TYPE_NONE, 1 },  // 368
+  { "RELICANTH", 0, 0, R_RARO, 0x4C98, 100, 90, 130, 55, TYPE_WATER, TYPE_ROCK, 1 },  // 369
+  { "LUVDISC", 0, 0, R_COMUN, 0x4C98, 43, 30, 55, 97, TYPE_WATER, TYPE_NONE, 1 },  // 370
+  { "BAGON", 372, 30, R_RARO, 0x5A98, 45, 75, 60, 50, TYPE_DRAGON, TYPE_NONE, 1 },  // 371
+  { "SHELGON", 373, 50, R_EVO, 0x5A98, 65, 95, 100, 50, TYPE_DRAGON, TYPE_NONE, 1 },  // 372
+  { "SALAMENCE", 0, 0, R_EVO, 0x5A98, 95, 135, 80, 100, TYPE_DRAGON, TYPE_FLYING, 1 },  // 373
+  { "BELDUM", 375, 20, R_RARO, 0x6BF1, 40, 55, 80, 30, TYPE_STEEL, TYPE_PSYCHIC, 4 },  // 374
+  { "METANG", 376, 45, R_EVO, 0x6BF1, 60, 75, 100, 50, TYPE_STEEL, TYPE_PSYCHIC, 4 },  // 375
+  { "METAGROSS", 0, 0, R_EVO, 0x6BF1, 80, 135, 130, 70, TYPE_STEEL, TYPE_PSYCHIC, 4 },  // 376
+  { "REGIROCK", 0, 0, R_LEGENDARIO, 0x9407, 80, 100, 200, 50, TYPE_ROCK, TYPE_NONE, 4 },  // 377
+  { "REGICE", 0, 0, R_LEGENDARIO, 0x4DB8, 80, 50, 100, 50, TYPE_ICE, TYPE_NONE, 5 },  // 378
+  { "REGISTEEL", 0, 0, R_LEGENDARIO, 0x6BF1, 80, 75, 150, 50, TYPE_STEEL, TYPE_NONE, 4 },  // 379
+  { "LATIAS", 0, 0, R_LEGENDARIO, 0x5A98, 80, 80, 90, 110, TYPE_DRAGON, TYPE_PSYCHIC, 1 },  // 380
+  { "LATIOS", 0, 0, R_LEGENDARIO, 0x5A98, 80, 90, 80, 110, TYPE_DRAGON, TYPE_PSYCHIC, 1 },  // 381
+  { "KYOGRE", 0, 0, R_LEGENDARIO, 0x4C98, 100, 100, 90, 90, TYPE_WATER, TYPE_NONE, 1 },  // 382
+  { "GROUDON", 0, 0, R_LEGENDARIO, 0xB447, 100, 150, 140, 90, TYPE_GROUND, TYPE_NONE, 4 },  // 383
+  { "RAYQUAZA", 0, 0, R_LEGENDARIO, 0x5A98, 105, 150, 90, 95, TYPE_DRAGON, TYPE_FLYING, 1 },  // 384
+  { "JIRACHI", 0, 0, R_LEGENDARIO, 0x6BF1, 100, 100, 100, 100, TYPE_STEEL, TYPE_PSYCHIC, 4 },  // 385
+  { "DEOXYS", 0, 0, R_LEGENDARIO, 0xD28F, 50, 150, 50, 150, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 386
+  { "TURTWIG", 388, 18, R_RARO, 0x3C49, 55, 68, 64, 31, TYPE_GRASS, TYPE_NONE, 2 },  // 387
+  { "GROTLE", 389, 32, R_EVO, 0x3C49, 75, 89, 85, 36, TYPE_GRASS, TYPE_NONE, 2 },  // 388
+  { "TORTERRA", 0, 0, R_EVO, 0x3C49, 95, 109, 105, 56, TYPE_GRASS, TYPE_GROUND, 2 },  // 389
+  { "CHIMCHAR", 391, 14, R_RARO, 0xEA87, 44, 58, 44, 61, TYPE_FIRE, TYPE_NONE, 3 },  // 390
+  { "MONFERNO", 392, 36, R_EVO, 0xEA87, 64, 78, 52, 81, TYPE_FIRE, TYPE_FIGHTING, 3 },  // 391
+  { "INFERNAPE", 0, 0, R_EVO, 0xEA87, 76, 104, 71, 108, TYPE_FIRE, TYPE_FIGHTING, 3 },  // 392
+  { "PIPLUP", 394, 16, R_RARO, 0x4C98, 53, 51, 53, 40, TYPE_WATER, TYPE_NONE, 1 },  // 393
+  { "PRINPLUP", 395, 36, R_EVO, 0x4C98, 64, 66, 68, 50, TYPE_WATER, TYPE_NONE, 1 },  // 394
+  { "EMPOLEON", 0, 0, R_EVO, 0x4C98, 84, 86, 88, 60, TYPE_WATER, TYPE_STEEL, 1 },  // 395
+  { "STARLY", 397, 14, R_COMUN, 0x8C4D, 40, 55, 30, 60, TYPE_NORMAL, TYPE_FLYING, 0 },  // 396
+  { "STARAVIA", 398, 34, R_EVO, 0x8C4D, 55, 75, 50, 80, TYPE_NORMAL, TYPE_FLYING, 0 },  // 397
+  { "STARAPTOR", 0, 0, R_EVO, 0x8C4D, 85, 120, 70, 100, TYPE_NORMAL, TYPE_FLYING, 0 },  // 398
+  { "BIDOOF", 400, 15, R_COMUN, 0x8C4D, 59, 45, 40, 31, TYPE_NORMAL, TYPE_NONE, 0 },  // 399
+  { "BIBAREL", 0, 0, R_EVO, 0x8C4D, 79, 85, 60, 71, TYPE_NORMAL, TYPE_WATER, 1 },  // 400
+  { "KRICKETOT", 402, 10, R_COMUN, 0x7CC4, 37, 25, 41, 25, TYPE_BUG, TYPE_NONE, 2 },  // 401
+  { "KRICKETUNE", 0, 0, R_EVO, 0x7CC4, 77, 85, 51, 65, TYPE_BUG, TYPE_NONE, 2 },  // 402
+  { "SHINX", 404, 15, R_COMUN, 0xBCA1, 45, 65, 34, 45, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 403
+  { "LUXIO", 405, 30, R_EVO, 0xBCA1, 60, 85, 49, 60, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 404
+  { "LUXRAY", 0, 0, R_EVO, 0xBCA1, 80, 120, 79, 70, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 405
+  { "BUDEW", 315, 20, R_COMUN, 0x3C49, 40, 30, 35, 55, TYPE_GRASS, TYPE_POISON, 2 },  // 406
+  { "ROSERADE", 0, 0, R_EVO, 0x3C49, 60, 70, 65, 90, TYPE_GRASS, TYPE_POISON, 2 },  // 407
+  { "CRANIDOS", 409, 30, R_RARO, 0x9407, 67, 125, 40, 58, TYPE_ROCK, TYPE_NONE, 4 },  // 408
+  { "RAMPARDOS", 0, 0, R_EVO, 0x9407, 97, 165, 60, 58, TYPE_ROCK, TYPE_NONE, 4 },  // 409
+  { "SHIELDON", 411, 30, R_RARO, 0x9407, 30, 42, 118, 30, TYPE_ROCK, TYPE_STEEL, 4 },  // 410
+  { "BASTIODON", 0, 0, R_EVO, 0x9407, 60, 52, 168, 30, TYPE_ROCK, TYPE_STEEL, 4 },  // 411
+  { "BURMY", 413, 30, R_COMUN, 0x7CC4, 40, 29, 45, 36, TYPE_BUG, TYPE_NONE, 2 },  // 412
+  { "WORMADAM", 0, 0, R_EVO, 0x7CC4, 60, 59, 85, 36, TYPE_BUG, TYPE_GRASS, 2 },  // 413
+  { "MOTHIM", 0, 0, R_EVO, 0x7CC4, 70, 94, 50, 66, TYPE_BUG, TYPE_FLYING, 2 },  // 414
+  { "COMBEE", 416, 30, R_COMUN, 0x7CC4, 30, 30, 42, 70, TYPE_BUG, TYPE_FLYING, 2 },  // 415
+  { "VESPIQUEN", 0, 0, R_EVO, 0x7CC4, 70, 80, 102, 40, TYPE_BUG, TYPE_FLYING, 2 },  // 416
+  { "PACHIRISU", 0, 0, R_COMUN, 0xBCA1, 60, 45, 70, 95, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 417
+  { "BUIZEL", 419, 26, R_COMUN, 0x4C98, 55, 65, 35, 85, TYPE_WATER, TYPE_NONE, 1 },  // 418
+  { "FLOATZEL", 0, 0, R_EVO, 0x4C98, 85, 105, 55, 115, TYPE_WATER, TYPE_NONE, 1 },  // 419
+  { "CHERUBI", 421, 25, R_COMUN, 0x3C49, 45, 35, 45, 35, TYPE_GRASS, TYPE_NONE, 2 },  // 420
+  { "CHERRIM", 0, 0, R_EVO, 0x3C49, 70, 60, 70, 85, TYPE_GRASS, TYPE_NONE, 2 },  // 421
+  { "SHELLOS", 423, 30, R_COMUN, 0x4C98, 76, 48, 48, 34, TYPE_WATER, TYPE_NONE, 1 },  // 422
+  { "GASTRODON", 0, 0, R_EVO, 0x4C98, 111, 83, 68, 39, TYPE_WATER, TYPE_GROUND, 1 },  // 423
+  { "AMBIPOM", 0, 0, R_EVO, 0x8C4D, 75, 100, 66, 115, TYPE_NORMAL, TYPE_NONE, 0 },  // 424
+  { "DRIFLOON", 426, 28, R_COMUN, 0x6AD3, 90, 50, 34, 70, TYPE_GHOST, TYPE_FLYING, 0 },  // 425
+  { "DRIFBLIM", 0, 0, R_EVO, 0x6AD3, 150, 80, 44, 80, TYPE_GHOST, TYPE_FLYING, 0 },  // 426
+  { "BUNEARY", 428, 20, R_COMUN, 0x8C4D, 55, 66, 44, 85, TYPE_NORMAL, TYPE_NONE, 0 },  // 427
+  { "LOPUNNY", 0, 0, R_EVO, 0x8C4D, 65, 76, 84, 105, TYPE_NORMAL, TYPE_NONE, 0 },  // 428
+  { "MISMAGIUS", 0, 0, R_EVO, 0x6AD3, 60, 60, 60, 105, TYPE_GHOST, TYPE_NONE, 0 },  // 429
+  { "HONCHKROW", 0, 0, R_EVO, 0x5A47, 100, 125, 52, 71, TYPE_DARK, TYPE_FLYING, 2 },  // 430
+  { "GLAMEOW", 432, 38, R_COMUN, 0x8C4D, 49, 55, 42, 85, TYPE_NORMAL, TYPE_NONE, 0 },  // 431
+  { "PURUGLY", 0, 0, R_EVO, 0x8C4D, 71, 82, 64, 112, TYPE_NORMAL, TYPE_NONE, 0 },  // 432
+  { "CHINGLING", 358, 20, R_COMUN, 0xD28F, 45, 30, 50, 45, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 433
+  { "STUNKY", 435, 34, R_COMUN, 0x8A73, 63, 63, 47, 74, TYPE_POISON, TYPE_DARK, 2 },  // 434
+  { "SKUNTANK", 0, 0, R_EVO, 0x8A73, 103, 93, 67, 84, TYPE_POISON, TYPE_DARK, 2 },  // 435
+  { "BRONZOR", 437, 33, R_COMUN, 0x6BF1, 57, 24, 86, 23, TYPE_STEEL, TYPE_PSYCHIC, 4 },  // 436
+  { "BRONZONG", 0, 0, R_EVO, 0x6BF1, 67, 89, 116, 33, TYPE_STEEL, TYPE_PSYCHIC, 4 },  // 437
+  { "BONSLY", 185, 30, R_COMUN, 0x9407, 50, 80, 95, 10, TYPE_ROCK, TYPE_NONE, 4 },  // 438
+  { "MIME JR.", 122, 30, R_COMUN, 0xD28F, 20, 25, 45, 60, TYPE_PSYCHIC, TYPE_FAIRY, 0 },  // 439
+  { "HAPPINY", 113, 30, R_COMUN, 0x8C4D, 100, 5, 5, 30, TYPE_NORMAL, TYPE_NONE, 0 },  // 440
+  { "CHATOT", 0, 0, R_RARO, 0x8C4D, 76, 65, 45, 91, TYPE_NORMAL, TYPE_FLYING, 0 },  // 441
+  { "SPIRITOMB", 0, 0, R_COMUN, 0x6AD3, 50, 92, 108, 35, TYPE_GHOST, TYPE_DARK, 2 },  // 442
+  { "GIBLE", 444, 24, R_RARO, 0x5A98, 58, 70, 45, 42, TYPE_DRAGON, TYPE_GROUND, 4 },  // 443
+  { "GABITE", 445, 48, R_EVO, 0x5A98, 68, 90, 65, 82, TYPE_DRAGON, TYPE_GROUND, 4 },  // 444
+  { "GARCHOMP", 0, 0, R_EVO, 0x5A98, 108, 130, 95, 102, TYPE_DRAGON, TYPE_GROUND, 4 },  // 445
+  { "MUNCHLAX", 143, 20, R_RARO, 0x8C4D, 135, 85, 40, 5, TYPE_NORMAL, TYPE_NONE, 0 },  // 446
+  { "RIOLU", 448, 20, R_RARO, 0xA2A5, 40, 70, 40, 60, TYPE_FIGHTING, TYPE_NONE, 0 },  // 447
+  { "LUCARIO", 0, 0, R_EVO, 0xA2A5, 70, 110, 70, 90, TYPE_FIGHTING, TYPE_STEEL, 4 },  // 448
+  { "HIPPOPOTAS", 450, 34, R_COMUN, 0xB447, 68, 72, 78, 32, TYPE_GROUND, TYPE_NONE, 4 },  // 449
+  { "HIPPOWDON", 0, 0, R_EVO, 0xB447, 108, 112, 118, 47, TYPE_GROUND, TYPE_NONE, 4 },  // 450
+  { "SKORUPI", 452, 40, R_COMUN, 0x8A73, 40, 50, 90, 65, TYPE_POISON, TYPE_BUG, 2 },  // 451
+  { "DRAPION", 0, 0, R_EVO, 0x8A73, 70, 90, 110, 95, TYPE_POISON, TYPE_DARK, 2 },  // 452
+  { "CROAGUNK", 454, 37, R_COMUN, 0x8A73, 48, 61, 40, 50, TYPE_POISON, TYPE_FIGHTING, 0 },  // 453
+  { "TOXICROAK", 0, 0, R_EVO, 0x8A73, 83, 106, 65, 85, TYPE_POISON, TYPE_FIGHTING, 0 },  // 454
+  { "CARNIVINE", 0, 0, R_COMUN, 0x3C49, 74, 100, 72, 46, TYPE_GRASS, TYPE_NONE, 2 },  // 455
+  { "FINNEON", 457, 31, R_COMUN, 0x4C98, 49, 49, 56, 66, TYPE_WATER, TYPE_NONE, 1 },  // 456
+  { "LUMINEON", 0, 0, R_EVO, 0x4C98, 69, 69, 76, 91, TYPE_WATER, TYPE_NONE, 1 },  // 457
+  { "MANTYKE", 226, 30, R_RARO, 0x4C98, 45, 20, 50, 50, TYPE_WATER, TYPE_FLYING, 1 },  // 458
+  { "SNOVER", 460, 40, R_COMUN, 0x3C49, 60, 62, 50, 40, TYPE_GRASS, TYPE_ICE, 5 },  // 459
+  { "ABOMASNOW", 0, 0, R_EVO, 0x3C49, 90, 92, 75, 60, TYPE_GRASS, TYPE_ICE, 5 },  // 460
+  { "WEAVILE", 0, 0, R_EVO, 0x5A47, 70, 120, 65, 125, TYPE_DARK, TYPE_ICE, 5 },  // 461
+  { "MAGNEZONE", 0, 0, R_EVO, 0xBCA1, 70, 70, 115, 60, TYPE_ELECTRIC, TYPE_STEEL, 4 },  // 462
+  { "LICKILICKY", 0, 0, R_EVO, 0x8C4D, 110, 85, 95, 50, TYPE_NORMAL, TYPE_NONE, 0 },  // 463
+  { "RHYPERIOR", 0, 0, R_EVO, 0xB447, 115, 140, 130, 40, TYPE_GROUND, TYPE_ROCK, 4 },  // 464
+  { "TANGROWTH", 0, 0, R_EVO, 0x3C49, 100, 100, 125, 50, TYPE_GRASS, TYPE_NONE, 2 },  // 465
+  { "ELECTIVIRE", 0, 0, R_EVO, 0xBCA1, 75, 123, 67, 95, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 466
+  { "MAGMORTAR", 0, 0, R_EVO, 0xEA87, 75, 95, 67, 83, TYPE_FIRE, TYPE_NONE, 3 },  // 467
+  { "TOGEKISS", 0, 0, R_EVO, 0xC333, 85, 50, 95, 80, TYPE_FAIRY, TYPE_FLYING, 0 },  // 468
+  { "YANMEGA", 0, 0, R_EVO, 0x7CC4, 86, 76, 86, 95, TYPE_BUG, TYPE_FLYING, 2 },  // 469
+  { "LEAFEON", 0, 0, R_EVO, 0x3C49, 65, 110, 130, 95, TYPE_GRASS, TYPE_NONE, 2 },  // 470
+  { "GLACEON", 0, 0, R_EVO, 0x4DB8, 65, 60, 110, 65, TYPE_ICE, TYPE_NONE, 5 },  // 471
+  { "GLISCOR", 0, 0, R_EVO, 0xB447, 75, 95, 125, 95, TYPE_GROUND, TYPE_FLYING, 4 },  // 472
+  { "MAMOSWINE", 0, 0, R_EVO, 0x4DB8, 110, 130, 80, 80, TYPE_ICE, TYPE_GROUND, 5 },  // 473
+  { "PORYGON-Z", 0, 0, R_EVO, 0x8C4D, 85, 80, 70, 90, TYPE_NORMAL, TYPE_NONE, 0 },  // 474
+  { "GALLADE", 0, 0, R_EVO, 0xD28F, 68, 125, 65, 80, TYPE_PSYCHIC, TYPE_FIGHTING, 0 },  // 475
+  { "PROBOPASS", 0, 0, R_EVO, 0x9407, 60, 55, 145, 40, TYPE_ROCK, TYPE_STEEL, 4 },  // 476
+  { "DUSKNOIR", 0, 0, R_EVO, 0x6AD3, 45, 100, 135, 45, TYPE_GHOST, TYPE_NONE, 0 },  // 477
+  { "FROSLASS", 0, 0, R_EVO, 0x4DB8, 70, 80, 70, 110, TYPE_ICE, TYPE_GHOST, 5 },  // 478
+  { "ROTOM", 0, 0, R_RARO, 0xBCA1, 50, 50, 77, 91, TYPE_ELECTRIC, TYPE_GHOST, 0 },  // 479
+  { "UXIE", 0, 0, R_LEGENDARIO, 0xD28F, 75, 75, 130, 95, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 480
+  { "MESPRIT", 0, 0, R_LEGENDARIO, 0xD28F, 80, 105, 105, 80, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 481
+  { "AZELF", 0, 0, R_LEGENDARIO, 0xD28F, 75, 125, 70, 115, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 482
+  { "DIALGA", 0, 0, R_LEGENDARIO, 0x6BF1, 100, 120, 120, 90, TYPE_STEEL, TYPE_DRAGON, 4 },  // 483
+  { "PALKIA", 0, 0, R_LEGENDARIO, 0x4C98, 90, 120, 100, 100, TYPE_WATER, TYPE_DRAGON, 1 },  // 484
+  { "HEATRAN", 0, 0, R_LEGENDARIO, 0xEA87, 91, 90, 106, 77, TYPE_FIRE, TYPE_STEEL, 3 },  // 485
+  { "REGIGIGAS", 0, 0, R_LEGENDARIO, 0x8C4D, 110, 160, 110, 100, TYPE_NORMAL, TYPE_NONE, 0 },  // 486
+  { "GIRATINA", 0, 0, R_LEGENDARIO, 0x6AD3, 150, 100, 120, 90, TYPE_GHOST, TYPE_DRAGON, 0 },  // 487
+  { "CRESSELIA", 0, 0, R_LEGENDARIO, 0xD28F, 120, 70, 110, 85, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 488
+  { "PHIONE", 0, 0, R_LEGENDARIO, 0x4C98, 80, 80, 80, 80, TYPE_WATER, TYPE_NONE, 1 },  // 489
+  { "MANAPHY", 0, 0, R_LEGENDARIO, 0x4C98, 100, 100, 100, 100, TYPE_WATER, TYPE_NONE, 1 },  // 490
+  { "DARKRAI", 0, 0, R_LEGENDARIO, 0x5A47, 70, 90, 90, 125, TYPE_DARK, TYPE_NONE, 2 },  // 491
+  { "SHAYMIN", 0, 0, R_LEGENDARIO, 0x3C49, 100, 100, 100, 100, TYPE_GRASS, TYPE_NONE, 2 },  // 492
+  { "ARCEUS", 0, 0, R_LEGENDARIO, 0x8C4D, 120, 120, 120, 120, TYPE_NORMAL, TYPE_NONE, 0 },  // 493
+  { "VICTINI", 0, 0, R_LEGENDARIO, 0xD28F, 100, 100, 100, 100, TYPE_PSYCHIC, TYPE_FIRE, 3 },  // 494
+  { "SNIVY", 496, 17, R_RARO, 0x3C49, 45, 45, 55, 63, TYPE_GRASS, TYPE_NONE, 2 },  // 495
+  { "SERVINE", 497, 36, R_EVO, 0x3C49, 60, 60, 75, 83, TYPE_GRASS, TYPE_NONE, 2 },  // 496
+  { "SERPERIOR", 0, 0, R_EVO, 0x3C49, 75, 75, 95, 113, TYPE_GRASS, TYPE_NONE, 2 },  // 497
+  { "TEPIG", 499, 17, R_RARO, 0xEA87, 65, 63, 45, 45, TYPE_FIRE, TYPE_NONE, 3 },  // 498
+  { "PIGNITE", 500, 36, R_EVO, 0xEA87, 90, 93, 55, 55, TYPE_FIRE, TYPE_FIGHTING, 3 },  // 499
+  { "EMBOAR", 0, 0, R_EVO, 0xEA87, 110, 123, 65, 65, TYPE_FIRE, TYPE_FIGHTING, 3 },  // 500
+  { "OSHAWOTT", 502, 17, R_RARO, 0x4C98, 55, 55, 45, 45, TYPE_WATER, TYPE_NONE, 1 },  // 501
+  { "DEWOTT", 503, 36, R_EVO, 0x4C98, 75, 75, 60, 60, TYPE_WATER, TYPE_NONE, 1 },  // 502
+  { "SAMUROTT", 0, 0, R_EVO, 0x4C98, 95, 100, 85, 70, TYPE_WATER, TYPE_NONE, 1 },  // 503
+  { "PATRAT", 505, 20, R_COMUN, 0x8C4D, 45, 55, 39, 42, TYPE_NORMAL, TYPE_NONE, 0 },  // 504
+  { "WATCHOG", 0, 0, R_EVO, 0x8C4D, 60, 85, 69, 77, TYPE_NORMAL, TYPE_NONE, 0 },  // 505
+  { "LILLIPUP", 507, 16, R_COMUN, 0x8C4D, 45, 60, 45, 55, TYPE_NORMAL, TYPE_NONE, 0 },  // 506
+  { "HERDIER", 508, 32, R_EVO, 0x8C4D, 65, 80, 65, 60, TYPE_NORMAL, TYPE_NONE, 0 },  // 507
+  { "STOUTLAND", 0, 0, R_EVO, 0x8C4D, 85, 110, 90, 80, TYPE_NORMAL, TYPE_NONE, 0 },  // 508
+  { "PURRLOIN", 510, 20, R_COMUN, 0x5A47, 41, 50, 37, 66, TYPE_DARK, TYPE_NONE, 2 },  // 509
+  { "LIEPARD", 0, 0, R_EVO, 0x5A47, 64, 88, 50, 106, TYPE_DARK, TYPE_NONE, 2 },  // 510
+  { "PANSAGE", 512, 30, R_COMUN, 0x3C49, 50, 53, 48, 64, TYPE_GRASS, TYPE_NONE, 2 },  // 511
+  { "SIMISAGE", 0, 0, R_EVO, 0x3C49, 75, 98, 63, 101, TYPE_GRASS, TYPE_NONE, 2 },  // 512
+  { "PANSEAR", 514, 30, R_COMUN, 0xEA87, 50, 53, 48, 64, TYPE_FIRE, TYPE_NONE, 3 },  // 513
+  { "SIMISEAR", 0, 0, R_EVO, 0xEA87, 75, 98, 63, 101, TYPE_FIRE, TYPE_NONE, 3 },  // 514
+  { "PANPOUR", 516, 30, R_COMUN, 0x4C98, 50, 53, 48, 64, TYPE_WATER, TYPE_NONE, 1 },  // 515
+  { "SIMIPOUR", 0, 0, R_EVO, 0x4C98, 75, 98, 63, 101, TYPE_WATER, TYPE_NONE, 1 },  // 516
+  { "MUNNA", 518, 30, R_COMUN, 0xD28F, 76, 25, 45, 24, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 517
+  { "MUSHARNA", 0, 0, R_EVO, 0xD28F, 116, 55, 85, 29, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 518
+  { "PIDOVE", 520, 21, R_COMUN, 0x8C4D, 50, 55, 50, 43, TYPE_NORMAL, TYPE_FLYING, 0 },  // 519
+  { "TRANQUILL", 521, 32, R_EVO, 0x8C4D, 62, 77, 62, 65, TYPE_NORMAL, TYPE_FLYING, 0 },  // 520
+  { "UNFEZANT", 0, 0, R_EVO, 0x8C4D, 80, 115, 80, 93, TYPE_NORMAL, TYPE_FLYING, 0 },  // 521
+  { "BLITZLE", 523, 27, R_COMUN, 0xBCA1, 45, 60, 32, 76, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 522
+  { "ZEBSTRIKA", 0, 0, R_EVO, 0xBCA1, 75, 100, 63, 116, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 523
+  { "ROGGENROLA", 525, 25, R_COMUN, 0x9407, 55, 75, 85, 15, TYPE_ROCK, TYPE_NONE, 4 },  // 524
+  { "BOLDORE", 526, 30, R_EVO, 0x9407, 70, 105, 105, 20, TYPE_ROCK, TYPE_NONE, 4 },  // 525
+  { "GIGALITH", 0, 0, R_EVO, 0x9407, 85, 135, 130, 25, TYPE_ROCK, TYPE_NONE, 4 },  // 526
+  { "WOOBAT", 528, 20, R_COMUN, 0xD28F, 65, 45, 43, 72, TYPE_PSYCHIC, TYPE_FLYING, 0 },  // 527
+  { "SWOOBAT", 0, 0, R_EVO, 0xD28F, 67, 57, 55, 114, TYPE_PSYCHIC, TYPE_FLYING, 0 },  // 528
+  { "DRILBUR", 530, 31, R_COMUN, 0xB447, 60, 85, 40, 68, TYPE_GROUND, TYPE_NONE, 4 },  // 529
+  { "EXCADRILL", 0, 0, R_EVO, 0xB447, 110, 135, 60, 88, TYPE_GROUND, TYPE_STEEL, 4 },  // 530
+  { "AUDINO", 0, 0, R_COMUN, 0x8C4D, 103, 60, 86, 50, TYPE_NORMAL, TYPE_NONE, 0 },  // 531
+  { "TIMBURR", 533, 25, R_COMUN, 0xA2A5, 75, 80, 55, 35, TYPE_FIGHTING, TYPE_NONE, 0 },  // 532
+  { "GURDURR", 534, 30, R_EVO, 0xA2A5, 85, 105, 85, 40, TYPE_FIGHTING, TYPE_NONE, 0 },  // 533
+  { "CONKELDURR", 0, 0, R_EVO, 0xA2A5, 105, 140, 95, 45, TYPE_FIGHTING, TYPE_NONE, 0 },  // 534
+  { "TYMPOLE", 536, 25, R_COMUN, 0x4C98, 50, 50, 40, 64, TYPE_WATER, TYPE_NONE, 1 },  // 535
+  { "PALPITOAD", 537, 36, R_EVO, 0x4C98, 75, 65, 55, 69, TYPE_WATER, TYPE_GROUND, 1 },  // 536
+  { "SEISMITOAD", 0, 0, R_EVO, 0x4C98, 105, 95, 75, 74, TYPE_WATER, TYPE_GROUND, 1 },  // 537
+  { "THROH", 0, 0, R_RARO, 0xA2A5, 120, 100, 85, 45, TYPE_FIGHTING, TYPE_NONE, 0 },  // 538
+  { "SAWK", 0, 0, R_RARO, 0xA2A5, 75, 125, 75, 85, TYPE_FIGHTING, TYPE_NONE, 0 },  // 539
+  { "SEWADDLE", 541, 20, R_COMUN, 0x7CC4, 45, 53, 70, 42, TYPE_BUG, TYPE_GRASS, 2 },  // 540
+  { "SWADLOON", 542, 20, R_EVO, 0x7CC4, 55, 63, 90, 42, TYPE_BUG, TYPE_GRASS, 2 },  // 541
+  { "LEAVANNY", 0, 0, R_EVO, 0x7CC4, 75, 103, 80, 92, TYPE_BUG, TYPE_GRASS, 2 },  // 542
+  { "VENIPEDE", 544, 22, R_COMUN, 0x7CC4, 30, 45, 59, 57, TYPE_BUG, TYPE_POISON, 2 },  // 543
+  { "WHIRLIPEDE", 545, 30, R_EVO, 0x7CC4, 40, 55, 99, 47, TYPE_BUG, TYPE_POISON, 2 },  // 544
+  { "SCOLIPEDE", 0, 0, R_EVO, 0x7CC4, 60, 100, 89, 112, TYPE_BUG, TYPE_POISON, 2 },  // 545
+  { "COTTONEE", 547, 30, R_COMUN, 0x3C49, 40, 27, 60, 66, TYPE_GRASS, TYPE_FAIRY, 2 },  // 546
+  { "WHIMSICOTT", 0, 0, R_EVO, 0x3C49, 60, 67, 85, 116, TYPE_GRASS, TYPE_FAIRY, 2 },  // 547
+  { "PETILIL", 549, 30, R_COMUN, 0x3C49, 45, 35, 50, 30, TYPE_GRASS, TYPE_NONE, 2 },  // 548
+  { "LILLIGANT", 0, 0, R_EVO, 0x3C49, 70, 60, 75, 90, TYPE_GRASS, TYPE_NONE, 2 },  // 549
+  { "BASCULIN", 902, 30, R_RARO, 0x4C98, 70, 92, 65, 98, TYPE_WATER, TYPE_NONE, 1 },  // 550
+  { "SANDILE", 552, 29, R_COMUN, 0xB447, 50, 72, 35, 65, TYPE_GROUND, TYPE_DARK, 2 },  // 551
+  { "KROKOROK", 553, 40, R_EVO, 0xB447, 60, 82, 45, 74, TYPE_GROUND, TYPE_DARK, 2 },  // 552
+  { "KROOKODILE", 0, 0, R_EVO, 0xB447, 95, 117, 80, 92, TYPE_GROUND, TYPE_DARK, 2 },  // 553
+  { "DARUMAKA", 555, 35, R_COMUN, 0xEA87, 70, 90, 45, 50, TYPE_FIRE, TYPE_NONE, 3 },  // 554
+  { "DARMANITAN", 0, 0, R_EVO, 0xEA87, 105, 140, 55, 95, TYPE_FIRE, TYPE_NONE, 3 },  // 555
+  { "MARACTUS", 0, 0, R_COMUN, 0x3C49, 75, 86, 67, 60, TYPE_GRASS, TYPE_NONE, 2 },  // 556
+  { "DWEBBLE", 558, 34, R_COMUN, 0x7CC4, 50, 65, 85, 55, TYPE_BUG, TYPE_ROCK, 2 },  // 557
+  { "CRUSTLE", 0, 0, R_EVO, 0x7CC4, 70, 105, 125, 45, TYPE_BUG, TYPE_ROCK, 2 },  // 558
+  { "SCRAGGY", 560, 39, R_COMUN, 0x5A47, 50, 75, 70, 48, TYPE_DARK, TYPE_FIGHTING, 2 },  // 559
+  { "SCRAFTY", 0, 0, R_EVO, 0x5A47, 65, 90, 115, 58, TYPE_DARK, TYPE_FIGHTING, 2 },  // 560
+  { "SIGILYPH", 0, 0, R_RARO, 0xD28F, 72, 58, 80, 97, TYPE_PSYCHIC, TYPE_FLYING, 0 },  // 561
+  { "YAMASK", 867, 30, R_COMUN, 0x6AD3, 38, 30, 85, 30, TYPE_GHOST, TYPE_NONE, 0 },  // 562
+  { "COFAGRIGUS", 0, 0, R_EVO, 0x6AD3, 58, 50, 145, 30, TYPE_GHOST, TYPE_NONE, 0 },  // 563
+  { "TIRTOUGA", 565, 37, R_RARO, 0x4C98, 54, 78, 103, 22, TYPE_WATER, TYPE_ROCK, 1 },  // 564
+  { "CARRACOSTA", 0, 0, R_EVO, 0x4C98, 74, 108, 133, 32, TYPE_WATER, TYPE_ROCK, 1 },  // 565
+  { "ARCHEN", 567, 37, R_RARO, 0x9407, 55, 112, 45, 70, TYPE_ROCK, TYPE_FLYING, 4 },  // 566
+  { "ARCHEOPS", 0, 0, R_EVO, 0x9407, 75, 140, 65, 110, TYPE_ROCK, TYPE_FLYING, 4 },  // 567
+  { "TRUBBISH", 569, 36, R_COMUN, 0x8A73, 50, 50, 62, 65, TYPE_POISON, TYPE_NONE, 0 },  // 568
+  { "GARBODOR", 0, 0, R_EVO, 0x8A73, 80, 95, 82, 75, TYPE_POISON, TYPE_NONE, 0 },  // 569
+  { "ZORUA", 571, 30, R_RARO, 0x5A47, 40, 65, 40, 65, TYPE_DARK, TYPE_NONE, 2 },  // 570
+  { "ZOROARK", 0, 0, R_EVO, 0x5A47, 60, 105, 60, 105, TYPE_DARK, TYPE_NONE, 2 },  // 571
+  { "MINCCINO", 573, 30, R_COMUN, 0x8C4D, 55, 50, 40, 75, TYPE_NORMAL, TYPE_NONE, 0 },  // 572
+  { "CINCCINO", 0, 0, R_EVO, 0x8C4D, 75, 95, 60, 115, TYPE_NORMAL, TYPE_NONE, 0 },  // 573
+  { "GOTHITA", 575, 32, R_COMUN, 0xD28F, 45, 30, 50, 45, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 574
+  { "GOTHORITA", 576, 41, R_EVO, 0xD28F, 60, 45, 70, 55, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 575
+  { "GOTHITELLE", 0, 0, R_EVO, 0xD28F, 70, 55, 95, 65, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 576
+  { "SOLOSIS", 578, 32, R_COMUN, 0xD28F, 45, 30, 40, 20, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 577
+  { "DUOSION", 579, 41, R_EVO, 0xD28F, 65, 40, 50, 30, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 578
+  { "REUNICLUS", 0, 0, R_EVO, 0xD28F, 110, 65, 75, 30, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 579
+  { "DUCKLETT", 581, 35, R_COMUN, 0x4C98, 62, 44, 50, 55, TYPE_WATER, TYPE_FLYING, 1 },  // 580
+  { "SWANNA", 0, 0, R_EVO, 0x4C98, 75, 87, 63, 98, TYPE_WATER, TYPE_FLYING, 1 },  // 581
+  { "VANILLITE", 583, 35, R_COMUN, 0x4DB8, 36, 50, 50, 44, TYPE_ICE, TYPE_NONE, 5 },  // 582
+  { "VANILLISH", 584, 47, R_EVO, 0x4DB8, 51, 65, 65, 59, TYPE_ICE, TYPE_NONE, 5 },  // 583
+  { "VANILLUXE", 0, 0, R_EVO, 0x4DB8, 71, 95, 85, 79, TYPE_ICE, TYPE_NONE, 5 },  // 584
+  { "DEERLING", 586, 34, R_COMUN, 0x8C4D, 60, 60, 50, 75, TYPE_NORMAL, TYPE_GRASS, 2 },  // 585
+  { "SAWSBUCK", 0, 0, R_EVO, 0x8C4D, 80, 100, 70, 95, TYPE_NORMAL, TYPE_GRASS, 2 },  // 586
+  { "EMOLGA", 0, 0, R_COMUN, 0xBCA1, 55, 75, 60, 103, TYPE_ELECTRIC, TYPE_FLYING, 0 },  // 587
+  { "KARRABLAST", 589, 30, R_COMUN, 0x7CC4, 50, 75, 45, 60, TYPE_BUG, TYPE_NONE, 2 },  // 588
+  { "ESCAVALIER", 0, 0, R_EVO, 0x7CC4, 70, 135, 105, 20, TYPE_BUG, TYPE_STEEL, 2 },  // 589
+  { "FOONGUS", 591, 39, R_COMUN, 0x3C49, 69, 55, 45, 15, TYPE_GRASS, TYPE_POISON, 2 },  // 590
+  { "AMOONGUSS", 0, 0, R_EVO, 0x3C49, 114, 85, 70, 30, TYPE_GRASS, TYPE_POISON, 2 },  // 591
+  { "FRILLISH", 593, 40, R_COMUN, 0x4C98, 55, 40, 50, 40, TYPE_WATER, TYPE_GHOST, 1 },  // 592
+  { "JELLICENT", 0, 0, R_EVO, 0x4C98, 100, 60, 70, 60, TYPE_WATER, TYPE_GHOST, 1 },  // 593
+  { "ALOMOMOLA", 0, 0, R_RARO, 0x4C98, 165, 75, 80, 65, TYPE_WATER, TYPE_NONE, 1 },  // 594
+  { "JOLTIK", 596, 36, R_COMUN, 0x7CC4, 50, 47, 50, 65, TYPE_BUG, TYPE_ELECTRIC, 2 },  // 595
+  { "GALVANTULA", 0, 0, R_EVO, 0x7CC4, 70, 77, 60, 108, TYPE_BUG, TYPE_ELECTRIC, 2 },  // 596
+  { "FERROSEED", 598, 40, R_COMUN, 0x3C49, 44, 50, 91, 10, TYPE_GRASS, TYPE_STEEL, 2 },  // 597
+  { "FERROTHORN", 0, 0, R_EVO, 0x3C49, 74, 94, 131, 20, TYPE_GRASS, TYPE_STEEL, 2 },  // 598
+  { "KLINK", 600, 38, R_COMUN, 0x6BF1, 40, 55, 70, 30, TYPE_STEEL, TYPE_NONE, 4 },  // 599
+  { "KLANG", 601, 49, R_EVO, 0x6BF1, 60, 80, 95, 50, TYPE_STEEL, TYPE_NONE, 4 },  // 600
+  { "KLINKLANG", 0, 0, R_EVO, 0x6BF1, 60, 100, 115, 90, TYPE_STEEL, TYPE_NONE, 4 },  // 601
+  { "TYNAMO", 603, 39, R_COMUN, 0xBCA1, 35, 55, 40, 60, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 602
+  { "EELEKTRIK", 604, 30, R_EVO, 0xBCA1, 65, 85, 70, 40, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 603
+  { "EELEKTROSS", 0, 0, R_EVO, 0xBCA1, 85, 115, 80, 50, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 604
+  { "ELGYEM", 606, 42, R_COMUN, 0xD28F, 55, 55, 55, 30, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 605
+  { "BEHEEYEM", 0, 0, R_EVO, 0xD28F, 75, 75, 75, 40, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 606
+  { "LITWICK", 608, 41, R_COMUN, 0x6AD3, 50, 30, 55, 20, TYPE_GHOST, TYPE_FIRE, 3 },  // 607
+  { "LAMPENT", 609, 30, R_EVO, 0x6AD3, 60, 40, 60, 55, TYPE_GHOST, TYPE_FIRE, 3 },  // 608
+  { "CHANDELURE", 0, 0, R_EVO, 0x6AD3, 60, 55, 90, 80, TYPE_GHOST, TYPE_FIRE, 3 },  // 609
+  { "AXEW", 611, 38, R_RARO, 0x5A98, 46, 87, 60, 57, TYPE_DRAGON, TYPE_NONE, 0 },  // 610
+  { "FRAXURE", 612, 48, R_EVO, 0x5A98, 66, 117, 70, 67, TYPE_DRAGON, TYPE_NONE, 0 },  // 611
+  { "HAXORUS", 0, 0, R_EVO, 0x5A98, 76, 147, 90, 97, TYPE_DRAGON, TYPE_NONE, 0 },  // 612
+  { "CUBCHOO", 614, 37, R_COMUN, 0x4DB8, 55, 70, 40, 40, TYPE_ICE, TYPE_NONE, 5 },  // 613
+  { "BEARTIC", 0, 0, R_EVO, 0x4DB8, 95, 130, 80, 50, TYPE_ICE, TYPE_NONE, 5 },  // 614
+  { "CRYOGONAL", 0, 0, R_RARO, 0x4DB8, 80, 50, 50, 105, TYPE_ICE, TYPE_NONE, 5 },  // 615
+  { "SHELMET", 617, 30, R_COMUN, 0x7CC4, 50, 40, 85, 25, TYPE_BUG, TYPE_NONE, 2 },  // 616
+  { "ACCELGOR", 0, 0, R_EVO, 0x7CC4, 80, 70, 40, 145, TYPE_BUG, TYPE_NONE, 2 },  // 617
+  { "STUNFISK", 0, 0, R_RARO, 0xB447, 109, 66, 84, 32, TYPE_GROUND, TYPE_ELECTRIC, 4 },  // 618
+  { "MIENFOO", 620, 50, R_COMUN, 0xA2A5, 45, 85, 50, 65, TYPE_FIGHTING, TYPE_NONE, 0 },  // 619
+  { "MIENSHAO", 0, 0, R_EVO, 0xA2A5, 65, 125, 60, 105, TYPE_FIGHTING, TYPE_NONE, 0 },  // 620
+  { "DRUDDIGON", 0, 0, R_RARO, 0x5A98, 77, 120, 90, 48, TYPE_DRAGON, TYPE_NONE, 0 },  // 621
+  { "GOLETT", 623, 43, R_COMUN, 0xB447, 59, 74, 50, 35, TYPE_GROUND, TYPE_GHOST, 4 },  // 622
+  { "GOLURK", 0, 0, R_EVO, 0xB447, 89, 124, 80, 55, TYPE_GROUND, TYPE_GHOST, 4 },  // 623
+  { "PAWNIARD", 625, 52, R_COMUN, 0x5A47, 45, 85, 70, 60, TYPE_DARK, TYPE_STEEL, 2 },  // 624
+  { "BISHARP", 983, 30, R_EVO, 0x5A47, 65, 125, 100, 70, TYPE_DARK, TYPE_STEEL, 2 },  // 625
+  { "BOUFFALANT", 0, 0, R_RARO, 0x8C4D, 95, 110, 95, 55, TYPE_NORMAL, TYPE_NONE, 0 },  // 626
+  { "RUFFLET", 628, 54, R_COMUN, 0x8C4D, 70, 83, 50, 60, TYPE_NORMAL, TYPE_FLYING, 0 },  // 627
+  { "BRAVIARY", 0, 0, R_EVO, 0x8C4D, 100, 123, 75, 80, TYPE_NORMAL, TYPE_FLYING, 0 },  // 628
+  { "VULLABY", 630, 54, R_COMUN, 0x5A47, 70, 55, 75, 60, TYPE_DARK, TYPE_FLYING, 2 },  // 629
+  { "MANDIBUZZ", 0, 0, R_EVO, 0x5A47, 110, 65, 105, 80, TYPE_DARK, TYPE_FLYING, 2 },  // 630
+  { "HEATMOR", 0, 0, R_COMUN, 0xEA87, 85, 97, 66, 65, TYPE_FIRE, TYPE_NONE, 3 },  // 631
+  { "DURANT", 0, 0, R_COMUN, 0x7CC4, 58, 109, 112, 109, TYPE_BUG, TYPE_STEEL, 2 },  // 632
+  { "DEINO", 634, 50, R_RARO, 0x5A47, 52, 65, 50, 38, TYPE_DARK, TYPE_DRAGON, 2 },  // 633
+  { "ZWEILOUS", 635, 64, R_EVO, 0x5A47, 72, 85, 70, 58, TYPE_DARK, TYPE_DRAGON, 2 },  // 634
+  { "HYDREIGON", 0, 0, R_EVO, 0x5A47, 92, 105, 90, 98, TYPE_DARK, TYPE_DRAGON, 2 },  // 635
+  { "LARVESTA", 637, 59, R_RARO, 0x7CC4, 55, 85, 55, 60, TYPE_BUG, TYPE_FIRE, 3 },  // 636
+  { "VOLCARONA", 0, 0, R_EVO, 0x7CC4, 85, 60, 65, 100, TYPE_BUG, TYPE_FIRE, 3 },  // 637
+  { "COBALION", 0, 0, R_LEGENDARIO, 0x6BF1, 91, 90, 129, 108, TYPE_STEEL, TYPE_FIGHTING, 4 },  // 638
+  { "TERRAKION", 0, 0, R_LEGENDARIO, 0x9407, 91, 129, 90, 108, TYPE_ROCK, TYPE_FIGHTING, 4 },  // 639
+  { "VIRIZION", 0, 0, R_LEGENDARIO, 0x3C49, 91, 90, 72, 108, TYPE_GRASS, TYPE_FIGHTING, 2 },  // 640
+  { "TORNADUS", 0, 0, R_LEGENDARIO, 0x8C4D, 79, 115, 70, 111, TYPE_FLYING, TYPE_NONE, 0 },  // 641
+  { "THUNDURUS", 0, 0, R_LEGENDARIO, 0xBCA1, 79, 115, 70, 111, TYPE_ELECTRIC, TYPE_FLYING, 0 },  // 642
+  { "RESHIRAM", 0, 0, R_LEGENDARIO, 0x5A98, 100, 120, 100, 90, TYPE_DRAGON, TYPE_FIRE, 3 },  // 643
+  { "ZEKROM", 0, 0, R_LEGENDARIO, 0x5A98, 100, 150, 120, 90, TYPE_DRAGON, TYPE_ELECTRIC, 0 },  // 644
+  { "LANDORUS", 0, 0, R_LEGENDARIO, 0xB447, 89, 125, 90, 101, TYPE_GROUND, TYPE_FLYING, 4 },  // 645
+  { "KYUREM", 0, 0, R_LEGENDARIO, 0x5A98, 125, 130, 90, 95, TYPE_DRAGON, TYPE_ICE, 5 },  // 646
+  { "KELDEO", 0, 0, R_LEGENDARIO, 0x4C98, 91, 72, 90, 108, TYPE_WATER, TYPE_FIGHTING, 1 },  // 647
+  { "MELOETTA", 0, 0, R_LEGENDARIO, 0x8C4D, 100, 77, 77, 90, TYPE_NORMAL, TYPE_PSYCHIC, 0 },  // 648
+  { "GENESECT", 0, 0, R_LEGENDARIO, 0x7CC4, 71, 120, 95, 99, TYPE_BUG, TYPE_STEEL, 2 },  // 649
+  { "CHESPIN", 651, 16, R_RARO, 0x3C49, 56, 61, 65, 38, TYPE_GRASS, TYPE_NONE, 2 },  // 650
+  { "QUILLADIN", 652, 36, R_EVO, 0x3C49, 61, 78, 95, 57, TYPE_GRASS, TYPE_NONE, 2 },  // 651
+  { "CHESNAUGHT", 0, 0, R_EVO, 0x3C49, 88, 107, 122, 64, TYPE_GRASS, TYPE_FIGHTING, 2 },  // 652
+  { "FENNEKIN", 654, 16, R_RARO, 0xEA87, 40, 45, 40, 60, TYPE_FIRE, TYPE_NONE, 3 },  // 653
+  { "BRAIXEN", 655, 36, R_EVO, 0xEA87, 59, 59, 58, 73, TYPE_FIRE, TYPE_NONE, 3 },  // 654
+  { "DELPHOX", 0, 0, R_EVO, 0xEA87, 75, 69, 72, 104, TYPE_FIRE, TYPE_PSYCHIC, 3 },  // 655
+  { "FROAKIE", 657, 16, R_RARO, 0x4C98, 41, 56, 40, 71, TYPE_WATER, TYPE_NONE, 1 },  // 656
+  { "FROGADIER", 658, 36, R_EVO, 0x4C98, 54, 63, 52, 97, TYPE_WATER, TYPE_NONE, 1 },  // 657
+  { "GRENINJA", 0, 0, R_EVO, 0x4C98, 72, 95, 67, 122, TYPE_WATER, TYPE_DARK, 1 },  // 658
+  { "BUNNELBY", 660, 20, R_COMUN, 0x8C4D, 38, 36, 38, 57, TYPE_NORMAL, TYPE_NONE, 0 },  // 659
+  { "DIGGERSBY", 0, 0, R_EVO, 0x8C4D, 85, 56, 77, 78, TYPE_NORMAL, TYPE_GROUND, 4 },  // 660
+  { "FLETCHLING", 662, 17, R_COMUN, 0x8C4D, 45, 50, 43, 62, TYPE_NORMAL, TYPE_FLYING, 0 },  // 661
+  { "FLETCHINDER", 663, 35, R_EVO, 0xEA87, 62, 73, 55, 84, TYPE_FIRE, TYPE_FLYING, 3 },  // 662
+  { "TALONFLAME", 0, 0, R_EVO, 0xEA87, 78, 81, 71, 126, TYPE_FIRE, TYPE_FLYING, 3 },  // 663
+  { "SCATTERBUG", 665, 9, R_COMUN, 0x7CC4, 38, 35, 40, 35, TYPE_BUG, TYPE_NONE, 2 },  // 664
+  { "SPEWPA", 666, 30, R_EVO, 0x7CC4, 45, 22, 60, 29, TYPE_BUG, TYPE_NONE, 2 },  // 665
+  { "VIVILLON", 0, 0, R_EVO, 0x7CC4, 80, 52, 50, 89, TYPE_BUG, TYPE_FLYING, 2 },  // 666
+  { "LITLEO", 668, 35, R_COMUN, 0xEA87, 62, 50, 58, 72, TYPE_FIRE, TYPE_NORMAL, 3 },  // 667
+  { "PYROAR", 0, 0, R_EVO, 0xEA87, 86, 68, 72, 106, TYPE_FIRE, TYPE_NORMAL, 3 },  // 668
+  { "FLABÉBÉ", 670, 19, R_COMUN, 0xC333, 44, 38, 39, 42, TYPE_FAIRY, TYPE_NONE, 0 },  // 669
+  { "FLOETTE", 671, 30, R_EVO, 0xC333, 54, 45, 47, 52, TYPE_FAIRY, TYPE_NONE, 0 },  // 670
+  { "FLORGES", 0, 0, R_EVO, 0xC333, 78, 65, 68, 75, TYPE_FAIRY, TYPE_NONE, 0 },  // 671
+  { "SKIDDO", 673, 32, R_COMUN, 0x3C49, 66, 65, 48, 52, TYPE_GRASS, TYPE_NONE, 2 },  // 672
+  { "GOGOAT", 0, 0, R_EVO, 0x3C49, 123, 100, 62, 68, TYPE_GRASS, TYPE_NONE, 2 },  // 673
+  { "PANCHAM", 675, 32, R_COMUN, 0xA2A5, 67, 82, 62, 43, TYPE_FIGHTING, TYPE_NONE, 0 },  // 674
+  { "PANGORO", 0, 0, R_EVO, 0xA2A5, 95, 124, 78, 58, TYPE_FIGHTING, TYPE_DARK, 2 },  // 675
+  { "FURFROU", 0, 0, R_COMUN, 0x8C4D, 75, 80, 60, 102, TYPE_NORMAL, TYPE_NONE, 0 },  // 676
+  { "ESPURR", 678, 30, R_COMUN, 0xD28F, 62, 48, 54, 68, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 677
+  { "MEOWSTIC", 0, 0, R_EVO, 0xD28F, 74, 48, 76, 104, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 678
+  { "HONEDGE", 680, 35, R_COMUN, 0x6BF1, 45, 80, 100, 28, TYPE_STEEL, TYPE_GHOST, 4 },  // 679
+  { "DOUBLADE", 681, 30, R_EVO, 0x6BF1, 59, 110, 150, 35, TYPE_STEEL, TYPE_GHOST, 4 },  // 680
+  { "AEGISLASH", 0, 0, R_EVO, 0x6BF1, 60, 50, 140, 60, TYPE_STEEL, TYPE_GHOST, 4 },  // 681
+  { "SPRITZEE", 683, 30, R_COMUN, 0xC333, 78, 52, 60, 23, TYPE_FAIRY, TYPE_NONE, 0 },  // 682
+  { "AROMATISSE", 0, 0, R_EVO, 0xC333, 101, 72, 72, 29, TYPE_FAIRY, TYPE_NONE, 0 },  // 683
+  { "SWIRLIX", 685, 30, R_COMUN, 0xC333, 62, 48, 66, 49, TYPE_FAIRY, TYPE_NONE, 0 },  // 684
+  { "SLURPUFF", 0, 0, R_EVO, 0xC333, 82, 80, 86, 72, TYPE_FAIRY, TYPE_NONE, 0 },  // 685
+  { "INKAY", 687, 30, R_COMUN, 0x5A47, 53, 54, 53, 45, TYPE_DARK, TYPE_PSYCHIC, 2 },  // 686
+  { "MALAMAR", 0, 0, R_EVO, 0x5A47, 86, 92, 88, 73, TYPE_DARK, TYPE_PSYCHIC, 2 },  // 687
+  { "BINACLE", 689, 39, R_COMUN, 0x9407, 42, 52, 67, 50, TYPE_ROCK, TYPE_WATER, 1 },  // 688
+  { "BARBARACLE", 0, 0, R_EVO, 0x9407, 72, 105, 115, 68, TYPE_ROCK, TYPE_WATER, 1 },  // 689
+  { "SKRELP", 691, 48, R_COMUN, 0x8A73, 50, 60, 60, 30, TYPE_POISON, TYPE_WATER, 1 },  // 690
+  { "DRAGALGE", 0, 0, R_EVO, 0x8A73, 65, 75, 90, 44, TYPE_POISON, TYPE_DRAGON, 0 },  // 691
+  { "CLAUNCHER", 693, 37, R_COMUN, 0x4C98, 50, 53, 62, 44, TYPE_WATER, TYPE_NONE, 1 },  // 692
+  { "CLAWITZER", 0, 0, R_EVO, 0x4C98, 71, 73, 88, 59, TYPE_WATER, TYPE_NONE, 1 },  // 693
+  { "HELIOPTILE", 695, 30, R_COMUN, 0xBCA1, 44, 38, 33, 70, TYPE_ELECTRIC, TYPE_NORMAL, 0 },  // 694
+  { "HELIOLISK", 0, 0, R_EVO, 0xBCA1, 62, 55, 52, 109, TYPE_ELECTRIC, TYPE_NORMAL, 0 },  // 695
+  { "TYRUNT", 697, 39, R_RARO, 0x9407, 58, 89, 77, 48, TYPE_ROCK, TYPE_DRAGON, 4 },  // 696
+  { "TYRANTRUM", 0, 0, R_EVO, 0x9407, 82, 121, 119, 71, TYPE_ROCK, TYPE_DRAGON, 4 },  // 697
+  { "AMAURA", 699, 39, R_RARO, 0x9407, 77, 59, 50, 46, TYPE_ROCK, TYPE_ICE, 5 },  // 698
+  { "AURORUS", 0, 0, R_EVO, 0x9407, 123, 77, 72, 58, TYPE_ROCK, TYPE_ICE, 5 },  // 699
+  { "SYLVEON", 0, 0, R_EVO, 0xC333, 95, 65, 65, 60, TYPE_FAIRY, TYPE_NONE, 0 },  // 700
+  { "HAWLUCHA", 0, 0, R_COMUN, 0xA2A5, 78, 92, 75, 118, TYPE_FIGHTING, TYPE_FLYING, 0 },  // 701
+  { "DEDENNE", 0, 0, R_COMUN, 0xBCA1, 67, 58, 57, 101, TYPE_ELECTRIC, TYPE_FAIRY, 0 },  // 702
+  { "CARBINK", 0, 0, R_RARO, 0x9407, 50, 50, 150, 50, TYPE_ROCK, TYPE_FAIRY, 4 },  // 703
+  { "GOOMY", 705, 40, R_RARO, 0x5A98, 45, 50, 35, 40, TYPE_DRAGON, TYPE_NONE, 0 },  // 704
+  { "SLIGGOO", 706, 50, R_EVO, 0x5A98, 68, 75, 53, 60, TYPE_DRAGON, TYPE_NONE, 0 },  // 705
+  { "GOODRA", 0, 0, R_EVO, 0x5A98, 90, 100, 70, 80, TYPE_DRAGON, TYPE_NONE, 0 },  // 706
+  { "KLEFKI", 0, 0, R_RARO, 0x6BF1, 57, 80, 91, 75, TYPE_STEEL, TYPE_FAIRY, 4 },  // 707
+  { "PHANTUMP", 709, 30, R_COMUN, 0x6AD3, 43, 70, 48, 38, TYPE_GHOST, TYPE_GRASS, 2 },  // 708
+  { "TREVENANT", 0, 0, R_EVO, 0x6AD3, 85, 110, 76, 56, TYPE_GHOST, TYPE_GRASS, 2 },  // 709
+  { "PUMPKABOO", 711, 30, R_COMUN, 0x6AD3, 49, 66, 70, 51, TYPE_GHOST, TYPE_GRASS, 2 },  // 710
+  { "GOURGEIST", 0, 0, R_EVO, 0x6AD3, 65, 90, 122, 84, TYPE_GHOST, TYPE_GRASS, 2 },  // 711
+  { "BERGMITE", 713, 37, R_COMUN, 0x4DB8, 55, 69, 85, 28, TYPE_ICE, TYPE_NONE, 5 },  // 712
+  { "AVALUGG", 0, 0, R_EVO, 0x4DB8, 95, 117, 184, 28, TYPE_ICE, TYPE_NONE, 5 },  // 713
+  { "NOIBAT", 715, 48, R_COMUN, 0x8C4D, 40, 30, 35, 55, TYPE_FLYING, TYPE_DRAGON, 0 },  // 714
+  { "NOIVERN", 0, 0, R_EVO, 0x8C4D, 85, 70, 80, 123, TYPE_FLYING, TYPE_DRAGON, 0 },  // 715
+  { "XERNEAS", 0, 0, R_LEGENDARIO, 0xC333, 126, 131, 95, 99, TYPE_FAIRY, TYPE_NONE, 0 },  // 716
+  { "YVELTAL", 0, 0, R_LEGENDARIO, 0x5A47, 126, 131, 95, 99, TYPE_DARK, TYPE_FLYING, 2 },  // 717
+  { "ZYGARDE", 0, 0, R_LEGENDARIO, 0x5A98, 108, 100, 121, 95, TYPE_DRAGON, TYPE_GROUND, 4 },  // 718
+  { "DIANCIE", 0, 0, R_LEGENDARIO, 0x9407, 50, 100, 150, 50, TYPE_ROCK, TYPE_FAIRY, 4 },  // 719
+  { "HOOPA", 0, 0, R_LEGENDARIO, 0xD28F, 80, 110, 60, 70, TYPE_PSYCHIC, TYPE_GHOST, 0 },  // 720
+  { "VOLCANION", 0, 0, R_LEGENDARIO, 0xEA87, 80, 110, 120, 70, TYPE_FIRE, TYPE_WATER, 3 },  // 721
+  { "ROWLET", 723, 17, R_RARO, 0x3C49, 68, 55, 55, 42, TYPE_GRASS, TYPE_FLYING, 2 },  // 722
+  { "DARTRIX", 724, 34, R_EVO, 0x3C49, 78, 75, 75, 52, TYPE_GRASS, TYPE_FLYING, 2 },  // 723
+  { "DECIDUEYE", 0, 0, R_EVO, 0x3C49, 78, 107, 75, 70, TYPE_GRASS, TYPE_GHOST, 2 },  // 724
+  { "LITTEN", 726, 17, R_RARO, 0xEA87, 45, 65, 40, 70, TYPE_FIRE, TYPE_NONE, 3 },  // 725
+  { "TORRACAT", 727, 34, R_EVO, 0xEA87, 65, 85, 50, 90, TYPE_FIRE, TYPE_NONE, 3 },  // 726
+  { "INCINEROAR", 0, 0, R_EVO, 0xEA87, 95, 115, 90, 60, TYPE_FIRE, TYPE_DARK, 3 },  // 727
+  { "POPPLIO", 729, 17, R_RARO, 0x4C98, 50, 54, 54, 40, TYPE_WATER, TYPE_NONE, 1 },  // 728
+  { "BRIONNE", 730, 34, R_EVO, 0x4C98, 60, 69, 69, 50, TYPE_WATER, TYPE_NONE, 1 },  // 729
+  { "PRIMARINA", 0, 0, R_EVO, 0x4C98, 80, 74, 74, 60, TYPE_WATER, TYPE_FAIRY, 1 },  // 730
+  { "PIKIPEK", 732, 14, R_COMUN, 0x8C4D, 35, 75, 30, 65, TYPE_NORMAL, TYPE_FLYING, 0 },  // 731
+  { "TRUMBEAK", 733, 28, R_EVO, 0x8C4D, 55, 85, 50, 75, TYPE_NORMAL, TYPE_FLYING, 0 },  // 732
+  { "TOUCANNON", 0, 0, R_EVO, 0x8C4D, 80, 120, 75, 60, TYPE_NORMAL, TYPE_FLYING, 0 },  // 733
+  { "YUNGOOS", 735, 20, R_COMUN, 0x8C4D, 48, 70, 30, 45, TYPE_NORMAL, TYPE_NONE, 0 },  // 734
+  { "GUMSHOOS", 0, 0, R_EVO, 0x8C4D, 88, 110, 60, 45, TYPE_NORMAL, TYPE_NONE, 0 },  // 735
+  { "GRUBBIN", 737, 20, R_COMUN, 0x7CC4, 47, 62, 45, 46, TYPE_BUG, TYPE_NONE, 2 },  // 736
+  { "CHARJABUG", 738, 30, R_EVO, 0x7CC4, 57, 82, 95, 36, TYPE_BUG, TYPE_ELECTRIC, 2 },  // 737
+  { "VIKAVOLT", 0, 0, R_EVO, 0x7CC4, 77, 70, 90, 43, TYPE_BUG, TYPE_ELECTRIC, 2 },  // 738
+  { "CRABRAWLER", 740, 30, R_COMUN, 0xA2A5, 47, 82, 57, 63, TYPE_FIGHTING, TYPE_NONE, 0 },  // 739
+  { "CRABOMINABLE", 0, 0, R_EVO, 0xA2A5, 97, 132, 77, 43, TYPE_FIGHTING, TYPE_ICE, 5 },  // 740
+  { "ORICORIO", 0, 0, R_RARO, 0xEA87, 75, 70, 70, 93, TYPE_FIRE, TYPE_FLYING, 3 },  // 741
+  { "CUTIEFLY", 743, 25, R_COMUN, 0x7CC4, 40, 45, 40, 84, TYPE_BUG, TYPE_FAIRY, 2 },  // 742
+  { "RIBOMBEE", 0, 0, R_EVO, 0x7CC4, 60, 55, 60, 124, TYPE_BUG, TYPE_FAIRY, 2 },  // 743
+  { "ROCKRUFF", 745, 25, R_COMUN, 0x9407, 45, 65, 40, 60, TYPE_ROCK, TYPE_NONE, 4 },  // 744
+  { "LYCANROC", 0, 0, R_EVO, 0x9407, 75, 115, 65, 112, TYPE_ROCK, TYPE_NONE, 4 },  // 745
+  { "WISHIWASHI", 0, 0, R_RARO, 0x4C98, 45, 20, 20, 40, TYPE_WATER, TYPE_NONE, 1 },  // 746
+  { "MAREANIE", 748, 38, R_COMUN, 0x8A73, 50, 53, 62, 45, TYPE_POISON, TYPE_WATER, 1 },  // 747
+  { "TOXAPEX", 0, 0, R_EVO, 0x8A73, 50, 63, 152, 35, TYPE_POISON, TYPE_WATER, 1 },  // 748
+  { "MUDBRAY", 750, 30, R_COMUN, 0xB447, 70, 100, 70, 45, TYPE_GROUND, TYPE_NONE, 4 },  // 749
+  { "MUDSDALE", 0, 0, R_EVO, 0xB447, 100, 125, 100, 35, TYPE_GROUND, TYPE_NONE, 4 },  // 750
+  { "DEWPIDER", 752, 22, R_COMUN, 0x4C98, 38, 40, 52, 27, TYPE_WATER, TYPE_BUG, 1 },  // 751
+  { "ARAQUANID", 0, 0, R_EVO, 0x4C98, 68, 70, 92, 42, TYPE_WATER, TYPE_BUG, 1 },  // 752
+  { "FOMANTIS", 754, 34, R_COMUN, 0x3C49, 40, 55, 35, 35, TYPE_GRASS, TYPE_NONE, 2 },  // 753
+  { "LURANTIS", 0, 0, R_EVO, 0x3C49, 70, 105, 90, 45, TYPE_GRASS, TYPE_NONE, 2 },  // 754
+  { "MORELULL", 756, 24, R_COMUN, 0x3C49, 40, 35, 55, 15, TYPE_GRASS, TYPE_FAIRY, 2 },  // 755
+  { "SHIINOTIC", 0, 0, R_EVO, 0x3C49, 60, 45, 80, 30, TYPE_GRASS, TYPE_FAIRY, 2 },  // 756
+  { "SALANDIT", 758, 33, R_COMUN, 0x8A73, 48, 44, 40, 77, TYPE_POISON, TYPE_FIRE, 3 },  // 757
+  { "SALAZZLE", 0, 0, R_EVO, 0x8A73, 68, 64, 60, 117, TYPE_POISON, TYPE_FIRE, 3 },  // 758
+  { "STUFFUL", 760, 27, R_COMUN, 0x8C4D, 70, 75, 50, 50, TYPE_NORMAL, TYPE_FIGHTING, 0 },  // 759
+  { "BEWEAR", 0, 0, R_EVO, 0x8C4D, 120, 125, 80, 60, TYPE_NORMAL, TYPE_FIGHTING, 0 },  // 760
+  { "BOUNSWEET", 762, 18, R_COMUN, 0x3C49, 42, 30, 38, 32, TYPE_GRASS, TYPE_NONE, 2 },  // 761
+  { "STEENEE", 763, 30, R_EVO, 0x3C49, 52, 40, 48, 62, TYPE_GRASS, TYPE_NONE, 2 },  // 762
+  { "TSAREENA", 0, 0, R_EVO, 0x3C49, 72, 120, 98, 72, TYPE_GRASS, TYPE_NONE, 2 },  // 763
+  { "COMFEY", 0, 0, R_RARO, 0xC333, 51, 52, 90, 100, TYPE_FAIRY, TYPE_NONE, 0 },  // 764
+  { "ORANGURU", 0, 0, R_RARO, 0x8C4D, 90, 60, 80, 60, TYPE_NORMAL, TYPE_PSYCHIC, 0 },  // 765
+  { "PASSIMIAN", 0, 0, R_RARO, 0xA2A5, 100, 120, 90, 80, TYPE_FIGHTING, TYPE_NONE, 0 },  // 766
+  { "WIMPOD", 768, 30, R_COMUN, 0x7CC4, 25, 35, 40, 80, TYPE_BUG, TYPE_WATER, 1 },  // 767
+  { "GOLISOPOD", 0, 0, R_EVO, 0x7CC4, 75, 125, 140, 40, TYPE_BUG, TYPE_WATER, 1 },  // 768
+  { "SANDYGAST", 770, 42, R_COMUN, 0x6AD3, 55, 55, 80, 15, TYPE_GHOST, TYPE_GROUND, 4 },  // 769
+  { "PALOSSAND", 0, 0, R_EVO, 0x6AD3, 85, 75, 110, 35, TYPE_GHOST, TYPE_GROUND, 4 },  // 770
+  { "PYUKUMUKU", 0, 0, R_RARO, 0x4C98, 55, 60, 130, 5, TYPE_WATER, TYPE_NONE, 1 },  // 771
+  { "TYPE: NULL", 773, 20, R_LEGENDARIO, 0x8C4D, 95, 95, 95, 59, TYPE_NORMAL, TYPE_NONE, 0 },  // 772
+  { "SILVALLY", 0, 0, R_EVO, 0x8C4D, 95, 95, 95, 95, TYPE_NORMAL, TYPE_NONE, 0 },  // 773
+  { "MINIOR", 0, 0, R_RARO, 0x9407, 60, 60, 100, 60, TYPE_ROCK, TYPE_FLYING, 4 },  // 774
+  { "KOMALA", 0, 0, R_RARO, 0x8C4D, 65, 115, 65, 65, TYPE_NORMAL, TYPE_NONE, 0 },  // 775
+  { "TURTONATOR", 0, 0, R_RARO, 0xEA87, 60, 78, 135, 36, TYPE_FIRE, TYPE_DRAGON, 3 },  // 776
+  { "TOGEDEMARU", 0, 0, R_COMUN, 0xBCA1, 65, 98, 63, 96, TYPE_ELECTRIC, TYPE_STEEL, 4 },  // 777
+  { "MIMIKYU", 0, 0, R_RARO, 0x6AD3, 55, 90, 80, 96, TYPE_GHOST, TYPE_FAIRY, 0 },  // 778
+  { "BRUXISH", 0, 0, R_COMUN, 0x4C98, 68, 105, 70, 92, TYPE_WATER, TYPE_PSYCHIC, 1 },  // 779
+  { "DRAMPA", 0, 0, R_RARO, 0x8C4D, 78, 60, 85, 36, TYPE_NORMAL, TYPE_DRAGON, 0 },  // 780
+  { "DHELMISE", 0, 0, R_RARO, 0x6AD3, 70, 131, 100, 40, TYPE_GHOST, TYPE_GRASS, 2 },  // 781
+  { "JANGMO-O", 783, 35, R_RARO, 0x5A98, 45, 55, 65, 45, TYPE_DRAGON, TYPE_NONE, 0 },  // 782
+  { "HAKAMO-O", 784, 45, R_EVO, 0x5A98, 55, 75, 90, 65, TYPE_DRAGON, TYPE_FIGHTING, 0 },  // 783
+  { "KOMMO-O", 0, 0, R_EVO, 0x5A98, 75, 110, 125, 85, TYPE_DRAGON, TYPE_FIGHTING, 0 },  // 784
+  { "TAPU KOKO", 0, 0, R_LEGENDARIO, 0xBCA1, 70, 115, 85, 130, TYPE_ELECTRIC, TYPE_FAIRY, 0 },  // 785
+  { "TAPU LELE", 0, 0, R_LEGENDARIO, 0xD28F, 70, 85, 75, 95, TYPE_PSYCHIC, TYPE_FAIRY, 0 },  // 786
+  { "TAPU BULU", 0, 0, R_LEGENDARIO, 0x3C49, 70, 130, 115, 75, TYPE_GRASS, TYPE_FAIRY, 2 },  // 787
+  { "TAPU FINI", 0, 0, R_LEGENDARIO, 0x4C98, 70, 75, 115, 85, TYPE_WATER, TYPE_FAIRY, 1 },  // 788
+  { "COSMOG", 790, 43, R_LEGENDARIO, 0xD28F, 43, 29, 31, 37, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 789
+  { "COSMOEM", 791, 53, R_EVO, 0xD28F, 43, 29, 131, 37, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 790
+  { "SOLGALEO", 0, 0, R_EVO, 0xD28F, 137, 137, 107, 97, TYPE_PSYCHIC, TYPE_STEEL, 4 },  // 791
+  { "LUNALA", 0, 0, R_EVO, 0xD28F, 137, 113, 89, 97, TYPE_PSYCHIC, TYPE_GHOST, 0 },  // 792
+  { "NIHILEGO", 0, 0, R_RARO, 0x9407, 109, 53, 47, 103, TYPE_ROCK, TYPE_POISON, 4 },  // 793
+  { "BUZZWOLE", 0, 0, R_RARO, 0x7CC4, 107, 139, 139, 79, TYPE_BUG, TYPE_FIGHTING, 2 },  // 794
+  { "PHEROMOSA", 0, 0, R_RARO, 0x7CC4, 71, 137, 37, 151, TYPE_BUG, TYPE_FIGHTING, 2 },  // 795
+  { "XURKITREE", 0, 0, R_RARO, 0xBCA1, 83, 89, 71, 83, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 796
+  { "CELESTEELA", 0, 0, R_RARO, 0x6BF1, 97, 101, 103, 61, TYPE_STEEL, TYPE_FLYING, 4 },  // 797
+  { "KARTANA", 0, 0, R_RARO, 0x3C49, 59, 181, 131, 109, TYPE_GRASS, TYPE_STEEL, 2 },  // 798
+  { "GUZZLORD", 0, 0, R_RARO, 0x5A47, 223, 101, 53, 43, TYPE_DARK, TYPE_DRAGON, 2 },  // 799
+  { "NECROZMA", 0, 0, R_LEGENDARIO, 0xD28F, 97, 107, 101, 79, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 800
+  { "MAGEARNA", 0, 0, R_LEGENDARIO, 0x6BF1, 80, 95, 115, 65, TYPE_STEEL, TYPE_FAIRY, 4 },  // 801
+  { "MARSHADOW", 0, 0, R_LEGENDARIO, 0xA2A5, 90, 125, 80, 125, TYPE_FIGHTING, TYPE_GHOST, 0 },  // 802
+  { "POIPOLE", 804, 30, R_RARO, 0x8A73, 67, 73, 67, 73, TYPE_POISON, TYPE_NONE, 0 },  // 803
+  { "NAGANADEL", 0, 0, R_EVO, 0x8A73, 73, 73, 73, 121, TYPE_POISON, TYPE_DRAGON, 0 },  // 804
+  { "STAKATAKA", 0, 0, R_RARO, 0x9407, 61, 131, 211, 13, TYPE_ROCK, TYPE_STEEL, 4 },  // 805
+  { "BLACEPHALON", 0, 0, R_RARO, 0xEA87, 53, 127, 53, 107, TYPE_FIRE, TYPE_GHOST, 3 },  // 806
+  { "ZERAORA", 0, 0, R_LEGENDARIO, 0xBCA1, 88, 112, 75, 143, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 807
+  { "MELTAN", 809, 30, R_LEGENDARIO, 0x6BF1, 46, 65, 65, 34, TYPE_STEEL, TYPE_NONE, 4 },  // 808
+  { "MELMETAL", 0, 0, R_EVO, 0x6BF1, 135, 143, 143, 34, TYPE_STEEL, TYPE_NONE, 4 },  // 809
+  { "GROOKEY", 811, 16, R_RARO, 0x3C49, 50, 65, 50, 65, TYPE_GRASS, TYPE_NONE, 2 },  // 810
+  { "THWACKEY", 812, 35, R_EVO, 0x3C49, 70, 85, 70, 80, TYPE_GRASS, TYPE_NONE, 2 },  // 811
+  { "RILLABOOM", 0, 0, R_EVO, 0x3C49, 100, 125, 90, 85, TYPE_GRASS, TYPE_NONE, 2 },  // 812
+  { "SCORBUNNY", 814, 16, R_RARO, 0xEA87, 50, 71, 40, 69, TYPE_FIRE, TYPE_NONE, 3 },  // 813
+  { "RABOOT", 815, 35, R_EVO, 0xEA87, 65, 86, 60, 94, TYPE_FIRE, TYPE_NONE, 3 },  // 814
+  { "CINDERACE", 0, 0, R_EVO, 0xEA87, 80, 116, 75, 119, TYPE_FIRE, TYPE_NONE, 3 },  // 815
+  { "SOBBLE", 817, 16, R_RARO, 0x4C98, 50, 40, 40, 70, TYPE_WATER, TYPE_NONE, 1 },  // 816
+  { "DRIZZILE", 818, 35, R_EVO, 0x4C98, 65, 60, 55, 90, TYPE_WATER, TYPE_NONE, 1 },  // 817
+  { "INTELEON", 0, 0, R_EVO, 0x4C98, 70, 85, 65, 120, TYPE_WATER, TYPE_NONE, 1 },  // 818
+  { "SKWOVET", 820, 24, R_COMUN, 0x8C4D, 70, 55, 55, 25, TYPE_NORMAL, TYPE_NONE, 0 },  // 819
+  { "GREEDENT", 0, 0, R_EVO, 0x8C4D, 120, 95, 95, 20, TYPE_NORMAL, TYPE_NONE, 0 },  // 820
+  { "ROOKIDEE", 822, 18, R_COMUN, 0x8C4D, 38, 47, 35, 57, TYPE_FLYING, TYPE_NONE, 0 },  // 821
+  { "CORVISQUIRE", 823, 38, R_EVO, 0x8C4D, 68, 67, 55, 77, TYPE_FLYING, TYPE_NONE, 0 },  // 822
+  { "CORVIKNIGHT", 0, 0, R_EVO, 0x8C4D, 98, 87, 105, 67, TYPE_FLYING, TYPE_STEEL, 4 },  // 823
+  { "BLIPBUG", 825, 10, R_COMUN, 0x7CC4, 25, 20, 20, 45, TYPE_BUG, TYPE_NONE, 2 },  // 824
+  { "DOTTLER", 826, 30, R_EVO, 0x7CC4, 50, 35, 80, 30, TYPE_BUG, TYPE_PSYCHIC, 2 },  // 825
+  { "ORBEETLE", 0, 0, R_EVO, 0x7CC4, 60, 45, 110, 90, TYPE_BUG, TYPE_PSYCHIC, 2 },  // 826
+  { "NICKIT", 828, 18, R_COMUN, 0x5A47, 40, 28, 28, 50, TYPE_DARK, TYPE_NONE, 2 },  // 827
+  { "THIEVUL", 0, 0, R_EVO, 0x5A47, 70, 58, 58, 90, TYPE_DARK, TYPE_NONE, 2 },  // 828
+  { "GOSSIFLEUR", 830, 20, R_COMUN, 0x3C49, 40, 40, 60, 10, TYPE_GRASS, TYPE_NONE, 2 },  // 829
+  { "ELDEGOSS", 0, 0, R_EVO, 0x3C49, 60, 50, 90, 60, TYPE_GRASS, TYPE_NONE, 2 },  // 830
+  { "WOOLOO", 832, 24, R_COMUN, 0x8C4D, 42, 40, 55, 48, TYPE_NORMAL, TYPE_NONE, 0 },  // 831
+  { "DUBWOOL", 0, 0, R_EVO, 0x8C4D, 72, 80, 100, 88, TYPE_NORMAL, TYPE_NONE, 0 },  // 832
+  { "CHEWTLE", 834, 22, R_COMUN, 0x4C98, 50, 64, 50, 44, TYPE_WATER, TYPE_NONE, 1 },  // 833
+  { "DREDNAW", 0, 0, R_EVO, 0x4C98, 90, 115, 90, 74, TYPE_WATER, TYPE_ROCK, 1 },  // 834
+  { "YAMPER", 836, 25, R_COMUN, 0xBCA1, 59, 45, 50, 26, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 835
+  { "BOLTUND", 0, 0, R_EVO, 0xBCA1, 69, 90, 60, 121, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 836
+  { "ROLYCOLY", 838, 18, R_COMUN, 0x9407, 30, 40, 50, 30, TYPE_ROCK, TYPE_NONE, 4 },  // 837
+  { "CARKOL", 839, 34, R_EVO, 0x9407, 80, 60, 90, 50, TYPE_ROCK, TYPE_FIRE, 3 },  // 838
+  { "COALOSSAL", 0, 0, R_EVO, 0x9407, 110, 80, 120, 30, TYPE_ROCK, TYPE_FIRE, 3 },  // 839
+  { "APPLIN", 841, 30, R_COMUN, 0x3C49, 40, 40, 80, 20, TYPE_GRASS, TYPE_DRAGON, 2 },  // 840
+  { "FLAPPLE", 0, 0, R_EVO, 0x3C49, 70, 110, 80, 70, TYPE_GRASS, TYPE_DRAGON, 2 },  // 841
+  { "APPLETUN", 0, 0, R_EVO, 0x3C49, 110, 85, 80, 30, TYPE_GRASS, TYPE_DRAGON, 2 },  // 842
+  { "SILICOBRA", 844, 36, R_COMUN, 0xB447, 52, 57, 75, 46, TYPE_GROUND, TYPE_NONE, 4 },  // 843
+  { "SANDACONDA", 0, 0, R_EVO, 0xB447, 72, 107, 125, 71, TYPE_GROUND, TYPE_NONE, 4 },  // 844
+  { "CRAMORANT", 0, 0, R_RARO, 0x8C4D, 70, 85, 55, 85, TYPE_FLYING, TYPE_WATER, 1 },  // 845
+  { "ARROKUDA", 847, 26, R_COMUN, 0x4C98, 41, 63, 40, 66, TYPE_WATER, TYPE_NONE, 1 },  // 846
+  { "BARRASKEWDA", 0, 0, R_EVO, 0x4C98, 61, 123, 60, 136, TYPE_WATER, TYPE_NONE, 1 },  // 847
+  { "TOXEL", 849, 30, R_RARO, 0xBCA1, 40, 38, 35, 40, TYPE_ELECTRIC, TYPE_POISON, 0 },  // 848
+  { "TOXTRICITY", 0, 0, R_EVO, 0xBCA1, 75, 98, 70, 75, TYPE_ELECTRIC, TYPE_POISON, 0 },  // 849
+  { "SIZZLIPEDE", 851, 28, R_COMUN, 0xEA87, 50, 65, 45, 45, TYPE_FIRE, TYPE_BUG, 3 },  // 850
+  { "CENTISKORCH", 0, 0, R_EVO, 0xEA87, 100, 115, 65, 65, TYPE_FIRE, TYPE_BUG, 3 },  // 851
+  { "CLOBBOPUS", 853, 30, R_COMUN, 0xA2A5, 50, 68, 60, 32, TYPE_FIGHTING, TYPE_NONE, 0 },  // 852
+  { "GRAPPLOCT", 0, 0, R_EVO, 0xA2A5, 80, 118, 90, 42, TYPE_FIGHTING, TYPE_NONE, 0 },  // 853
+  { "SINISTEA", 855, 30, R_COMUN, 0x6AD3, 40, 45, 45, 50, TYPE_GHOST, TYPE_NONE, 0 },  // 854
+  { "POLTEAGEIST", 0, 0, R_EVO, 0x6AD3, 60, 65, 65, 70, TYPE_GHOST, TYPE_NONE, 0 },  // 855
+  { "HATENNA", 857, 32, R_COMUN, 0xD28F, 42, 30, 45, 39, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 856
+  { "HATTREM", 858, 42, R_EVO, 0xD28F, 57, 40, 65, 49, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 857
+  { "HATTERENE", 0, 0, R_EVO, 0xD28F, 57, 90, 95, 29, TYPE_PSYCHIC, TYPE_FAIRY, 0 },  // 858
+  { "IMPIDIMP", 860, 32, R_COMUN, 0x5A47, 45, 45, 30, 50, TYPE_DARK, TYPE_FAIRY, 2 },  // 859
+  { "MORGREM", 861, 42, R_EVO, 0x5A47, 65, 60, 45, 70, TYPE_DARK, TYPE_FAIRY, 2 },  // 860
+  { "GRIMMSNARL", 0, 0, R_EVO, 0x5A47, 95, 120, 65, 60, TYPE_DARK, TYPE_FAIRY, 2 },  // 861
+  { "OBSTAGOON", 0, 0, R_EVO, 0x5A47, 93, 90, 101, 95, TYPE_DARK, TYPE_NORMAL, 2 },  // 862
+  { "PERRSERKER", 0, 0, R_EVO, 0x6BF1, 70, 110, 100, 50, TYPE_STEEL, TYPE_NONE, 4 },  // 863
+  { "CURSOLA", 0, 0, R_EVO, 0x6AD3, 60, 95, 50, 30, TYPE_GHOST, TYPE_NONE, 0 },  // 864
+  { "SIRFETCH’D", 0, 0, R_EVO, 0xA2A5, 62, 135, 95, 65, TYPE_FIGHTING, TYPE_NONE, 0 },  // 865
+  { "MR. RIME", 0, 0, R_EVO, 0x4DB8, 80, 85, 75, 70, TYPE_ICE, TYPE_PSYCHIC, 5 },  // 866
+  { "RUNERIGUS", 0, 0, R_EVO, 0xB447, 58, 95, 145, 30, TYPE_GROUND, TYPE_GHOST, 4 },  // 867
+  { "MILCERY", 869, 30, R_COMUN, 0xC333, 45, 40, 40, 34, TYPE_FAIRY, TYPE_NONE, 0 },  // 868
+  { "ALCREMIE", 0, 0, R_EVO, 0xC333, 65, 60, 75, 64, TYPE_FAIRY, TYPE_NONE, 0 },  // 869
+  { "FALINKS", 0, 0, R_RARO, 0xA2A5, 65, 100, 100, 75, TYPE_FIGHTING, TYPE_NONE, 0 },  // 870
+  { "PINCURCHIN", 0, 0, R_RARO, 0xBCA1, 48, 101, 95, 15, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 871
+  { "SNOM", 873, 20, R_COMUN, 0x4DB8, 30, 25, 35, 20, TYPE_ICE, TYPE_BUG, 5 },  // 872
+  { "FROSMOTH", 0, 0, R_EVO, 0x4DB8, 70, 65, 60, 65, TYPE_ICE, TYPE_BUG, 5 },  // 873
+  { "STONJOURNER", 0, 0, R_RARO, 0x9407, 100, 125, 135, 70, TYPE_ROCK, TYPE_NONE, 4 },  // 874
+  { "EISCUE", 0, 0, R_RARO, 0x4DB8, 75, 80, 110, 50, TYPE_ICE, TYPE_NONE, 5 },  // 875
+  { "INDEEDEE", 0, 0, R_RARO, 0xD28F, 60, 65, 55, 95, TYPE_PSYCHIC, TYPE_NORMAL, 0 },  // 876
+  { "MORPEKO", 0, 0, R_COMUN, 0xBCA1, 58, 95, 58, 97, TYPE_ELECTRIC, TYPE_DARK, 2 },  // 877
+  { "CUFANT", 879, 34, R_COMUN, 0x6BF1, 72, 80, 49, 40, TYPE_STEEL, TYPE_NONE, 4 },  // 878
+  { "COPPERAJAH", 0, 0, R_EVO, 0x6BF1, 122, 130, 69, 30, TYPE_STEEL, TYPE_NONE, 4 },  // 879
+  { "DRACOZOLT", 0, 0, R_RARO, 0xBCA1, 90, 100, 90, 75, TYPE_ELECTRIC, TYPE_DRAGON, 0 },  // 880
+  { "ARCTOZOLT", 0, 0, R_RARO, 0xBCA1, 90, 100, 90, 55, TYPE_ELECTRIC, TYPE_ICE, 5 },  // 881
+  { "DRACOVISH", 0, 0, R_RARO, 0x4C98, 90, 90, 100, 75, TYPE_WATER, TYPE_DRAGON, 1 },  // 882
+  { "ARCTOVISH", 0, 0, R_RARO, 0x4C98, 90, 90, 100, 55, TYPE_WATER, TYPE_ICE, 5 },  // 883
+  { "DURALUDON", 1018, 30, R_RARO, 0x6BF1, 70, 95, 115, 85, TYPE_STEEL, TYPE_DRAGON, 4 },  // 884
+  { "DREEPY", 886, 50, R_RARO, 0x5A98, 28, 60, 30, 82, TYPE_DRAGON, TYPE_GHOST, 0 },  // 885
+  { "DRAKLOAK", 887, 60, R_EVO, 0x5A98, 68, 80, 50, 102, TYPE_DRAGON, TYPE_GHOST, 0 },  // 886
+  { "DRAGAPULT", 0, 0, R_EVO, 0x5A98, 88, 120, 75, 142, TYPE_DRAGON, TYPE_GHOST, 0 },  // 887
+  { "ZACIAN", 0, 0, R_LEGENDARIO, 0xC333, 92, 120, 115, 138, TYPE_FAIRY, TYPE_NONE, 0 },  // 888
+  { "ZAMAZENTA", 0, 0, R_LEGENDARIO, 0xA2A5, 92, 120, 115, 138, TYPE_FIGHTING, TYPE_NONE, 0 },  // 889
+  { "ETERNATUS", 0, 0, R_LEGENDARIO, 0x8A73, 140, 85, 95, 130, TYPE_POISON, TYPE_DRAGON, 0 },  // 890
+  { "KUBFU", 892, 30, R_LEGENDARIO, 0xA2A5, 60, 90, 60, 72, TYPE_FIGHTING, TYPE_NONE, 0 },  // 891
+  { "URSHIFU", 0, 0, R_EVO, 0xA2A5, 100, 130, 100, 97, TYPE_FIGHTING, TYPE_DARK, 2 },  // 892
+  { "ZARUDE", 0, 0, R_LEGENDARIO, 0x5A47, 105, 120, 105, 105, TYPE_DARK, TYPE_GRASS, 2 },  // 893
+  { "REGIELEKI", 0, 0, R_LEGENDARIO, 0xBCA1, 80, 100, 50, 200, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 894
+  { "REGIDRAGO", 0, 0, R_LEGENDARIO, 0x5A98, 200, 100, 50, 80, TYPE_DRAGON, TYPE_NONE, 0 },  // 895
+  { "GLASTRIER", 0, 0, R_LEGENDARIO, 0x4DB8, 100, 145, 130, 30, TYPE_ICE, TYPE_NONE, 5 },  // 896
+  { "SPECTRIER", 0, 0, R_LEGENDARIO, 0x6AD3, 100, 65, 60, 130, TYPE_GHOST, TYPE_NONE, 0 },  // 897
+  { "CALYREX", 0, 0, R_LEGENDARIO, 0xD28F, 100, 80, 80, 80, TYPE_PSYCHIC, TYPE_GRASS, 2 },  // 898
+  { "WYRDEER", 0, 0, R_EVO, 0x8C4D, 103, 105, 72, 65, TYPE_NORMAL, TYPE_PSYCHIC, 0 },  // 899
+  { "KLEAVOR", 0, 0, R_EVO, 0x7CC4, 70, 135, 95, 85, TYPE_BUG, TYPE_ROCK, 2 },  // 900
+  { "URSALUNA", 0, 0, R_EVO, 0xB447, 130, 140, 105, 50, TYPE_GROUND, TYPE_NORMAL, 4 },  // 901
+  { "BASCULEGION", 0, 0, R_EVO, 0x4C98, 120, 112, 65, 78, TYPE_WATER, TYPE_GHOST, 1 },  // 902
+  { "SNEASLER", 0, 0, R_EVO, 0xA2A5, 80, 130, 60, 120, TYPE_FIGHTING, TYPE_POISON, 0 },  // 903
+  { "OVERQWIL", 0, 0, R_EVO, 0x5A47, 85, 115, 95, 85, TYPE_DARK, TYPE_POISON, 2 },  // 904
+  { "ENAMORUS", 0, 0, R_LEGENDARIO, 0xC333, 74, 115, 70, 106, TYPE_FAIRY, TYPE_FLYING, 0 },  // 905
+  { "SPRIGATITO", 907, 16, R_RARO, 0x3C49, 40, 61, 54, 65, TYPE_GRASS, TYPE_NONE, 2 },  // 906
+  { "FLORAGATO", 908, 36, R_EVO, 0x3C49, 61, 80, 63, 83, TYPE_GRASS, TYPE_NONE, 2 },  // 907
+  { "MEOWSCARADA", 0, 0, R_EVO, 0x3C49, 76, 110, 70, 123, TYPE_GRASS, TYPE_DARK, 2 },  // 908
+  { "FUECOCO", 910, 16, R_RARO, 0xEA87, 67, 45, 59, 36, TYPE_FIRE, TYPE_NONE, 3 },  // 909
+  { "CROCALOR", 911, 36, R_EVO, 0xEA87, 81, 55, 78, 49, TYPE_FIRE, TYPE_NONE, 3 },  // 910
+  { "SKELEDIRGE", 0, 0, R_EVO, 0xEA87, 104, 75, 100, 66, TYPE_FIRE, TYPE_GHOST, 3 },  // 911
+  { "QUAXLY", 913, 16, R_RARO, 0x4C98, 55, 65, 45, 50, TYPE_WATER, TYPE_NONE, 1 },  // 912
+  { "QUAXWELL", 914, 36, R_EVO, 0x4C98, 70, 85, 65, 65, TYPE_WATER, TYPE_NONE, 1 },  // 913
+  { "QUAQUAVAL", 0, 0, R_EVO, 0x4C98, 85, 120, 80, 85, TYPE_WATER, TYPE_FIGHTING, 1 },  // 914
+  { "LECHONK", 916, 30, R_COMUN, 0x8C4D, 54, 45, 40, 35, TYPE_NORMAL, TYPE_NONE, 0 },  // 915
+  { "OINKOLOGNE", 0, 0, R_EVO, 0x8C4D, 110, 100, 75, 65, TYPE_NORMAL, TYPE_NONE, 0 },  // 916
+  { "TAROUNTULA", 918, 15, R_COMUN, 0x7CC4, 35, 41, 45, 20, TYPE_BUG, TYPE_NONE, 2 },  // 917
+  { "SPIDOPS", 0, 0, R_EVO, 0x7CC4, 60, 79, 92, 35, TYPE_BUG, TYPE_NONE, 2 },  // 918
+  { "NYMBLE", 920, 24, R_COMUN, 0x7CC4, 33, 46, 40, 45, TYPE_BUG, TYPE_NONE, 2 },  // 919
+  { "LOKIX", 0, 0, R_EVO, 0x7CC4, 71, 102, 78, 92, TYPE_BUG, TYPE_DARK, 2 },  // 920
+  { "PAWMI", 922, 18, R_COMUN, 0xBCA1, 45, 50, 20, 60, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 921
+  { "PAWMO", 923, 30, R_EVO, 0xBCA1, 60, 75, 40, 85, TYPE_ELECTRIC, TYPE_FIGHTING, 0 },  // 922
+  { "PAWMOT", 0, 0, R_EVO, 0xBCA1, 70, 115, 70, 105, TYPE_ELECTRIC, TYPE_FIGHTING, 0 },  // 923
+  { "TANDEMAUS", 925, 30, R_COMUN, 0x8C4D, 50, 50, 45, 75, TYPE_NORMAL, TYPE_NONE, 0 },  // 924
+  { "MAUSHOLD", 0, 0, R_EVO, 0x8C4D, 74, 75, 70, 111, TYPE_NORMAL, TYPE_NONE, 0 },  // 925
+  { "FIDOUGH", 927, 26, R_COMUN, 0xC333, 37, 55, 70, 65, TYPE_FAIRY, TYPE_NONE, 0 },  // 926
+  { "DACHSBUN", 0, 0, R_EVO, 0xC333, 57, 80, 115, 95, TYPE_FAIRY, TYPE_NONE, 0 },  // 927
+  { "SMOLIV", 929, 25, R_COMUN, 0x3C49, 41, 35, 45, 30, TYPE_GRASS, TYPE_NORMAL, 2 },  // 928
+  { "DOLLIV", 930, 35, R_EVO, 0x3C49, 52, 53, 60, 33, TYPE_GRASS, TYPE_NORMAL, 2 },  // 929
+  { "ARBOLIVA", 0, 0, R_EVO, 0x3C49, 78, 69, 90, 39, TYPE_GRASS, TYPE_NORMAL, 2 },  // 930
+  { "SQUAWKABILLY", 0, 0, R_COMUN, 0x8C4D, 82, 96, 51, 92, TYPE_NORMAL, TYPE_FLYING, 0 },  // 931
+  { "NACLI", 933, 24, R_COMUN, 0x9407, 55, 55, 75, 25, TYPE_ROCK, TYPE_NONE, 4 },  // 932
+  { "NACLSTACK", 934, 38, R_EVO, 0x9407, 60, 60, 100, 35, TYPE_ROCK, TYPE_NONE, 4 },  // 933
+  { "GARGANACL", 0, 0, R_EVO, 0x9407, 100, 100, 130, 35, TYPE_ROCK, TYPE_NONE, 4 },  // 934
+  { "CHARCADET", 936, 30, R_COMUN, 0xEA87, 40, 50, 40, 35, TYPE_FIRE, TYPE_NONE, 3 },  // 935
+  { "ARMAROUGE", 0, 0, R_EVO, 0xEA87, 85, 60, 100, 75, TYPE_FIRE, TYPE_PSYCHIC, 3 },  // 936
+  { "CERULEDGE", 0, 0, R_EVO, 0xEA87, 75, 125, 80, 85, TYPE_FIRE, TYPE_GHOST, 3 },  // 937
+  { "TADBULB", 939, 30, R_COMUN, 0xBCA1, 61, 31, 41, 45, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 938
+  { "BELLIBOLT", 0, 0, R_EVO, 0xBCA1, 109, 64, 91, 45, TYPE_ELECTRIC, TYPE_NONE, 0 },  // 939
+  { "WATTREL", 941, 25, R_COMUN, 0xBCA1, 40, 40, 35, 70, TYPE_ELECTRIC, TYPE_FLYING, 0 },  // 940
+  { "KILOWATTREL", 0, 0, R_EVO, 0xBCA1, 70, 70, 60, 125, TYPE_ELECTRIC, TYPE_FLYING, 0 },  // 941
+  { "MASCHIFF", 943, 30, R_COMUN, 0x5A47, 60, 78, 60, 51, TYPE_DARK, TYPE_NONE, 2 },  // 942
+  { "MABOSSTIFF", 0, 0, R_EVO, 0x5A47, 80, 120, 90, 85, TYPE_DARK, TYPE_NONE, 2 },  // 943
+  { "SHROODLE", 945, 28, R_COMUN, 0x8A73, 40, 65, 35, 75, TYPE_POISON, TYPE_NORMAL, 0 },  // 944
+  { "GRAFAIAI", 0, 0, R_EVO, 0x8A73, 63, 95, 65, 110, TYPE_POISON, TYPE_NORMAL, 0 },  // 945
+  { "BRAMBLIN", 947, 30, R_COMUN, 0x3C49, 40, 65, 30, 60, TYPE_GRASS, TYPE_GHOST, 2 },  // 946
+  { "BRAMBLEGHAST", 0, 0, R_EVO, 0x3C49, 55, 115, 70, 90, TYPE_GRASS, TYPE_GHOST, 2 },  // 947
+  { "TOEDSCOOL", 949, 30, R_COMUN, 0xB447, 40, 40, 35, 70, TYPE_GROUND, TYPE_GRASS, 2 },  // 948
+  { "TOEDSCRUEL", 0, 0, R_EVO, 0xB447, 80, 70, 65, 100, TYPE_GROUND, TYPE_GRASS, 2 },  // 949
+  { "KLAWF", 0, 0, R_COMUN, 0x9407, 70, 100, 115, 75, TYPE_ROCK, TYPE_NONE, 4 },  // 950
+  { "CAPSAKID", 952, 30, R_COMUN, 0x3C49, 50, 62, 40, 50, TYPE_GRASS, TYPE_NONE, 2 },  // 951
+  { "SCOVILLAIN", 0, 0, R_EVO, 0x3C49, 65, 108, 65, 75, TYPE_GRASS, TYPE_FIRE, 3 },  // 952
+  { "RELLOR", 954, 30, R_COMUN, 0x7CC4, 41, 50, 60, 30, TYPE_BUG, TYPE_NONE, 2 },  // 953
+  { "RABSCA", 0, 0, R_EVO, 0x7CC4, 75, 50, 85, 45, TYPE_BUG, TYPE_PSYCHIC, 2 },  // 954
+  { "FLITTLE", 956, 35, R_COMUN, 0xD28F, 30, 35, 30, 75, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 955
+  { "ESPATHRA", 0, 0, R_EVO, 0xD28F, 95, 60, 60, 105, TYPE_PSYCHIC, TYPE_NONE, 0 },  // 956
+  { "TINKATINK", 958, 24, R_COMUN, 0xC333, 50, 45, 45, 58, TYPE_FAIRY, TYPE_STEEL, 4 },  // 957
+  { "TINKATUFF", 959, 38, R_EVO, 0xC333, 65, 55, 55, 78, TYPE_FAIRY, TYPE_STEEL, 4 },  // 958
+  { "TINKATON", 0, 0, R_EVO, 0xC333, 85, 75, 77, 94, TYPE_FAIRY, TYPE_STEEL, 4 },  // 959
+  { "WIGLETT", 961, 26, R_COMUN, 0x4C98, 10, 55, 25, 95, TYPE_WATER, TYPE_NONE, 1 },  // 960
+  { "WUGTRIO", 0, 0, R_EVO, 0x4C98, 35, 100, 50, 120, TYPE_WATER, TYPE_NONE, 1 },  // 961
+  { "BOMBIRDIER", 0, 0, R_RARO, 0x8C4D, 70, 103, 85, 82, TYPE_FLYING, TYPE_DARK, 2 },  // 962
+  { "FINIZEN", 964, 38, R_COMUN, 0x4C98, 70, 45, 40, 75, TYPE_WATER, TYPE_NONE, 1 },  // 963
+  { "PALAFIN", 0, 0, R_EVO, 0x4C98, 100, 70, 72, 100, TYPE_WATER, TYPE_NONE, 1 },  // 964
+  { "VAROOM", 966, 40, R_COMUN, 0x6BF1, 45, 70, 63, 47, TYPE_STEEL, TYPE_POISON, 4 },  // 965
+  { "REVAVROOM", 0, 0, R_EVO, 0x6BF1, 80, 119, 90, 90, TYPE_STEEL, TYPE_POISON, 4 },  // 966
+  { "CYCLIZAR", 0, 0, R_COMUN, 0x5A98, 70, 95, 65, 121, TYPE_DRAGON, TYPE_NORMAL, 0 },  // 967
+  { "ORTHWORM", 0, 0, R_RARO, 0x6BF1, 70, 85, 145, 65, TYPE_STEEL, TYPE_NONE, 4 },  // 968
+  { "GLIMMET", 970, 35, R_RARO, 0x9407, 48, 35, 42, 60, TYPE_ROCK, TYPE_POISON, 4 },  // 969
+  { "GLIMMORA", 0, 0, R_EVO, 0x9407, 83, 55, 90, 86, TYPE_ROCK, TYPE_POISON, 4 },  // 970
+  { "GREAVARD", 972, 30, R_COMUN, 0x6AD3, 50, 61, 60, 34, TYPE_GHOST, TYPE_NONE, 0 },  // 971
+  { "HOUNDSTONE", 0, 0, R_EVO, 0x6AD3, 72, 101, 100, 68, TYPE_GHOST, TYPE_NONE, 0 },  // 972
+  { "FLAMIGO", 0, 0, R_COMUN, 0x8C4D, 82, 115, 74, 90, TYPE_FLYING, TYPE_FIGHTING, 0 },  // 973
+  { "CETODDLE", 975, 30, R_COMUN, 0x4DB8, 108, 68, 45, 43, TYPE_ICE, TYPE_NONE, 5 },  // 974
+  { "CETITAN", 0, 0, R_EVO, 0x4DB8, 170, 113, 65, 73, TYPE_ICE, TYPE_NONE, 5 },  // 975
+  { "VELUZA", 0, 0, R_COMUN, 0x4C98, 90, 102, 73, 70, TYPE_WATER, TYPE_PSYCHIC, 1 },  // 976
+  { "DONDOZO", 0, 0, R_RARO, 0x4C98, 150, 100, 115, 35, TYPE_WATER, TYPE_NONE, 1 },  // 977
+  { "TATSUGIRI", 0, 0, R_COMUN, 0x5A98, 68, 50, 60, 82, TYPE_DRAGON, TYPE_WATER, 1 },  // 978
+  { "ANNIHILAPE", 0, 0, R_EVO, 0xA2A5, 110, 115, 80, 90, TYPE_FIGHTING, TYPE_GHOST, 0 },  // 979
+  { "CLODSIRE", 0, 0, R_EVO, 0x8A73, 130, 75, 60, 20, TYPE_POISON, TYPE_GROUND, 4 },  // 980
+  { "FARIGIRAF", 0, 0, R_EVO, 0x8C4D, 120, 90, 70, 60, TYPE_NORMAL, TYPE_PSYCHIC, 0 },  // 981
+  { "DUDUNSPARCE", 0, 0, R_EVO, 0x8C4D, 125, 100, 80, 55, TYPE_NORMAL, TYPE_NONE, 0 },  // 982
+  { "KINGAMBIT", 0, 0, R_EVO, 0x5A47, 100, 135, 120, 50, TYPE_DARK, TYPE_STEEL, 2 },  // 983
+  { "GREAT TUSK", 0, 0, R_RARO, 0xB447, 115, 131, 131, 87, TYPE_GROUND, TYPE_FIGHTING, 4 },  // 984
+  { "SCREAM TAIL", 0, 0, R_RARO, 0xC333, 115, 65, 99, 111, TYPE_FAIRY, TYPE_PSYCHIC, 0 },  // 985
+  { "BRUTE BONNET", 0, 0, R_RARO, 0x3C49, 111, 127, 99, 55, TYPE_GRASS, TYPE_DARK, 2 },  // 986
+  { "FLUTTER MANE", 0, 0, R_RARO, 0x6AD3, 55, 55, 55, 135, TYPE_GHOST, TYPE_FAIRY, 0 },  // 987
+  { "SLITHER WING", 0, 0, R_RARO, 0x7CC4, 85, 135, 79, 81, TYPE_BUG, TYPE_FIGHTING, 2 },  // 988
+  { "SANDY SHOCKS", 0, 0, R_RARO, 0xBCA1, 85, 81, 97, 101, TYPE_ELECTRIC, TYPE_GROUND, 4 },  // 989
+  { "IRON TREADS", 0, 0, R_RARO, 0xB447, 90, 112, 120, 106, TYPE_GROUND, TYPE_STEEL, 4 },  // 990
+  { "IRON BUNDLE", 0, 0, R_RARO, 0x4DB8, 56, 80, 114, 136, TYPE_ICE, TYPE_WATER, 5 },  // 991
+  { "IRON HANDS", 0, 0, R_RARO, 0xA2A5, 154, 140, 108, 50, TYPE_FIGHTING, TYPE_ELECTRIC, 0 },  // 992
+  { "IRON JUGULIS", 0, 0, R_RARO, 0x5A47, 94, 80, 86, 108, TYPE_DARK, TYPE_FLYING, 2 },  // 993
+  { "IRON MOTH", 0, 0, R_RARO, 0xEA87, 80, 70, 60, 110, TYPE_FIRE, TYPE_POISON, 3 },  // 994
+  { "IRON THORNS", 0, 0, R_RARO, 0x9407, 100, 134, 110, 72, TYPE_ROCK, TYPE_ELECTRIC, 4 },  // 995
+  { "FRIGIBAX", 997, 35, R_RARO, 0x5A98, 65, 75, 45, 55, TYPE_DRAGON, TYPE_ICE, 5 },  // 996
+  { "ARCTIBAX", 998, 54, R_EVO, 0x5A98, 90, 95, 66, 62, TYPE_DRAGON, TYPE_ICE, 5 },  // 997
+  { "BAXCALIBUR", 0, 0, R_EVO, 0x5A98, 115, 145, 92, 87, TYPE_DRAGON, TYPE_ICE, 5 },  // 998
+  { "GIMMIGHOUL", 1000, 30, R_RARO, 0x6AD3, 45, 30, 70, 10, TYPE_GHOST, TYPE_NONE, 0 },  // 999
+  { "GHOLDENGO", 0, 0, R_EVO, 0x6BF1, 87, 60, 95, 84, TYPE_STEEL, TYPE_GHOST, 4 },  // 1000
+  { "WO-CHIEN", 0, 0, R_LEGENDARIO, 0x5A47, 85, 85, 100, 70, TYPE_DARK, TYPE_GRASS, 2 },  // 1001
+  { "CHIEN-PAO", 0, 0, R_LEGENDARIO, 0x5A47, 80, 120, 80, 135, TYPE_DARK, TYPE_ICE, 5 },  // 1002
+  { "TING-LU", 0, 0, R_LEGENDARIO, 0x5A47, 155, 110, 125, 45, TYPE_DARK, TYPE_GROUND, 2 },  // 1003
+  { "CHI-YU", 0, 0, R_LEGENDARIO, 0x5A47, 55, 80, 80, 100, TYPE_DARK, TYPE_FIRE, 3 },  // 1004
+  { "ROARING MOON", 0, 0, R_RARO, 0x5A98, 105, 139, 71, 119, TYPE_DRAGON, TYPE_DARK, 2 },  // 1005
+  { "IRON VALIANT", 0, 0, R_RARO, 0xC333, 74, 130, 90, 116, TYPE_FAIRY, TYPE_FIGHTING, 0 },  // 1006
+  { "KORAIDON", 0, 0, R_LEGENDARIO, 0xA2A5, 100, 135, 115, 135, TYPE_FIGHTING, TYPE_DRAGON, 0 },  // 1007
+  { "MIRAIDON", 0, 0, R_LEGENDARIO, 0xBCA1, 100, 85, 100, 135, TYPE_ELECTRIC, TYPE_DRAGON, 0 },  // 1008
+  { "WALKING WAKE", 0, 0, R_RARO, 0x4C98, 99, 83, 91, 109, TYPE_WATER, TYPE_DRAGON, 1 },  // 1009
+  { "IRON LEAVES", 0, 0, R_RARO, 0x3C49, 90, 130, 88, 104, TYPE_GRASS, TYPE_PSYCHIC, 2 },  // 1010
+  { "DIPPLIN", 1019, 30, R_EVO, 0x3C49, 80, 80, 110, 40, TYPE_GRASS, TYPE_DRAGON, 2 },  // 1011
+  { "POLTCHAGEIST", 1013, 30, R_COMUN, 0x3C49, 40, 45, 45, 50, TYPE_GRASS, TYPE_GHOST, 2 },  // 1012
+  { "SINISTCHA", 0, 0, R_EVO, 0x3C49, 71, 60, 106, 70, TYPE_GRASS, TYPE_GHOST, 2 },  // 1013
+  { "OKIDOGI", 0, 0, R_LEGENDARIO, 0x8A73, 88, 128, 115, 80, TYPE_POISON, TYPE_FIGHTING, 0 },  // 1014
+  { "MUNKIDORI", 0, 0, R_LEGENDARIO, 0x8A73, 88, 75, 66, 106, TYPE_POISON, TYPE_PSYCHIC, 0 },  // 1015
+  { "FEZANDIPITI", 0, 0, R_LEGENDARIO, 0x8A73, 88, 91, 82, 99, TYPE_POISON, TYPE_FAIRY, 0 },  // 1016
+  { "OGERPON", 0, 0, R_LEGENDARIO, 0x3C49, 80, 120, 84, 110, TYPE_GRASS, TYPE_NONE, 2 },  // 1017
+  { "ARCHALUDON", 0, 0, R_EVO, 0x6BF1, 90, 105, 130, 85, TYPE_STEEL, TYPE_DRAGON, 4 },  // 1018
+  { "HYDRAPPLE", 0, 0, R_EVO, 0x3C49, 106, 80, 110, 44, TYPE_GRASS, TYPE_DRAGON, 2 },  // 1019
+  { "GOUGING FIRE", 0, 0, R_RARO, 0xEA87, 105, 115, 121, 91, TYPE_FIRE, TYPE_DRAGON, 3 },  // 1020
+  { "RAGING BOLT", 0, 0, R_RARO, 0xBCA1, 125, 73, 91, 75, TYPE_ELECTRIC, TYPE_DRAGON, 0 },  // 1021
+  { "IRON BOULDER", 0, 0, R_RARO, 0x9407, 90, 120, 80, 124, TYPE_ROCK, TYPE_PSYCHIC, 4 },  // 1022
+  { "IRON CROWN", 0, 0, R_RARO, 0x6BF1, 90, 72, 100, 98, TYPE_STEEL, TYPE_PSYCHIC, 4 },  // 1023
+  { "TERAPAGOS", 0, 0, R_LEGENDARIO, 0x8C4D, 90, 65, 85, 60, TYPE_NORMAL, TYPE_NONE, 0 },  // 1024
+  { "PECHARUNT", 0, 0, R_LEGENDARIO, 0x8A73, 88, 88, 160, 88, TYPE_POISON, TYPE_GHOST, 0 },  // 1025
 };
 
 // nombres localizados en el orden de Lang: ES, EN, FR, DE, IT, PT, KO

@@ -1005,6 +1005,7 @@ function draw() {
 }
 
 function handleTap(x, y) {
+  if (window.TPExpeditions && window.TPExpeditions.busy) return;
   if (fns.awaitingStarter() !== 0) {
     starterTap(x, y);
     return;
@@ -1147,6 +1148,7 @@ function handleTap(x, y) {
 // during a tap, which SwiftUI/the DOM can both report as a large jump) must
 // not be read as "swipe out of the game."
 function swipeAllowed() {
+  if (window.TPExpeditions && window.TPExpeditions.busy) return false;
   if (screen === "game" || screen === "battle" || screen === "gamemenu") return false;
   // Same extra gates as PetScreen.swift's swipe guard: an open feed menu
   // or release dialog owns the touch until it closes.
@@ -1159,6 +1161,7 @@ function swipeAllowed() {
 // swipe opens the dex; on the dex/card, it turns pages; dir 1 = swiped
 // right, -1 = swiped left (left advances, matching upstream).
 function onSwipe(dir) {
+  if (window.TPExpeditions && window.TPExpeditions.busy) return;
   if (fns.awaitingStarter() !== 0) {
     starterPage = Math.min(Math.max(starterPage + (dir > 0 ? -1 : 1), 0), starterPageCount() - 1);
     return;
@@ -1320,11 +1323,14 @@ async function loadSave() {
   }
 }
 
+var tpSaveEpoch = 0;
 async function writeSave(bytes, force = false) {
+  const epoch = tpSaveEpoch;
   if (tpSaveReplacing && !force) return;
   try {
     const db = await openDb();
-    if (tpSaveReplacing && !force) return;
+    // Reject stale autosaves even after a direct C2 action released the gate.
+    if (!force && (tpSaveReplacing || epoch !== tpSaveEpoch)) return;
     await new Promise((resolve,reject)=>{
       const tx=db.transaction(STORE_NAME,"readwrite");
       tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error("Save transaction aborted"));

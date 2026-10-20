@@ -40,15 +40,15 @@ Keine NAS-Anbindung, neue Waehrung oder neue Fremdassets.
 
 ## Bedienung
 
-Die bestehende Expeditionskarte bleibt der Einstieg. Dort auf Expeditionen
- oeffnen tippen. Auch ein Tippen auf deren Inventar oeffnet die neue Ansicht.
-Kein weiterer Toolbar-Knopf; der vorhandene Expeditions-Hinweis bleibt.
-
-Die neue Ansicht zeigt Ziel/Dauer, Energiekosten und Restenergie,
-tatsaechliche Trainingschance, gewoehnliche bedingte Fundverteilung,
-Start-Sperrgrund, gespeicherte Route, Endzeit/Restzeit und Inventar.
-Laufende und fertige Touren lassen sich nicht nachtraeglich umplanen.
-Inventar kann auch bei blockierter Abholung verwendet werden.
+Die bestehende Expeditionskarte zeigt direkt fuenf Zielbuttons und drei
+Zeitbuttons mit Energiekosten. Standard ist Erkundung. Ziel antippen,
+Zeitbutton antippen: Expedition startet ohne weitere Menueebene.
+Waehrenddessen nur Ziel/Restzeit; bei Fertigstellung Fund und Abholen.
+Darunter bleibt das Inventar direkt antippbar, auch bei blockierter Abholung.
+Keine Dropdowns, Zusatzfenster, Wahrscheinlichkeitstabellen oder Ergebnis-
+Historie in der normalen Ansicht. Nur kurze situative Hinweise. Die bisherige
+ATK/DEF/Tempo-Auswahl fuer Trainingsgegenstaende bleibt auf der Karte.
+Start, Abholung und Verbrauch bleiben ohne automatisches Neuladen bedienbar.
 
 ## Speicherung und Sicherheit
 
@@ -61,8 +61,9 @@ Die neuen Felder werden in die bisherigen A/B-Spielstandformate aufgenommen.
 
 Start, Abholung und Verbrauch sind in der neuen Browseransicht reversible
 In-Memory-Aktionen: Klasse und Preferences-Map werden vorher kopiert.
-Nach erfolgreichem IndexedDB-Commit wird neu geladen; Autosave bleibt bis
-zur Navigation gesperrt. Bei Schreibfehlern werden Spielkern und Map auf den
+Nach erfolgreichem IndexedDB-Commit bleibt die Karte offen, ohne Neuladen.
+Eine Sperre waehrend der Aktion und ein Speicher-Generationszaehler verhindern,
+dass ein zuvor gestarteter, verspaeteter Autosave die Aktion ueberschreibt. Bei Schreibfehlern werden Spielkern und Map auf den
 Stand vor der Aktion zurueckgesetzt. Dauerhafte Speicherung im echten Browser
 muss noch getestet werden. Keine Behauptung manipulationssicherer Zeitmessung:
 Die lokale Geraeteuhr ist weiterhin die Zeitbasis.
@@ -75,8 +76,9 @@ Erfolgreich ausgefuehrt gegen bereitgestellten Kern mit C2-Patches:
   Nur-Training-Fallback, maximale Trainingswerte, Sperre paralleler Starts,
   Endzeit, Metadaten, erneutes Laden und alte Expeditionen, einmalige Abholung,
   blockierte Belohnungen und Ruecknahme von Kern+Map bei fehlendem Commit.
-- JS: Syntax und simulierte DOM-Unit-Tests fuer Commit/Reload-Sperre,
-  fehlgeschlagenes Speichern und benutzbares Inventar bei voller Abholung.
+- JS: Syntax, direkte Canvas-Buttons, Commit ohne Zusatzfenster/Neuladen,
+  Ruecknahme bei Schreibfehlern, benutzbares Inventar bei voller Abholung
+  und Abweisung eines verspaeteten alten Autosaves.
 
 Noch ausstehend: vollstaendiger tatsaechlicher A+B+C1+C2-Build, alle A/B/C1-
 Regressionstests auf GitHub, echter Browser/IndexedDB, iPhone-Abnahme.

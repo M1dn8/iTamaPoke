@@ -155,18 +155,32 @@ let expeditionTrainChoiceOpen = false;
 
 function drawCardExpedition() {
   ctx.textAlign="center";ctx.fillStyle=UI.ink;ctx.font="bold 20px monospace";
-  ctx.fillText(fns.expeditionTitle(),TP.cx,48);
-  let route=0;
-  try { route=Module.ccall("tp_c2_get","number",["number"],[10]); } catch(_e) {}
-  const names=["Erkundung","Beerenwiese","Quellpfad","Waldlichtung","Trainingspfad"];
-  ctx.font="13px monospace";
-  ctx.fillText(fns.expeditionReady()?"Bereit zur Abholung":fns.expeditionActive()?fns.expeditionBackInLine():"Ziel und Dauer frei waehlen",TP.cx,78);
-  ctx.fillStyle=UI.barOK;roundRect(58,94,350,58,10);ctx.fill();
-  ctx.fillStyle=UI.bgDay;ctx.font="bold 15px monospace";ctx.fillText("Expeditionen oeffnen",TP.cx,118);
-  ctx.font="11px monospace";ctx.fillText(fns.expeditionActive()||fns.expeditionReady()?names[route]||names[0]:"5 Ziele · 15 / 30 / 60 Minuten",TP.cx,139);
-  ctx.fillStyle=UI.ink;ctx.font="13px monospace";ctx.fillText(fns.inventoryTitle(),TP.cx,180);
-  for(let i=0;i<4;i++)drawExpeditionItem(EXP_ITEM_POS[i][0],EXP_ITEM_POS[i][1],i);
-  statusEl.textContent="Card · Expedition C2";
+  ctx.fillText(fns.expeditionTitle(),TP.cx,44);
+  const api=window.TPExpeditions;let v=null;
+  try {v=api&&api.view();} catch(_e) {}
+  if(!v){ctx.font="13px monospace";ctx.fillText("Test-Build bitte aktualisieren",TP.cx,120);return;}
+  const drawButton=(x,y,w,h,label,selected,enabled)=>{
+    ctx.fillStyle=selected?UI.barOK:enabled?UI.white:rgb565(0xE4E7);
+    roundRect(x,y,w,h,9);ctx.fill();ctx.strokeStyle=selected?UI.barOK:UI.track;ctx.lineWidth=selected?2:1;
+    roundRect(x,y,w,h,9);ctx.stroke();ctx.fillStyle=selected?UI.bgDay:enabled?UI.ink:UI.track;
+    ctx.font="bold 13px monospace";ctx.textBaseline="middle";ctx.fillText(label,x+w/2,y+h/2);ctx.textBaseline="alphabetic";
+  };
+  if(!v.pending){
+    const positions=[[16,60],[164,60],[312,60],[90,114],[238,114]];
+    for(let i=0;i<5;i++)drawButton(positions[i][0],positions[i][1],138,48,api.routeNames[i],v.route===i,!v.busy&&v.quiet);
+    for(let i=0;i<3;i++)drawButton(50+i*130,170,106,48,[15,30,60][i]+" Min · -"+v.costs[i],false,!v.busy&&v.quiet&&v.reasons[i]===0);
+  }else{
+    ctx.fillStyle=UI.ink;ctx.font="bold 16px monospace";ctx.fillText(api.routeNames[v.route],TP.cx,91);
+    ctx.font="14px monospace";ctx.fillText(v.ready?api.itemNames[v.s[24]]+" gefunden":"Noch "+v.left+" Min",TP.cx,123);
+    if(v.ready)drawButton(118,148,230,44,"Abholen",false,!v.busy&&v.quiet&&v.canClaim);
+  }
+  ctx.fillStyle=UI.track;ctx.font="12px monospace";
+  const hint=v.notice||(v.ready&&!v.canClaim?(v.s[20+v.s[24]]>=3?api.itemNames[v.s[24]]+"fach voll – Gegenstand verwenden":"Abholung gerade gesperrt"):!v.pending?"Ziel waehlen, dann Zeit antippen":"Inventar");
+  ctx.fillText(hint,TP.cx,239);
+  drawExpeditionItem(50,250,0);drawExpeditionItem(244,250,1);
+  drawExpeditionItem(50,314,2);drawExpeditionItem(244,314,3);
+  if(expeditionTrainChoiceOpen)drawExpeditionTrainChoice();
+  statusEl.textContent="Card · Expedition";
 }
 
 function drawExpeditionItem(x, y, index) {
@@ -227,10 +241,27 @@ function expeditionItemAt(x, y) {
 }
 
 function cardExpeditionTap(x,y) {
-  if(x>=40&&x<=426&&y>=64&&y<=336) {
-    if(window.TPExpeditions){try{window.TPExpeditions.open();}catch(e){alert(e.message||String(e));}}
-    else alert("C2-Ansicht nicht geladen. Bitte den vollstaendigen Test-Build oeffnen.");
+  const api=window.TPExpeditions;if(!api||api.busy)return;
+  const v=api.view();if(!v)return;
+  if(expeditionTrainChoiceOpen){
+    if(y>=172&&y<=238&&x>=74&&x<=398){
+      const stat=Math.floor((x-74)/108);
+      if(stat<=2&&fns.trainStatUsable(stat)!==0)api.use(3,stat);
+      else api.tell("Training bereits maximal");
+    }
+    expeditionTrainChoiceOpen=false;return;
   }
+  if(y>=250&&y<=304||y>=314&&y<=368){
+    const col=x>=50&&x<=222?0:x>=244&&x<=416?1:-1;
+    if(col<0)return;const item=(y>=314?2:0)+col;
+    if(fns.expeditionItemCount(item)===0){api.tell("Kein Gegenstand vorhanden");return;}
+    if(item===3)expeditionTrainChoiceOpen=true;else api.use(item);
+    return;
+  }
+  if(v.pending){if(v.ready&&x>=118&&x<=348&&y>=148&&y<=192)api.claim();return;}
+  const positions=[[16,60],[164,60],[312,60],[90,114],[238,114]];
+  for(let i=0;i<5;i++)if(x>=positions[i][0]&&x<=positions[i][0]+138&&y>=positions[i][1]&&y<=positions[i][1]+48){api.selectRoute(i);return;}
+  if(y>=170&&y<=218)for(let i=0;i<3;i++)if(x>=50+i*130&&x<=156+i*130){api.start([15,30,60][i]);return;}
 }
 
 // --- Idle-screen expedition HUD chip ----------------------------------

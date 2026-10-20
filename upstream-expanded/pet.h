@@ -272,6 +272,17 @@ public:
   bool lineHasUnregistered(int16_t base) const;
   uint8_t eggRarity() const;       // rareza del huevo actual (sin revelar especie)
   int16_t pickEggSpecies();        // publica para poder simular tiradas (EGGS)
+
+  // Package C1: one-shot plan for a future egg, not a reroll of the current one.
+  bool canSetEggPlan() const { return !isEgg() && !awaitingStarter() && ceremony == CER_NONE && !evolving(); }
+  bool setEggPlan(uint8_t generation, uint8_t type, bool preferUnraised);
+  uint8_t eggPlanGeneration() const { return nextEggGeneration; }
+  uint8_t eggPlanType() const { return nextEggType; }
+  bool eggPlanUnraised() const { return nextEggUnraised; }
+  uint8_t usedEggPlanGeneration() const { return usedEggGeneration; }
+  uint8_t usedEggPlanType() const { return usedEggType; }
+  bool usedEggPlanUnraised() const { return usedEggUnraised; }
+
   uint8_t lowestStat() const { return min(min(fullness, joy), min(energy, hygiene)); }
   PetMood mood() const;
   // progreso de la ceremonia de despedida/escapada, 0..1 (para animarla)
@@ -304,6 +315,12 @@ private:
   uint32_t heartUntil = 0;
   uint32_t evolveUntil = 0;
   int16_t eggTarget = 1;       // dex oculto que saldra del huevo
+
+  uint8_t nextEggGeneration = 0, nextEggType = 0;
+  bool nextEggUnraised = false;
+  uint8_t usedEggGeneration = 0, usedEggType = 0;
+  bool usedEggUnraised = false;
+
   bool eggShiny = false;       // sorpresa sorteada al crear el huevo
   uint8_t eggTaps = 0;
   uint8_t mistakeCooldown = 0;

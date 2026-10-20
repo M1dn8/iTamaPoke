@@ -41,6 +41,7 @@ const FILES = [
   "./ceremony.js",
   "./storage-tools.js",
   "./management.js",
+  "./egg-planning.js",
   "./main.js",
 ];
 

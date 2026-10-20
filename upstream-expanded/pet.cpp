@@ -1,4 +1,5 @@
 #include "pet.h"
+#include "egg_plan_rules.h"
 #include "dex.h"
 #include "evolution_rules.h"
 #include "audio.h"
@@ -25,7 +26,14 @@ void Pet::newEgg() {
   weight = 0;
   speciesId = -1;
   prevSpeciesId = -1;
-  eggTarget = pickEggSpecies();  // especie oculta segun rareza y pokedex
+  // Preserve the applied plan for inspection; consume it only at actual egg creation.
+  const bool usePlan = registeredCount() > 0;
+  usedEggGeneration = usePlan ? nextEggGeneration : 0;
+  usedEggType = usePlan ? nextEggType : 0;
+  usedEggUnraised = usePlan && nextEggUnraised;
+  eggTarget = pickEggSpecies();  // species remains hidden and is rolled only once
+  nextEggGeneration = nextEggType = 0;
+  nextEggUnraised = false;
   starterPick = (registeredCount() == 0);  // primera partida: el jugador elige inicial
   // sorteo shiny: 1/48 base, mejor con despedida y con racha/vinculo altos
   int shinyBase = (lastEnd == CER_FAREWELL ? 24 : 48) - careBonus();
@@ -250,6 +258,15 @@ uint8_t Pet::eggRarity() const {
 
 // elige la especie del huevo: tirada de rareza (mejorada por una despedida
 // completa, castigada por una escapada) y sesgo hacia lineas incompletas
+bool Pet::setEggPlan(uint8_t generation, uint8_t type, bool preferUnraised) {
+  if (!canSetEggPlan() || generation > 9 || type > TYPE_FAIRY) return false;
+  nextEggGeneration = generation;
+  nextEggType = type;
+  nextEggUnraised = preferUnraised;
+  save();
+  return true;
+}
+
 int16_t Pet::pickEggSpecies() {
   // primera partida: inicial clasico
   if (registeredCount() == 0) {
@@ -277,7 +294,24 @@ int16_t Pet::pickEggSpecies() {
         if (pass == 0 && !lineHasUnregistered(d)) continue;
         cand[n++] = d;
       }
-      if (n > 0) return cand[random(n)];
+      if (n > 0) {
+        // No plan: preserve the original draw and RNG sequence exactly.
+        if (!nextEggGeneration && !nextEggType && !nextEggUnraised) return cand[random(n)];
+        int totalWeight = 0;
+        for (int i = 0; i < n; ++i) {
+          const DexEntry &entry = DEX_TBL[cand[i]];
+          totalWeight += tpEggPlanWeight(cand[i], entry.type1, entry.type2,
+                         nextEggGeneration, nextEggType, nextEggUnraised, isRegistered(cand[i]));
+        }
+        int ticket = random(totalWeight);
+        for (int i = 0; i < n; ++i) {
+          const DexEntry &entry = DEX_TBL[cand[i]];
+          ticket -= tpEggPlanWeight(cand[i], entry.type1, entry.type2,
+                    nextEggGeneration, nextEggType, nextEggUnraised, isRegistered(cand[i]));
+          if (ticket < 0) return cand[i];
+        }
+        return cand[n - 1];
+      }
     }
   }
   return CLASSIC_DEX[random(NUM_CLASSIC_DEX)];  // inalcanzable, por si acaso
@@ -1233,6 +1267,13 @@ PetMood Pet::mood() const {
 }
 
 void Pet::save() {
+  prefs.putUChar("eggen", nextEggGeneration);
+  prefs.putUChar("egtyp", nextEggType);
+  prefs.putBool("egunk", nextEggUnraised);
+  prefs.putUChar("egugen", usedEggGeneration);
+  prefs.putUChar("egutyp", usedEggType);
+  prefs.putBool("eguunk", usedEggUnraised);
+
   ticksSinceSave = 0;
   pendingSave = false;
   prefs.putUChar("full", fullness);
@@ -1310,6 +1351,17 @@ void Pet::save() {
 }
 
 void Pet::load() {
+  nextEggGeneration = prefs.getUChar("eggen", 0);
+  nextEggType = prefs.getUChar("egtyp", 0);
+  nextEggUnraised = prefs.getBool("egunk", false);
+  usedEggGeneration = prefs.getUChar("egugen", 0);
+  usedEggType = prefs.getUChar("egutyp", 0);
+  usedEggUnraised = prefs.getBool("eguunk", false);
+  if (nextEggGeneration > 9) nextEggGeneration = 0;
+  if (nextEggType > TYPE_FAIRY) nextEggType = 0;
+  if (usedEggGeneration > 9) usedEggGeneration = 0;
+  if (usedEggType > TYPE_FAIRY) usedEggType = 0;
+
   fullness = prefs.getUChar("full", 80);
   joy = prefs.getUChar("joy", 80);
   energy = prefs.getUChar("ene", 80);

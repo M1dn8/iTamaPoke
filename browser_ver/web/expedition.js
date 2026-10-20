@@ -154,33 +154,27 @@ const EXP_ITEM_POS = [[50, 204], [244, 204], [50, 268], [244, 268]];
 let expeditionTrainChoiceOpen = false;
 
 function drawCardExpedition() {
-  ctx.textAlign="center";ctx.fillStyle=UI.ink;ctx.font="bold 20px monospace";
-  ctx.fillText(fns.expeditionTitle(),TP.cx,44);
-  const api=window.TPExpeditions;let v=null;
-  try {v=api&&api.view();} catch(_e) {}
+  ctx.textAlign="center";ctx.fillStyle=UI.ink;ctx.font="bold 20px monospace";ctx.fillText(fns.expeditionTitle(),TP.cx,44);
+  const api=window.TPExpeditions;let v=null;try{v=api&&api.view();}catch(_e){}
   if(!v){ctx.font="13px monospace";ctx.fillText("Test-Build bitte aktualisieren",TP.cx,120);return;}
-  const drawButton=(x,y,w,h,label,selected,enabled)=>{
-    ctx.fillStyle=selected?UI.barOK:enabled?UI.white:rgb565(0xE4E7);
-    roundRect(x,y,w,h,9);ctx.fill();ctx.strokeStyle=selected?UI.barOK:UI.track;ctx.lineWidth=selected?2:1;
-    roundRect(x,y,w,h,9);ctx.stroke();ctx.fillStyle=selected?UI.bgDay:enabled?UI.ink:UI.track;
-    ctx.font="bold 13px monospace";ctx.textBaseline="middle";ctx.fillText(label,x+w/2,y+h/2);ctx.textBaseline="alphabetic";
-  };
+  const box=(x,y,w,h,enabled,color)=>{ctx.fillStyle=enabled?UI.white:rgb565(0xE4E7);roundRect(x,y,w,h,10);ctx.fill();ctx.strokeStyle=enabled?color:UI.track;ctx.lineWidth=2;roundRect(x,y,w,h,10);ctx.stroke();};
   if(!v.pending){
-    const positions=[[16,60],[164,60],[312,60],[90,114],[238,114]];
-    for(let i=0;i<5;i++)drawButton(positions[i][0],positions[i][1],138,48,api.routeNames[i],v.route===i,!v.busy&&v.quiet);
-    for(let i=0;i<3;i++)drawButton(50+i*130,170,106,48,[15,30,60][i]+" Min · -"+v.costs[i],false,!v.busy&&v.quiet&&v.reasons[i]===0);
+    const positions=[[32,66],[244,66],[32,148],[244,148]],colors=[UI.barWarn,"#4C98D9",UI.barOK,UI.barBad];
+    for(let i=0;i<4;i++){
+      const t=api.targets[i],x=positions[i][0],y=positions[i][1],enabled=!v.busy&&v.quiet&&v.reasons[i]===0;
+      box(x,y,190,70,enabled,colors[i]);ctx.fillStyle=enabled?UI.ink:UI.track;ctx.font="bold 15px monospace";ctx.fillText(t.name,x+95,y+25);
+      ctx.font="11px monospace";ctx.fillText(t.item+" ×1 · "+t.minutes+" Min · -"+t.cost,x+95,y+50);
+    }
   }else{
-    ctx.fillStyle=UI.ink;ctx.font="bold 16px monospace";ctx.fillText(api.routeNames[v.route],TP.cx,91);
-    ctx.font="14px monospace";ctx.fillText(v.ready?api.itemNames[v.s[24]]+" gefunden":"Noch "+v.left+" Min",TP.cx,123);
-    if(v.ready)drawButton(118,148,230,44,"Abholen",false,!v.busy&&v.quiet&&v.canClaim);
+    ctx.fillStyle=UI.ink;ctx.font="bold 16px monospace";ctx.fillText((api.oldNames[v.s[10]]||"Expedition")+(v.s[26]?"":" (alt)"),TP.cx,91);
+    ctx.font="14px monospace";ctx.fillText(v.ready?api.itemNames[v.s[24]]+" ×1 gefunden":"Noch "+v.left+" Min",TP.cx,123);
+    if(v.ready){const enabled=!v.busy&&v.quiet&&v.canClaim;box(118,148,230,44,enabled,UI.barOK);ctx.fillStyle=enabled?UI.ink:UI.track;ctx.font="bold 15px monospace";ctx.fillText("Abholen",TP.cx,176);}
   }
   ctx.fillStyle=UI.track;ctx.font="12px monospace";
-  const hint=v.notice||(v.ready&&!v.canClaim?(v.s[20+v.s[24]]>=3?api.itemNames[v.s[24]]+"fach voll – Gegenstand verwenden":"Abholung gerade gesperrt"):!v.pending?"Ziel waehlen, dann Zeit antippen":"Inventar");
+  const hint=v.notice||(v.ready&&!v.canClaim?(v.s[20+v.s[24]]>=3?api.itemNames[v.s[24]]+"fach voll – Gegenstand verwenden":"Abholung gerade gesperrt"):!v.pending?"Expedition antippen und starten":"Inventar");
   ctx.fillText(hint,TP.cx,239);
-  drawExpeditionItem(50,250,0);drawExpeditionItem(244,250,1);
-  drawExpeditionItem(50,314,2);drawExpeditionItem(244,314,3);
-  if(expeditionTrainChoiceOpen)drawExpeditionTrainChoice();
-  statusEl.textContent="Card · Expedition";
+  drawExpeditionItem(50,250,0);drawExpeditionItem(244,250,1);drawExpeditionItem(50,314,2);drawExpeditionItem(244,314,3);
+  if(expeditionTrainChoiceOpen)drawExpeditionTrainChoice();statusEl.textContent="Card · Expedition";
 }
 
 function drawExpeditionItem(x, y, index) {
@@ -199,7 +193,7 @@ function drawExpeditionItem(x, y, index) {
   ctx.textAlign = "left";
   ctx.fillStyle = count > 0 ? UI.ink : UI.track;
   ctx.font = "11px monospace";
-  ctx.fillText(fns.expeditionItemLabel(index), x + 42, y + 24);
+  ctx.fillText(["Nahrung", "Energie", "Pflege", "Training"][index], x + 42, y + 24);
   ctx.textAlign = "right";
   ctx.font = "bold 13px monospace";
   ctx.fillText(`x${count}`, x + 160, y + 34);
@@ -241,27 +235,19 @@ function expeditionItemAt(x, y) {
 }
 
 function cardExpeditionTap(x,y) {
-  const api=window.TPExpeditions;if(!api||api.busy)return;
-  const v=api.view();if(!v)return;
+  const api=window.TPExpeditions;if(!api||api.busy)return;const v=api.view();if(!v)return;
   if(expeditionTrainChoiceOpen){
-    if(y>=172&&y<=238&&x>=74&&x<=398){
-      const stat=Math.floor((x-74)/108);
-      if(stat<=2&&fns.trainStatUsable(stat)!==0)api.use(3,stat);
-      else api.tell("Training bereits maximal");
-    }
+    if(y>=172&&y<=238&&x>=74&&x<=398){const stat=Math.floor((x-74)/108);if(stat<=2&&fns.trainStatUsable(stat)!==0)api.use(3,stat);else api.tell("Training bereits maximal");}
     expeditionTrainChoiceOpen=false;return;
   }
   if(y>=250&&y<=304||y>=314&&y<=368){
-    const col=x>=50&&x<=222?0:x>=244&&x<=416?1:-1;
-    if(col<0)return;const item=(y>=314?2:0)+col;
+    const col=x>=50&&x<=222?0:x>=244&&x<=416?1:-1;if(col<0)return;const item=(y>=314?2:0)+col;
     if(fns.expeditionItemCount(item)===0){api.tell("Kein Gegenstand vorhanden");return;}
-    if(item===3)expeditionTrainChoiceOpen=true;else api.use(item);
-    return;
+    if(item===3)expeditionTrainChoiceOpen=true;else api.use(item);return;
   }
   if(v.pending){if(v.ready&&x>=118&&x<=348&&y>=148&&y<=192)api.claim();return;}
-  const positions=[[16,60],[164,60],[312,60],[90,114],[238,114]];
-  for(let i=0;i<5;i++)if(x>=positions[i][0]&&x<=positions[i][0]+138&&y>=positions[i][1]&&y<=positions[i][1]+48){api.selectRoute(i);return;}
-  if(y>=170&&y<=218)for(let i=0;i<3;i++)if(x>=50+i*130&&x<=156+i*130){api.start([15,30,60][i]);return;}
+  const positions=[[32,66],[244,66],[32,148],[244,148]];
+  for(let i=0;i<4;i++)if(x>=positions[i][0]&&x<=positions[i][0]+190&&y>=positions[i][1]&&y<=positions[i][1]+70){api.start(i+1);return;}
 }
 
 // --- Idle-screen expedition HUD chip ----------------------------------

@@ -1,103 +1,73 @@
-# Paket C2: erweiterte Expeditionen - Testversion
+# Paket C2 - vier feste Expeditionen (aktuelle Testversion)
 
-## Umfang und bestaetigte Regeln
+Die vorherige gewichtete Auswahl und die separate Zeitwahl sind ersetzt.
 
-C2 erweitert die Expeditionen. A, B und C1 bleiben erhalten. Minispiele,
-Persoenlichkeitsboni und das Tagebuch sind separate verbleibende C-Themen.
-Keine NAS-Anbindung, neue Waehrung oder neue Fremdassets.
-
-- Ziele: Erkundung (0), Beerenwiese/Nahrung (1), Quellpfad/Energie (2),
-  Waldlichtung/Pflege (3), Trainingspfad (4). Alle ohne Level-Freischaltung.
-- Dauer: 15/30/60 Minuten. Kosten 12/20/32 Energie; Trainingspfad +6.
-- Nahrung, Freude und Hygiene jeweils mindestens 40. Nach Abzug bleiben
-  mindestens 20 Energie. Kein Start als Ei, schlafend, waehrend Entwicklung
-  oder Zeremonie oder solange eine Expedition/Abholung aussteht.
-- Browseransicht sperrt Aktionen auch waehrend Kampf, Minispiel und Tastatur.
-- Genau ein Gegenstand. Trainingswurf zuerst: bestehende Chancen 8/15/25,
-  bei Durchschnitt >=60 und Bindung >=20: 13/22/35, bei Durchschnitt >=80
-  und Bindung >=50: 18/30/45 Prozent. Trainingspfad +10 Prozentpunkte.
-  Berechnung VOR Energieabzug. Kein Trainingsfund ohne Aufnahmekapazitaet.
-- Bei anderem Fund gewoehnliche Gewichte 1:1:1, bzw. 3:1:1 zugunsten des
-  Routengegenstands. Diese Prozente gelten bedingt auf einen gewoehnlichen
-  Fund, nicht als Gesamtchance. Volle Faecher ausgeschlossen und Gewichte
-  neu normiert. Browser zieht den gewichteten Roll ueber die aktuelle Summe.
-- Nur Training aufnehmbar: 100 Prozent Training statt eines Fehlschlags.
-  Die Ansicht weist auf eingeschraenkten Pool und fehlenden Zusatznutzen
-  des Trainingspfads in diesem Fall hin.
-- Inventarlimit weiterhin 3 pro Typ. Bei maximalen ATK/DEF/TEMPO-Werten ist
-  Training kein sinnvoll aufnehmbarer neuer Gegenstand.
-- Belohnung beim Start festgelegt. Keine Neuauswahl beim Neuladen/Abholen.
-- Ein spaeter volles Fach oder maximales Training blockiert Abholung, loescht
-  aber die gespeicherte Belohnung nicht. Inventar bleibt bedienbar, damit
-  ein Fach geleert werden kann. Normale Gegenstaende duerfen nach expliziter
-  Warnung auch ohne unmittelbaren Pflegeeffekt verwendet werden, um Platz
-  zu schaffen. Training kann nicht nutzlos in einen maximalen Wert gesteckt
-  werden. Ein blockierter Trainingsfund bleibt bis spaeterer Kapazitaet bestehen.
-- Hintergrundauftrag: Pflege und Spiel bleiben moeglich; normale Zeit laeuft
-  weiter. Keine neue Verletzung, Verlustchance oder zusaetzliche Abwesenheit.
-- Die letzte Abholung wird als einzelne Ergebniszeile gespeichert. Das ist
-  noch kein vollstaendiges Tagebuch.
+| Expedition | Garantierter Gegenstand | Feste Dauer | Energiekosten |
+|---|---|---|---|
+| Beerenwiese | Nahrung x1 | 15 Minuten | 12 |
+| Quellpfad | Energie x1 | 15 Minuten | 12 |
+| Waldlichtung | Pflege x1 | 15 Minuten | 12 |
+| Trainingspfad | Training x1 | 30 Minuten | 26 |
 
 ## Bedienung
 
-Die bestehende Expeditionskarte zeigt direkt fuenf Zielbuttons und drei
-Zeitbuttons mit Energiekosten. Standard ist Erkundung. Ziel antippen,
-Zeitbutton antippen: Expedition startet ohne weitere Menueebene.
-Waehrenddessen nur Ziel/Restzeit; bei Fertigstellung Fund und Abholen.
-Darunter bleibt das Inventar direkt antippbar, auch bei blockierter Abholung.
-Keine Dropdowns, Zusatzfenster, Wahrscheinlichkeitstabellen oder Ergebnis-
-Historie in der normalen Ansicht. Nur kurze situative Hinweise. Die bisherige
-ATK/DEF/Tempo-Auswahl fuer Trainingsgegenstaende bleibt auf der Karte.
-Start, Abholung und Verbrauch bleiben ohne automatisches Neuladen bedienbar.
+Vier direkte Buttons in einem 2x2-Raster auf der bisherigen Expeditionskarte.
+Jeder Button zeigt Name, Gegenstand, Dauer und Kosten. Ein Antippen startet.
+Keine Ziel-Vorauswahl, Zeitbuttons, Dropdowns, Zusatzfenster oder Chancenlisten.
+Inventar darunter wie bisher direkt antippbar und einheitlich beschriftet.
+Die vorhandene kleine ATK/DEF/Tempo-Auswahl fuer Trainingsgegenstaende bleibt.
+Start, Abholung und Verwendung ohne automatisches Neuladen.
 
-## Speicherung und Sicherheit
+## Regeln
 
-Neue Felder: exroute, exstart, exmins, exchance, exlast, exlroute, exlwhen.
-Bestehende Felder exend und exrwd behalten ihre Bedeutung.
-Alte gueltige laufende/fertige Expeditionen werden NICHT neu ausgewuerfelt,
-verkuerzt oder erneut bezahlt. Fehlende Route bedeutet Erkundung. Historische
-Dauer/Startchance werden nicht erfunden; unbekannt wird ausdruecklich angezeigt.
-Die neuen Felder werden in die bisherigen A/B-Spielstandformate aufgenommen.
+- Genau ein angegebener Gegenstand, kein Trainings-Zufallsfund auf anderen
+  Routen und kein Wechsel zu einem anderen Gegenstand bei vollem Fach.
+- Das Zielfach muss beim Start Platz haben (Limit weiterhin drei je Typ).
+- Trainingspfad gesperrt, wenn alle drei Trainingswerte bereits maximal sind.
+- Nahrung, Freude, Hygiene jeweils mindestens 40; nach Abzug mindestens
+  20 Energie. Kein Start als Ei, schlafend, in Entwicklung/Zeremonie, bei
+  laufender Expedition oder ausstehender Abholung. Browser sperrt Aktionen
+  waehrend Kampf/Minispiel und kurz waehrend des Speicherns.
+- Eine Expedition gleichzeitig. Normale Pflege und Zeitverlauf bleiben
+  moeglich. Gegenstand und Endzeit werden beim Start gespeichert.
+- Bei spaeter vollem Zielfach bleibt die Belohnung gespeichert, bis Platz
+  geschaffen wurde. Keine neue Auswahl, kein stilles Verwerfen.
+- Ist ein alter Trainingsfund nachtraeglich nicht aufnehmbar, bleibt auch
+  dieser unveraendert gespeichert. Kein Tausch gegen einen anderen Typ.
+- Pflege und Bindung bestimmen keine Fundwahrscheinlichkeit mehr. Die
+  Mindestversorgung ist weiterhin eine Startbedingung.
+- Die bisherigen Roll-Parameter bleiben technisch in der C++-API, werden
+  fuer neue Starts aber ignoriert. Der Browser verbraucht keinen Zufallswurf.
 
-Start, Abholung und Verbrauch sind in der neuen Browseransicht reversible
-In-Memory-Aktionen: Klasse und Preferences-Map werden vorher kopiert.
-Nach erfolgreichem IndexedDB-Commit bleibt die Karte offen, ohne Neuladen.
-Eine Sperre waehrend der Aktion und ein Speicher-Generationszaehler verhindern,
-dass ein zuvor gestarteter, verspaeteter Autosave die Aktion ueberschreibt. Bei Schreibfehlern werden Spielkern und Map auf den
-Stand vor der Aktion zurueckgesetzt. Dauerhafte Speicherung im echten Browser
-muss noch getestet werden. Keine Behauptung manipulationssicherer Zeitmessung:
-Die lokale Geraeteuhr ist weiterhin die Zeitbasis.
+## Alte Expeditionen und Speicherformat
 
-## Lokale Vorpruefungen
+Bereits laufende/fertige Touren behalten ihre exakte Endzeit und gespeicherte
+Belohnung, auch wenn Route, Dauer oder Fund nicht mehr dem neuen Schema
+entsprechen. Sie werden knapp mit (alt) markiert, nicht erneut bezahlt und
+nicht umgewuerfelt. Auch alte Erkundungstouren bleiben abholbar; Erkundung ist
+nur nicht mehr als neuer Auftrag waehlbar.
 
-Erfolgreich ausgefuehrt gegen bereitgestellten Kern mit C2-Patches:
-- C++: alle Kosten, Energiegrenzen, Mindestversorgung, Start-Sperren,
-  Versorgung/Bindung vor Abzug, genaue gewichtete Zyklen, volle Faecher,
-  Nur-Training-Fallback, maximale Trainingswerte, Sperre paralleler Starts,
-  Endzeit, Metadaten, erneutes Laden und alte Expeditionen, einmalige Abholung,
-  blockierte Belohnungen und Ruecknahme von Kern+Map bei fehlendem Commit.
-- JS: Syntax, direkte Canvas-Buttons, Commit ohne Zusatzfenster/Neuladen,
-  Ruecknahme bei Schreibfehlern, benutzbares Inventar bei voller Abholung
-  und Abweisung eines verspaeteten alten Autosaves.
+Neu: Preferences-Feld exfixed (0/1), Browser-Getter tp_c2_get(26).
+Fehlendes Feld bedeutet alte Expedition. Bei offensichtlich unpassenden
+Metadaten wird nur die Kennzeichnung als feste Expedition entfernt, nicht
+Belohnung oder Endzeit. Bestehende exend/exrwd und C2-Metadaten bleiben erhalten.
+Das Feld ist Bestandteil der Sicherungen aus Paket B. A/B/C1 bleiben erhalten.
 
-Noch ausstehend: vollstaendiger tatsaechlicher A+B+C1+C2-Build, alle A/B/C1-
-Regressionstests auf GitHub, echter Browser/IndexedDB, iPhone-Abnahme.
-Der neue Workflow Test Paket C2 auf komfort-c2 fuehrt die Regressionstests
-und anschliessend den WASM-Build aus. Artefakt iTamaPoke-Paket-C2-Test.
-Native Adaptertests nutzen ausschliesslich im Test einen Keepalive-Makro-
-Stub; der echte WASM-Build nutzt den echten Emscripten-Header.
+Die reversible C2-Aktion und der Speicher-Generationszaehler der Button-
+Ueberarbeitung bleiben aktiv: Commit erst nach IndexedDB-Erfolg, Ruecknahme
+bei Schreibfehlern und Abweisung verspaeteter alter Autosaves. Kein Reload.
 
-## Kuenstliche Testspielstaende (nur Mac-Testinstallation)
+## Tests
 
-- C2-Start: Bisasam, Level 10, 25 aufgezogene Arten, Versorgung 80,
-  Bindung 20, leeres Inventar. Ein C1-Eierplan Gen9/Pflanze ist mitgespeichert,
-  damit dessen Erhalt bei C2-Aktionen ebenfalls geprueft werden kann.
-- C2-Alte-Expedition-fertig: alte gespeicherte Energie-Belohnung ohne C2-
-  Metadaten; Route muss als Erkundung erscheinen und genau einmal abholbar sein.
-- C2-Fach-voll: fertiger Pflegefund, Pflegebestand 3/3. Abholung muss blockieren;
-  Pflegegegenstand verwenden, dann genau einmal abholen, Bestand wieder 3/3.
-- C2-Nur-Training: alle gewoehnlichen Faecher 3/3, Training 2/3 und Werte
-  unter 100. Vorschau muss 100 Prozent Training und Poolwarnung zeigen.
+Lokal erfolgreich: C++-Pruefungen aller vier festen Zeiten/Kosten/Funde,
+abweichender alter Rollwerte, Zielkapazitaet, Maximaltraining, Energie- und
+Pflegegrenzen, kein RNG-Verbrauch, gespeicherte Kennzeichnung, einmalige
+Abholung, alte Route-0- und variable C2-Touren sowie Kern/Map-Rollback.
+JS: direkte vier Startbuttons mit festen Parametern, kein Extra-DOM/Reload,
+Schreibfehler-Ruecknahme, Abholung nach Freimachen eines Fachs und Schutz
+vor verspaeteten Autosaves.
 
-Nicht auf dem iPhone einlesen. Keine echten Nutzerdaten und keine Grafiken
-enthalten. Es gibt keinen Produktions-Schalter zur Zeitbeschleunigung.
+Noch ausstehend: Gesamtbuild und A/B/C1-Regressionen des tatsaechlichen
+Projektstands auf GitHub, echte Browser-/IndexedDB- und iPhone-Abnahme.
+Bestehender Workflow Test Paket C2 auf komfort-c2 wird weiter verwendet.
+Keine NAS-Anbindung, neuen Fremdassets oder weiteren Paket-C-Funktionen.

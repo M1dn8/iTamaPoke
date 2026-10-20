@@ -21,7 +21,7 @@ EMSCRIPTEN_KEEPALIVE double tp_c2_get(int key) {
  case 12:return p.expeditionMinutes;case 13:return p.expeditionStartChance;case 14:return p.expeditionLastItem;
  case 15:return p.expeditionLastRoute;case 16:return p.expeditionLastClaimEpoch;
  case 17:return p.trAtk;case 18:return p.trDef;case 19:return p.trSpe;
- case 20:case 21:case 22:case 23:return p.itemCounts[key-20];case 24:return p.expeditionRewardItem;case 25:return p.poops;
+ case 20:case 21:case 22:case 23:return p.itemCounts[key-20];case 24:return p.expeditionRewardItem;case 25:return p.poops;case 26:return p.expeditionFixedReward;
  default:return -1;
  }
 }
@@ -53,9 +53,7 @@ EMSCRIPTEN_KEEPALIVE int tp_c2_apply(int action,int minutes,int route,int item,i
  undoStore=Preferences::store();undoPet=std::make_unique<Pet>(p);
  bool ok=false;
  if(action==0){
-  const uint8_t total=p.expeditionCommonWeightTotal(uint8_t(route));
-  const uint8_t luck=uint8_t(std::rand()%100), roll=uint8_t(std::rand()%(total?total:1));
-  ok=p.startExpedition(uint8_t(minutes),nowEpoch(),luck,roll,uint8_t(route));
+  ok=p.startExpedition(uint8_t(minutes),nowEpoch(),0,0,uint8_t(route));
  }else if(action==1)ok=p.claimExpedition(nowEpoch())!=EXP_ITEM_NONE;
  else ok=p.useExpeditionItem((ExpeditionItem)item,int8_t(stat));
  if(!ok){undo();return 0;}return 1;

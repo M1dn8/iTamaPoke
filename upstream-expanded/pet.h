@@ -155,6 +155,7 @@ public:
   uint8_t expeditionRewardItem = EXP_ITEM_NONE;
   // C2: route 0 exploration, 1 food, 2 energy, 3 care, 4 training.
   uint8_t expeditionRoute = 0, expeditionMinutes = 0, expeditionStartChance = 255;
+  uint8_t expeditionFixedReward = 0;
   uint32_t expeditionStartEpoch = 0;
   uint8_t expeditionLastItem = EXP_ITEM_NONE, expeditionLastRoute = 0;
   uint32_t expeditionLastClaimEpoch = 0;
@@ -189,8 +190,8 @@ public:
   BattleReward applyBattleWin(int16_t wildDex, bool closeWin);
   void applyBattleLoss();
 
-  // Expediciones: el premio se sortea y guarda al salir para que un reinicio
-  // no permita repetir la tirada. Los rolls son inyectables para pruebas nativas.
+  // C2: route fixes item, duration and cost at departure. No reward reroll.
+  // Legacy roll arguments remain in the API but are ignored for new trips.
   static uint8_t expeditionEnergyCost(uint8_t minutes, uint8_t route = 0);
   bool expeditionActive(uint32_t nowEpoch) const;
   bool expeditionReady(uint32_t nowEpoch) const;

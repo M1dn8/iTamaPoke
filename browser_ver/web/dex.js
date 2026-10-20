@@ -174,9 +174,9 @@ function drawDexGrid() {
   ctx.fillText(`${dexPage + 1} / ${pages}`, TP.cx, 440);
   ctx.fillStyle = UI.track;
   ctx.font = "15px monospace";
-  ctx.fillText("< prev · next >  ·  tap a tile", TP.cx, 456);
+  ctx.fillText(TPText.pick("< zurück · weiter > · Feld antippen","< prev · next >  ·  tap a tile"),TP.cx,456);
 
-  statusEl.textContent = `Dex · page ${dexPage + 1}/${pages} · filter ${DEX_FILTER_PILLS[dexFilter].label()}`;
+  statusEl.textContent = TPText.status(`Dex · page ${dexPage + 1}/${pages} · filter ${DEX_FILTER_PILLS[dexFilter].label()}`);
 }
 
 function drawDexDetail() {
@@ -273,7 +273,7 @@ function drawDexDetail() {
   ctx.font = "15px monospace";
   ctx.fillText(fns.detailBackText(), TP.cx, 424);
 
-  statusEl.textContent = `Dex detail · #${dex} ${known ? fns.dexName(dex) : "???"}`;
+  statusEl.textContent = TPText.status(`Dex detail · #${dex} ${known ? fns.dexName(dex) : "???"}`);
 }
 
 // Port of PetScreen.swift's drawCryButton/cryButtonRect: a capsule that
@@ -345,7 +345,7 @@ function drawDexEntryPage(dex, known) {
     ctx.fillStyle = UI.track;
     ctx.textAlign = "center";
     ctx.font = "15px monospace";
-    ctx.fillText(known ? "NO DEX ENTRY" : "???", TP.cx, y + h / 2 + 5);
+    ctx.fillText(known ? TPText.pick("Kein Pokédex-Text geladen","NO DEX ENTRY") : "???",TP.cx,y+h/2+5);
     return;
   }
 

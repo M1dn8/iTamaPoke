@@ -60,14 +60,14 @@ function open(){
  const unraised=create("input");unraised.type="checkbox";unraised.checked=pending.unraised;
  const label=create("label");label.append(unraised,document.createTextNode(" Noch nicht aufgezogene Arten staerker gewichten"));panel.appendChild(label);
  note("Jeder passende Wunsch gibt einer Art das dreifache Losgewicht. Wuensche werden kombiniert (maximal 27-faches Gewicht). Das bedeutet nicht die dreifache Wahrscheinlichkeit und ist keine Garantie fuer Typ, Generation oder eine bestimmte Art.");
- note("Seltenheitswurf, Shiny-Chance, ei-faehige Arten und der bisherige Vorrang unvollstaendiger Entwicklungslinien bleiben unveraendert. Die Gewichtung wirkt nur innerhalb des danach verwendeten Kandidatenpools. Gibt es darin keine passenden Arten, bleibt die Auswahl entsprechend ungefaerbt.");
+ note("Seltenheitswurf, Schillernd-Chance, ei-faehige Arten und der bisherige Vorrang unvollstaendiger Entwicklungslinien bleiben unveraendert. Die Gewichtung wirkt nur innerhalb des danach verwendeten Kandidatenpools. Gibt es darin keine passenden Arten, bleibt die Auswahl entsprechend ungefaerbt.");
  const status=create("p",undefined,"tp-small");status.setAttribute("role","status");const controls=[generation,type,unraised];
  const save=button("Plan speichern und neu laden",()=>storePlan({generation:Number(generation.value),type:Number(type.value),unraised:unraised.checked},status,controls));
  const clear=button("Zufall wiederherstellen",()=>storePlan({generation:0,type:0,unraised:false},status,controls));controls.push(save,clear);
  const actions=create("div",undefined,"tp-modal-row");actions.append(save,clear);panel.append(actions,status);
  controls.forEach(n=>n.disabled=!editable);
  if(fns.awaitingStarter())note("Die erste Starterauswahl bleibt unveraendert.");
- note("Der Plan wird im Spielstand gespeichert und von den Sicherungen aus Paket B mitgenommen. Beim Erzeugen des naechsten Eis wird er verbraucht. Neuladen desselben Eis erzeugt keine neue Art und keinen neuen Shiny-Wurf.");
+ note("Der Plan wird im Spielstand gespeichert und von den Sicherungen aus Paket B mitgenommen. Beim Erzeugen des naechsten Eis wird er verbraucht. Neuladen desselben Eis erzeugt keine neue Art und keinen neuen Schillernd-Wurf.");
 }
 const launch=button("Eier",open);document.querySelector(".tp-tools").appendChild(launch);
 launch.disabled=true;setInterval(()=>{launch.disabled=busy||!quiet();},700);

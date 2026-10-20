@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -59,31 +59,31 @@
 </head>
 <body>
 <div id="toolbar">
-  <button id="spriteLoad" class="tool" type="button">Load sprites…</button>
-  <button id="dexEntryLoad" class="tool" type="button">Load dex text…</button>
-  <button id="cryLoad" class="tool" type="button">Load cries…</button>
-  <button id="saveExport" class="tool" type="button">Save file…</button>
-  <button id="saveImport" class="tool" type="button">Load save…</button>
-  <button id="gameReset" class="tool danger" type="button">Reset game…</button>
+  <button id="spriteLoad" class="tool" type="button">Grafiken laden…</button>
+  <button id="dexEntryLoad" class="tool" type="button">Pokédex-Texte…</button>
+  <button id="cryLoad" class="tool" type="button">Rufe laden…</button>
+  <button id="saveExport" class="tool" type="button">Sichern…</button>
+  <button id="saveImport" class="tool" type="button">Spielstand laden…</button>
+  <button id="gameReset" class="tool danger" type="button">Neues Spiel…</button>
 </div>
 <input id="spriteInput" type="file" accept=".bin" multiple>
 <input id="dexEntryInput" type="file" accept=".txt" multiple>
 <input id="cryInput" type="file" accept=".m4a,.mp3,.wav,.ogg" multiple>
 <input id="saveInput" type="file" accept=".tpsave,.bin,application/octet-stream">
 <canvas id="tp" width="466" height="466"></canvas>
-<div id="status">loading…</div>
+<div id="status">Wird geladen…</div>
 <div id="build"></div>
 <script>
 // Surface any startup failure in the status line instead of a silent
-// "loading…" -- on a phone there is no console to look at.
+// "Wird geladen…" -- on a phone there is no console to look at.
 window.addEventListener("error", (e) => {
   const s = document.getElementById("status");
-  if (s) s.textContent = "error: " + (e.message || e.error || "unknown") + (e.filename ? " @ " + e.filename.split("/").pop() + ":" + e.lineno : "");
+  if (s) s.textContent = "Fehler: " + (e.message || e.error || "unknown") + (e.filename ? " @ " + e.filename.split("/").pop() + ":" + e.lineno : "");
 });
 window.addEventListener("unhandledrejection", (e) => {
   const s = document.getElementById("status");
   const r = e.reason;
-  if (s) s.textContent = "error: " + (r && (r.message || r.toString())) ;
+  if (s) s.textContent = "Fehler: " + (r && (r.message || r.toString())) ;
 });
 </script>
 <script src="tp_core.js"></script>
@@ -94,6 +94,8 @@ window.addEventListener("unhandledrejection", (e) => {
 <script src="scene.js"></script>
 <script src="behaviour.js"></script>
 <script src="audio.js"></script>
+<script src="de-ui.js"></script>
+<script src="mini-progress.js"></script>
 <script src="minigames.js"></script>
 <script src="dexentry.js"></script>
 <script src="cry.js"></script>

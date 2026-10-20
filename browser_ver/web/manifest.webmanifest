@@ -1,7 +1,7 @@
 {
   "name": "iTamaPoke",
   "short_name": "iTamaPoke",
-  "description": "A virtual-pet game. Sprites, cries and dex text are never bundled: you load them from your own device.",
+  "description": "Ein virtuelles Haustier. Grafiken, Rufe und Pokédex-Texte lädst du von deinem Gerät.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -9,6 +9,12 @@
   "background_color": "#10131a",
   "theme_color": "#10131a",
   "icons": [
-    { "src": "icon.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any" }
-  ]
+    {
+      "src": "icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "lang": "de"
 }

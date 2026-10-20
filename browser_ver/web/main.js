@@ -138,7 +138,7 @@ function drawPet(ink) {
     ctx.fillStyle = ink;
     ctx.fillText("?", TP.cx, TP.petGround - 100);
     ctx.font = "12px monospace";
-    ctx.fillText("(no sprite loaded for this species)", TP.cx, TP.petGround - 40);
+    ctx.fillText(TPText.pick("(Keine Grafik für dieses Pokémon)","(no sprite loaded for this species)"),TP.cx,TP.petGround-40);
     return;
   }
   const act = spriteHas(currentSprite, petPose.act) ? petPose.act : TPAct.idle;
@@ -320,7 +320,7 @@ function drawSettings() {
   ctx.font = "13px monospace";
   ctx.fillText(fns.backHint(), TP.cx, 414);
 
-  statusEl.textContent = `Settings · sound ${SND_LABELS[soundMode]} · lang ${LANG_CODES[fns.language()]}`;
+  statusEl.textContent = TPText.status(`Settings · sound ${SND_LABELS[soundMode]} · lang ${LANG_CODES[fns.language()]}`);
 }
 
 function settingsTap(x, y) {
@@ -386,7 +386,7 @@ function drawGameMenu() {
     ctx.fillText(t.label(), t.x + t.w / 2, t.y + t.h / 2);
     ctx.textBaseline = "alphabetic";
   }
-  statusEl.textContent = "Play menu";
+  statusEl.textContent = TPText.status("Play menu");
 }
 
 function gameMenuTap(x, y) {
@@ -430,12 +430,10 @@ function gfxTop(cy, size) { return cy - ([0, 11, 15, 20, 28, 34, 40][size] || 15
 
 // Shared "SCORE: N" + record/new-record card the four newer minigames show
 // (gain line optional), laid out as PetScreen.swift's renderCatchGame etc.
-function drawGameOverCard(ink, score, newHigh, high, gainLine, gainColor) {
-  gfxTextC(fns.scoreLine(score), gainLine ? 148 : 160, 4, ink);
-  if (gainLine) gfxTextC(gainLine, 204, 3, gainColor);
-  const y = gainLine ? 256 : 214;
-  if (newHigh && score > 0) gfxTextC(fns.newRecordText(), y, 2, UI.barWarn);
-  else gfxTextC(fns.recordLine(high), y, 2, ink);
+function drawGameOverCard(ink,score,newHigh,high,gainLine,gainColor){
+ const kind=["ball","catch","memo","clean","type","sack"][gameMode],caption=gameMode===2?TPText.pick("Runden","Rounds"):gameMode===5?TPText.pick("Treffer","Hits"):TPText.pick("Punkte","Score");
+ gfxTextC(caption+": "+score,148,4,ink);const earned=TPMini.result(kind)?TPMini.text(kind):(gainLine||"");if(earned)gfxTextC(earned,204,3,gainColor||UI.barOK);
+ gfxTextC(newHigh&&score>0?TPText.pick("Neuer Rekord!","New record!"):TPText.pick("Rekord: ","Record: ")+high,256,2,newHigh&&score>0?UI.barWarn:ink);
 }
 // The three-dot miss counter at y 104 every minigame shares.
 function drawMisses(misses) {
@@ -463,9 +461,9 @@ function drawBallGame(now) {
 
   if (BallGame.overUntil !== 0) {
     drawGameOverCard(ink, BallGame.score, BallGame.newHigh, fns.gameHigh());
-    gfxTextC(BallGame.score >= 10 ? fns.greatJoyText() : fns.plusJoyText(), 250, 2, ink);
+
     if (now >= BallGame.overUntil) { screen = "idle"; BallGame.running = false; }
-    statusEl.textContent = `Ball · game over · score ${BallGame.score}`;
+    statusEl.textContent = TPText.status(`Ball · game over · score ${BallGame.score}`);
     return;
   }
 
@@ -512,7 +510,7 @@ function drawBallGame(now) {
   // renderBallGame: 16x16 at scale 3, centred on the ball's position.
   drawIcon(TPIcon.play, BallGame.ballX - 24, BallGame.ballY - 24, 3);
 
-  statusEl.textContent = `Ball · score ${BallGame.score} · misses ${BallGame.misses}/3`;
+  statusEl.textContent = TPText.status(`Ball · score ${BallGame.score} · misses ${BallGame.misses}/3`);
 }
 
 // Ports renderCatchGame(): a target that shrinks its own patience bar,
@@ -523,9 +521,9 @@ function drawCatchGame(now) {
 
   if (g.overUntil !== 0) {
     drawGameOverCard(ink, g.score, g.newHigh, fns.catchHigh());
-    gfxTextC(g.score >= 10 ? fns.greatJoyText() : fns.plusJoyText(), 250, 2, ink);
+
     if (now >= g.overUntil) screen = "idle";
-    statusEl.textContent = `Catch · game over · score ${g.score}`;
+    statusEl.textContent = TPText.status(`Catch · game over · score ${g.score}`);
     return;
   }
 
@@ -551,7 +549,7 @@ function drawCatchGame(now) {
     ctx.beginPath(); ctx.arc(g.hitX, g.hitY, 42 + since / 8, 0, Math.PI * 2); ctx.stroke();
   }
 
-  statusEl.textContent = `Catch · score ${g.score} · misses ${g.misses}/3`;
+  statusEl.textContent = TPText.status(`Catch · score ${g.score} · misses ${g.misses}/3`);
 }
 
 // Ports renderMemoGame(): four pads, lighting during playback and flashing
@@ -563,7 +561,7 @@ function drawMemoGame(now) {
   if (g.overUntil !== 0) {
     drawGameOverCard(ink, g.rounds, g.newHigh, fns.memoHigh(), fns.defGainLine(g.gain || 0), rgb565(0x4C98));
     if (now >= g.overUntil) screen = "idle";
-    statusEl.textContent = `Memo · game over · rounds ${g.rounds}`;
+    statusEl.textContent = TPText.status(`Memo · game over · rounds ${g.rounds}`);
     return;
   }
 
@@ -605,7 +603,7 @@ function drawMemoGame(now) {
   const phaseColor = g.failUntil !== 0 ? UI.barBad : (g.showing ? UI.barWarn : UI.barOK);
   gfxTextC(phase, gfxTop(230 + 12, 2), 2, phaseColor);
 
-  statusEl.textContent = `Memo · round ${g.rounds + 1} · ${g.showing ? "playback" : "input"}`;
+  statusEl.textContent = TPText.status(`Memo · round ${g.rounds + 1} · ${g.showing ? "playback" : "input"}`);
 }
 
 // Ports renderCleanGame(): dirt spots to scrub within a countdown.
@@ -616,7 +614,7 @@ function drawCleanGame(now) {
   if (g.overUntil !== 0) {
     drawGameOverCard(ink, g.score, g.newHigh, fns.cleanHigh(), fns.hygGainLine(g.gain || 0), UI.barOK);
     if (now >= g.overUntil) screen = "idle";
-    statusEl.textContent = `Clean · game over · score ${g.score}`;
+    statusEl.textContent = TPText.status(`Clean · game over · score ${g.score}`);
     return;
   }
 
@@ -644,55 +642,29 @@ function drawCleanGame(now) {
     ctx.beginPath(); ctx.arc(g.hitX, g.hitY, 42 + since / 8, 0, Math.PI * 2); ctx.stroke();
   }
 
-  statusEl.textContent = `Clean · score ${g.score} · misses ${g.misses}/3`;
+  statusEl.textContent = TPText.status(`Clean · score ${g.score} · misses ${g.misses}/3`);
 }
 
 // Ports renderTypeGame(): the attacking type shown at top, three answer
 // rows, a countdown bar per question.
 // TPPet.mm's kTypeNames / TPTypeColor: deliberately English in every
 // language (upstream keeps them outside the string table), same colours.
-const TYPE_NAMES = ["", "NORMAL", "FIRE", "WATER", "ELEC", "GRASS", "ICE",
+const TYPE_NAMES = TPText.types(["", "NORMAL", "FIRE", "WATER", "ELEC", "GRASS", "ICE",
   "FIGHT", "POISON", "GROUND", "FLY", "PSY", "BUG", "ROCK", "GHOST",
-  "DRAGON", "DARK", "STEEL", "FAIRY"];
+  "DRAGON", "DARK", "STEEL", "FAIRY"]);
 const TYPE_COLORS_565 = [0x8C4D, 0x8C4D, 0xEA87, 0x4C98, 0xBCA1, 0x3C49, 0x5D99, 0xA2A5,
   0x8A73, 0xB447, 0x8D7F, 0xD28F, 0x7CC4, 0x9407, 0x6B33, 0x5A5F, 0x5ACB, 0xA534, 0xF3B7];
 function typeColor565(t) { return TYPE_COLORS_565[t] || 0x8C4D; }
 
-function drawTypeGame(now) {
-  const { night, ink } = drawGameScene();
-  const g = TypeGame;
-
-  if (g.overUntil !== 0) {
-    drawGameOverCard(ink, g.score, g.newHigh, fns.typeHigh(), fns.atkGainLine(g.gain || 0), UI.barBad);
-    if (now >= g.overUntil) screen = "idle";
-    statusEl.textContent = `Type · game over · score ${g.score}`;
-    return;
-  }
-
-  gfxTextC(fns.typeTitle(), 32, 3, ink);
-  gfxTextL(fns.scoreLine(g.score), 50, 78, 2, ink);
-  gfxTextL(fns.recLine(fns.typeHigh()), 294, 78, 2, ink);
-  drawMisses(g.misses);
-
-  // The type to beat, in its own colour, then three answer buttons.
-  ctx.fillStyle = rgb565(lerp565(typeColor565(g.enemy), 0xFFFF, 4, 8));
-  roundRect(118, 126, 230, 54, 14); ctx.fill();
-  ctx.strokeStyle = ink; ctx.lineWidth = 1;
-  roundRect(118, 126, 230, 54, 14); ctx.stroke();
-  gfxTextC(TYPE_NAMES[g.enemy], gfxTop(126 + 27, 3), 3, UI.ink);
-
-  for (let i = 0; i < 3; i++) {
-    const bx = 88, by = 210 + i * 60;
-    ctx.fillStyle = rgb565(lerp565(typeColor565(g.choices[i]), 0xFFFF, 5, 8));
-    roundRect(bx, by, 290, 48, 12); ctx.fill();
-    ctx.strokeStyle = ink; ctx.lineWidth = 1;
-    roundRect(bx, by, 290, 48, 12); ctx.stroke();
-    gfxTextC(TYPE_NAMES[g.choices[i]], gfxTop(by + 24, 2), 2, UI.ink);
-  }
-
-  drawTimeBar(392, 14, g.until > now ? g.until - now : 0, 4200);
-
-  statusEl.textContent = `Type · score ${g.score} · misses ${g.misses}/3`;
+function drawTypeGame(now){
+ const {ink}=drawGameScene(),g=TypeGame;
+ if(g.overUntil!==0){drawGameOverCard(ink,g.score,g.newHigh,fns.typeHigh(),null,UI.barBad);if(now>=g.overUntil)screen="idle";statusEl.textContent=TPText.status(TPText.pick("Typentraining beendet · Punkte ","Type game over · score ")+g.score);return;}
+ gfxTextC(fns.typeTitle(),32,3,ink);gfxTextL(fns.scoreLine(g.score),50,78,2,ink);gfxTextL(fns.recLine(fns.typeHigh()),294,78,2,ink);drawMisses(g.misses);
+ ctx.fillStyle=rgb565(lerp565(typeColor565(g.enemy),0xFFFF,4,8));roundRect(118,126,230,54,14);ctx.fill();ctx.strokeStyle=ink;ctx.lineWidth=1;roundRect(118,126,230,54,14);ctx.stroke();gfxTextC(TYPE_NAMES[g.enemy],gfxTop(153,3),3,UI.ink);
+ gfxTextC(TPText.pick("Sehr effektiv dagegen?","Which is super effective?"),187,1,ink);
+ for(let i=0;i<3;i++){const by=210+i*60;ctx.fillStyle=rgb565(lerp565(typeColor565(g.choices[i]),0xFFFF,5,8));roundRect(88,by,290,48,12);ctx.fill();ctx.strokeStyle=g.feedbackUntil?(i===g.correct?UI.barOK:i===g.feedbackChoice?UI.barBad:ink):ink;ctx.lineWidth=g.feedbackUntil&&(i===g.correct||i===g.feedbackChoice)?4:1;roundRect(88,by,290,48,12);ctx.stroke();gfxTextC(TYPE_NAMES[g.choices[i]],gfxTop(by+24,2),2,UI.ink);}
+ drawTimeBar(392,14,g.feedbackUntil?0:Math.max(0,g.until-now),4200);if(g.feedbackUntil)gfxTextC(TPText.pick("Richtig: ","Correct: ")+TYPE_NAMES[g.choices[g.correct]],418,1,ink);
+ statusEl.textContent=TPText.status(TPText.pick("Typentraining · Punkte ","Type · score ")+g.score+TPText.pick(" · Fehler "," · misses ")+g.misses+"/3");
 }
 
 // Ports renderSack(): a swinging punching bag, tapped for ten seconds.
@@ -700,13 +672,9 @@ function drawSackGame(now) {
   const { night, ink } = drawGameScene();
 
   if (Module._tp_sack_is_over() !== 0) {
-    gfxTextC(fns.hitsLine(), 150, 4, ink);
-    gfxTextC(fns.strengthGainLine(), 210, 3, UI.barBad);
-    const newHigh = fns.sackNewHigh() !== 0;
-    if (newHigh && fns.sackHits() > 0) gfxTextC(fns.newRecordText(), 256, 2, UI.barWarn);
-    else gfxTextC(fns.recordLine(fns.strengthHigh2()), 256, 2, ink);
-    if (Module._tp_sack_over_until_reached(now)) screen = "card";
-    statusEl.textContent = `Sack · done · ${fns.sackHits()} hits`;
+    drawGameOverCard(ink,fns.sackHits(),fns.sackNewHigh()!==0,fns.strengthHigh2(),null,UI.barBad);
+    if (Module._tp_sack_over_until_reached(now)) screen="card";
+    statusEl.textContent=TPText.status(`Sack · done · ${fns.sackHits()} hits`);
     return;
   }
 
@@ -730,7 +698,7 @@ function drawSackGame(now) {
   gfxTextC(fns.hitFastText(), 322, 2, ink);
   drawTimeBar(350, 16, fns.sackMsLeft(now | 0), 10000);
 
-  statusEl.textContent = `Sack · ${fns.sackHits()} hits`;
+  statusEl.textContent = TPText.status(`Sack · ${fns.sackHits()} hits`);
 }
 
 // --- Starter picker --------------------------------------------------------
@@ -809,7 +777,7 @@ function drawStarterSelect() {
     }
   }
   ctx.textAlign = "center";
-  statusEl.textContent = "Choose your starter";
+  statusEl.textContent = TPText.status("Choose your starter");
 }
 
 function starterTap(x, y) {
@@ -931,7 +899,7 @@ function draw() {
     ctx.font = "bold 15px monospace";
     ctx.fillStyle = ink;
     ctx.fillText(fns.pokedexLine(), TP.cx, 356);
-    statusEl.textContent = `EGG · ${fns.eggMessage()}`;
+    statusEl.textContent = TPText.status(`EGG · ${fns.eggMessage()}`);
     return;
   }
 
@@ -1000,8 +968,8 @@ function draw() {
   if (choice === "none" && fns.wildPromptActive() !== 0) drawWildPrompt();
 
   statusEl.textContent =
-    `${fns.name()} Lv${fns.level()} · FUL ${fns.fullness()} JOY ${fns.joy()} ` +
-    `ENE ${fns.energy()} HYG ${fns.hygiene()}` + (sleeping ? " · sleeping" : "");
+    TPText.status(`${fns.name()} Lv${fns.level()} · FUL ${fns.fullness()} JOY ${fns.joy()} ` +
+    `ENE ${fns.energy()} HYG ${fns.hygiene()}` + (sleeping ? " · sleeping" : ""));
 }
 
 function handleTap(x, y) {
@@ -1061,7 +1029,7 @@ function handleTap(x, y) {
         const typeChoice = TypeGame.choiceAt(x, y);
         if (typeChoice >= 0) {
           const r = TypeGame.tap(typeChoice, now);
-          playSfx(r === "hit" ? 30 : 31); // effective / weakHit
+          if (r !== "ignored") playSfx(r === "hit" ? 30 : 31);
         }
         break;
       }
@@ -1715,7 +1683,7 @@ createTPCore({
     try {
       draw();
     } catch (e) {
-      statusEl.textContent = "error: " + (e && e.message ? e.message : e);
+      statusEl.textContent = TPText.status("error: " + (e && e.message ? e.message : e));
       console.error(e);
     }
     requestAnimationFrame(frame);

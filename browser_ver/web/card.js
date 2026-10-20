@@ -88,7 +88,7 @@ function drawCardProfile(now) {
   ctx.fillStyle = UI.track;
   ctx.fillText(fns.renameHint(), TP.cx, 332);
 
-  statusEl.textContent = `Card · ${head} · bond ${bond}`;
+  statusEl.textContent = TPText.status(`Card · ${head} · bond ${bond}`);
 }
 
 function personalityColor(kind) {
@@ -154,7 +154,7 @@ function drawCardPersonality() {
   drawPersonalityRecord(178, 334, fns.typeRecordLabel(), fns.typeHigh(), "#F3B7D9");
   drawPersonalityRecord(304, 334, fns.statsBattleTitle(), fns.bestBattleStreak(), UI.barBad);
 
-  statusEl.textContent = `Card · Personality · ${fns.personalityName()}`;
+  statusEl.textContent = TPText.status(`Card · Personality · ${fns.personalityName()}`);
 }
 
 function drawStatBar(y, label, value, maxBar, color) {
@@ -205,7 +205,7 @@ function drawCardStats() {
   ctx.fillText(fns.trainButtonText(), 96 + 137, 332 + 18);
   ctx.textBaseline = "alphabetic";
 
-  statusEl.textContent = `Card · Battle stats`;
+  statusEl.textContent = TPText.status(`Card · Battle stats`);
 }
 
 function cardStatsTap(x, y) {
@@ -243,7 +243,7 @@ function drawCardMedals() {
     ctx.fillText((got ? "✓ " : "") + fns.medalDescription(i), x + 12, y + 22);
     ctx.textBaseline = "alphabetic";
   }
-  statusEl.textContent = `Card · ${fns.medalsLine()}`;
+  statusEl.textContent = TPText.status(`Card · ${fns.medalsLine()}`);
 }
 
 function drawCardProgress() {
@@ -275,7 +275,7 @@ function drawCardProgress() {
   ctx.font = "13px monospace";
   ctx.fillText(fns.mistakesLine(), TP.cx, 316);
 
-  statusEl.textContent = `Card · ${fns.levelLine()}`;
+  statusEl.textContent = TPText.status(`Card · ${fns.levelLine()}`);
 }
 
 function cardTap(x, y) {
@@ -380,7 +380,7 @@ function drawKeyboard() {
     ctx.fillText(label, x + (KB_W - 6) / 2, y + (kh - 6) / 2);
     ctx.textBaseline = "alphabetic";
   }
-  statusEl.textContent = `Rename · "${nameDraft}"`;
+  statusEl.textContent = TPText.status(`Rename · "${nameDraft}"`);
 }
 
 // The draft lives in the C++ automaton, not in JS, so an in-progress

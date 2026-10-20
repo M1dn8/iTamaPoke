@@ -45,7 +45,7 @@ function drawCardDaily() {
   ctx.font = "13px monospace";
   ctx.fillText(fns.dailyRewardLine(), TP.cx, 310);
 
-  statusEl.textContent = `Card · Daily · ${done}/${count}`;
+  statusEl.textContent = TPText.status(`Card · Daily · ${done}/${count}`);
 }
 
 let boxPage = 0;
@@ -88,7 +88,7 @@ function drawCardBox() {
     ctx.font = "13px monospace";
     ctx.fillText(fns.noCatchesText(), TP.cx, 164);
     drawBoxPager(pages);
-    statusEl.textContent = `Card · Box · empty`;
+    statusEl.textContent = TPText.status(`Card · Box · empty`);
     return;
   }
 
@@ -116,7 +116,7 @@ function drawCardBox() {
   }
 
   drawBoxPager(pages);
-  statusEl.textContent = `Card · Box · page ${boxPage + 1}/${pages}`;
+  statusEl.textContent = TPText.status(`Card · Box · page ${boxPage + 1}/${pages}`);
 }
 
 function drawBoxPager(pages) {
@@ -174,7 +174,7 @@ function drawCardExpedition() {
   const hint=v.notice||(v.ready&&!v.canClaim?(v.s[20+v.s[24]]>=3?api.itemNames[v.s[24]]+"fach voll – Gegenstand verwenden":"Abholung gerade gesperrt"):!v.pending?"Expedition antippen und starten":"Inventar");
   ctx.fillText(hint,TP.cx,239);
   drawExpeditionItem(50,250,0);drawExpeditionItem(244,250,1);drawExpeditionItem(50,314,2);drawExpeditionItem(244,314,3);
-  if(expeditionTrainChoiceOpen)drawExpeditionTrainChoice();statusEl.textContent="Card · Expedition";
+  if(expeditionTrainChoiceOpen)drawExpeditionTrainChoice();statusEl.textContent=TPText.status("Card · Expedition");
 }
 
 function drawExpeditionItem(x, y, index) {

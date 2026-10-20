@@ -218,7 +218,7 @@ function drawEvolveFx(now) {
     ctx.fill();
   }
 
-  statusEl.textContent = `Evolving · ${Math.round(t * 100)}%`;
+  statusEl.textContent = TPText.status(`Evolving · ${Math.round(t * 100)}%`);
 }
 
 // The creature itself during a ceremony: the real animated sprite in the
@@ -319,7 +319,7 @@ function drawCeremonyFx(now) {
   ctx.font = "16px monospace";
   ctx.fillText(fns.ceremonyMessage(), TP.cx, 90);
 
-  statusEl.textContent = `Ceremony · ${fns.ceremonyMessage()}`;
+  statusEl.textContent = TPText.status(`Ceremony · ${fns.ceremonyMessage()}`);
 }
 
 // Drawn instead of the normal idle scene while a ceremony/evolution

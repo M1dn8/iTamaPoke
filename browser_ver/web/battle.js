@@ -200,9 +200,9 @@ function drawBattle(now) {
     ctx.textBaseline = "alphabetic";
   }
 
-  statusEl.textContent = resolved
+  statusEl.textContent = TPText.status(resolved
     ? `Battle · ${fns.battlePlayerWon() ? "won" : "lost"}`
-    : `Battle · round ${fns.battleRound() + 1} · HP ${fns.battlePlayerHp()}/${fns.battlePlayerMaxHp()}`;
+    : `Battle · round ${fns.battleRound() + 1} · HP ${fns.battlePlayerHp()}/${fns.battlePlayerMaxHp()}`);
 }
 
 function battleTap(x, y) {

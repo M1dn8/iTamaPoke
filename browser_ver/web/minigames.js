@@ -17,6 +17,7 @@ const BallGame = {
   running: false,
 
   start() {
+    TPMini.begin("ball");
     this.score = 0;
     this.misses = 0;
     this.overUntil = 0;
@@ -60,7 +61,7 @@ const BallGame = {
     if (this.ballY > 384) {
       this.misses += 1;
       if (this.misses >= 3) {
-        this.newHigh = Module._tp_play_result(this.score) !== 0;
+        this.newHigh = TPMini.award("ball", this.score) !== 0;
         this.overUntil = now + 4000;
       } else {
         this.respawn();
@@ -97,6 +98,7 @@ const CatchGame = {
   overUntil: 0, newHigh: false,
 
   start(now) {
+    TPMini.begin("catch");
     this.score = 0; this.misses = 0; this.overUntil = 0; this.hitAt = 0;
     this.runUntil = now + 20000;
     this.respawn(now);
@@ -111,14 +113,14 @@ const CatchGame = {
   step(now) {
     if (this.overUntil !== 0) return;
     if (now >= this.runUntil || this.misses >= 3) {
-      this.newHigh = Module._tp_catch_result(this.score) !== 0;
+      this.newHigh = TPMini.award("catch", this.score) !== 0;
       this.overUntil = now + 4000;
       return;
     }
     if (now >= this.targetUntil) {
       this.misses += 1;
       if (this.misses >= 3) {
-        this.newHigh = Module._tp_catch_result(this.score) !== 0;
+        this.newHigh = TPMini.award("catch", this.score) !== 0;
         this.overUntil = now + 4000;
       } else {
         this.respawn(now);
@@ -139,7 +141,7 @@ const CatchGame = {
     }
     this.misses += 1;
     if (this.misses >= 3) {
-      this.newHigh = Module._tp_catch_result(this.score) !== 0;
+      this.newHigh = TPMini.award("catch", this.score) !== 0;
       this.overUntil = now + 4000;
     } else {
       this.respawn(now);
@@ -163,6 +165,7 @@ const MemoGame = {
   get score() { return this.rounds; },
 
   start(now) {
+    TPMini.begin("memo");
     this.seq = []; this.rounds = 0; this.flashPad = -1; this.hintPad = -1;
     this.flashUntil = 0; this.failUntil = 0; this.turnUntil = 0; this.overUntil = 0;
     this.startRound(now, 350);
@@ -184,7 +187,7 @@ const MemoGame = {
     if (this.failUntil !== 0) {
       if (now >= this.failUntil) {
         this.failUntil = 0; this.hintPad = -1;
-        this.newHigh = Module._tp_memo_result(this.rounds) !== 0;
+        this.newHigh = TPMini.award("memo", this.rounds) !== 0;
         this.gain = Module._tp_last_gain();
         this.overUntil = now + 4000;
       }
@@ -227,7 +230,7 @@ const MemoGame = {
       this.rounds += 1;
       if (this.seq.length >= 14) {
         this.flashUntil = now + 180;
-        this.newHigh = Module._tp_memo_result(this.rounds) !== 0;
+        this.newHigh = TPMini.award("memo", this.rounds) !== 0;
         this.gain = Module._tp_last_gain();
         this.overUntil = now + 4000;
         return { kind: "finished", pad };
@@ -253,6 +256,7 @@ const CleanGame = {
   overUntil: 0, newHigh: false,
 
   start(now) {
+    TPMini.begin("clean");
     this.score = 0; this.misses = 0;
     this.alive = [false, false, false, false];
     this.hitAt = 0; this.overUntil = 0;
@@ -271,7 +275,7 @@ const CleanGame = {
   step(now) {
     if (this.overUntil !== 0) return;
     if (now >= this.until || this.misses >= 3) {
-      this.newHigh = Module._tp_clean_result(this.score) !== 0;
+      this.newHigh = TPMini.award("clean", this.score) !== 0;
       this.gain = Module._tp_last_gain();
       this.overUntil = now + 4000;
       return;
@@ -295,7 +299,7 @@ const CleanGame = {
     }
     this.misses += 1;
     if (this.misses >= 3) {
-      this.newHigh = Module._tp_clean_result(this.score) !== 0;
+      this.newHigh = TPMini.award("clean", this.score) !== 0;
       this.gain = Module._tp_last_gain();
       this.overUntil = now + 4000;
     }
@@ -309,71 +313,21 @@ const CleanGame = {
 // values (1 NORMAL .. 18 FAIRY), matching browser_glue.cpp's
 // tp_type_effect_pct wrapper around the real battleTypeEffectPct.
 const TypeGame = {
-  defenders: [5, 2, 3, 4, 13, 9, 10, 8, 11, 14, 15, 6, 16, 17, 18],
-  counters: [2, 3, 5, 9, 3, 3, 4, 11, 12, 14, 6, 2, 7, 2, 17],
-  options: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
-
-  enemy: 0, choices: [0, 0, 0], correct: 0,
-  until: 0, score: 0, misses: 0,
-  overUntil: 0, newHigh: false,
-
-  start(now) {
-    this.score = 0; this.misses = 0; this.overUntil = 0;
-    this.nextQuestion(now);
-  },
-  nextQuestion(now) {
-    const q = rnd(this.defenders.length);
-    this.enemy = this.defenders[q];
-    const answer = this.counters[q];
-    this.correct = rnd(3);
-    this.choices = [0, 0, 0];
-    this.choices[this.correct] = answer;
-    for (let i = 0; i < 3; i++) {
-      if (i === this.correct) continue;
-      let cand;
-      do {
-        cand = this.options[rnd(this.options.length)];
-      } while (cand === answer || this.choices.includes(cand) ||
-               Module._tp_type_effect_pct(cand, this.enemy) > 100);
-      this.choices[i] = cand;
-    }
-    this.until = now + 4200;
-  },
-  step(now) {
-    if (this.overUntil !== 0) return;
-    if (now < this.until) return;
-    this.misses += 1;
-    if (this.misses >= 3) {
-      this.newHigh = Module._tp_type_result(this.score) !== 0;
-      this.gain = Module._tp_last_gain();
-      this.overUntil = now + 4000;
-    } else {
-      this.nextQuestion(now);
-    }
-  },
-  choiceAt(x, y) {
-    // Same three 290x48 buttons renderTypeGame draws at x 88, y 210+60i.
-    for (let i = 0; i < 3; i++) {
-      const by = 210 + i * 60;
-      if (x >= 88 && x <= 378 && y >= by && y <= by + 48) return i;
-    }
-    return -1;
-  },
-  tap(choice, now) {
-    if (this.overUntil !== 0) return "ignored";
-    if (choice === this.correct) {
-      this.score += 1;
-      this.nextQuestion(now);
-      return "hit";
-    }
-    this.misses += 1;
-    if (this.misses >= 3) {
-      this.newHigh = Module._tp_type_result(this.score) !== 0;
-      this.gain = Module._tp_last_gain();
-      this.overUntil = now + 4000;
-    }
-    return "miss";
-  },
+ defenders:Array.from({length:18},(_,i)=>i+1),options:Array.from({length:18},(_,i)=>i+1),enemy:0,choices:[0,0,0],correct:0,until:0,score:0,misses:0,overUntil:0,newHigh:false,feedbackUntil:0,feedbackChoice:-1,
+ start(now){TPMini.begin("type");this.score=0;this.misses=0;this.overUntil=0;this.feedbackUntil=0;this.feedbackChoice=-1;this.gain=0;this.nextQuestion(now);},
+ nextQuestion(now){
+  this.enemy=this.defenders[rnd(this.defenders.length)];
+  const yes=this.options.filter(t=>Module._tp_type_effect_pct(t,this.enemy)>100),no=this.options.filter(t=>Module._tp_type_effect_pct(t,this.enemy)<=100);
+  if(!yes.length||no.length<2)throw Error(TPText.pick("Ungültige Typentabelle","Invalid type chart"));
+  this.correct=rnd(3);this.choices=[0,0,0];this.choices[this.correct]=yes[rnd(yes.length)];
+  for(let i=0;i<3;i++)if(i!==this.correct)this.choices[i]=no.splice(rnd(no.length),1)[0];
+  this.until=now+4200;this.feedbackUntil=0;this.feedbackChoice=-1;
+ },
+ finish(now){if(this.overUntil)return;this.newHigh=TPMini.award("type",this.score)!==0;this.gain=Module._tp_last_gain();this.overUntil=now+4000;},
+ wrong(choice,now){this.misses++;this.feedbackChoice=choice;this.feedbackUntil=now+700;},
+ step(now){if(this.overUntil)return;if(this.feedbackUntil){if(now>=this.feedbackUntil){if(this.misses>=3)this.finish(now);else this.nextQuestion(now);}return;}if(now>=this.until)this.wrong(-1,now);},
+ choiceAt(x,y){for(let i=0;i<3;i++){const by=210+i*60;if(x>=88&&x<=378&&y>=by&&y<=by+48)return i;}return -1;},
+ tap(choice,now){if(this.overUntil||this.feedbackUntil||choice<0||choice>2)return "ignored";if(now>=this.until){this.wrong(-1,now);return "miss";}if(choice===this.correct){this.score++;this.nextQuestion(now);return "hit";}this.wrong(choice,now);return "miss";}
 };
 
 // Training sack: 10 seconds of tapping, then the strength it bought.
@@ -382,9 +336,10 @@ const TypeGame = {
 // this).
 const SackGame = {
   shake: 0,
-  start(now) { this.shake = 0; Module._tp_sack_start(now); },
+  start(now) {
+    TPMini.begin("sack"); this.shake = 0; Module._tp_sack_start(now); },
   step(now) {
-    Module._tp_sack_step(now);
+    TPMini.sackStep(now);
     if (this.shake > 0) this.shake = Math.max(0, this.shake - 1);
   },
   tap(now) {

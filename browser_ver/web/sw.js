@@ -28,6 +28,8 @@ const FILES = [
   "./scene.js",
   "./behaviour.js",
   "./audio.js",
+  "./de-ui.js",
+  "./mini-progress.js",
   "./minigames.js",
   "./dexentry.js",
   "./cry.js",

@@ -1,0 +1,52 @@
+name: Test Paket C2
+
+on:
+  push:
+    branches: [komfort-c2]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: JavaScript regression tests and syntax
+        run: |
+          node tests/package-a.test.js
+          node tests/package-b.test.js
+          node tests/package-c1-ui.test.js
+          node tests/package-c2-ui.test.js
+          for file in browser_ver/web/*.js; do node --check "$file"; done
+      - name: Native game regression tests
+        run: |
+          g++ -O2 -std=c++17 -I browser_ver/core/shim -I upstream-expanded upstream-expanded/pet.cpp tests/package_a.cpp -o /tmp/test-a
+          /tmp/test-a
+          g++ -O2 -std=c++17 -I browser_ver/core/shim -I upstream-expanded upstream-expanded/pet.cpp tests/package-c1.cpp -o /tmp/test-c1
+          /tmp/test-c1
+          g++ -O2 -std=c++17 -I tests/c2_wasm_stub -I browser_ver/core/shim -I upstream-expanded upstream-expanded/pet.cpp browser_ver/core/browser_expeditions.cpp tests/package-c2.cpp -o /tmp/test-c2
+          /tmp/test-c2
+      - name: Install Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+      - name: Build WASM core
+        run: bash browser_ver/build.sh
+      - name: Prepare test files
+        shell: bash
+        run: |
+          set -e
+          cp Resources/DefaultAppIcon.png browser_ver/web/icon.png
+          sed -i "s/__BUILD__/${GITHUB_SHA::12}/" browser_ver/web/sw.js
+          sed -i "s/__BUILD__/${GITHUB_SHA::12}/" browser_ver/web/index.html
+          test -s browser_ver/web/tp_core.js
+          test -s browser_ver/web/tp_core.wasm
+      - uses: actions/upload-artifact@v4
+        with:
+          name: iTamaPoke-Paket-C2-Test
+          path: browser_ver/web
+          if-no-files-found: error
+          retention-days: 7

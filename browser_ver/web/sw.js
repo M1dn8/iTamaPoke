@@ -42,6 +42,7 @@ const FILES = [
   "./storage-tools.js",
   "./management.js",
   "./egg-planning.js",
+  "./expedition-planning.js",
   "./main.js",
 ];
 

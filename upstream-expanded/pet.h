@@ -153,6 +153,11 @@ public:
   uint8_t itemCounts[EXP_ITEM_COUNT] = { 0 };
   uint32_t expeditionEndEpoch = 0;
   uint8_t expeditionRewardItem = EXP_ITEM_NONE;
+  // C2: route 0 exploration, 1 food, 2 energy, 3 care, 4 training.
+  uint8_t expeditionRoute = 0, expeditionMinutes = 0, expeditionStartChance = 255;
+  uint32_t expeditionStartEpoch = 0;
+  uint8_t expeditionLastItem = EXP_ITEM_NONE, expeditionLastRoute = 0;
+  uint32_t expeditionLastClaimEpoch = 0;
   bool saveLoadedFromNvs = false;
   bool saveCreatedThisBoot = false;
 
@@ -186,15 +191,19 @@ public:
 
   // Expediciones: el premio se sortea y guarda al salir para que un reinicio
   // no permita repetir la tirada. Los rolls son inyectables para pruebas nativas.
-  static uint8_t expeditionEnergyCost(uint8_t minutes);
+  static uint8_t expeditionEnergyCost(uint8_t minutes, uint8_t route = 0);
   bool expeditionActive(uint32_t nowEpoch) const;
   bool expeditionReady(uint32_t nowEpoch) const;
   uint8_t expeditionItemCount() const;
   ExpeditionHudState expeditionHudState(uint32_t nowEpoch) const;
   bool expeditionInventoryFull() const;
-  bool canStartExpedition(uint8_t minutes, uint32_t nowEpoch) const;
-  uint8_t expeditionTrainingChance(uint8_t minutes) const;
-  bool startExpedition(uint8_t minutes, uint32_t nowEpoch, uint8_t luckRoll, uint8_t itemRoll = 0);
+  uint8_t expeditionStartReason(uint8_t minutes, uint32_t nowEpoch, uint8_t route = 0) const;
+  bool canStartExpedition(uint8_t minutes, uint32_t nowEpoch, uint8_t route = 0) const;
+  uint8_t expeditionCommonWeight(uint8_t route, uint8_t item) const;
+  uint8_t expeditionCommonWeightTotal(uint8_t route) const;
+  bool canClaimExpedition(uint32_t nowEpoch) const;
+  uint8_t expeditionTrainingChance(uint8_t minutes, uint8_t route = 0) const;
+  bool startExpedition(uint8_t minutes, uint32_t nowEpoch, uint8_t luckRoll, uint8_t itemRoll = 0, uint8_t route = 0);
   ExpeditionItem claimExpedition(uint32_t nowEpoch);
   bool useExpeditionItem(ExpeditionItem item, int8_t trainingStat = -1);
 

@@ -154,57 +154,19 @@ const EXP_ITEM_POS = [[50, 204], [244, 204], [50, 268], [244, 268]];
 let expeditionTrainChoiceOpen = false;
 
 function drawCardExpedition() {
-  ctx.textAlign = "center";
-  ctx.fillStyle = UI.ink;
-  ctx.font = "bold 20px monospace";
-  ctx.fillText(fns.expeditionTitle(), TP.cx, 48);
-
-  if (fns.expeditionReady() !== 0) {
-    ctx.fillStyle = UI.barOK;
-    ctx.font = "13px monospace";
-    ctx.fillText(fns.expeditionFoundLine(), TP.cx, 78);
-    roundRect(98, 98, 270, 48, 11); ctx.fill();
-    ctx.fillStyle = UI.bgDay;
-    ctx.font = "bold 14px monospace";
-    ctx.fillText(fns.expeditionClaimText(), TP.cx, 128);
-  } else if (fns.expeditionActive() !== 0) {
-    ctx.fillStyle = "#4C98D9";
-    ctx.font = "bold 18px monospace";
-    ctx.fillText(fns.expeditionBackInLine(), TP.cx, 92);
-    ctx.fillStyle = UI.track;
-    ctx.font = "11px monospace";
-    ctx.fillText(fns.expeditionWaitText(), TP.cx, 116);
-  } else {
-    const cols = [UI.barOK, "#4C98D9", UI.barBad];
-    for (let i = 0; i < 3; i++) {
-      const avail = fns.expeditionCanStart(i) !== 0;
-      ctx.fillStyle = avail ? cols[i] : UI.track;
-      roundRect(EXP_TILE_X[i], 94, 106, 54, 9); ctx.fill();
-      ctx.fillStyle = UI.bgDay;
-      ctx.font = "bold 13px monospace";
-      ctx.fillText(fns.expeditionDurationLabel(i), EXP_TILE_X[i] + 53, 116);
-      ctx.font = "10px monospace";
-      ctx.fillText(fns.expeditionCostLabel(i), EXP_TILE_X[i] + 53, 136);
-    }
-    if (fns.expeditionInventoryFull() !== 0) {
-      ctx.fillStyle = UI.barBad;
-      ctx.font = "10px monospace";
-      ctx.fillText(fns.expeditionInventoryFullText(), TP.cx, 78);
-    } else if (fns.energy() < 12) {
-      ctx.fillStyle = UI.barBad;
-      ctx.font = "10px monospace";
-      ctx.fillText(fns.expeditionNeedEnergyText(), TP.cx, 78);
-    }
-  }
-
-  ctx.fillStyle = UI.ink;
-  ctx.font = "13px monospace";
-  ctx.fillText(fns.inventoryTitle(), TP.cx, 172);
-  for (let i = 0; i < 4; i++) drawExpeditionItem(EXP_ITEM_POS[i][0], EXP_ITEM_POS[i][1], i);
-
-  if (expeditionTrainChoiceOpen) drawExpeditionTrainChoice();
-
-  statusEl.textContent = `Card · Expedition`;
+  ctx.textAlign="center";ctx.fillStyle=UI.ink;ctx.font="bold 20px monospace";
+  ctx.fillText(fns.expeditionTitle(),TP.cx,48);
+  let route=0;
+  try { route=Module.ccall("tp_c2_get","number",["number"],[10]); } catch(_e) {}
+  const names=["Erkundung","Beerenwiese","Quellpfad","Waldlichtung","Trainingspfad"];
+  ctx.font="13px monospace";
+  ctx.fillText(fns.expeditionReady()?"Bereit zur Abholung":fns.expeditionActive()?fns.expeditionBackInLine():"Ziel und Dauer frei waehlen",TP.cx,78);
+  ctx.fillStyle=UI.barOK;roundRect(58,94,350,58,10);ctx.fill();
+  ctx.fillStyle=UI.bgDay;ctx.font="bold 15px monospace";ctx.fillText("Expeditionen oeffnen",TP.cx,118);
+  ctx.font="11px monospace";ctx.fillText(fns.expeditionActive()||fns.expeditionReady()?names[route]||names[0]:"5 Ziele · 15 / 30 / 60 Minuten",TP.cx,139);
+  ctx.fillStyle=UI.ink;ctx.font="13px monospace";ctx.fillText(fns.inventoryTitle(),TP.cx,180);
+  for(let i=0;i<4;i++)drawExpeditionItem(EXP_ITEM_POS[i][0],EXP_ITEM_POS[i][1],i);
+  statusEl.textContent="Card · Expedition C2";
 }
 
 function drawExpeditionItem(x, y, index) {
@@ -264,41 +226,11 @@ function expeditionItemAt(x, y) {
   return row * 2 + (right ? 1 : 0);
 }
 
-function cardExpeditionTap(x, y) {
-  if (expeditionTrainChoiceOpen) {
-    if (y >= 172 && y <= 238 && x >= 74 && x <= 398) {
-      const stat = Math.floor((x - 74) / 108);
-      if (stat <= 2 && fns.trainStatUsable(stat) !== 0) Module._tp_use_train_item(stat);
-      else playSfx(7); // deny
-    }
-    expeditionTrainChoiceOpen = false;
-    return;
+function cardExpeditionTap(x,y) {
+  if(x>=40&&x<=426&&y>=64&&y<=336) {
+    if(window.TPExpeditions){try{window.TPExpeditions.open();}catch(e){alert(e.message||String(e));}}
+    else alert("C2-Ansicht nicht geladen. Bitte den vollstaendigen Test-Build oeffnen.");
   }
-  if (fns.expeditionReady() !== 0) {
-    if (x >= 98 && x <= 368 && y >= 98 && y <= 146) {
-      Module._tp_claim_expedition();
-      playSfx(6); // medal
-    }
-    return;
-  }
-  if (fns.expeditionActive() === 0 && y >= 94 && y <= 148) {
-    const idx = x >= 50 && x <= 156 ? 0 : x >= 180 && x <= 286 ? 1 : x >= 310 && x <= 416 ? 2 : -1;
-    if (idx >= 0) {
-      if (fns.expeditionCanStart(idx) !== 0) { Module._tp_start_expedition(idx); playSfx(0); }
-      else playSfx(7);
-    }
-    return;
-  }
-  const item = expeditionItemAt(x, y);
-  if (item === null) return;
-  if (item === 3) {
-    if (fns.expeditionItemCount(3) === 0) { playSfx(7); return; }
-    expeditionTrainChoiceOpen = true;
-    return;
-  }
-  if (fns.expeditionItemCount(item) === 0) { playSfx(7); return; }
-  Module._tp_use_expedition_item(item);
-  playSfx(0);
 }
 
 // --- Idle-screen expedition HUD chip ----------------------------------

@@ -251,8 +251,11 @@ EMSCRIPTEN_KEEPALIVE void tp_claim_expedition() { tp_battle_pet().claimExpeditio
 EMSCRIPTEN_KEEPALIVE
 void tp_start_expedition(int i) {
   if (i < 0 || i > 2) return;
-  tp_battle_pet().startExpedition(kExpMinutes[i], nowEpoch(), (uint8_t)(std::rand() % 100),
-                                   (uint8_t)(std::rand() % 3));
+  Pet &pet = tp_battle_pet();
+  uint8_t total = pet.expeditionCommonWeightTotal(0);
+  uint8_t luck = uint8_t(std::rand() % 100);
+  uint8_t roll = uint8_t(std::rand() % (total ? total : 1));
+  pet.startExpedition(kExpMinutes[i], nowEpoch(), luck, roll);
 }
 EMSCRIPTEN_KEEPALIVE const char *tp_inventory_title() { return T(S_INVENTORY); }
 EMSCRIPTEN_KEEPALIVE

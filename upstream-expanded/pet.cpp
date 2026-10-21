@@ -63,6 +63,7 @@ void Pet::newEgg() {
   careMistakes = 0;
   mistakeCooldown = 0;
   sleeping = false;
+  resetPersonality();
   save();
 }
 
@@ -92,11 +93,13 @@ void Pet::syncClock(uint32_t nowEpoch) {
 
   for (uint32_t i = 0; i < mins; i++) {
     ageMinutes++;
+    personalityMinute();
     if (isEgg()) {
       if (ageMinutes >= 3) hatch();  // eclosiona en tu ausencia
       continue;
     }
     if (sleeping) {  // descanso: baja lento y con suelo, igual que en vivo
+      personalityRestMinute();
       energy = clamp100(energy + 6);
       if (ageMinutes % 2 == 0) {
         fullness = dropTo(fullness, 1, 30);
@@ -161,6 +164,7 @@ bool Pet::update(uint32_t nowMs) {
 void Pet::tick() {
   if (ceremony != CER_NONE) return;  // el tiempo se detiene en la despedida
   ageMinutes++;
+  personalityMinute();
 
   if (isEgg()) {
     if (ageMinutes >= 3) hatch();  // si no lo tocas, eclosiona solo a los 3 min
@@ -172,6 +176,7 @@ void Pet::tick() {
   // cero, sin descuidos ni escapadas). despierto: comida -2/min, hig/joy -1/min.
   // El peso aun se quema; la racha de buen cuidado (goodTicks) queda en pausa.
   if (sleeping) {
+    personalityRestMinute();
     energy = clamp100(energy + 6);
     if (weight > 0 && ageMinutes % 3 == 0) weight--;
     if (ageMinutes % 2 == 0) {                 // ~4x mas lento que despierto
@@ -408,7 +413,7 @@ void Pet::registerCare() {
     lastMilestone = 0;
   }
   lastCareDay = d;
-  bondToday = 0;
+  if(personalityBondDay!=d){bondToday=0;personalityBondDay=d;}
   if (streak > bestStreak) bestStreak = streak;
   bond = clamp100(bond + 4);
   uint16_t ms = (streak >= 100) ? 100 : (streak >= 30) ? 30
@@ -422,9 +427,11 @@ void Pet::registerCare() {
 }
 
 void Pet::addBond(uint8_t amt) {
-  if (bondToday >= 8) return;  // tope diario: el vinculo no se farmea
-  bond = clamp100(bond + amt);
-  bondToday += amt;
+  const uint32_t day=today();
+  if(day&&personalityBondDay!=day){bondToday=0;personalityBondDay=day;}
+  if(bondToday>=8)return;
+  const uint8_t remaining=8-bondToday;if(amt>remaining)amt=remaining;
+  const uint8_t before=bond;bond=clamp100(int(bond)+amt);bondToday+=bond-before;
 }
 
 void Pet::checkMedals() {
@@ -668,6 +675,7 @@ void Pet::hatch() {
   evoDeclinedLv = 0;
   evoDeclinedAge = 0;
   farDeclinedAge = 0;
+  resetPersonality();
   registerSpecies(speciesId);  // criado = registrado en la pokedex
   checkMedals();     // por si nace ya en forma final (legendario)
   sfxPlay(SFX_HATCH);
@@ -772,6 +780,7 @@ void Pet::feed() {
 }
 
 void Pet::feedBerry(uint8_t color) {
+  const uint16_t c4CareBefore = personalityCareValue();
   if (ceremony != CER_NONE) return;
   if (isEgg() || sleeping) return;
   if (lovesBerry(color)) {
@@ -786,10 +795,12 @@ void Pet::feedBerry(uint8_t color) {
   eatUntil = millis() + EAT_ANIM_MS;
   registerCare();
   noteDailyGoal(DAILY_GOAL_CARE, 1);
+  if (personalityCareValue() > c4CareBefore) notePersonality(2);
   save();
 }
 
 void Pet::feedCandy() {
+  const uint16_t c4CareBefore = personalityCareValue();
   if (ceremony != CER_NONE) return;
   if (isEgg() || sleeping) return;
   fullness = clamp100(fullness + 10);
@@ -798,6 +809,7 @@ void Pet::feedCandy() {
   eatUntil = millis() + EAT_ANIM_MS;
   registerCare();
   noteDailyGoal(DAILY_GOAL_CARE, 1);
+  if (personalityCareValue() > c4CareBefore) notePersonality(2);
   save();
 }
 
@@ -815,6 +827,7 @@ void Pet::playResult(uint8_t score) {
   addBond(2);
   registerCare();
   noteDailyGoal(DAILY_GOAL_PLAY, 1);
+  if (score > 0) notePersonality(0);
   save();
 }
 
@@ -834,6 +847,7 @@ uint8_t Pet::applyCatchResult(uint8_t score) {
   addBond(1);
   registerCare();
   noteDailyGoal(DAILY_GOAL_CATCH, score);
+  if (score > 0) notePersonality(0);
   save();
   return gain;
 }
@@ -857,6 +871,7 @@ uint8_t Pet::applyMemoResult(uint8_t rounds) {
   addBond(2);
   registerCare();
   noteDailyGoal(DAILY_GOAL_MEMO, rounds);
+  if (rounds > 0) notePersonality(0);
   save();
   return gain;
 }
@@ -874,6 +889,7 @@ uint8_t Pet::applyCleanResult(uint8_t score) {
   addBond(1);
   registerCare();
   noteDailyGoal(DAILY_GOAL_CARE, 1);
+  if (score > 0) notePersonality(0);
   save();
   return gain;
 }
@@ -895,11 +911,13 @@ uint8_t Pet::applyTypeResult(uint8_t score) {
   addBond(1);
   registerCare();
   noteDailyGoal(DAILY_GOAL_PLAY, 1);
+  if (score > 0) notePersonality(0);
   save();
   return gain;
 }
 
 bool Pet::applyPetEvent(uint8_t eventType) {
+  const uint16_t c4CareBefore = personalityCareValue();
   if (ceremony != CER_NONE || isEgg()) return false;
   if (eventType == PET_EVENT_BERRY) {
     fullness = clamp100((int)fullness + 10);
@@ -917,36 +935,22 @@ bool Pet::applyPetEvent(uint8_t eventType) {
   heartUntil = millis() + HEART_MS;
   registerCare();
   noteDailyGoal(DAILY_GOAL_CARE, 1);
+  if (personalityCareValue() > c4CareBefore) notePersonality(2);
   save();
   return true;
 }
 
 uint8_t Pet::interactPet(bool eveningBonus) {
-  if (ceremony != CER_NONE || isEgg() || sleeping) return PET_INTERACT_NONE;
-  uint32_t nowMinute = ageMinutes ? ageMinutes : 1;
-  if (lastPetInteractMinute && nowMinute < lastPetInteractMinute + 10) {
-    return PET_INTERACT_NONE;
-  }
-  lastPetInteractMinute = nowMinute;
-  uint8_t result = PET_INTERACT_JOY;
-  PetPersonality p = personality();
-  int joyGain = (p == PERS_PLAYFUL) ? 4 : 2;
-  joy = clamp100((int)joy + joyGain);
-  if (p == PERS_LAZY) {
-    energy = clamp100((int)energy + 2);
-    result |= PET_INTERACT_ENERGY;
-  }
-  bool bondGain = eveningBonus || p == PERS_CALM || (p == PERS_BRAVE && battleWins > 0);
-  if (bondGain) {
-    uint8_t before = bond;
-    addBond(1);
-    if (bond > before) result |= PET_INTERACT_BOND;
-  }
-  heartUntil = millis() + HEART_MS;
-  registerCare();
-  noteDailyGoal(DAILY_GOAL_CARE, 1);
-  save();
-  return result;
+  if(ceremony!=CER_NONE||isEgg()||sleeping)return PET_INTERACT_NONE;
+  const uint32_t minute=ageMinutes?ageMinutes:1;
+  if(lastPetInteractMinute&&minute<lastPetInteractMinute+10)return PET_INTERACT_NONE;
+  lastPetInteractMinute=minute;
+  const uint16_t careBefore=personalityCareValue();const auto oldJoy=joy,oldBond=bond,oldEnergy=energy;
+  joy=clamp100(int(joy)+2);if(eveningBonus)addBond(1);
+  heartUntil=millis()+HEART_MS;registerCare();noteDailyGoal(DAILY_GOAL_CARE,1);
+  if(personalityCareValue()>careBefore)notePersonality(2);
+  uint8_t result=PET_INTERACT_NONE;if(joy>oldJoy)result|=PET_INTERACT_JOY;if(bond>oldBond)result|=PET_INTERACT_BOND;if(energy>oldEnergy)result|=PET_INTERACT_ENERGY;
+  save();return result;
 }
 
 bool Pet::applyShake() {
@@ -1024,13 +1028,18 @@ bool Pet::takeMorningGreeting() {
   return true;
 }
 
-PetPersonality Pet::personality() const {
+PetPersonality Pet::legacyPersonality() const {
   if (isEgg()) return PERS_BALANCED;
   if (weight >= 72 || energy <= 20) return PERS_LAZY;
   if (battleWins >= 8 || bestBattleStreak >= 4) return PERS_BRAVE;
   if (catchHi >= 18 || memoHi >= 8 || gameHi >= 24 || trSpe >= 55) return PERS_PLAYFUL;
   if ((bond >= 45 && careMistakes <= 1) || (streak >= 5 && careMistakes == 0)) return PERS_CALM;
   return PERS_BALANCED;
+}
+
+PetPersonality Pet::personality() const {
+  if (isEgg()) return PERS_BALANCED;
+  return personalityReady ? (PetPersonality)personalityKind : legacyPersonality();
 }
 
 // saco de entrenamiento: los golpes entrenan la fuerza. Devuelve la subida.
@@ -1055,6 +1064,7 @@ uint8_t Pet::trainStrength(uint16_t hits) {
   if (hits > strHi) strHi = hits;   // record de golpes
   addBond(2);
   registerCare();
+  if (hits > 0) notePersonality(0);
   save();
   return gain;
 }
@@ -1085,6 +1095,7 @@ BattleReward Pet::applyBattleWin(int16_t wildDex, bool closeWin) {
   addBond(closeWin ? 3 : 2);
   registerCare();
   noteDailyGoal(DAILY_GOAL_BATTLE, 1);
+  notePersonality(1);
   save();
   return reward;
 }
@@ -1210,6 +1221,7 @@ ExpeditionItem Pet::claimExpedition(uint32_t nowEpoch) {
 }
 
 bool Pet::useExpeditionItem(ExpeditionItem item, int8_t trainingStat) {
+  const uint16_t c4CareBefore = personalityCareValue();
   if (isEgg() || ceremony != CER_NONE || evolving()) return false;
   if (item >= EXP_ITEM_COUNT || itemCounts[item] == 0) return false;
   if (item == EXP_ITEM_SNACK) {
@@ -1227,6 +1239,7 @@ bool Pet::useExpeditionItem(ExpeditionItem item, int8_t trainingStat) {
     else return false;
   }
   itemCounts[item]--;
+  if (personalityCareValue() > c4CareBefore) notePersonality(2);
   save();
   return true;
 }
@@ -1244,23 +1257,27 @@ void Pet::play() {
 }
 
 void Pet::toggleLight() {
-  if (ceremony != CER_NONE) return;
-  if (isEgg()) return;
-  sleeping = !sleeping;
+  if(ceremony!=CER_NONE||isEgg())return;
+  initializePersonality();
+  if(!sleeping){sleeping=true;personalitySleepMinutes=0;personalitySleepMarked=false;}
+  else {const bool rested=personalitySleepMinutes>0;sleeping=false;if(rested)applyPersonalityBonus(3);personalitySleepMinutes=0;personalitySleepMarked=false;}
   save();
 }
 
 void Pet::clean() {
+  const uint16_t c4CareBefore = personalityCareValue();
   if (ceremony != CER_NONE) return;
   poops = 0;
   hygiene = 100;
   addBond(1);
   registerCare();
   noteDailyGoal(DAILY_GOAL_CARE, 1);
+  if (personalityCareValue() > c4CareBefore) notePersonality(2);
   save();
 }
 
 void Pet::caress() {
+  const uint16_t c4CareBefore = personalityCareValue();
   if (ceremony != CER_NONE) return;
   if (isEgg() || sleeping) return;
   joy = clamp100(joy + 5);
@@ -1268,6 +1285,7 @@ void Pet::caress() {
   addBond(1);
   registerCare();
   noteDailyGoal(DAILY_GOAL_CARE, 1);
+  if (personalityCareValue() > c4CareBefore) notePersonality(2);
   save();
 }
 
@@ -1285,6 +1303,7 @@ PetMood Pet::mood() const {
 }
 
 void Pet::save() {
+  savePersonality();
   prefs.putUChar("eggen", nextEggGeneration);
   prefs.putUChar("egtyp", nextEggType);
   prefs.putBool("egunk", nextEggUnraised);
@@ -1504,6 +1523,7 @@ void Pet::load() {
     expeditionStartEpoch = 0;
     expeditionStartChance = 255;
   }
+  loadPersonality();
   prefs.getString("nick", nick, sizeof(nick));
   // siembra: la mascota actual cuenta como criada (guardados antiguos)
   if (speciesId >= 1) registerSpecies(speciesId);
@@ -1514,3 +1534,5 @@ void Pet::load() {
     newEgg();
   }
 }
+
+#include "personality_rules.inc"

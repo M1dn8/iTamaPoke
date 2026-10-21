@@ -115,46 +115,17 @@ function drawPersonalityRecord(x, y, label, value, color) {
 }
 
 function drawCardPersonality() {
-  const col = personalityColor(fns.personalityKind());
-  ctx.textAlign = "center";
-  ctx.fillStyle = UI.ink;
-  ctx.font = "bold 20px monospace";
-  ctx.fillText(fns.personalityTitle(), TP.cx, 50);
-
-  ctx.fillStyle = col;
-  roundRect(62, 86, 342, 70, 16); ctx.fill();
-  ctx.fillStyle = UI.bgDay;
-  ctx.font = "bold 18px monospace";
-  ctx.fillText(fns.personalityName(), TP.cx, 116);
-  ctx.font = "12px monospace";
-  ctx.fillText(fns.personalityHint(), TP.cx, 140);
-
-  ctx.textAlign = "left";
-  ctx.fillStyle = UI.ink;
-  ctx.font = "12px monospace";
-  const bond = fns.bond();
-  ctx.fillText(`${fns.bondLabel()} ${bond}`, 62, 200);
-  ctx.fillStyle = UI.track;
-  roundRect(160, 190, 150, 10, 3); ctx.fill();
-  ctx.fillStyle = "#d4527e";
-  roundRect(160, 190, 150 * Math.min(bond, 100) / 100, 10, 3); ctx.fill();
-
-  ctx.textAlign = "center";
-  ctx.fillStyle = UI.track;
-  ctx.font = "11px monospace";
-  ctx.fillText(fns.personalityAgeLine(), TP.cx, 246);
-  ctx.fillStyle = UI.ink;
-  ctx.font = "bold 14px monospace";
-  ctx.fillText(fns.recordsTitle(), TP.cx, 268);
-
-  drawPersonalityRecord(52, 294, fns.ballRecordLabel(), fns.gameHigh(), UI.barOK);
-  drawPersonalityRecord(178, 294, fns.catchRecordLabel(), fns.catchHigh(), UI.barWarn);
-  drawPersonalityRecord(304, 294, fns.memoRecordLabel(), fns.memoHigh(), "#4C98D9");
-  drawPersonalityRecord(52, 334, fns.cleanRecordLabel(), fns.cleanHigh(), UI.barOK);
-  drawPersonalityRecord(178, 334, fns.typeRecordLabel(), fns.typeHigh(), "#F3B7D9");
-  drawPersonalityRecord(304, 334, fns.statsBattleTitle(), fns.bestBattleStreak(), UI.barBad);
-
-  statusEl.textContent = TPText.status(`Card · Personality · ${fns.personalityName()}`);
+  const kind=fns.personalityKind(),col=personalityColor(kind);
+  const names=TPText.pick(["Ausgeglichen","Verspielt","Mutig","Ruhig","Gemütlich"],["Balanced","Playful","Brave","Calm","Cozy"]);
+  const causes=TPText.pick(["Abwechslung ohne klaren Schwerpunkt.","Geprägt durch regelmäßige Spiele.","Geprägt durch gewonnene Kämpfe.","Geprägt durch Pflege und Zuwendung.","Geprägt durch regelmäßige Erholung."],["Varied activities without a clear focus.","Shaped by regular games.","Shaped by won battles.","Shaped by care and affection.","Shaped by regular rest."]);
+  const bonuses=TPText.pick(["Bonus: gelegentlich +1 Freude bei Aktivitäten.","Bonus: gelegentlich +2 Freude nach Spielen.","Bonus: gelegentlich +2 Freude nach Siegen.","Bonus: gelegentlich +1 Bindung bei Pflege.","Bonus: gelegentlich +2 Energie beim Aufwachen."],["Bonus: occasional +1 joy from activities.","Bonus: occasional +2 joy after games.","Bonus: occasional +2 joy after wins.","Bonus: occasional +1 bond from care.","Bonus: occasional +2 energy on waking."]);
+  ctx.textAlign="center";ctx.fillStyle=UI.ink;ctx.font="bold 20px monospace";ctx.fillText(fns.personalityTitle(),TP.cx,44);
+  ctx.fillStyle=col;roundRect(62,66,342,58,14);ctx.fill();ctx.fillStyle=UI.bgDay;ctx.font="bold 20px monospace";ctx.fillText(names[kind]||names[0],TP.cx,103);
+  ctx.fillStyle=UI.ink;ctx.font="12px monospace";ctx.fillText(causes[kind]||causes[0],TP.cx,153);ctx.fillText(bonuses[kind]||bonuses[0],TP.cx,180);
+  ctx.fillStyle=UI.track;ctx.fillText(fns.personalityAgeLine(),TP.cx,217);ctx.fillStyle=UI.ink;ctx.font="bold 14px monospace";ctx.fillText(fns.recordsTitle(),TP.cx,246);
+  drawPersonalityRecord(52,270,fns.ballRecordLabel(),fns.gameHigh(),UI.barOK);drawPersonalityRecord(178,270,fns.catchRecordLabel(),fns.catchHigh(),UI.barWarn);drawPersonalityRecord(304,270,fns.memoRecordLabel(),fns.memoHigh(),"#4C98D9");
+  drawPersonalityRecord(52,314,fns.cleanRecordLabel(),fns.cleanHigh(),UI.barOK);drawPersonalityRecord(178,314,fns.typeRecordLabel(),fns.typeHigh(),"#F3B7D9");drawPersonalityRecord(304,314,fns.statsBattleTitle(),fns.bestBattleStreak(),UI.barBad);
+  statusEl.textContent=TPText.pick("Karte · Wesen · ","Card · Personality · ")+(names[kind]||names[0]);
 }
 
 function drawStatBar(y, label, value, maxBar, color) {

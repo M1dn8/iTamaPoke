@@ -183,6 +183,9 @@ public:
   uint8_t applyWalk(uint16_t steps);
   bool takeMorningGreeting();
   PetPersonality personality() const;
+  // C4: per-individual personality; scores exposed read-only for tests.
+  uint8_t personalityScore(uint8_t axis) const { return axis < 4 ? personalityScores[axis] : 0; }
+
   void ensureDailyGoals();
   uint8_t dailyGoalTarget(uint8_t goalType) const;
   bool dailyGoalComplete(uint8_t index) const;
@@ -319,6 +322,31 @@ public:
   void flushSave();
 
 private:
+  bool personalityReady = false;
+  uint8_t personalityKind = PERS_BALANCED;
+  uint8_t personalityScores[4] = {0,0,0,0};
+  uint32_t personalityEventMinutes[4] = {0,0,0,0};
+  uint8_t personalityEventMask = 0;
+  bool personalityChanged = false;
+  uint32_t personalityChangeMinute = 0;
+  uint8_t personalitySleepMinutes = 0;
+  bool personalitySleepMarked = false;
+  // Budget and monotonic game clock survive new eggs (no birth-based farming).
+  uint32_t personalityClock = 0, personalityBonusDay = 0, personalityBonusMinute = 0;
+  uint32_t personalityBondDay = 0;
+  uint8_t personalityBonusesToday = 0;
+  bool personalityBonusStamped = false;
+  PetPersonality legacyPersonality() const;
+  void initializePersonality();
+  void resetPersonality();
+  void savePersonality();
+  void loadPersonality();
+  void personalityMinute();
+  void personalityRestMinute();
+  void notePersonality(uint8_t axis);
+  void updatePersonality();
+  bool applyPersonalityBonus(uint8_t axis);
+  uint16_t personalityCareValue() const { return uint16_t(fullness)+joy+energy+hygiene+bond+3-poops; }
   Preferences prefs;
   uint32_t lastTick = 0;
   uint32_t eatUntil = 0;

@@ -226,7 +226,7 @@ static const char *const STRINGS[LANG_COUNT][STR_COUNT] = {
     "Gegner wich aus", "Schutz",
     "BALL", "FANGEN", "MERKEN", "PUTZEN", "TYP", "FANGEN!", "PUTZEN!", "TYPENTRAINING", "RUNDE %u",
     "GEFUNDEN!", "STREICHEL!", "GLUECK!",
-    "WESEN", "AUSGEGLICHEN", "VERSPIELT", "MUTIG", "RUHIG", "TRÄGE",
+    "WESEN", "AUSGEGLICHEN", "VERSPIELT", "MUTIG", "RUHIG", "GEMÜTLICH",
     "Stabil", "Mag Spiele", "Kampfbereit", "Entspannt", "Gemütlich",
     "REKORDE", "ALTER %lud",
     "TÄGLICH", "FERTIG", "BONUS", "PFLEGE", "SPIELEN", "SIEG", "FANG 5", "MERKEN 3",

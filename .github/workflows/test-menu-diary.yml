@@ -22,6 +22,7 @@ jobs:
           node tests/package-c2-ui.test.js
           node tests/package-c4-ui.test.js
           node tests/package-c5-ui.test.js
+          node tests/package-c5-theme.test.js
           for file in browser_ver/web/*.js; do node --check "$file"; done
       - name: Native regressions
         run: |

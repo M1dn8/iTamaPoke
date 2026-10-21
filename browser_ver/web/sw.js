@@ -47,6 +47,7 @@ const FILES = [
   "./expedition-planning.js",
   "./app-menu.js",
   "./app-menu.css",
+  "./app-theme.css",
   "./main.js",
 ];
 

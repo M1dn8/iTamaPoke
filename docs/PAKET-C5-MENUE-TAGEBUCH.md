@@ -74,3 +74,15 @@ Gesamtbuild. C5-Workflow fuehrt alle bisherigen Regressionen ebenfalls aus.
 Branch komfort-c5 aus komfort-c4. Keine Uebernahme nach main/iPhone vor der
 vereinbarten gemeinsamen Abnahme. Tagebuch und Menue koennen danach lokal
 zusammen getestet werden. Keine NAS-Anbindung und keine Fremdassets.
+
+
+## Einheitliche Optik
+
+Alle neuen HTML-Menue- und Verwaltungsseiten verwenden dieselbe helle
+Gestaltung: Hintergrund #f4f0e7, weisse Karten und Schaltflaechen, dunkle
+Schrift, einheitliche Titel/Abstaende/Zurueck-Koepfe und Eingabefelder.
+Das betrifft Entwicklung, Pokedex-Suche/Familien, Eier, Sicherungen und
+Dateibestand ebenso wie Hauptmenue, Tagebuch und Einstellungen. Spielregeln,
+Inhalte, Navigation und Speichern sind unveraendert. Bestehende Spielansichten
+auf dem Canvas werden nicht neu angeordnet. CSS-Anbindung wird mitgeprueft;
+echte visuelle Browser-Abnahme ist weiterhin notwendig.

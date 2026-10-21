@@ -1300,17 +1300,21 @@ var tpSaveEpoch = 0;
 async function writeSave(bytes, force = false) {
   const epoch = tpSaveEpoch;
   if (tpSaveReplacing && !force) return;
+  const tpPerf=typeof window!=="undefined"?window.TPPerformance:null;
+  const tpWrite=tpPerf?.begin();
   try {
     const db = await openDb();
     // Reject stale autosaves even after a direct C2 action released the gate.
-    if (!force && (tpSaveReplacing || epoch !== tpSaveEpoch)) return;
+    if (!force && (tpSaveReplacing || epoch !== tpSaveEpoch)){tpPerf?.saved(tpWrite,"verworfen");return;}
     await new Promise((resolve,reject)=>{
       const tx=db.transaction(STORE_NAME,"readwrite");
       tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error("Save transaction aborted"));
       tx.objectStore(STORE_NAME).put(bytes,SAVE_KEY);
     });
     if(typeof window!=="undefined")window.TPDiagnostics?.saved(bytes?.byteLength||0);
+    tpPerf?.saved(tpWrite,"bestaetigt");
   } catch(e) {
+    tpPerf?.saved(tpWrite,"fehlgeschlagen");
     if(typeof window!=="undefined")window.TPDiagnostics?.record("write",e);
     console.warn("[save] write failed:",e);
     if(force)throw e;
@@ -1322,9 +1326,13 @@ async function writeSave(bytes, force = false) {
 // and can move if the module's heap grows in between -- copying immediately
 // is what makes this safe to await afterwards).
 function exportStateBytes(mod) {
+  const tpPerf=typeof window!=="undefined"?window.TPPerformance:null;
+  const tpEncode=tpPerf?.begin();
   const len = mod.ccall("tp_export_state", "number", [], []);
   const ptr = mod.ccall("tp_export_ptr", "number", [], []);
-  return mod.HEAPU8.slice(ptr, ptr + len);
+  const bytes=mod.HEAPU8.slice(ptr, ptr + len);
+  tpPerf?.encode(tpEncode);
+  return bytes;
 }
 
 function importStateBytes(mod, bytes) {
@@ -1665,6 +1673,9 @@ createTPCore({
   window.addEventListener("pagehide", () => saveNow(mod));
 
   function frame(t) {
+    const tpPerf=window.TPPerformance;
+    const tpMode=window.TPAppMenu?.active?"menue":screen==="game"?(gameMode===4?"typenspiel":"minispiel"):screen;
+    const tpSample=tpPerf?.frame(tpMode,t);
     // Frozen while a decision dialog (evolve/farewell) is up -- tp_tick's
     // gPet.update() is a real-time catch-up loop keyed off millis(), so
     // stats keep decaying for as long as the page is open, dialog or not.
@@ -1676,6 +1687,7 @@ createTPCore({
     // just defers it to resume the instant the dialog closes -- mirrors
     // PetScreen.swift's fix, same reasoning.
     if (choice === "none") mod.ccall("tp_tick", null, ["number"], [t | 0]);
+    tpPerf?.tick(tpSample,choice==="none");
     if(window.TPAppMenu)window.TPAppMenu.markReady();
     // The rest of GameModel.tick(): the idle creature's pose scheduler, the
     // bath timer (which is what actually washes the creature when it ends),
@@ -1688,13 +1700,18 @@ createTPCore({
     // A draw that throws must not kill the loop: on a phone there is no
     // console, so the only symptom would be a frozen "loading…" line. Show
     // the error there and keep ticking so the save still happens.
+    const tpCanvasDraw=!!Module&&!window.TPAppMenu?.active;
+    let tpDrawOK=false;
+    tpPerf?.drawStart(tpSample);
     try {
       draw();
+      tpDrawOK=true;
     } catch (e) {
       statusEl.textContent = TPText.status("error: " + (e && e.message ? e.message : e));
       if(typeof window!=="undefined")window.TPDiagnostics?.record("frame",e);
       console.error(e);
     }
+    tpPerf?.frameEnd(tpSample,tpCanvasDraw,tpDrawOK);
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);

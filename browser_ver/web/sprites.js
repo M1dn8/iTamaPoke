@@ -247,3 +247,14 @@ function spriteFor(dex, shiny = false) {
   }
   return null;
 }
+
+// D3a: only inspect already retained buffers, once per diagnostic check.
+function tpSpriteMemoryStats(){
+ const buffers=new Set(),objects=new Set();let bytes=0,frames=0,missing=0;
+ const add=value=>{const b=value instanceof ArrayBuffer?value:ArrayBuffer.isView(value)?value.buffer:null;if(b&&!buffers.has(b)){buffers.add(b);bytes+=b.byteLength;}};
+ for(const sprite of spriteCache.values()){
+  if(!sprite){missing++;continue;}if(objects.has(sprite))continue;objects.add(sprite);add(sprite.blob);add(sprite.palette);
+  if(sprite._cache)for(const image of sprite._cache.values()){if(image?.data){frames++;add(image.data);}}
+ }
+ return {cacheEintraege:spriteCache.size,geladeneObjekte:objects.size,fehlendeEintraege:missing,dekodierteBilder:frames,bekanntePufferBytes:bytes,laufendeAnfragen:spriteLoading.size,hinweis:"Nur bereits geladener gemeinsamer Grafikcache. Geteilte ArrayBuffer einmal gezählt; ohne JS-Objekt-, GPU-, Audio-, Atlas- und WASM-Speicher. Keine Gesamt-RAM-Messung."};
+}

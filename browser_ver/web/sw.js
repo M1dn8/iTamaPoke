@@ -48,6 +48,7 @@ const FILES = [
   "./app-menu.js",
   "./app-menu.css",
   "./app-theme.css",
+  "./performance-metrics.js",
   "./diagnostics.js",
   "./main.js",
 ];

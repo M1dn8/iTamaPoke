@@ -13,7 +13,7 @@ function button(text,fn,cls){const b=el("button",text,cls);b.type="button";b.add
 function notice(text){let n=root.querySelector(".tp-app-notice");if(!n){n=el("p",undefined,"tp-app-notice");n.setAttribute("role","status");root.appendChild(n);}n.textContent=text;}
 function remember(value){try{if(value)sessionStorage.setItem("tp-app-return",value);else sessionStorage.removeItem("tp-app-return");}catch(_e){}}
 function show(which="main"){
- if(!quiet())return;active=true;page=which;screen="settings";root.hidden=false;root.replaceChildren();root.className=which==="main"?"tp-app-main":"";
+ if(!quiet())return;const tpPage=window.TPPerformance?.begin();active=true;page=which;screen="settings";root.hidden=false;root.replaceChildren();root.className=which==="main"?"tp-app-main":"";
  dragStart=null;dragNow=null;choice="none";feedMenuUntil=0;confirmUntil=0;
  const head=el("header",undefined,"tp-app-head");head.appendChild(el("h2",{main:"Menü",journal:"Tagebuch",settings:"Einstellungen",files:"Dateien",diagnostics:"Diagnose"}[which]||"Menü"));
  if(which!=="main")head.appendChild(button("Zurück",()=>show(["files","diagnostics"].includes(which)?"settings":"main")));
@@ -37,7 +37,7 @@ function show(which="main"){
   const list=el("div",undefined,"tp-app-list");list.tabIndex=0;list.setAttribute("aria-label","Tagebucheinträge");root.appendChild(list);
   try{const snapshot=Module.ccall("tp_journal_json","string",[],[]);renderJournal(list,JSON.parse(snapshot));setTimeout(()=>{if(!active||proxy||page!=="journal"||!ready())return;try{const next=Module.ccall("tp_journal_json","string",[],[]);if(next!==snapshot){const top=list.scrollTop;list.replaceChildren();renderJournal(list,JSON.parse(next));list.scrollTop=top;}}catch(_e){}},1100);}catch(_e){list.appendChild(el("p","Tagebuch nicht verfügbar. Bitte den aktuellen Test-Build öffnen."));}
  }
- const first=root.querySelector("button");if(first)first.focus();
+ const first=root.querySelector("button");if(first)first.focus();window.TPPerformance?.page(which,tpPage);
 }
 function close(){if(!ready()||tpSaveReplacing)return;active=false;proxy=null;dexOrigin=false;root.hidden=true;screen="idle";remember(null);canvas.focus?.();}
 function findLegacy(names){const found=Array.from(document.querySelectorAll(".tp-tools button")).filter(b=>names.includes(b.textContent.trim()));if(found.length!==1)throw Error("Funktion gerade nicht eindeutig verfügbar.");return found[0];}

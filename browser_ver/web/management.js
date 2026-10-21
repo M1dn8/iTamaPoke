@@ -71,7 +71,7 @@ async function resetGame(){
  }catch(e){busy=false;tpSaveReplacing=false;throw e;}
 }
 async function openSaves(){
- begin("Sicherungen");const view=viewId;const now=T.parseLegacy(exportStateBytes(Module));panel.appendChild(el("p",summaryText(now.summary)));
+ begin("Sicherungen");const tpPage=window.TPPerformance?.begin();const view=viewId;const now=T.parseLegacy(exportStateBytes(Module));panel.appendChild(el("p",summaryText(now.summary)));
  note("Bis zu 8 automatische Sicherungen. Manuelle und Sicherheitskopien vor Import/Reset bleiben bis zum gezielten Loeschen erhalten. Alles liegt nur in diesem Browser: externe Exporte bleiben wichtig.");
  const row=el("div",undefined,"tp-modal-row");row.append(button("Jetzt lokal sichern",async()=>{await snapshot(exportStateBytes(Module),"manual");await openSaves();}),button("Klassisch exportieren",()=>exportCurrent(false)),button("Version 1 exportieren",()=>exportCurrent(true)));panel.appendChild(row);
  note("Version 1 enthaelt Metadaten und eine SHA-256-Pruefsumme. Aeltere App-Versionen benoetigen den klassischen Export. Beide enthalten nur den Spielstand, keine Dateien.");
@@ -85,7 +85,7 @@ async function openSaves(){
   if(decoded){card.appendChild(el("p",summaryText(decoded.summary)));const actions=el("div",undefined,"tp-modal-row");actions.append(button("Vorschau / Wiederherstellen",()=>previewImport(decoded,"Lokale Sicherung vom "+new Date(record.createdAt).toLocaleString())),button("Exportieren",()=>shareSave(decoded.raw,true,new Date(record.createdAt).toISOString())));card.appendChild(actions);}
   card.appendChild(button("Diese Sicherung loeschen",async()=>{if(!confirm("Nur diese lokale Sicherung loeschen?"))return;await remove("snapshots",record.id);await openSaves();}));panel.appendChild(card);
  }
- if(!records.length)note("Noch keine lokalen Sicherungskopien vorhanden.");
+ if(!records.length)note("Noch keine lokalen Sicherungskopien vorhanden.");if(view===viewId)window.TPPerformance?.page("saves",tpPage);
 }
 async function allKeys(db,store){return new Promise((resolve,reject)=>{const r=db.transaction(store,"readonly").objectStore(store).getAllKeys();r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error);});}
 async function read(db,store,key){return new Promise((resolve,reject)=>{const r=db.transaction(store,"readonly").objectStore(store).get(key);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
@@ -152,7 +152,7 @@ async function importAssets(kind,files,onlyMissing=false){
  panel.appendChild(button("Zur Dateiübersicht",openAssets));return imported;
 }
 async function openAssets(){
- begin("Dateiverwaltung");const view=viewId;const inv=await inventory();if(view!==viewId)return;const index=spriteIndex(inv.sprites),normal=missing(index,false),shiny=missing(index,true);
+ begin("Dateiverwaltung");const tpPage=window.TPPerformance?.begin();const view=viewId;const inv=await inventory();if(view!==viewId)return;const index=spriteIndex(inv.sprites),normal=missing(index,false),shiny=missing(index,true);
  panel.appendChild(el("p","Normal: "+(1025-normal.length)+" / 1025 · Schillernd: "+(1025-shiny.length)+" / 1025"));
  note("Diese Zahlen zaehlen vorhandene Dateinamen. Erst 'Bestand pruefen' kontrolliert alle gespeicherten Grafik-Dateien.");
  const checked=inv.info.filter(x=>inv.sprites.includes(x.key)),single=checked.filter(x=>x.valid&&x.kind==="single-frame").length;
@@ -166,7 +166,7 @@ async function openAssets(){
   const input=el("input");input.type="file";input.multiple=true;input.accept=accept;input.addEventListener("change",()=>{const files=Array.from(input.files||[]);input.value="";if(files.length)importAssets(kind,files,only.checked).catch(error);});panel.appendChild(input);panel.appendChild(button(labelText,()=>input.click()));
  }
  if(navigator.storage?.estimate){try{const s=await navigator.storage.estimate();note("Browser-Speicher (geschaetzt): "+Math.round((s.usage||0)/1048576)+" MB genutzt von "+Math.round((s.quota||0)/1048576)+" MB.");}catch(_e){}}
- note("Dateien bleiben lokal; keine Downloads aus dem Netz, keine NAS-Anbindung. Die Sicherungsdateien enthalten diese Dateien nicht.");
+ note("Dateien bleiben lokal; keine Downloads aus dem Netz, keine NAS-Anbindung. Die Sicherungsdateien enthalten diese Dateien nicht.");if(view===viewId)window.TPPerformance?.page("assets",tpPage);
 }
 let lastAuto=0,autoWarning=false;
 async function autoSave(){if(!safe()||busy||tpSaveReplacing||Date.now()-lastAuto<10*60*1000)return;try{await snapshot(exportStateBytes(Module),"auto");lastAuto=Date.now();}catch(e){console.warn("[backup]",e);if(!autoWarning){autoWarning=true;savesButton.textContent="Sicherung pruefen";}}}

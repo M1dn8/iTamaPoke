@@ -20,10 +20,8 @@ name: Build (unsigned)
 # "Build (signed)" (build-signed.yml) instead: it emits a ready-to-install
 # .ipa and is the only path that installs the watch app reliably.
 
+# Native iOS/watchOS builds are optional; browser changes use the quality gate.
 on:
-  push:
-    branches: ["**"]
-  pull_request:
   workflow_dispatch:
 
 concurrency:

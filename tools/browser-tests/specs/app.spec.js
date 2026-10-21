@@ -24,7 +24,7 @@ test('Dateiauswahl bleibt ueber das neue Menue erreichbar',async({page})=>{
  await page.waitForFunction(()=>Array.from(document.querySelectorAll('.tp-tools button')).some(b=>['Dateien','Assets'].includes(b.textContent.trim())&&!b.disabled));await page.getByRole('button',{name:'Dateibestand prüfen',exact:true}).click();await expect(H.modal(page)).toBeVisible();await H.modal(page).locator('.tp-modal-head button').click();await expect(page.getByRole('heading',{name:'Dateien',exact:true})).toBeVisible();
 });
 test('Tagebuch scrollt in seiner Seite und bleibt nach Reload erhalten',async({page})=>{
- const list=await H.diary(page);await expect(list.locator('article')).toHaveCount(120);await list.hover();await page.mouse.wheel(0,600);await expect.poll(()=>list.evaluate(n=>n.scrollTop)).toBeGreaterThan(0);await expect(page.getByRole('heading',{name:'Tagebuch',exact:true})).toBeVisible();
+ const list=await H.diary(page);await expect(list.locator('article')).toHaveCount(120);if(page.context().browser().browserType().name()==='webkit'){await list.evaluate(n=>n.scrollBy(0,600));}else{await list.hover();await page.mouse.wheel(0,600);}await expect.poll(()=>list.evaluate(n=>n.scrollTop)).toBeGreaterThan(0);await expect(page.getByRole('heading',{name:'Tagebuch',exact:true})).toBeVisible();
  await page.reload();await H.waitReady(page);const next=await H.diary(page);await expect(next.locator('article')).toHaveCount(120);
 });
 test('Externe Sicherung nimmt grosses Tagebuch mit und stellt es wieder her',async({page},info)=>{

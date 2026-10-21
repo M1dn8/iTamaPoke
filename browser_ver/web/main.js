@@ -1290,6 +1290,7 @@ async function loadSave() {
       req.onerror = () => reject(req.error);
     });
   } catch (e) {
+    if(typeof window!=="undefined")window.TPDiagnostics?.record("read",e);
     console.warn("[save] load failed, starting fresh:", e);
     return null;
   }
@@ -1308,7 +1309,9 @@ async function writeSave(bytes, force = false) {
       tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error("Save transaction aborted"));
       tx.objectStore(STORE_NAME).put(bytes,SAVE_KEY);
     });
+    if(typeof window!=="undefined")window.TPDiagnostics?.saved(bytes?.byteLength||0);
   } catch(e) {
+    if(typeof window!=="undefined")window.TPDiagnostics?.record("write",e);
     console.warn("[save] write failed:",e);
     if(force)throw e;
   }
@@ -1689,6 +1692,7 @@ createTPCore({
       draw();
     } catch (e) {
       statusEl.textContent = TPText.status("error: " + (e && e.message ? e.message : e));
+      if(typeof window!=="undefined")window.TPDiagnostics?.record("frame",e);
       console.error(e);
     }
     requestAnimationFrame(frame);

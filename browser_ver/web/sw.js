@@ -48,6 +48,7 @@ const FILES = [
   "./app-menu.js",
   "./app-menu.css",
   "./app-theme.css",
+  "./diagnostics.js",
   "./main.js",
 ];
 
@@ -97,3 +98,6 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
+// Read-only D2 manifest response: no network access or cache mutation.
+self.addEventListener("message",event=>{if(event.data?.type==="TP_DIAGNOSTICS"&&event.ports?.[0])event.ports[0].postMessage({version:VERSION,files:FILES});});

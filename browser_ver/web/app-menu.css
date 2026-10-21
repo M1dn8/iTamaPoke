@@ -30,3 +30,7 @@ html,body{overflow:hidden!important}
 #tp-game-shell>.tp-modal .tp-panel{position:relative!important;inset:auto!important;transform:none!important}
 
 #tp-game-shell>.tp-modal{min-height:0!important;max-height:100%!important;max-width:100%!important}
+
+.tp-diagnostics{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;gap:5px}
+.tp-diagnostics p{font-size:13px;margin:5px 0;line-height:1.35;overflow-wrap:anywhere}
+.tp-diagnostic-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:none}

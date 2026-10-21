@@ -4,7 +4,7 @@
 const T=TPStoreTools;let busy=false,dbPromise=null,previousFocus=null,viewId=0;
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,fn)=>{const b=el("button",text);b.type="button";b.addEventListener("click",()=>Promise.resolve().then(fn).catch(error));return b;};
-const error=e=>{console.error("[manager]",e);alert(e&&e.message?e.message:String(e));};
+const error=e=>{window.TPDiagnostics?.record("manager",e);console.error("[manager]",e);alert(e&&e.message?e.message:String(e));};
 function loaded(){return !!Module&&typeof fns.speciesId==="function";}
 function safe(){return loaded()&&!["game","gamemenu","battle","keyboard"].includes(screen)&&!fns.evolvingNow()&&!fns.ceremony()&&!fns.wildPromptActive();}
 function openDB(){if(!dbPromise)dbPromise=new Promise((resolve,reject)=>{const r=indexedDB.open("itamapoke-management",1);r.onupgradeneeded=()=>{r.result.createObjectStore("snapshots",{keyPath:"id"});r.result.createObjectStore("assetInfo");};r.onsuccess=()=>resolve(r.result);r.onerror=()=>{dbPromise=null;reject(r.error);};});return dbPromise;}

@@ -60,6 +60,7 @@ async function decode(input){
 }
 function canonicalSprite(name){
  if(/^thumbs\.bin$/i.test(name))return {key:"thumbs.bin",atlas:true};
+ const mega=/^(p|ps)006-mega-x\.bin$/i.exec(name);if(mega)return {key:mega[1].toLowerCase()+"006-mega-x.bin",dex:6,shiny:mega[1].toLowerCase()==="ps",form:"mega-x"};
  const m=/^(ps?)(\d{1,4})\.bin$/i.exec(name);if(!m)return null;const dex=Number(m[2]);if(dex<1||dex>1025)return null;
  return {key:m[1].toLowerCase()+String(dex).padStart(3,"0")+".bin",dex,shiny:m[1].toLowerCase()==="ps"};
 }

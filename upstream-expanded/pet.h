@@ -330,7 +330,30 @@ public:
   bool savePending() const { return pendingSave; }
   void flushSave();
 
+
+  // E1: temporary form is separate from species/training; stone belongs to trainer.
+  bool megaSupported() const { return !isEgg() && speciesId==6; }
+  bool megaStoneOwned() const { return megaStone; }
+  uint8_t megaTrainingCount() const { return megaTraining; }
+  uint32_t megaEndsAt() const { return megaEnd; }
+  uint32_t megaCooldownAt() const { return megaCooldown; }
+  bool megaActive(uint32_t now) const { return megaSupported() && megaForm==1 && now && now<megaEnd && now>=megaStarted; }
+  bool megaQuestReady() const;
+  bool megaClaim(uint32_t now);
+  bool megaActivate(uint32_t now);
+  void megaUpdate(uint32_t now);
+  uint16_t megaAtk(uint32_t now) const;
+  uint16_t megaDef(uint32_t now) const;
+  uint16_t megaSpe(uint32_t now) const;
+
 private:
+  bool megaStone=false;
+  uint8_t megaTraining=0,megaForm=0;
+  uint32_t megaEnd=0,megaCooldown=0,megaStarted=0,megaSeen=0;
+  void loadMega();
+  void saveMega();
+  void megaNewCreature();
+  void megaTrainingRun();
   TPJournalEntry journalEntries[200] = {};
   TPJournalPending journalPending = {};
   uint16_t journalCount = 0, journalLastFrom = 0, journalLastTo = 0;

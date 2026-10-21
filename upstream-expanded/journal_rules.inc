@@ -13,7 +13,7 @@ void Pet::loadJournal(){
  journalNeedsBaseline=prefs.getUChar("jrver",0)!=1;if(journalNeedsBaseline)return;
  uint16_t count=prefs.getUShort("jrcount",0);if(count>200)count=200;
  if(prefs.getBytes("jrdata",journalEntries,size_t(count)*sizeof(TPJournalEntry))==size_t(count)*sizeof(TPJournalEntry)){
-  for(uint16_t i=0;i<count;i++){auto entry=journalEntries[i];entry.nickname[23]=0;if(entry.kind<JR_EGG||entry.kind>JR_END||entry.species>DEX_COUNT)continue;journalEntries[journalCount++]=entry;}
+  for(uint16_t i=0;i<count;i++){auto entry=journalEntries[i];entry.nickname[23]=0;if(entry.kind<JR_EGG||entry.kind>JR_MEGA_END||entry.species>DEX_COUNT)continue;journalEntries[journalCount++]=entry;}
  }
  journalLevels=prefs.getUChar("jrlvl",0)&15;journalCollection=prefs.getUChar("jrdex",0)&31;
  journalLastFrom=prefs.getUShort("jrfrom",0);journalLastTo=prefs.getUShort("jrto",0);

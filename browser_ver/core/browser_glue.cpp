@@ -93,6 +93,7 @@ void tp_tick(uint32_t nowMs) {
     gLastClockSyncMs = nowMs;
     gPet.syncClock((uint32_t)std::time(nullptr));
   }
+  gPet.megaUpdate(uint32_t(std::time(nullptr)));
   gPet.update(g_millis);
 }
 
@@ -831,9 +832,9 @@ const char *tp_battle_best_line() {
 }
 EMSCRIPTEN_KEEPALIVE const char *tp_wild_battle_text() { return T(S_WILD_BATTLE); }
 EMSCRIPTEN_KEEPALIVE const char *tp_train_button_text() { return T(S_TRAIN_STR); }
-EMSCRIPTEN_KEEPALIVE int tp_atk_stat() { return gPet.atkStat(); }
-EMSCRIPTEN_KEEPALIVE int tp_def_stat() { return gPet.defStat(); }
-EMSCRIPTEN_KEEPALIVE int tp_spe_stat() { return gPet.speStat(); }
+EMSCRIPTEN_KEEPALIVE int tp_atk_stat() { return gPet.megaAtk(uint32_t(std::time(nullptr))); }
+EMSCRIPTEN_KEEPALIVE int tp_def_stat() { return gPet.megaDef(uint32_t(std::time(nullptr))); }
+EMSCRIPTEN_KEEPALIVE int tp_spe_stat() { return gPet.megaSpe(uint32_t(std::time(nullptr))); }
 EMSCRIPTEN_KEEPALIVE int tp_weight() { return gPet.weight; }
 EMSCRIPTEN_KEEPALIVE
 const char *tp_stat_label(int index) {

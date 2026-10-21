@@ -5,9 +5,11 @@
 
 let cardPage = 0;
 const CARD_PAGE_COUNT = 8;
+function cardPageCount(){return window.TPMega?.visible()?9:CARD_PAGE_COUNT;}
 let nameDraft = "";
 
 function drawCard(now) {
+  const count=cardPageCount();if(cardPage>=count)cardPage=0;
   ctx.fillStyle = UI.bgDay;
   ctx.fillRect(0, 0, TP.screen, TP.screen);
 
@@ -20,10 +22,11 @@ function drawCard(now) {
     case 5: drawCardMedals(); break;
     case 6: drawCardProgress(); break;
     case 7: drawCardExpedition(); break;
+    case 8: window.TPMega.draw(); break;
   }
 
-  const dotsX = TP.cx - (CARD_PAGE_COUNT - 1) * 13;
-  for (let i = 0; i < CARD_PAGE_COUNT; i++) {
+  const dotsX = TP.cx - (count - 1) * 13;
+  for (let i = 0; i < count; i++) {
     const cx = dotsX + i * 26;
     ctx.beginPath();
     ctx.arc(cx, 382, i === cardPage ? 5 : 4, 0, Math.PI * 2);
@@ -37,6 +40,7 @@ function drawCard(now) {
 }
 
 function drawCardProfile(now) {
+  const hasMega=!!window.TPMega?.visible();if(hasMega)ensureSprite(fns.speciesId());
   ctx.textAlign = "center";
   const head = fns.name();
   ctx.fillStyle = UI.ink;
@@ -84,9 +88,10 @@ function drawCardProfile(now) {
   ctx.fillText(`${bond}`, 330, 262);
 
   ctx.textAlign = "center";
-  ctx.fillText(fns.infoLine(), TP.cx, 300);
+  ctx.fillText(fns.infoLine(), TP.cx, hasMega?282:300);
   ctx.fillStyle = UI.track;
-  ctx.fillText(fns.renameHint(), TP.cx, 332);
+  ctx.fillText(fns.renameHint(), TP.cx, hasMega?305:332);
+  if(hasMega)window.TPMega.drawProfileLink();
 
   statusEl.textContent = TPText.status(`Card · ${head} · bond ${bond}`);
 }
@@ -250,7 +255,11 @@ function drawCardProgress() {
 }
 
 function cardTap(x, y) {
-  if (cardPage === 0 && y >= 320 && y <= 344) {
+  if(window.TPMega?.busy)return;
+  const hasMega=!!window.TPMega?.visible();
+  if(cardPage===0&&hasMega&&x>=75&&x<=391&&y>=324&&y<=368){cardPage=8;return;}
+  if(cardPage===8&&hasMega&&window.TPMega.tap(x,y))return;
+  if (cardPage === 0 && (hasMega?(y>=290&&y<=318):(y>=320&&y<=344))) {
     // Start from the current nickname rather than blank, so a small fix
     // doesn't mean retyping the whole name.
     Module.ccall("tp_kb_set", null, ["string"], [fns.hasNick() !== 0 ? fns.name() : ""]);
@@ -263,8 +272,8 @@ function cardTap(x, y) {
   if (cardPage === 7) cardExpeditionTap(x, y);
   if (y >= 370 && y <= 394) {
     // Page-dot row: tap left half to go back a page, right half forward.
-    if (x < TP.cx) cardPage = (cardPage - 1 + CARD_PAGE_COUNT) % CARD_PAGE_COUNT;
-    else cardPage = (cardPage + 1) % CARD_PAGE_COUNT;
+    if (x < TP.cx) cardPage = (cardPage - 1 + cardPageCount()) % cardPageCount();
+    else cardPage = (cardPage + 1) % cardPageCount();
     return;
   }
   // Only the "tap: back" hint itself closes the card now (also swipe up,

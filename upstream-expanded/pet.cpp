@@ -20,6 +20,7 @@ void Pet::begin() {
 }
 
 void Pet::newEgg() {
+  megaNewCreature();
   if(!isEgg()&&lastEnd>=CER_FAREWELL&&lastEnd<=CER_RELEASE)journalAdd(JR_END,lastEnd);
   ceremony = CER_NONE;
   ceremonyUntil = 0;
@@ -770,6 +771,7 @@ bool Pet::evolveTo(int16_t target) {
     }
   }
   if (!allowed) return false;
+  megaNewCreature();
   prevSpeciesId = speciesId;
   speciesId = target;
   evoDeclinedLv = 0;
@@ -838,6 +840,7 @@ void Pet::playResult(uint8_t score) {
   registerCare();
   noteDailyGoal(DAILY_GOAL_PLAY, 1);
   if (score > 0) notePersonality(0);
+  if (score>0) megaTrainingRun();
   save();
 }
 
@@ -882,6 +885,7 @@ uint8_t Pet::applyMemoResult(uint8_t rounds) {
   registerCare();
   noteDailyGoal(DAILY_GOAL_MEMO, rounds);
   if (rounds > 0) notePersonality(0);
+  if (rounds>0) megaTrainingRun();
   save();
   return gain;
 }
@@ -922,6 +926,7 @@ uint8_t Pet::applyTypeResult(uint8_t score) {
   registerCare();
   noteDailyGoal(DAILY_GOAL_PLAY, 1);
   if (score > 0) notePersonality(0);
+  if (score>0) megaTrainingRun();
   save();
   return gain;
 }
@@ -1075,6 +1080,7 @@ uint8_t Pet::trainStrength(uint16_t hits) {
   addBond(2);
   registerCare();
   if (hits > 0) notePersonality(0);
+  if (hits>0) megaTrainingRun();
   save();
   return gain;
 }
@@ -1314,6 +1320,7 @@ PetMood Pet::mood() const {
 }
 
 void Pet::save() {
+  saveMega();
   saveJournal();
   savePersonality();
   prefs.putUChar("eggen", nextEggGeneration);
@@ -1537,6 +1544,7 @@ void Pet::load() {
     expeditionStartChance = 255;
   }
   loadPersonality();
+  loadMega();
   prefs.getString("nick", nick, sizeof(nick));
   // siembra: la mascota actual cuenta como criada (guardados antiguos)
   prepareJournalBaseline();
@@ -1552,3 +1560,5 @@ void Pet::load() {
 #include "personality_rules.inc"
 
 #include "journal_rules.inc"
+
+#include "mega_rules.inc"

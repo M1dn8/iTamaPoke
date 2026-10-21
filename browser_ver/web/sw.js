@@ -46,6 +46,7 @@ const FILES = [
   "./egg-planning.js",
   "./expedition-planning.js",
   "./app-menu.js",
+  "./mega.js",
   "./app-menu.css",
   "./app-theme.css",
   "./performance-metrics.js",

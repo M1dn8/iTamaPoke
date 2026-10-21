@@ -10,6 +10,7 @@ struct BattleStats {
   uint8_t level;
   uint8_t type1 = 0;
   uint8_t type2 = 0;
+  bool mega = false;
 };
 
 struct BattleOptions {

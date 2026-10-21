@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include <ctime>
 
 #include <emscripten.h>
 
@@ -87,14 +88,13 @@ BattleStats realPlayerStats() {
   Pet &pet = tp_battle_pet();
   BattleStats stats{};
   stats.level = pet.level();
-  stats.atk = pet.atkStat();
-  stats.def = pet.defStat();
-  stats.spe = pet.speStat();
+  const uint32_t now=uint32_t(std::time(nullptr));pet.megaUpdate(now);
+  stats.atk = pet.megaAtk(now);stats.def = pet.megaDef(now);stats.spe = pet.megaSpe(now);stats.mega=pet.megaActive(now);
   stats.hp = 0;
   if (!pet.isEgg() && pet.speciesId >= 1 && pet.speciesId <= DEX_COUNT) {
     const DexEntry &d = DEX_TBL[pet.speciesId];
     stats.type1 = d.type1;
-    stats.type2 = d.type2;
+    stats.type2 = stats.mega?TYPE_DRAGON:d.type2;
   }
   return stats;
 }
@@ -288,9 +288,9 @@ EMSCRIPTEN_KEEPALIVE
 const char *tp_battle_player_label() {
   static std::string out;
   Pet &pet = tp_battle_pet();
-  const char *name = pet.nick[0] ? pet.nick : dexName(pet.speciesId);
-  char buf[28];
-  snprintf(buf, sizeof(buf), "%s Lv.%u", name, gPlayer.level);
+  const char *name = pet.nick[0] ? pet.nick : (gPlayer.mega?"Mega-Glurak X":dexName(pet.speciesId));
+  char buf[64];
+  snprintf(buf, sizeof(buf), "%.23s%s Lv.%u", name, gPlayer.mega&&pet.nick[0]?" (Mega)":"", gPlayer.level);
   out = buf;
   return out.c_str();
 }
@@ -417,4 +417,7 @@ void tp_battle_leave_wild() {
   sfxPlay(SFX_TAP);
 }
 
+EMSCRIPTEN_KEEPALIVE int tp_e_battle_mega(){return gOpen&&gPlayer.mega;}
+EMSCRIPTEN_KEEPALIVE int tp_e_battle_type1(){return gPlayer.type1;}
+EMSCRIPTEN_KEEPALIVE int tp_e_battle_type2(){return gPlayer.type2;}
 } // extern "C"

@@ -40,6 +40,7 @@ em++ -std=c++17 $OPT \
   browser_ver/core/browser_minigames.cpp \
   browser_ver/core/browser_expeditions.cpp \
   browser_ver/core/browser_eggs.cpp \
+  browser_ver/core/browser_mega.cpp \
   Sources/Core/hangul.cpp \
   upstream-expanded/pet.cpp \
   upstream-expanded/i18n.cpp \

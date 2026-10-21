@@ -163,7 +163,7 @@ uint16_t cappedTurnDamage(const BattleStats &attacker,
   damage = (uint16_t)((uint32_t)damage * powerPct / 100);
   if (damage == 0) damage = 1;
   if (counter) damage = (uint16_t)((uint32_t)damage * 3 / 2);
-  uint16_t cap = (uint16_t)((uint32_t)defenderMaxHp * 35 / 100);
+  uint16_t cap = (uint16_t)((uint32_t)defenderMaxHp * (attacker.mega?45:35) / 100);
   if (cap < 1) cap = 1;
   if (damage > cap) damage = cap;
   return damage;

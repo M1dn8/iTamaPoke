@@ -94,7 +94,7 @@ async function inventory(){
  const a=await openAssetDb(),c=await openCryDb(),t=await openDexEntryDb();
  try{return {sprites:await allKeys(a,ASSET_STORE),cries:await allKeys(c,CRY_STORE),text:await allKeys(t,DEXENTRY_STORE),info:await getAll("assetInfo")};}finally{a.close();c.close();t.close();}
 }
-function spriteIndex(keys){const out=new Set();for(const key of keys){const m=T.canonicalSprite(String(key));if(m&&!m.atlas)out.add(m.key);}return out;}
+function spriteIndex(keys){const out=new Set();for(const key of keys){const m=T.canonicalSprite(String(key));if(m&&!m.atlas&&!m.form)out.add(m.key);}return out;}
 function missing(index,shiny){const out=[];for(let i=1;i<=1025;i++){const key=(shiny?"ps":"p")+String(i).padStart(3,"0")+".bin";if(!index.has(key))out.push(key);}return out;}
 function progress(title){begin(title);const p=el("progress",undefined,"tp-progress");p.max=1;p.value=0;const text=el("p","Vorbereitung…","tp-manager-status");panel.append(p,text);return {p,text};}
 async function validateInventory(){

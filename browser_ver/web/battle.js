@@ -32,8 +32,8 @@ function battleSprite(dex) {
   return dex === currentDex ? currentSprite : spriteFor(dex, false);
 }
 
-function drawBattleSprite(dex, x, now) {
-  const sprite = battleSprite(dex);
+function drawBattleSprite(dex, x, now, player=false) {
+  const sprite=player?(window.TPMega?.battleActive()?megaSpriteFor(window.TPMega.shiny()):spriteFor(dex,!!window.TPMega?.shiny())):spriteFor(dex,false);
   if (!sprite) {
     ctx.font = "bold 40px monospace";
     ctx.fillStyle = "#98a0b0";
@@ -77,8 +77,9 @@ function drawBattle(now) {
   const dex = fns.speciesId(), wildDex = fns.battleWildDex();
   ctx.textAlign = "left";
   ctx.font = "10px monospace";
-  const t1 = TYPE_NAMES[fns.dexType1(dex)] || "";
-  const t2 = fns.dexType2(dex) ? "/" + TYPE_NAMES[fns.dexType2(dex)] : "";
+  const pt1=window.TPMega?.battleType(1)||fns.dexType1(dex),pt2=window.TPMega?window.TPMega.battleType(2):fns.dexType2(dex);
+  const t1=TYPE_NAMES[pt1]||"";
+  const t2=pt2?("/"+(TYPE_NAMES[pt2]||"")):"";
   ctx.fillStyle = TYPE_COLORS[fns.dexType1(dex)] || ink;
   ctx.fillText(t1 + t2, 28, 134);
   const et1 = TYPE_NAMES[fns.dexType1(wildDex)] || "";
@@ -105,7 +106,7 @@ function drawBattle(now) {
   // build had exactly that bug until its draw order was fixed).
   if (fns.battleWildAlreadyCaught() !== 0) drawIcon(TPIcon.food, 258, 108, 1);
 
-  drawBattleSprite(dex, 142, now);
+  drawBattleSprite(dex, 142, now, true);
   drawBattleSprite(wildDex, 328, now);
 
   if (resolved) {

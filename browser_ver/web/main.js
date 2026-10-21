@@ -64,14 +64,16 @@ let currentDex = 0;
 let loadingDex = 0;
 let poseStart = 0;
 
+let currentSpriteKey="",loadingSpriteKey="",spriteRequest=0;
 async function ensureSprite(dex) {
-  if (dex === currentDex || dex === loadingDex) return;
-  loadingDex = dex;
-  const sprite = await loadSprite(dex, false);
-  if (loadingDex !== dex) return; // species changed again while awaiting
-  currentSprite = sprite;
-  currentDex = dex;
-  poseStart = performance.now();
+  const shiny=!!window.TPMega?.shiny(),mega=dex===6&&!!window.TPMega?.active();
+  const key=dex+":"+(shiny?1:0)+":"+(mega?1:0);
+  if((dex===currentDex&&key===currentSpriteKey)||(dex===loadingDex&&key===loadingSpriteKey))return;
+  const request=++spriteRequest;loadingDex=dex;loadingSpriteKey=key;
+  let sprite=null;
+  try{sprite=mega?await loadMegaSprite(shiny):await loadSprite(dex,shiny);}catch(e){window.TPDiagnostics?.record("manager",e);}
+  if(request!==spriteRequest||loadingDex!==dex||loadingSpriteKey!==key)return;
+  currentSprite=sprite;currentDex=dex;currentSpriteKey=key;loadingDex=-1;loadingSpriteKey="";poseStart=performance.now();
 }
 
 function roundRect(x, y, w, h, r) {
@@ -879,7 +881,7 @@ function draw() {
   ctx.textAlign = "center";
   ctx.font = "bold 22px monospace";
   ctx.fillStyle = isEgg ? ink : nameColor;
-  ctx.fillText(fns.headerName(), TP.cx, 60);
+  ctx.fillText(window.TPMega?.active()?((fns.hasNick()?fns.name():"Mega-Glurak X")+" · Lv."+fns.level()):fns.headerName(), TP.cx, 60);
   ctx.font = "15px monospace";
   ctx.fillStyle = ink;
   ctx.fillText(isEgg ? fns.eggMessage() : fns.statusMessage(), TP.cx, 96);
@@ -975,6 +977,7 @@ function draw() {
 }
 
 function handleTap(x, y) {
+  if(window.TPMega?.busy)return;
   if(window.TPAppMenu&&window.TPAppMenu.canvasTap(x,y))return;
   if (window.TPExpeditions && window.TPExpeditions.busy) return;
   if (fns.awaitingStarter() !== 0) {
@@ -1119,6 +1122,7 @@ function handleTap(x, y) {
 // during a tap, which SwiftUI/the DOM can both report as a large jump) must
 // not be read as "swipe out of the game."
 function swipeAllowed() {
+  if(window.TPMega?.busy)return false;
   if (window.TPExpeditions && window.TPExpeditions.busy) return false;
   if (screen === "game" || screen === "battle" || screen === "gamemenu") return false;
   // Same extra gates as PetScreen.swift's swipe guard: an open feed menu
@@ -1138,7 +1142,7 @@ function onSwipe(dir) {
     return;
   }
   if (screen === "card") {
-    cardPage = ((dir > 0 ? cardPage - 1 : cardPage + 1) + CARD_PAGE_COUNT) % CARD_PAGE_COUNT;
+    cardPage = ((dir > 0 ? cardPage - 1 : cardPage + 1) + cardPageCount()) % cardPageCount();
     return;
   }
   if (screen === "idle") {
@@ -1686,8 +1690,8 @@ createTPCore({
     // button was pressed. Skipping tp_tick() here doesn't erase that decay,
     // just defers it to resume the instant the dialog closes -- mirrors
     // PetScreen.swift's fix, same reasoning.
-    if (choice === "none") mod.ccall("tp_tick", null, ["number"], [t | 0]);
-    tpPerf?.tick(tpSample,choice==="none");
+    if (!window.TPMega?.busy) { if (choice === "none") mod.ccall("tp_tick", null, ["number"], [t | 0]); }
+    tpPerf?.tick(tpSample,choice==="none"&&!window.TPMega?.busy);
     if(window.TPAppMenu)window.TPAppMenu.markReady();
     // The rest of GameModel.tick(): the idle creature's pose scheduler, the
     // bath timer (which is what actually washes the creature when it ends),

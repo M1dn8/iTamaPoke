@@ -88,7 +88,22 @@ const DEX_FILTER_PILLS = [
 ];
 const GAL_X = 71, GAL_Y = 96, GAL_CELL = 82;
 
+// D3b: one current filtered list per synchronous raster draw, no new cache.
+function dexGridSnapshot() {
+  let ids;
+  if (typeof tpComfortDexIds === "function") {
+    ids = tpComfortDexIds();
+  } else {
+    ids = [];
+    const count = fns.dexCount();
+    for (let dex = 1; dex <= count; dex++) if (dexVisible(dex)) ids.push(dex);
+  }
+  return {ids, pages: Math.max(1, Math.ceil(ids.length / 16))};
+}
+
 function drawDexGrid() {
+  const snapshot = dexGridSnapshot();
+  const pages = snapshot.pages;
   ctx.fillStyle = UI.bgDay;
   ctx.fillRect(0, 0, TP.screen, TP.screen);
   ctx.fillStyle = UI.ink;
@@ -116,14 +131,14 @@ function drawDexGrid() {
     ctx.fillText(p.label(), p.x + p.w / 2, 84);
   }
 
-  if (dexPage >= dexPageCount()) dexPage = 0;
-  if (dexFilteredCount() === 0) {
+  if (dexPage >= pages) dexPage = 0;
+  if (snapshot.ids.length === 0) {
     ctx.fillStyle = UI.ink; ctx.font = "18px monospace";
     ctx.fillText("Keine Treffer - Dex-Suche pruefen", TP.cx, 230);
   }
   for (let r = 0; r < 4; r++) {
     for (let c = 0; c < 4; c++) {
-      const dex = dexAt(dexPage * 16 + r * 4 + c);
+      const dex = snapshot.ids[dexPage * 16 + r * 4 + c] || 0;
       if (dex <= 0) continue;
       const x = GAL_X + c * GAL_CELL, y = GAL_Y + r * GAL_CELL;
       const registered = fns.dexRegistered(dex) !== 0;
@@ -168,7 +183,6 @@ function drawDexGrid() {
     }
   }
 
-  const pages = dexPageCount();
   ctx.fillStyle = UI.ink;
   ctx.font = "bold 15px monospace";
   ctx.fillText(`${dexPage + 1} / ${pages}`, TP.cx, 440);

@@ -20,6 +20,7 @@ void Pet::begin() {
 }
 
 void Pet::newEgg() {
+  if(!isEgg()&&lastEnd>=CER_FAREWELL&&lastEnd<=CER_RELEASE)journalAdd(JR_END,lastEnd);
   ceremony = CER_NONE;
   ceremonyUntil = 0;
   neglectTicks = 0;
@@ -64,6 +65,7 @@ void Pet::newEgg() {
   mistakeCooldown = 0;
   sleeping = false;
   resetPersonality();
+  journalNewCreature();
   save();
 }
 
@@ -93,6 +95,7 @@ void Pet::syncClock(uint32_t nowEpoch) {
 
   for (uint32_t i = 0; i < mins; i++) {
     ageMinutes++;
+    journalMilestones();
     personalityMinute();
     if (isEgg()) {
       if (ageMinutes >= 3) hatch();  // eclosiona en tu ausencia
@@ -164,6 +167,7 @@ bool Pet::update(uint32_t nowMs) {
 void Pet::tick() {
   if (ceremony != CER_NONE) return;  // el tiempo se detiene en la despedida
   ageMinutes++;
+  journalMilestones();
   personalityMinute();
 
   if (isEgg()) {
@@ -328,6 +332,8 @@ void Pet::registerSpecies(int16_t dex) {
   dexReg[(dex - 1) >> 3] |= (1 << ((dex - 1) & 7));
   if (shiny) dexShinyReg[(dex - 1) >> 3] |= (1 << ((dex - 1) & 7));
   if (!wasKnown) applyDexRewards();
+  if(dex==speciesId&&prevSpeciesId>=1&&prevSpeciesId!=speciesId)journalEvolution(prevSpeciesId,speciesId);
+  journalMilestones();
 }
 
 // la racha y el vinculo mejoran el sorteo del huevo (0..~14)
@@ -449,6 +455,7 @@ void Pet::checkMedals() {
   if (gained) {
     for (uint16_t m = gained; m; m &= (m - 1)) totalMedals++;
     newMedal = gained;
+    journalAdd(JR_MEDAL,gained);
     medalUntil = millis() + 4000;
     if (!sleeping) sfxPlay(SFX_MEDAL);
     save();
@@ -558,9 +565,11 @@ uint16_t Pet::applyDexRewards() {
 }
 
 void Pet::registerCaught(int16_t dex) {
+  const bool journalFirstCapture=!isCaught(dex);
   if (dex < 1 || dex > DEX_COUNT) return;
   bool wasKnown = isRegistered(dex) || isCaught(dex);
   dexCaught[(dex - 1) >> 3] |= (1 << ((dex - 1) & 7));
+  if(journalFirstCapture)journalAdd(JR_CAPTURE,0,0,uint16_t(dex));
   noteDailyGoal(DAILY_GOAL_CATCH, 1);
   if (!wasKnown) applyDexRewards();
   save();
@@ -676,6 +685,7 @@ void Pet::hatch() {
   evoDeclinedAge = 0;
   farDeclinedAge = 0;
   resetPersonality();
+  journalAdd(JR_HATCH,0,0,uint16_t(speciesId),shiny?1:0);
   registerSpecies(speciesId);  // criado = registrado en la pokedex
   checkMedals();     // por si nace ya en forma final (legendario)
   sfxPlay(SFX_HATCH);
@@ -823,7 +833,7 @@ void Pet::playResult(uint8_t score) {
   int burn = (int)weight - score * 2;  // el ejercicio quema peso
   weight = burn > 0 ? burn : 0;
   if (score >= 5) heartUntil = millis() + HEART_MS;
-  if (score > gameHi) gameHi = score;  // nuevo record
+  if (score > gameHi) {gameHi = score;journalAdd(JR_RECORD,0,score);}  // nuevo record
   addBond(2);
   registerCare();
   noteDailyGoal(DAILY_GOAL_PLAY, 1);
@@ -843,7 +853,7 @@ uint8_t Pet::applyCatchResult(uint8_t score) {
   int burn = (int)weight - score;
   weight = burn > 0 ? burn : 0;
   if (score >= 5) heartUntil = millis() + HEART_MS;
-  if (score > catchHi) catchHi = score;
+  if (score > catchHi) {catchHi = score;journalAdd(JR_RECORD,1,score);}
   addBond(1);
   registerCare();
   noteDailyGoal(DAILY_GOAL_CATCH, score);
@@ -867,7 +877,7 @@ uint8_t Pet::applyMemoResult(uint8_t rounds) {
   energy = dropTo(energy, 6 + rounds / 2, 5);
   fullness = dropTo(fullness, 3, 5);
   if (rounds >= 4) heartUntil = millis() + HEART_MS;
-  if (rounds > memoHi) memoHi = rounds;
+  if (rounds > memoHi) {memoHi = rounds;journalAdd(JR_RECORD,2,rounds);}
   addBond(2);
   registerCare();
   noteDailyGoal(DAILY_GOAL_MEMO, rounds);
@@ -885,7 +895,7 @@ uint8_t Pet::applyCleanResult(uint8_t score) {
   energy = dropTo(energy, 4 + score / 4, 8);
   if (poops && score >= 4) poops--;
   if (score >= 6) heartUntil = millis() + HEART_MS;
-  if (score > cleanHi) cleanHi = score;
+  if (score > cleanHi) {cleanHi = score;journalAdd(JR_RECORD,3,score);}
   addBond(1);
   registerCare();
   noteDailyGoal(DAILY_GOAL_CARE, 1);
@@ -907,7 +917,7 @@ uint8_t Pet::applyTypeResult(uint8_t score) {
   energy = dropTo(energy, 5 + score / 3, 8);
   fullness = dropTo(fullness, 2, 5);
   if (score >= 5) heartUntil = millis() + HEART_MS;
-  if (score > typeHi) typeHi = score;
+  if (score > typeHi) {typeHi = score;journalAdd(JR_RECORD,4,score);}
   addBond(1);
   registerCare();
   noteDailyGoal(DAILY_GOAL_PLAY, 1);
@@ -1061,7 +1071,7 @@ uint8_t Pet::trainStrength(uint16_t hits) {
   weight = burn > 0 ? burn : 0;
   joy = clamp100(joy + 6);
   if (hits >= 20) heartUntil = millis() + HEART_MS;
-  if (hits > strHi) strHi = hits;   // record de golpes
+  if (hits > strHi) {strHi = hits;journalAdd(JR_RECORD,5,hits);}   // record de golpes
   addBond(2);
   registerCare();
   if (hits > 0) notePersonality(0);
@@ -1207,6 +1217,7 @@ ExpeditionItem Pet::claimExpedition(uint32_t nowEpoch) {
   if (!canClaimExpedition(nowEpoch)) return EXP_ITEM_NONE;
   const ExpeditionItem reward = (ExpeditionItem)expeditionRewardItem;
   itemCounts[reward]++;
+  journalAdd(JR_EXPEDITION,expeditionRoute,reward);
   expeditionLastItem = reward;
   expeditionLastRoute = expeditionRoute;
   expeditionLastClaimEpoch = nowEpoch;
@@ -1303,6 +1314,7 @@ PetMood Pet::mood() const {
 }
 
 void Pet::save() {
+  saveJournal();
   savePersonality();
   prefs.putUChar("eggen", nextEggGeneration);
   prefs.putUChar("egtyp", nextEggType);
@@ -1396,6 +1408,7 @@ void Pet::save() {
 }
 
 void Pet::load() {
+  loadJournal();
   nextEggGeneration = prefs.getUChar("eggen", 0);
   nextEggType = prefs.getUChar("egtyp", 0);
   nextEggUnraised = prefs.getBool("egunk", false);
@@ -1526,6 +1539,7 @@ void Pet::load() {
   loadPersonality();
   prefs.getString("nick", nick, sizeof(nick));
   // siembra: la mascota actual cuenta como criada (guardados antiguos)
+  prepareJournalBaseline();
   if (speciesId >= 1) registerSpecies(speciesId);
   ceremony = CER_NONE;
   ceremonyUntil = 0;
@@ -1536,3 +1550,5 @@ void Pet::load() {
 }
 
 #include "personality_rules.inc"
+
+#include "journal_rules.inc"

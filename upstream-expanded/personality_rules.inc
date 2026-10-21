@@ -68,7 +68,7 @@ void Pet::updatePersonality() {
     uint8_t second=0;for(uint8_t i=0;i<4;i++)if(i+1!=candidate&&personalityScores[i]>second)second=personalityScores[i];
     if(maxScore<second+2)return;
   }else if(maxScore<=2)candidate=PERS_BALANCED;else return;
-  if(candidate!=personalityKind){personalityKind=candidate;personalityChanged=true;personalityChangeMinute=ageMinutes;pendingSave=true;}
+  if(candidate!=personalityKind){journalAdd(JR_PERSONALITY,personalityKind,candidate);personalityKind=candidate;personalityChanged=true;personalityChangeMinute=ageMinutes;pendingSave=true;}
 }
 void Pet::notePersonality(uint8_t axis) {
   if(axis>3||isEgg()||ceremony!=CER_NONE||evolving()||(sleeping&&axis<=1))return;

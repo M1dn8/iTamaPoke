@@ -803,6 +803,7 @@ function starterTap(x, y) {
 
 function draw() {
   if (!Module) return;
+  if(window.TPAppMenu&&window.TPAppMenu.active){statusEl.textContent="";return;}
 
   // A fresh save picks its starter before any other screen exists --
   // same precedence as PetScreen.swift's render().
@@ -817,6 +818,7 @@ function draw() {
   }
   if (screen === "dex") {
     if (dexScreen === "detail") drawDexDetail(); else drawDexGrid();
+    if(window.TPAppMenu)window.TPAppMenu.drawDexBack();
     return;
   }
   if (screen === "battle") {
@@ -973,6 +975,7 @@ function draw() {
 }
 
 function handleTap(x, y) {
+  if(window.TPAppMenu&&window.TPAppMenu.canvasTap(x,y))return;
   if (window.TPExpeditions && window.TPExpeditions.busy) return;
   if (fns.awaitingStarter() !== 0) {
     starterTap(x, y);
@@ -1153,7 +1156,7 @@ function onSwipe(dir) {
   }
   const pages = dexPageCount();
   const next = dexPage - dir;
-  if (next < 0) { screen = "idle"; return; }
+  if (next < 0) { if(window.TPAppMenu&&window.TPAppMenu.returnDex())return;screen="idle";return; }
   dexPage = Math.min(next, pages - 1);
 }
 
@@ -1162,6 +1165,7 @@ function onSwipe(dir) {
 // closes it if already open).
 function onSwipeV(dir) {
   if (!swipeAllowed()) return;
+  if(window.TPAppMenu&&window.TPAppMenu.swipe(dir))return;
   if (fns.awaitingStarter() !== 0) return;   // the picker only pages sideways
   if (screen === "dex") {
     dexScreen = "grid";
@@ -1669,6 +1673,7 @@ createTPCore({
     // just defers it to resume the instant the dialog closes -- mirrors
     // PetScreen.swift's fix, same reasoning.
     if (choice === "none") mod.ccall("tp_tick", null, ["number"], [t | 0]);
+    if(window.TPAppMenu)window.TPAppMenu.markReady();
     // The rest of GameModel.tick(): the idle creature's pose scheduler, the
     // bath timer (which is what actually washes the creature when it ends),
     // and the long-press check -- all on the tick, never in a draw.

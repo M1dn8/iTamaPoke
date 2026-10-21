@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include <Preferences.h>
 #include "time_utils.h"
+#include "journal_types.h"
 #include "dex.h"   // DEX_COUNT: the dex bitmaps below are sized from it
 
 // 1 tick = 1 minuto de juego. Baja este valor para probar mas rapido
@@ -183,6 +184,14 @@ public:
   uint8_t applyWalk(uint16_t steps);
   bool takeMorningGreeting();
   PetPersonality personality() const;
+  void journalAdd(uint8_t kind,uint16_t a=0,uint16_t b=0,uint16_t species=0xffff,uint8_t flags=0,const char *name=nullptr,uint32_t epoch=0);
+  void journalNewCreature();
+  void journalMilestones();
+  void journalEvolution(uint16_t from,uint16_t to);
+  void journalFinalize(uint32_t epoch=0);
+  std::string journalJSON();
+  uint16_t journalSize() const { return journalCount; }
+
   // C4: per-individual personality; scores exposed read-only for tests.
   uint8_t personalityScore(uint8_t axis) const { return axis < 4 ? personalityScores[axis] : 0; }
 
@@ -322,6 +331,15 @@ public:
   void flushSave();
 
 private:
+  TPJournalEntry journalEntries[200] = {};
+  TPJournalPending journalPending = {};
+  uint16_t journalCount = 0, journalLastFrom = 0, journalLastTo = 0;
+  uint8_t journalLevels = 0, journalCollection = 0;
+  bool journalReady = false, journalNeedsBaseline = false;
+  void journalEnsure();
+  void loadJournal();
+  void saveJournal();
+  void prepareJournalBaseline();
   bool personalityReady = false;
   uint8_t personalityKind = PERS_BALANCED;
   uint8_t personalityScores[4] = {0,0,0,0};

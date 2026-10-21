@@ -1,0 +1,32 @@
+#toolbar,.tp-tools{display:none!important}
+html,body{overflow:hidden!important}
+#tp-game-shell{position:relative;flex:none;width:min(calc(100vw - 16px),calc(100vh - 130px),466px);aspect-ratio:1;overflow:hidden}
+@supports(height:100dvh){#tp-game-shell{width:min(calc(100vw - 16px),calc(100dvh - 130px),466px)}}
+#tp-game-shell>canvas{display:block;width:100%!important;height:100%!important}
+#tp-app-page{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;box-sizing:border-box;padding:14px;background:#f4f0e7;color:#273744;font:16px -apple-system,system-ui,sans-serif;overflow:hidden;touch-action:pan-y}
+#tp-app-page[hidden]{display:none!important}
+#tp-app-page.tp-app-main{touch-action:none}
+#tp-app-page button{font:inherit;color:#273744;background:#fff;border:1px solid #aeb7bc;border-radius:9px;min-height:44px;padding:9px;cursor:pointer}
+#tp-app-page button:focus-visible{outline:3px solid #457ca4;outline-offset:2px}
+.tp-app-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;flex:none}
+.tp-app-head h2{font-size:23px;margin:0}
+.tp-app-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,1fr);gap:10px;flex:1;min-height:0}
+.tp-app-home{margin-top:12px;flex:none}
+.tp-app-actions{display:flex;flex-direction:column;gap:10px;overflow:auto}
+.tp-app-danger{margin-top:auto;padding-top:12px;font-size:12px}
+#tp-app-page .tp-app-danger button{color:#9c3030;width:100%}
+.tp-app-notice{font-size:12px;margin:6px 0 0}
+.tp-app-list{overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;min-height:0;flex:1}
+.tp-app-list>p{font-size:14px}
+.tp-app-date{font-size:14px;margin:8px 0;background:#f4f0e7;position:sticky;top:0;padding:6px 0}
+.tp-app-entry{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid #d3d4d0;font-size:14px;overflow-wrap:anywhere}
+.tp-app-entry time{font-size:12px;min-width:38px;color:#546471;padding-top:2px}
+.tp-app-entry p{margin:0;line-height:1.35}
+#tp-game-shell>.tp-modal{position:absolute!important;inset:0!important;z-index:30!important;padding:0!important;background:transparent!important;backdrop-filter:none!important}
+#tp-game-shell>.tp-modal[hidden]{display:none!important}
+#tp-game-shell>.tp-modal .tp-panel{width:100%!important;max-width:none!important;height:100%!important;max-height:none!important;margin:0!important;box-sizing:border-box;border-radius:0!important;box-shadow:none!important;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y}
+#tp-game-shell>.tp-modal input,#tp-game-shell>.tp-modal select{font-size:16px}
+
+#tp-game-shell>.tp-modal .tp-panel{position:relative!important;inset:auto!important;transform:none!important}
+
+#tp-game-shell>.tp-modal{min-height:0!important;max-height:100%!important;max-width:100%!important}

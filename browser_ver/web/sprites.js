@@ -120,7 +120,9 @@ function spriteScale(sprite, a, maxS = 5) {
   let s = idleH > 0 ? Math.floor(170 / idleH) : maxS;
   s = Math.min(Math.max(s, 2), maxS);
   while (s > 2 && a.h * s > 250) s--;
-  return s;
+  // E2 display-only adjustment: tag belongs to this loaded form, not the pet.
+  // Keep all normal sprites (including wild Metagross) and other Megas unchanged.
+  return sprite && sprite._tpMegaForm === 2 ? s * 0.75 : s;
 }
 
 // --- Local asset store (IndexedDB) ----------------------------------------
@@ -260,6 +262,6 @@ async function loadMegaSprite(shiny,form=1){
  const info=TPStoreTools.megaFormInfo(form);if(!info)throw Error("Unbekannte Mega-Form.");
  const key=info.dex+":mega:"+form+":"+(shiny?1:0);if(spriteCache.has(key))return spriteCache.get(key);
  const raw=await loadSpriteAsset(shiny?info.shiny:info.normal);let sprite=null;
- if(raw){TPStoreTools.inspectSprite(raw);sprite=parseTPK2(raw);}spriteCache.set(key,sprite);return sprite;
+ if(raw){TPStoreTools.inspectSprite(raw);sprite=parseTPK2(raw);if(sprite)Object.defineProperty(sprite,"_tpMegaForm",{value:info.id});}spriteCache.set(key,sprite);return sprite;
 }
 function megaSpriteFor(shiny,form=1){const info=TPStoreTools.megaFormInfo(form);if(!info)return null;const key=info.dex+":mega:"+form+":"+(shiny?1:0);if(spriteCache.has(key))return spriteCache.get(key);if(!spriteLoading.has(key)){spriteLoading.add(key);loadMegaSprite(shiny,form).catch(()=>{spriteCache.set(key,null);}).finally(()=>spriteLoading.delete(key));}return null;}

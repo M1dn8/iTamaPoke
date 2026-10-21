@@ -73,6 +73,7 @@ bool gOpen = false, gResolved = false;
 int16_t gDex = 0;
 uint8_t gLevel = 0;
 BattleStats gPlayer{}, gEnemy{};
+uint8_t gPlayerMegaForm=0;
 BattleRuntime gRun{};
 BattleTurnResult gTurn{};
 bool gAttackMenuOpen = false;
@@ -94,7 +95,9 @@ BattleStats realPlayerStats() {
   if (!pet.isEgg() && pet.speciesId >= 1 && pet.speciesId <= DEX_COUNT) {
     const DexEntry &d = DEX_TBL[pet.speciesId];
     stats.type1 = d.type1;
-    stats.type2 = stats.mega?TYPE_DRAGON:d.type2;
+    const auto form=tpMegaByDex(pet.speciesId);
+    stats.type1=stats.mega&&form?form->type1:d.type1;
+    stats.type2=stats.mega&&form?form->type2:d.type2;
   }
   return stats;
 }
@@ -117,6 +120,7 @@ void startBattle(int16_t forcedDex, uint8_t forcedLevel) {
     gLevel = wildLevelFor(pet.level(), rnd100());
   }
   gPlayer = realPlayerStats();
+  gPlayerMegaForm=gPlayer.mega?pet.megaFormId():0;
   gEnemy = wildBattleStats(gDex, gLevel);
   gEnemy.hp = 0;
   gRun = beginBattleRuntime(gPlayer, gEnemy);
@@ -288,7 +292,7 @@ EMSCRIPTEN_KEEPALIVE
 const char *tp_battle_player_label() {
   static std::string out;
   Pet &pet = tp_battle_pet();
-  const char *name = pet.nick[0] ? pet.nick : (gPlayer.mega?"Mega-Glurak X":dexName(pet.speciesId));
+  const char *name = pet.nick[0] ? pet.nick : (gPlayer.mega&&tpMegaById(gPlayerMegaForm)?tpMegaById(gPlayerMegaForm)->name:dexName(pet.speciesId));
   char buf[64];
   snprintf(buf, sizeof(buf), "%.23s%s Lv.%u", name, gPlayer.mega&&pet.nick[0]?" (Mega)":"", gPlayer.level);
   out = buf;
@@ -417,6 +421,7 @@ void tp_battle_leave_wild() {
   sfxPlay(SFX_TAP);
 }
 
+EMSCRIPTEN_KEEPALIVE int tp_e_battle_form(){return gOpen?gPlayerMegaForm:0;}
 EMSCRIPTEN_KEEPALIVE int tp_e_battle_mega(){return gOpen&&gPlayer.mega;}
 EMSCRIPTEN_KEEPALIVE int tp_e_battle_type1(){return gPlayer.type1;}
 EMSCRIPTEN_KEEPALIVE int tp_e_battle_type2(){return gPlayer.type2;}

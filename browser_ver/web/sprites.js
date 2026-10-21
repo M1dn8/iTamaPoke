@@ -156,9 +156,6 @@ async function importSpriteFiles(files) {
   for (const f of files) {
     // p<dex>.bin / ps<dex>.bin sprites, plus the gallery's thumbs.bin atlas
     // (thumbs.js) -- everything upstream's mons/ folder holds for art.
-    const isThumbs = /^thumbs\.bin$/i.test(f.name);
-    const m = /^(ps?)(\d{1,4})\.bin$/i.exec(f.name);
-    if (!m && !isThumbs && !/^(p|ps)006-mega-x\.bin$/i.test(f.name)) continue;
     const info = TPStoreTools.canonicalSprite(f.name);
     if (!info) continue;
     entries.push([info.key, await f.arrayBuffer()]);
@@ -259,9 +256,10 @@ function tpSpriteMemoryStats(){
  return {cacheEintraege:spriteCache.size,geladeneObjekte:objects.size,fehlendeEintraege:missing,dekodierteBilder:frames,bekanntePufferBytes:bytes,laufendeAnfragen:spriteLoading.size,hinweis:"Nur bereits geladener gemeinsamer Grafikcache. Geteilte ArrayBuffer einmal gezählt; ohne JS-Objekt-, GPU-, Audio-, Atlas- und WASM-Speicher. Keine Gesamt-RAM-Messung."};
 }
 
-async function loadMegaSprite(shiny){
- const key="6:mega-x:"+(shiny?1:0);if(spriteCache.has(key))return spriteCache.get(key);
- const raw=await loadSpriteAsset((shiny?"ps":"p")+"006-mega-x.bin");let sprite=null;
+async function loadMegaSprite(shiny,form=1){
+ const info=TPStoreTools.megaFormInfo(form);if(!info)throw Error("Unbekannte Mega-Form.");
+ const key=info.dex+":mega:"+form+":"+(shiny?1:0);if(spriteCache.has(key))return spriteCache.get(key);
+ const raw=await loadSpriteAsset(shiny?info.shiny:info.normal);let sprite=null;
  if(raw){TPStoreTools.inspectSprite(raw);sprite=parseTPK2(raw);}spriteCache.set(key,sprite);return sprite;
 }
-function megaSpriteFor(shiny){const key="6:mega-x:"+(shiny?1:0);if(spriteCache.has(key))return spriteCache.get(key);if(!spriteLoading.has(key)){spriteLoading.add(key);loadMegaSprite(shiny).catch(()=>{spriteCache.set(key,null);}).finally(()=>spriteLoading.delete(key));}return null;}
+function megaSpriteFor(shiny,form=1){const info=TPStoreTools.megaFormInfo(form);if(!info)return null;const key=info.dex+":mega:"+form+":"+(shiny?1:0);if(spriteCache.has(key))return spriteCache.get(key);if(!spriteLoading.has(key)){spriteLoading.add(key);loadMegaSprite(shiny,form).catch(()=>{spriteCache.set(key,null);}).finally(()=>spriteLoading.delete(key));}return null;}

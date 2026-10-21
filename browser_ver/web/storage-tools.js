@@ -58,9 +58,15 @@ async function decode(input){
  }
  return Object.assign(parseLegacy(b),{metadata:null,format:"Klassischer Spielstand"});
 }
+const megaForms=Object.freeze({
+ 1:Object.freeze({id:1,dex:6,baseName:"Glurak",name:"Mega-Glurak X",normal:"p006-mega-x.bin",shiny:"ps006-mega-x.bin"}),
+ 2:Object.freeze({id:2,dex:376,baseName:"Metagross",name:"Mega-Metagross",normal:"p376-mega.bin",shiny:"ps376-mega.bin"})
+});
+function megaFormInfo(id){return Object.prototype.hasOwnProperty.call(megaForms,id)?megaForms[id]:null;}
 function canonicalSprite(name){
  if(/^thumbs\.bin$/i.test(name))return {key:"thumbs.bin",atlas:true};
- const mega=/^(p|ps)006-mega-x\.bin$/i.exec(name);if(mega)return {key:mega[1].toLowerCase()+"006-mega-x.bin",dex:6,shiny:mega[1].toLowerCase()==="ps",form:"mega-x"};
+ const extra=/^(p|ps)(\d{1,4})-mega(?:-(x))?\.bin$/i.exec(name);
+ if(extra){const dex=Number(extra[2]),id=dex===6&&extra[3]?1:dex===376&&!extra[3]?2:0;const f=megaFormInfo(id);if(!f)return null;const shiny=extra[1].toLowerCase()==="ps";return {key:shiny?f.shiny:f.normal,dex:f.dex,shiny,form:id===1?"mega-x":"mega",formId:id};}
  const m=/^(ps?)(\d{1,4})\.bin$/i.exec(name);if(!m)return null;const dex=Number(m[2]);if(dex<1||dex>1025)return null;
  return {key:m[1].toLowerCase()+String(dex).padStart(3,"0")+".bin",dex,shiny:m[1].toLowerCase()==="ps"};
 }
@@ -84,6 +90,6 @@ function inspectThumbs(input){
  for(let i=0;i<n;i++){const off=v.getUint32(6+i*4,true);if(!off)continue;if(off<6+n*4||off+3>b.length)throw Error("Ungueltiger Atlas-Offset.");const w=b[off],h=b[off+1],pal=b[off+2];if(!w||!h||!pal||off+3+pal*2+w*h>b.length)throw Error("Atlas abgeschnitten.");}
  return {valid:true,kind:"atlas",size:b.length,count:n};
 }
-const api={parseLegacy,digest,seal,decode,canonicalSprite,inspectSprite,inspectThumbs};root.TPStoreTools=api;
+const api={parseLegacy,digest,seal,decode,canonicalSprite,megaFormInfo,inspectSprite,inspectThumbs};root.TPStoreTools=api;
 if(typeof module!=="undefined"&&module.exports)module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

@@ -1,0 +1,19 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const T=require('../browser_ver/web/storage-tools.js');
+assert.equal(T.canonicalSprite('p376-mega.bin').formId,2);assert.equal(T.canonicalSprite('PS0376-MEGA.BIN').key,'ps376-mega.bin');assert.equal(T.canonicalSprite('p006-mega-x.bin').formId,1);for(const name of ['p375-mega.bin','p376-mega-x.bin','p006-mega.bin','p006-mega-y.bin'])assert.equal(T.canonicalSprite(name),null,name);
+assert.equal(T.megaFormInfo(2).dex,376);assert.equal(T.megaFormInfo(2).name,'Mega-Metagross');assert.equal(T.megaFormInfo(99),null);
+if(process.env.E2_NATIVE_JSON){const native=JSON.parse(fs.readFileSync(process.env.E2_NATIVE_JSON,'utf8'));const form=T.megaFormInfo(native.form);assert(form);assert.equal(form.dex,native.dex);assert.equal(form.name,native.name);assert.equal(form.baseName,native.baseName);}
+(async()=>{
+ let state={form:2,dex:376,baseName:'Metagross',name:'Mega-Metagross',supported:1,stone:0,stones:1,quest:1,training:3,active:0,now:1700000000,cool:0,shiny:1,base:[120,130,90]},undo,fail=true,asset=null,lastArgs,calls=[];
+ const c={TPStoreTools:T,console,Date,JSON,Object,Math,Promise,Uint8Array,setTimeout,screen:'card',cardPage:8,choice:'none',tpSaveReplacing:false,tpSaveEpoch:0,fns:{sleeping:()=>0,ceremony:()=>0,evolvingNow:()=>0,wildPromptActive:()=>0},TPDiagnostics:{record(){}},loadMegaSprite:async(...args)=>{lastArgs=args;return asset;},exportStateBytes:()=>new Uint8Array([1]),writeSave:async(bytes,force)=>{assert(force);if(fail)throw Error('synthetic');},Module:{ccall(name,type,types,args){if(name==='tp_e_view')return JSON.stringify(state);if(name==='tp_e_apply'){calls.push('apply');undo={...state};if(args[0]===0){state.stone=1;state.stones|=2;}else state.active=1;return 1;}if(name==='tp_e_finish'){calls.push('finish:'+args[0]);if(!args[0])state=undo;return 1;}return 0;}}};c.window=c;vm.createContext(c);vm.runInContext(fs.readFileSync('browser_ver/web/mega.js','utf8'),c);
+ assert.equal(c.TPMega.form(),2);assert.equal(c.TPMega.name(),'Mega-Metagross');assert.equal(await c.TPMega.act(0),false);assert.equal(state.stones,1);assert.equal(state.stone,0);assert.deepEqual(calls,['apply','finish:0']);
+ fail=false;assert(await c.TPMega.act(0));assert.equal(state.stones,3);calls=[];assert.equal(await c.TPMega.act(1),false);assert.deepEqual(lastArgs,[true,2]);assert.equal(state.active,0);assert.deepEqual(calls,[]);asset={};assert(await c.TPMega.act(1));assert.equal(state.active,1);assert.deepEqual(lastArgs,[true,2]);
+ state.active=0;state.dex=6;calls=[];assert.equal(await c.TPMega.act(1),false);assert.deepEqual(calls,[]);
+ // Actual loaders must request four separate local files, never another form's image.
+ const read=[],binary=Uint8Array.from([84,80,75,50,1,1,0,224,7,0,1,1,1,70,0,0]).buffer;
+ const s={TPStoreTools:T,console,Map,Set,Uint8Array,ArrayBuffer};vm.createContext(s);vm.runInContext(fs.readFileSync('browser_ver/web/sprites.js','utf8'),s);s.loadSpriteAsset=async name=>{read.push(name);return binary;};
+ for(const [shiny,form]of [[false,1],[true,1],[false,2],[true,2]])assert(await s.loadMegaSprite(shiny,form));assert.deepEqual(read,['p006-mega-x.bin','ps006-mega-x.bin','p376-mega.bin','ps376-mega.bin']);assert.equal(vm.runInContext('spriteCache.size',s),4);await s.loadMegaSprite(false,2);assert.equal(read.length,4);
+ for(const file of ['.github/workflows/build-browser.yml','.github/workflows/quality-gate.yml']){const text=fs.readFileSync(file,'utf8');assert(text.includes('(-mega(-[a-z]+)?)?'));}
+ assert(fs.readFileSync('browser_ver/web/mega.js','utf8').includes('line(v.baseName+" → "+v.name'));assert(fs.readFileSync('browser_ver/web/battle.js','utf8').includes('window.TPMega.battleForm()'));
+ console.log('E2 JS passed: exact form naming, separate filenames/cache, shiny routing, rollback, invalid metadata refusal and publishing guards.');
+})().catch(e=>{console.error(e);process.exit(1);});

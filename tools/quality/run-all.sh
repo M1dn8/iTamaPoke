@@ -5,7 +5,7 @@ TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 CXX=${CXX:-g++}
 for tool in node python3 "$CXX"; do command -v "$tool" >/dev/null || { echo "Fehlendes Testwerkzeug: $tool" >&2; exit 1; }; done
-for test in tests/package-e.test.js tests/package-d3b.test.js tests/package-d3.test.js tests/package-d2.test.js tests/package-d1.test.js tests/package-a.test.js tests/package-b.test.js tests/package-c1-ui.test.js tests/package-c2-ui.test.js tests/package-c4-ui.test.js tests/package-c5-ui.test.js tests/package-c5-theme.test.js; do
+for test in tests/package-e2.test.js tests/package-e.test.js tests/package-d3b.test.js tests/package-d3.test.js tests/package-d2.test.js tests/package-d1.test.js tests/package-a.test.js tests/package-b.test.js tests/package-c1-ui.test.js tests/package-c2-ui.test.js tests/package-c4-ui.test.js tests/package-c5-ui.test.js tests/package-c5-theme.test.js; do
   echo "Pruefe $test"; node "$test"
 done
 for file in browser_ver/web/*.js; do node --check "$file"; done
@@ -29,4 +29,12 @@ python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$TMP/journal.json"
 "$CXX" -O2 -std=c++17 -I tests/c2_wasm_stub -I browser_ver/core/shim -I upstream-expanded upstream-expanded/pet.cpp upstream-expanded/battle.cpp upstream-expanded/i18n.cpp tests/package-e-battle.cpp -o "$TMP/e-battle"
 "$TMP/e-battle"
 
+
+
+"$CXX" -O2 -std=c++17 -I tests/c2_wasm_stub -I browser_ver/core/shim -I upstream-expanded upstream-expanded/pet.cpp upstream-expanded/battle.cpp browser_ver/core/browser_mega.cpp tests/package-e2.cpp -o "$TMP/e2"
+"$TMP/e2" --json > "$TMP/e2-native.json"
+E2_NATIVE_JSON="$TMP/e2-native.json" node tests/package-e2.test.js
+"$TMP/e2"
+"$CXX" -O2 -std=c++17 -I tests/c2_wasm_stub -I browser_ver/core/shim -I upstream-expanded upstream-expanded/pet.cpp upstream-expanded/battle.cpp upstream-expanded/i18n.cpp tests/package-e2-battle.cpp -o "$TMP/e2-battle"
+"$TMP/e2-battle"
 echo "Alle zentralen Logik-/Oberflaechen-Vorpruefungen erfolgreich."

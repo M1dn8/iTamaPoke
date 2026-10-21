@@ -3,6 +3,7 @@
 #include <Preferences.h>
 #include "time_utils.h"
 #include "journal_types.h"
+#include "mega_forms.h"
 #include "dex.h"   // DEX_COUNT: the dex bitmaps below are sized from it
 
 // 1 tick = 1 minuto de juego. Baja este valor para probar mas rapido
@@ -332,12 +333,14 @@ public:
 
 
   // E1: temporary form is separate from species/training; stone belongs to trainer.
-  bool megaSupported() const { return !isEgg() && speciesId==6; }
-  bool megaStoneOwned() const { return megaStone; }
+  uint8_t megaFormId() const {const auto f=tpMegaByDex(speciesId);return !isEgg()&&f?f->id:0;}
+  bool megaSupported() const {return megaFormId()!=0;}
+  uint8_t megaStoneMask() const {return megaStones;}
+  bool megaStoneOwned() const {const auto f=tpMegaByDex(speciesId);return f&&(megaStones&f->stoneBit); }
   uint8_t megaTrainingCount() const { return megaTraining; }
   uint32_t megaEndsAt() const { return megaEnd; }
   uint32_t megaCooldownAt() const { return megaCooldown; }
-  bool megaActive(uint32_t now) const { return megaSupported() && megaForm==1 && now && now<megaEnd && now>=megaStarted; }
+  bool megaActive(uint32_t now) const { return megaSupported() && megaStoneOwned() && megaForm==megaFormId() && now && now<megaEnd && now>=megaStarted; }
   bool megaQuestReady() const;
   bool megaClaim(uint32_t now);
   bool megaActivate(uint32_t now);
@@ -347,7 +350,7 @@ public:
   uint16_t megaSpe(uint32_t now) const;
 
 private:
-  bool megaStone=false;
+  uint8_t megaStones=0;
   uint8_t megaTraining=0,megaForm=0;
   uint32_t megaEnd=0,megaCooldown=0,megaStarted=0,megaSeen=0;
   void loadMega();

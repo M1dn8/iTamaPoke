@@ -33,7 +33,7 @@ function battleSprite(dex) {
 }
 
 function drawBattleSprite(dex, x, now, player=false) {
-  const sprite=player?(window.TPMega?.battleActive()?megaSpriteFor(window.TPMega.shiny()):spriteFor(dex,!!window.TPMega?.shiny())):spriteFor(dex,false);
+  const sprite=player?(window.TPMega?.battleActive()?megaSpriteFor(window.TPMega.shiny(),window.TPMega.battleForm()):spriteFor(dex,!!window.TPMega?.shiny())):spriteFor(dex,false);
   if (!sprite) {
     ctx.font = "bold 40px monospace";
     ctx.fillStyle = "#98a0b0";

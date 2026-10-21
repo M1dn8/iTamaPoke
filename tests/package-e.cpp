@@ -18,7 +18,7 @@ int main(){
  p.setClock(now);Pet reload;reload.begin();assert(reload.megaActive(now+899));const auto entries=reload.journalSize();reload.megaUpdate(now+900);assert(!reload.megaActive(now+900)&&reload.journalSize()==entries+1);reload.megaUpdate(now+901);assert(reload.journalSize()==entries+1);assert(reload.megaAtk(now+901)==normalAtk);assert(!reload.megaActivate(now+4499));assert(reload.megaActivate(now+4500));
  reload.megaUpdate(now-10);assert(!reload.megaActive(now-10));assert(!reload.megaActivate(now-10));
  // New individual resets only challenge/form; trainer stone and cooldown survive.
- reload.release();g_millis+=10001;reload.update(g_millis);assert(reload.isEgg()&&reload.megaStoneOwned()&&reload.megaTrainingCount()==0);
+ reload.release();g_millis+=10001;reload.update(g_millis);assert(reload.isEgg()&&(reload.megaStoneMask()&1)&&reload.megaTrainingCount()==0);
  // Claim and activate are reversible until the actual IndexedDB commit finishes.
  live=specimen();live.applyTypeResult(1);live.applyMemoResult(1);live.trainStrength(1);live.fullness=live.joy=live.energy=live.hygiene=100;live.setClock(now);
  const auto store=Preferences::store();assert(tp_e_apply(0)==1&&live.megaStoneOwned());assert(tp_e_finish(0)==1&&!live.megaStoneOwned());assert(Preferences::store()==store);

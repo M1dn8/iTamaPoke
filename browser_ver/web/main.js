@@ -66,12 +66,12 @@ let poseStart = 0;
 
 let currentSpriteKey="",loadingSpriteKey="",spriteRequest=0;
 async function ensureSprite(dex) {
-  const shiny=!!window.TPMega?.shiny(),mega=dex===6&&!!window.TPMega?.active();
-  const key=dex+":"+(shiny?1:0)+":"+(mega?1:0);
+  const shiny=!!window.TPMega?.shiny(),form=window.TPMega?.active()?window.TPMega.form():0,mega=!!form&&TPStoreTools.megaFormInfo(form)?.dex===dex;
+  const key=dex+":"+(shiny?1:0)+":"+(mega?form:0);
   if((dex===currentDex&&key===currentSpriteKey)||(dex===loadingDex&&key===loadingSpriteKey))return;
   const request=++spriteRequest;loadingDex=dex;loadingSpriteKey=key;
   let sprite=null;
-  try{sprite=mega?await loadMegaSprite(shiny):await loadSprite(dex,shiny);}catch(e){window.TPDiagnostics?.record("manager",e);}
+  try{sprite=mega?await loadMegaSprite(shiny,form):await loadSprite(dex,shiny);}catch(e){window.TPDiagnostics?.record("manager",e);}
   if(request!==spriteRequest||loadingDex!==dex||loadingSpriteKey!==key)return;
   currentSprite=sprite;currentDex=dex;currentSpriteKey=key;loadingDex=-1;loadingSpriteKey="";poseStart=performance.now();
 }
@@ -881,7 +881,7 @@ function draw() {
   ctx.textAlign = "center";
   ctx.font = "bold 22px monospace";
   ctx.fillStyle = isEgg ? ink : nameColor;
-  ctx.fillText(window.TPMega?.active()?((fns.hasNick()?fns.name():"Mega-Glurak X")+" · Lv."+fns.level()):fns.headerName(), TP.cx, 60);
+  ctx.fillText(window.TPMega?.active()?((fns.hasNick()?fns.name():window.TPMega.name())+" · Lv."+fns.level()):fns.headerName(), TP.cx, 60);
   ctx.font = "15px monospace";
   ctx.fillStyle = ink;
   ctx.fillText(isEgg ? fns.eggMessage() : fns.statusMessage(), TP.cx, 96);

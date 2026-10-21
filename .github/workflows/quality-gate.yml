@@ -1,0 +1,76 @@
+name: Gemeinsames Qualitaetstor
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Logik, Build und Browser
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Gemeinsame Logik- und Oberflaechenpruefung
+        run: bash tools/quality/run-all.sh
+      - name: Install Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+      - name: Geprueften Webstand bauen
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash browser_ver/build.sh
+          cp Resources/DefaultAppIcon.png browser_ver/web/icon.png
+          sed -i "s/__BUILD__/${GITHUB_SHA::12}/" browser_ver/web/sw.js
+          sed -i "s/__BUILD__/${GITHUB_SHA::12}/" browser_ver/web/index.html
+          test -s browser_ver/web/tp_core.js
+          test -s browser_ver/web/tp_core.wasm
+          if ls browser_ver/web | grep -Eiq '^(p|ps)[0-9]+\.bin$|^psnd[0-9]+\.|^dex_entries_|^thumbs\.bin$'; then
+            echo "Abbruch: Figuren-Dateien duerfen nicht im Webpaket liegen." >&2
+            exit 1
+          fi
+      - name: Browser-Testabhaengigkeiten installieren
+        working-directory: tools/browser-tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm ci --ignore-scripts --omit=optional --no-audit --no-fund
+          npx --no-install playwright install --with-deps chromium webkit
+          test "$(node -p 'require("@playwright/test/package.json").version')" = '1.64.1'
+      - name: Browserpruefungen
+        working-directory: tools/browser-tests
+        run: npx --no-install playwright test
+      - name: Werkzeugversionen festhalten
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p tools/browser-tests/test-results
+          { node --version; npm --version; python3 --version; g++ --version | head -n 1; emcc --version | head -n 1; } > tools/browser-tests/test-results/werkzeuge.txt 2>&1 || true
+      - name: Browserbericht aufbewahren
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: D1-Browserbericht
+          path: |
+            tools/browser-tests/playwright-report
+            tools/browser-tests/test-results
+            tools/browser-tests/package-lock.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Nur erfolgreich geprueften Webstand bereitstellen
+        uses: actions/upload-artifact@v4
+        with:
+          name: iTamaPoke-D1-Test
+          path: browser_ver/web
+          if-no-files-found: error
+          retention-days: 7

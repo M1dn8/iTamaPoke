@@ -1,0 +1,16 @@
+{
+  "name": "itamapoke-browser-quality",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Isolierte Browserpruefungen ohne echte Spielstaende",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1"
+  },
+  "overrides": {
+    "playwright": "1.64.1",
+    "playwright-core": "1.64.1"
+  }
+}

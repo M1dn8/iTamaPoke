@@ -99,6 +99,7 @@ window.TPAppMenu={
  returnDex(){if(!dexOrigin)return false;dexOrigin=false;show("main");return true;},
  drawDexBack(){if(!dexOrigin)return;ctx.fillStyle=UI.white;roundRect(360,8,96,36,8);ctx.fill();ctx.strokeStyle=UI.track;ctx.lineWidth=1;roundRect(360,8,96,36,8);ctx.stroke();ctx.fillStyle=UI.ink;ctx.font="bold 13px monospace";ctx.textAlign="center";ctx.fillText("Menü",408,31);},
  show,close,eventText,groupEntries,dayKey,
+ get ready(){return ready();},
  get active(){return active;}
 };
 setInterval(()=>{

@@ -1,0 +1,22 @@
+name: Qualitaet pruefen
+
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Gemeinsame Qualitaetspruefung
+    uses: ./.github/workflows/quality-gate.yml
+    permissions:
+      contents: read

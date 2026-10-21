@@ -29,6 +29,11 @@ on:
       - "upstream-expanded/**"
       - "Resources/DefaultAppIcon.png"
       - ".github/workflows/build-browser.yml"
+      - ".github/workflows/quality-gate.yml"
+      - ".github/workflows/test-quality.yml"
+      - "tests/**"
+      - "tools/quality/**"
+      - "tools/browser-tests/**"
 
 permissions:
   contents: read
@@ -40,40 +45,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  quality:
+    name: Qualitaet vor Veroeffentlichung
+    uses: ./.github/workflows/quality-gate.yml
+    permissions:
+      contents: read
+
   web:
+    needs: quality
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
         with:
-          submodules: recursive
-
-      - name: Install Emscripten
-        uses: mymindstorm/setup-emsdk@v14
-        with:
-          version: latest
-
-      - name: Build the core
-        run: bash browser_ver/build.sh
-
-      - name: Assemble the site
+          name: iTamaPoke-D1-Test
+          path: browser_ver/web
+      - name: Geprueftes Webpaket kontrollieren
+        shell: bash
         run: |
-          set -e
-          cp Resources/DefaultAppIcon.png browser_ver/web/icon.png
-          # Stamp the service worker so every deploy gets its own cache and
-          # installed copies pick up the new version on their next launch.
-          sed -i "s/__BUILD__/${GITHUB_SHA::12}/" browser_ver/web/sw.js
-          # Same id in the page, shown under the game -- so "which build is
-          # this phone actually running?" is answerable at a glance.
-          sed -i "s/__BUILD__/${GITHUB_SHA::12}/" browser_ver/web/index.html
+          set -euo pipefail
           test -s browser_ver/web/tp_core.js
           test -s browser_ver/web/tp_core.wasm
-          # Refuse to publish if any creature asset ever lands in the folder.
           if ls browser_ver/web | grep -Eiq '^(p|ps)[0-9]+\.bin$|^psnd[0-9]+\.|^dex_entries_|^thumbs\.bin$'; then
-            echo "refusing to publish: creature assets found in browser_ver/web" >&2
+            echo "Abbruch: Figuren-Dateien im Webpaket." >&2
             exit 1
           fi
-          ls -la browser_ver/web
-
       - uses: actions/upload-artifact@v4
         with:
           name: web

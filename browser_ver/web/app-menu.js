@@ -75,8 +75,8 @@ function eventText(e,count=1){
  case 8:return actor(e)+" hat Level "+e.a+" erreicht.";
  case 9:return e.a+" Arten aufgezogen.";
  case 10:{const medals=["Level 10","Level 25","Level 50","Lieblingsbeere entdeckt","Sieben Tage Pflegeserie","Starke Bindung","Endform","Fit und gut gepflegt"].filter((_,i)=>e.a&(1<<i));return actor(e)+": Medaille erhalten – "+medals.join(", ")+".";}
- case 12:return e.a===2?"Mega-Stein für Metagross erhalten.":"Mega-Stein für Glurak erhalten.";
- case 13:return actor(e)+" hat sich in "+(e.a===2?"Mega-Metagross":"Mega-Glurak X")+" verwandelt.";
+ case 12:return "Mega-Stein für "+(window.TPStoreTools?.megaFormInfo?.(e.a)?.baseName||"Glurak")+" erhalten.";
+ case 13:return actor(e)+" hat sich in "+(window.TPStoreTools?.megaFormInfo?.(e.a)?.name||"Mega-Glurak X")+" verwandelt.";
  case 14:return actor(e)+" ist zur normalen Form zurückgekehrt.";
  case 11:return e.a===1?"Du hast dich von "+actor(e)+" verabschiedet.":e.a===2?actor(e)+" ist weggelaufen.":"Du hast "+actor(e)+" freigelassen.";
  default:return "";

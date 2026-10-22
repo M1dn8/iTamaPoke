@@ -60,13 +60,14 @@ async function decode(input){
 }
 const megaForms=Object.freeze({
  1:Object.freeze({id:1,dex:6,baseName:"Glurak",name:"Mega-Glurak X",normal:"p006-mega-x.bin",shiny:"ps006-mega-x.bin"}),
- 2:Object.freeze({id:2,dex:376,baseName:"Metagross",name:"Mega-Metagross",normal:"p376-mega.bin",shiny:"ps376-mega.bin"})
+ 2:Object.freeze({id:2,dex:376,baseName:"Metagross",name:"Mega-Metagross",normal:"p376-mega.bin",shiny:"ps376-mega.bin"}),
+ 3:Object.freeze({id:3,dex:303,baseName:"Flunkifer",name:"Mega-Flunkifer",normal:"p303-mega.bin",shiny:"ps303-mega.bin"})
 });
 function megaFormInfo(id){return Object.prototype.hasOwnProperty.call(megaForms,id)?megaForms[id]:null;}
 function canonicalSprite(name){
  if(/^thumbs\.bin$/i.test(name))return {key:"thumbs.bin",atlas:true};
  const extra=/^(p|ps)(\d{1,4})-mega(?:-(x))?\.bin$/i.exec(name);
- if(extra){const dex=Number(extra[2]),id=dex===6&&extra[3]?1:dex===376&&!extra[3]?2:0;const f=megaFormInfo(id);if(!f)return null;const shiny=extra[1].toLowerCase()==="ps";return {key:shiny?f.shiny:f.normal,dex:f.dex,shiny,form:id===1?"mega-x":"mega",formId:id};}
+ if(extra){const dex=Number(extra[2]),id=dex===6&&extra[3]?1:dex===376&&!extra[3]?2:dex===303&&!extra[3]?3:0;const f=megaFormInfo(id);if(!f)return null;const shiny=extra[1].toLowerCase()==="ps";return {key:shiny?f.shiny:f.normal,dex:f.dex,shiny,form:id===1?"mega-x":"mega",formId:id};}
  const m=/^(ps?)(\d{1,4})\.bin$/i.exec(name);if(!m)return null;const dex=Number(m[2]);if(dex<1||dex>1025)return null;
  return {key:m[1].toLowerCase()+String(dex).padStart(3,"0")+".bin",dex,shiny:m[1].toLowerCase()==="ps"};
 }

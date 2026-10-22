@@ -1,18 +1,18 @@
-// E2: per-form trainer unlocks, E1 migration; same timings/stat multipliers.
+// E3: third independent unlock; migrate E1/E2 without granting new progress.
 namespace {
 uint16_t tpMegaScale(uint16_t value,unsigned pct){const uint32_t n=uint32_t(value)*pct/100;return n>65535?65535:uint16_t(n);}
 }
 bool Pet::megaQuestReady() const {return megaSupported()&&!megaStoneOwned()&&megaTraining>=3&&bond>=50&&lowestStat()>=60&&!sleeping&&ceremony==CER_NONE&&!evolving();}
 void Pet::megaTrainingRun(){if(megaSupported()&&!megaStoneOwned()&&megaTraining<3&&!sleeping)megaTraining++;}
 void Pet::megaNewCreature(){if(megaForm)journalAdd(JR_MEGA_END,megaForm);megaTraining=megaForm=0;megaEnd=megaStarted=0;}
-void Pet::saveMega(){prefs.putUChar("mgver",2);prefs.putUChar("mgmask",megaStones);prefs.putBool("mgstone",megaStones&1);prefs.putUChar("mgtrain",megaTraining);prefs.putUChar("mgform",megaForm);prefs.putUInt("mgend",megaEnd);prefs.putUInt("mgcool",megaCooldown);prefs.putUInt("mgstart",megaStarted);prefs.putUInt("mgseen",megaSeen);}
+void Pet::saveMega(){prefs.putUChar("mgver",3);prefs.putUChar("mgmask",megaStones);prefs.putBool("mgstone",megaStones&1);prefs.putUChar("mgtrain",megaTraining);prefs.putUChar("mgform",megaForm);prefs.putUInt("mgend",megaEnd);prefs.putUInt("mgcool",megaCooldown);prefs.putUInt("mgstart",megaStarted);prefs.putUInt("mgseen",megaSeen);}
 void Pet::loadMega(){
  megaStones=0;megaTraining=megaForm=0;megaEnd=megaCooldown=megaStarted=megaSeen=0;
- const uint8_t version=prefs.getUChar("mgver",0);if(version!=1&&version!=2)return;
- megaStones=version==1?(prefs.getBool("mgstone",false)?1:0):(prefs.getUChar("mgmask",0)&3);
+ const uint8_t version=prefs.getUChar("mgver",0);if(version!=1&&version!=2&&version!=3)return;
+ megaStones=version==1?(prefs.getBool("mgstone",false)?1:0):(prefs.getUChar("mgmask",0)&(version==2?3:7));
  megaTraining=prefs.getUChar("mgtrain",0);if(megaTraining>3)megaTraining=3;
  megaForm=prefs.getUChar("mgform",0);megaEnd=prefs.getUInt("mgend",0);megaCooldown=prefs.getUInt("mgcool",0);megaStarted=prefs.getUInt("mgstart",0);megaSeen=prefs.getUInt("mgseen",0);
- if(!megaSupported()||(version==1&&speciesId!=6))megaTraining=0;
+ if(!megaSupported()||(version==1&&speciesId!=6)||(version<3&&speciesId==303))megaTraining=0;
  if(megaForm!=megaFormId()||!megaStoneOwned()||!megaSupported()||!megaStarted||uint64_t(megaStarted)+900!=megaEnd||uint64_t(megaEnd)+3600!=megaCooldown){megaForm=0;megaEnd=megaStarted=0;}
 }
 void Pet::megaUpdate(uint32_t now){

@@ -15,7 +15,7 @@ int main(int argc,char**){
  const uint32_t now=uint32_t(std::time(nullptr));assert(tpMegaById(1)->dex==6&&tpMegaById(2)->dex==376);assert(tpMegaById(2)->type1==TYPE_STEEL&&tpMegaById(2)->type2==TYPE_PSYCHIC);
  // Existing E1 Glurak unlock, progress and running deadlines survive exactly.
  Pet old=load(6,1,0,2,true);Preferences prefs;const uint32_t start=now-100;prefs.putUChar("mgform",1);prefs.putUInt("mgstart",start);prefs.putUInt("mgend",start+900);prefs.putUInt("mgcool",start+4500);prefs.putUInt("mgseen",now-1);
- Pet migrated;migrated.begin();assert(migrated.megaStoneMask()==1&&migrated.megaTrainingCount()==2&&migrated.megaActive(now));assert(migrated.megaEndsAt()==start+900&&migrated.megaCooldownAt()==start+4500);migrated.setClock(now);assert(prefs.getUChar("mgver")==2&&prefs.getUChar("mgmask")==1);
+ Pet migrated;migrated.begin();assert(migrated.megaStoneMask()==1&&migrated.megaTrainingCount()==2&&migrated.megaActive(now));assert(migrated.megaEndsAt()==start+900&&migrated.megaCooldownAt()==start+4500);migrated.setClock(now);assert(prefs.getUChar("mgver")==3&&prefs.getUChar("mgmask")==1);
  // A Glurak stone never unlocks Metagross. E1 progress cannot be retro-credited.
  Pet meta=load(376,1,0,3,true);assert(meta.megaSupported()&&meta.megaFormId()==2&&meta.megaStoneMask()==1&&!meta.megaStoneOwned()&&meta.megaTrainingCount()==0&&!meta.megaActivate(now));
  meta.applyTypeResult(1);meta.applyMemoResult(1);meta.trainStrength(1);meta.fullness=meta.joy=meta.energy=meta.hygiene=100;assert(meta.megaQuestReady());assert(meta.megaClaim(now)&&!meta.megaClaim(now)&&meta.megaStoneMask()==3);

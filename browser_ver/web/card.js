@@ -42,7 +42,8 @@ function drawCard(now) {
 function drawCardProfile(now) {
   const hasMega=!!window.TPMega?.visible();if(hasMega)ensureSprite(fns.speciesId());
   ctx.textAlign = "center";
-  const head = fns.name();
+  const megaActive = !!window.TPMega?.active();
+  const head = megaActive ? window.TPMega.name() : fns.name();
   ctx.fillStyle = UI.ink;
   ctx.font = head.length <= 11 ? "bold 26px monospace" : "bold 20px monospace";
   ctx.fillText(head, TP.cx, head.length <= 11 ? 44 : 50);
@@ -50,7 +51,7 @@ function drawCardProfile(now) {
   if (fns.hasNick() !== 0) {
     ctx.fillStyle = UI.track;
     ctx.font = "13px monospace";
-    ctx.fillText(`(${fns.speciesName()})`, TP.cx, 70);
+    ctx.fillText(`(${megaActive ? fns.name() : fns.speciesName()})`, TP.cx, 70);
   }
 
   if (currentSprite) {

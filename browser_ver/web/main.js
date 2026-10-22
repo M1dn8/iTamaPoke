@@ -881,7 +881,7 @@ function draw() {
   ctx.textAlign = "center";
   ctx.font = "bold 22px monospace";
   ctx.fillStyle = isEgg ? ink : nameColor;
-  ctx.fillText(window.TPMega?.active()?((fns.hasNick()?fns.name():window.TPMega.name())+" · Lv."+fns.level()):fns.headerName(), TP.cx, 60);
+  ctx.fillText(window.TPMega?.active()?((window.TPMega.shiny()?"*":"")+window.TPMega.name()+" · Lv."+fns.level()):fns.headerName(), TP.cx, 60);
   ctx.font = "15px monospace";
   ctx.fillStyle = ink;
   ctx.fillText(isEgg ? fns.eggMessage() : fns.statusMessage(), TP.cx, 96);

@@ -7,28 +7,35 @@ permissions:
   contents: read
 
 jobs:
-  quality:
-    name: Logik, Build und Browser
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+  build:
+    name: Native Logik und WASM-Kandidat
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      manifest_sha: ${{ steps.seal.outputs.manifest_sha }}
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.sha }}
           submodules: recursive
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       - name: Gemeinsame Logik- und Oberflaechenpruefung
-        run: bash tools/quality/run-all.sh
+        timeout-minutes: 5
+        run: node tools/quality/timed-run.cjs "$RUNNER_TEMP/ci-build-times.json" native-logic -- bash tools/quality/run-all.sh
       - name: Install Emscripten
         uses: mymindstorm/setup-emsdk@v14
         with:
           version: latest
       - name: Geprueften Webstand bauen
-        shell: bash
+        timeout-minutes: 5
         run: |
           set -euo pipefail
-          bash browser_ver/build.sh
+          node tools/quality/timed-run.cjs "$RUNNER_TEMP/ci-build-times.json" wasm-build -- bash browser_ver/build.sh
           cp Resources/DefaultAppIcon.png browser_ver/web/icon.png
           sed -i "s/__BUILD__/${GITHUB_SHA::12}/" browser_ver/web/sw.js
           sed -i "s/__BUILD__/${GITHUB_SHA::12}/" browser_ver/web/index.html
@@ -38,24 +45,83 @@ jobs:
             echo "Abbruch: Figuren-Dateien duerfen nicht im Webpaket liegen." >&2
             exit 1
           fi
-      - name: Browser-Testabhaengigkeiten installieren
-        working-directory: tools/browser-tests
+      - name: Gemeinsame npm-Lockdatei vorbereiten
+        timeout-minutes: 3
+        run: node tools/quality/timed-run.cjs "$RUNNER_TEMP/ci-build-times.json" npm-lock --cwd tools/browser-tests -- npm install --package-lock-only --ignore-scripts --no-audit --no-fund --fetch-retries=2 --fetch-timeout=45000
+      - name: Webkandidat mit Herkunft und Pruefsummen versiegeln
+        id: seal
+        run: |
+          node tools/quality/web-artifact.cjs create --web browser_ver/web --candidate "$RUNNER_TEMP/ci-candidate" --lock tools/browser-tests/package-lock.json --package tools/browser-tests/package.json --sha "$GITHUB_SHA"
+          node -e 'const fs=require("fs"),c=require("crypto"),p=require("path");const hash=c.createHash("sha256").update(fs.readFileSync(p.join(process.env.RUNNER_TEMP,"ci-candidate/proof/manifest.json"))).digest("hex");fs.appendFileSync(process.env.GITHUB_OUTPUT,"manifest_sha="+hash+"\n");'
+      - name: Build-Zeiten festhalten
+        if: always()
+        run: |
+          node tools/quality/timed-run.cjs --summary "$RUNNER_TEMP/ci-build-times.json" >> "$GITHUB_STEP_SUMMARY"
+          if test -d "$RUNNER_TEMP/ci-candidate/proof"; then
+            cp "$RUNNER_TEMP/ci-build-times.json" "$RUNNER_TEMP/ci-candidate/proof/build-times.json"
+            { node --version; npm --version; python3 --version; g++ --version | head -n 1; emcc --version | head -n 1; } > "$RUNNER_TEMP/ci-candidate/proof/build-tools.txt" 2>&1 || true
+          fi
+      - name: Nur Kandidat noch keine Veroeffentlichungsfreigabe
+        uses: actions/upload-artifact@v4
+        with:
+          name: iTamaPoke-CI-Kandidat
+          path: ${{ runner.temp }}/ci-candidate
+          if-no-files-found: error
+          retention-days: 7
+
+  browser:
+    name: Chromium und WebKit im vorbereiteten Container
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:7852dc5a7d72f5fe458a597d690f6c42fbc8e9e26ddfa95f8e6ef552558d9bbf
+      options: --init --ipc=host
+    defaults:
+      run:
         shell: bash
+    env:
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: iTamaPoke-CI-Kandidat
+          path: ${{ runner.temp }}/ci-candidate
+      - name: Exakten Kandidaten und gemeinsame Lockdatei einsetzen
         run: |
           set -euo pipefail
-          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-          npm ci --ignore-scripts --omit=optional --no-audit --no-fund
-          npx --no-install playwright install --with-deps chromium webkit
-          test "$(node -p 'require("@playwright/test/package.json").version')" = '1.64.1'
-      - name: Browserpruefungen
+          cp -a "$RUNNER_TEMP/ci-candidate/web/." browser_ver/web/
+          cp "$RUNNER_TEMP/ci-candidate/proof/package-lock.json" tools/browser-tests/package-lock.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tools/browser-tests/package-lock.json
+      - name: Kandidat vor Browserstart pruefen
+        run: node tools/quality/web-artifact.cjs verify --web browser_ver/web --candidate "$RUNNER_TEMP/ci-candidate" --package tools/browser-tests/package.json --sha "$GITHUB_SHA" --manifest-sha "${{ needs.build.outputs.manifest_sha }}"
+      - name: Nur npm-Testpakete installieren
+        timeout-minutes: 4
+        run: node tools/quality/timed-run.cjs "$RUNNER_TEMP/ci-browser-times.json" npm-ci --cwd tools/browser-tests -- npm ci --ignore-scripts --omit=optional --no-audit --no-fund --fetch-retries=2 --fetch-timeout=45000
+      - name: Paketversion und vorhandene Browser kontrollieren
         working-directory: tools/browser-tests
-        run: npx --no-install playwright test
-      - name: Werkzeugversionen festhalten
+        run: |
+          node -e 'const fs=require("fs"),assert=require("assert");for(const name of ["@playwright/test","playwright","playwright-core"])assert.equal(require(name+"/package.json").version,"1.64.1");const {chromium,webkit}=require("@playwright/test");for(const b of [chromium,webkit]){fs.accessSync(b.executablePath(),fs.constants.X_OK);console.log(b.name()+": "+b.executablePath());}'
+      - name: Browserpruefungen
+        timeout-minutes: 20
+        run: node tools/quality/timed-run.cjs "$RUNNER_TEMP/ci-browser-times.json" browser-tests --cwd tools/browser-tests -- npx --no-install playwright test
+      - name: Unveraenderten Kandidaten nach Browserpruefung bestaetigen
+        run: node tools/quality/web-artifact.cjs verify --web browser_ver/web --candidate "$RUNNER_TEMP/ci-candidate" --package tools/browser-tests/package.json --sha "$GITHUB_SHA" --manifest-sha "${{ needs.build.outputs.manifest_sha }}"
+      - name: Browser-Zeiten und Werkzeugversionen festhalten
         if: always()
-        shell: bash
         run: |
           mkdir -p tools/browser-tests/test-results
-          { node --version; npm --version; python3 --version; g++ --version | head -n 1; emcc --version | head -n 1; } > tools/browser-tests/test-results/werkzeuge.txt 2>&1 || true
+          node tools/quality/timed-run.cjs --summary "$RUNNER_TEMP/ci-browser-times.json" >> "$GITHUB_STEP_SUMMARY"
+          if test -f "$RUNNER_TEMP/ci-browser-times.json"; then cp "$RUNNER_TEMP/ci-browser-times.json" tools/browser-tests/test-results/ci-times.json; fi
+          if test -f "$RUNNER_TEMP/ci-candidate/proof/manifest.json"; then cp "$RUNNER_TEMP/ci-candidate/proof/manifest.json" tools/browser-tests/test-results/web-manifest.json; fi
+          { node --version; npm --version; printf '%s\n' 'mcr.microsoft.com/playwright:v1.64.1-noble@sha256:7852dc5a7d72f5fe458a597d690f6c42fbc8e9e26ddfa95f8e6ef552558d9bbf'; } > tools/browser-tests/test-results/werkzeuge.txt
       - name: Browserbericht aufbewahren
         if: always()
         uses: actions/upload-artifact@v4
@@ -67,10 +133,29 @@ jobs:
             tools/browser-tests/package-lock.json
           if-no-files-found: warn
           retention-days: 7
+
+  quality:
+    name: Vollstaendig geprueften Webstand freigeben
+    needs: [build, browser]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          name: iTamaPoke-CI-Kandidat
+          path: ${{ runner.temp }}/ci-candidate
+      - name: Herkunft und Pruefsummen vor Freigabe kontrollieren
+        run: node tools/quality/web-artifact.cjs verify --web "$RUNNER_TEMP/ci-candidate/web" --candidate "$RUNNER_TEMP/ci-candidate" --package tools/browser-tests/package.json --sha "$GITHUB_SHA" --manifest-sha "${{ needs.build.outputs.manifest_sha }}"
       - name: Nur erfolgreich geprueften Webstand bereitstellen
         uses: actions/upload-artifact@v4
         with:
           name: iTamaPoke-D1-Test
-          path: browser_ver/web
+          path: ${{ runner.temp }}/ci-candidate/web
           if-no-files-found: error
           retention-days: 7

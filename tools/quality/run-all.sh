@@ -5,7 +5,7 @@ TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 CXX=${CXX:-g++}
 for tool in node python3 "$CXX"; do command -v "$tool" >/dev/null || { echo "Fehlendes Testwerkzeug: $tool" >&2; exit 1; }; done
-for test in tests/package-e3.test.js tests/package-e2-name.test.js tests/package-e2-size.test.js tests/package-e2.test.js tests/package-e.test.js tests/package-d3b.test.js tests/package-d3.test.js tests/package-d2.test.js tests/package-d1.test.js tests/package-a.test.js tests/package-b.test.js tests/package-c1-ui.test.js tests/package-c2-ui.test.js tests/package-c4-ui.test.js tests/package-c5-ui.test.js tests/package-c5-theme.test.js; do
+for test in tests/package-ci-perf.test.js tests/package-e3.test.js tests/package-e2-name.test.js tests/package-e2-size.test.js tests/package-e2.test.js tests/package-e.test.js tests/package-d3b.test.js tests/package-d3.test.js tests/package-d2.test.js tests/package-d1.test.js tests/package-a.test.js tests/package-b.test.js tests/package-c1-ui.test.js tests/package-c2-ui.test.js tests/package-c4-ui.test.js tests/package-c5-ui.test.js tests/package-c5-theme.test.js; do
   echo "Pruefe $test"; node "$test"
 done
 for file in browser_ver/web/*.js; do node --check "$file"; done

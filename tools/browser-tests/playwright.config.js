@@ -6,5 +6,5 @@ module.exports=defineConfig({
  reporter:[['list'],['html',{open:'never',outputFolder:'playwright-report'}]],
  use:{baseURL:'http://127.0.0.1:8765',viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:'de-DE',timezoneId:'Europe/Berlin',serviceWorkers:'block',acceptDownloads:true,trace:'retain-on-failure',screenshot:'only-on-failure'},
  projects:[{name:'chromium-mobil',use:{browserName:'chromium'}},{name:'webkit-mobil',use:{browserName:'webkit'}}],
- webServer:{command:'python3 -m http.server 8765 --bind 127.0.0.1 --directory browser_ver/web',cwd:path.resolve(__dirname,'../..'),url:'http://127.0.0.1:8765/',reuseExistingServer:false,timeout:30000}
+ webServer:{command:'node tools/browser-tests/server.cjs --root browser_ver/web --port 8765',cwd:path.resolve(__dirname,'../..'),url:'http://127.0.0.1:8765/',reuseExistingServer:false,timeout:30000}
 });

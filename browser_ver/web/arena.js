@@ -113,17 +113,23 @@ function database(){
  }).catch(e=>{dbPromise=null;throw e;});return dbPromise;
 }
 async function decode(blob){const url=URL.createObjectURL(blob);try{return await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(Error('PNG nicht lesbar'));img.src=url;});}finally{URL.revokeObjectURL(url);}}
+// Read both legacy Blob portraits and portable PNG byte buffers.
+function portraitBlob(value){
+ if(value instanceof Blob)return value;
+ if(value instanceof ArrayBuffer||ArrayBuffer.isView(value))return new Blob([value],{type:'image/png'});
+ throw Error('Gespeicherte Leitergrafik hat ein unbekanntes Format.');
+}
 function picture(id){
  if(pictures.has(id))return pictures.get(id);
- if(!loading.has(id)){loading.add(id);(async()=>{try{const db=await database(),blob=await new Promise((resolve,reject)=>{const tx=db.transaction('portraits','readonly'),req=tx.objectStore('portraits').get(data.leaders[id].id);let value=null;req.onsuccess=()=>value=req.result;tx.oncomplete=()=>resolve(value);tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('Lesen abgebrochen'));});const decoded=blob?await decode(blob):null;if(!pictures.has(id))pictures.set(id,decoded);}catch(_e){if(!pictures.has(id))pictures.set(id,null);}finally{loading.delete(id);}})();}return null;
+ if(!loading.has(id)){loading.add(id);(async()=>{try{const db=await database(),blob=await new Promise((resolve,reject)=>{const tx=db.transaction('portraits','readonly'),req=tx.objectStore('portraits').get(data.leaders[id].id);let value=null;req.onsuccess=()=>value=req.result;tx.oncomplete=()=>resolve(value);tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('Lesen abgebrochen'));});const decoded=blob?await decode(portraitBlob(blob)):null;if(!pictures.has(id))pictures.set(id,decoded);}catch(_e){if(!pictures.has(id))pictures.set(id,null);}finally{loading.delete(id);}})();}return null;
 }
 async function importPortrait(file,id){
  if(artBusy||saving||screen!=='arena'||active()||tpSaveReplacing||!Number.isInteger(id)||id<0||id>=8)throw Error('Grafikimport gerade gesperrt');artBusy=true;message='';
  try{
   if(!file||file.size<24||file.size>1024*1024)throw Error('Bitte eine PNG bis 1 MB auswählen.');const bytes=new Uint8Array(await file.arrayBuffer());if([137,80,78,71,13,10,26,10].some((v,i)=>bytes[i]!==v))throw Error('Datei ist keine PNG.');const view=new DataView(bytes.buffer),width=view.getUint32(16),height=view.getUint32(20);if(!width||!height||width>1024||height>1024)throw Error('PNG-Abmessungen: maximal 1024 × 1024.');
   const image=await decode(new Blob([bytes],{type:'image/png'}));const canvas=document.createElement('canvas'),s=Math.min(1,512/image.width,512/image.height);canvas.width=Math.max(1,Math.round(image.width*s));canvas.height=Math.max(1,Math.round(image.height*s));canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
-  const clean=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('PNG konnte nicht vorbereitet werden')),'image/png'));const normalized=await decode(clean),db=await database();
-  await new Promise((resolve,reject)=>{const tx=db.transaction('portraits','readwrite');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('Speichern abgebrochen'));tx.objectStore('portraits').put(clean,data.leaders[id].id);});pictures.set(id,normalized);message='Leitergrafik lokal gespeichert.';return true;
+  const clean=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('PNG konnte nicht vorbereitet werden')),'image/png'));const normalized=await decode(clean),db=await database(),stored=await clean.arrayBuffer();
+  await new Promise((resolve,reject)=>{const tx=db.transaction('portraits','readwrite');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('Speichern abgebrochen'));tx.objectStore('portraits').put(stored,data.leaders[id].id);});pictures.set(id,normalized);message='Leitergrafik lokal gespeichert.';return true;
  }catch(e){message=e.message||'Grafik konnte nicht geladen werden.';throw e;}finally{artBusy=false;}
 }
 let picker=null;

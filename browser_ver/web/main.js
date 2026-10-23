@@ -823,6 +823,7 @@ function draw() {
     if(window.TPAppMenu)window.TPAppMenu.drawDexBack();
     return;
   }
+  if (screen === "trainer") { window.TPTrainer.draw(); return; }
   if (screen === "battle") {
     drawBattle(performance.now());
     return;
@@ -993,6 +994,7 @@ function handleTap(x, y) {
     if (dexScreen === "detail") dexDetailTap(x, y); else dexGridTap(x, y);
     return;
   }
+  if (screen === "trainer") { window.TPTrainer.tap(x,y); return; }
   if (screen === "battle") {
     battleTap(x, y);
     return;
@@ -1125,7 +1127,7 @@ function handleTap(x, y) {
 function swipeAllowed() {
   if(window.TPMega?.busy)return false;
   if (window.TPExpeditions && window.TPExpeditions.busy) return false;
-  if (screen === "game" || screen === "battle" || screen === "gamemenu") return false;
+  if (screen === "game" || screen === "battle" || screen === "trainer" || screen === "gamemenu") return false;
   // Same extra gates as PetScreen.swift's swipe guard: an open feed menu
   // or release dialog owns the touch until it closes.
   const now = performance.now();

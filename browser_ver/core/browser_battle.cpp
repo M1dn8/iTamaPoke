@@ -70,6 +70,21 @@ uint32_t gLastWildCheckMs = 0;
 
 // Battle
 bool gOpen = false, gResolved = false;
+// F2 sessions deliberately live only in RAM; no reward or save-schema changes.
+struct TrainerTeam { uint8_t count; int16_t dex[2]; };
+constexpr TrainerTeam kTrainerTeams[] = {{1,{19,0}}, {2,{16,19}}};
+bool gTrainer=false, gTrainerNext=false;
+uint8_t gTrainerId=0, gTrainerIndex=0, gTrainerCount=0;
+uint32_t gTrainerRounds=0, gTrainerDealt=0, gTrainerTaken=0;
+int16_t gTrainerSpecies=-1;
+uint32_t gTrainerAge=0;
+uint8_t gTrainerGa=0,gTrainerGd=0,gTrainerGs=0;
+bool trainerActorValid() {
+ const Pet &p=tp_battle_pet();
+ return !p.isEgg()&&!p.sleeping&&p.ceremony==CER_NONE&&!p.evolving()&&
+ p.speciesId==gTrainerSpecies&&p.ageMinutes>=gTrainerAge&&
+ p.geneAtk==gTrainerGa&&p.geneDef==gTrainerGd&&p.geneSpe==gTrainerGs;
+}
 int16_t gDex = 0;
 uint8_t gLevel = 0;
 BattleStats gPlayer{}, gEnemy{};
@@ -107,6 +122,9 @@ uint8_t dayPhaseNow() {
 }
 
 void startBattle(int16_t forcedDex, uint8_t forcedLevel) {
+  gTrainer=false;gTrainerNext=false;gTrainerCount=gTrainerIndex=0;
+  gTrainerRounds=gTrainerDealt=gTrainerTaken=0;
+  gRewardLine.clear();
   Pet &pet = tp_battle_pet();
   gWildPromptActive = false;
   gNextWildEligibleMs = g_millis + kWildCooldownMs;
@@ -138,6 +156,13 @@ void finishBattle() {
   if (gResolved) return;
   gResolved = true;
   Pet &pet = tp_battle_pet();
+  if (gTrainer) {
+    gCatchOffered=gCatchTried=gCatchDone=gCatchSuccess=gRespectCatch=false;
+    gCatchChance=0;gRewardLine.clear();
+    gTrainerNext=gTurn.playerWon&&gRun.playerHp>0&&gTrainerIndex+1<gTrainerCount;
+    sfxPlay(gTurn.playerWon?SFX_BATTLE_WIN:SFX_BATTLE_LOSS);
+    return;
+  }
   if (gTurn.playerWon) {
     bool closeWin = gRun.playerHp <= gRun.playerMaxHp / 3;
     BattleReward reward = pet.applyBattleWin(gDex, closeWin);
@@ -179,8 +204,8 @@ extern "C" {
 EMSCRIPTEN_KEEPALIVE const char *tp_battle_wild_question_text() { return T(S_WILD_Q); }
 EMSCRIPTEN_KEEPALIVE const char *tp_battle_fight_text() { return T(S_FIGHT); }
 EMSCRIPTEN_KEEPALIVE const char *tp_battle_later_text() { return T(S_LATER); }
-EMSCRIPTEN_KEEPALIVE const char *tp_battle_title_text() { return T(S_WILD_BATTLE); }
-EMSCRIPTEN_KEEPALIVE const char *tp_battle_run_text() { return T(S_RUN_BATTLE); }
+EMSCRIPTEN_KEEPALIVE const char *tp_battle_title_text() { return gTrainer?"TRAINERKAMPF":T(S_WILD_BATTLE); }
+EMSCRIPTEN_KEEPALIVE const char *tp_battle_run_text() { return gTrainer?"ABBRUCH":T(S_RUN_BATTLE); }
 EMSCRIPTEN_KEEPALIVE const char *tp_battle_attack_text() { return T(S_ATTACK); }
 EMSCRIPTEN_KEEPALIVE const char *tp_battle_dodge_text() { return T(S_DODGE); }
 EMSCRIPTEN_KEEPALIVE const char *tp_battle_quick_attack_text() { return T(S_QUICK_ATTACK); }
@@ -236,6 +261,7 @@ EMSCRIPTEN_KEEPALIVE int tp_wild_prompt_level() { return gWildPromptLevel; }
 EMSCRIPTEN_KEEPALIVE void tp_wild_dismiss() { gWildPromptActive = false; }
 EMSCRIPTEN_KEEPALIVE
 void tp_wild_accept() {
+  if(gOpen)return;
   int16_t dex = gWildPromptDex;
   uint8_t level = gWildPromptLevel;
   gWildPromptActive = false;
@@ -249,9 +275,10 @@ int tp_battle_can_start() {
   Pet &pet = tp_battle_pet();
   return canStartWildBattle(pet.isEgg(), pet.sleeping, pet.ceremony) ? 1 : 0;
 }
-EMSCRIPTEN_KEEPALIVE void tp_battle_start() { startBattle(0, 0); }
+EMSCRIPTEN_KEEPALIVE void tp_battle_start() { if(!gOpen&&tp_battle_can_start())startBattle(0, 0); }
 EMSCRIPTEN_KEEPALIVE
 void tp_battle_close() {
+  gTrainer=false;gTrainerNext=false;gTrainerCount=gTrainerIndex=0;
   gOpen = false;
   gResolved = false;
   gAttackMenuOpen = false;
@@ -264,7 +291,7 @@ EMSCRIPTEN_KEEPALIVE int tp_battle_resolved() { return gResolved ? 1 : 0; }
 EMSCRIPTEN_KEEPALIVE int tp_battle_wild_dex() { return gDex; }
 EMSCRIPTEN_KEEPALIVE int tp_battle_wild_level() { return gLevel; }
 EMSCRIPTEN_KEEPALIVE int tp_battle_wild_already_caught() {
-  return tp_battle_pet().isCaught(gDex) ? 1 : 0;
+  return !gTrainer&&tp_battle_pet().isCaught(gDex) ? 1 : 0;
 }
 EMSCRIPTEN_KEEPALIVE int tp_battle_player_hp() { return gRun.playerHp; }
 EMSCRIPTEN_KEEPALIVE int tp_battle_player_max_hp() { return gRun.playerMaxHp; }
@@ -320,7 +347,8 @@ EMSCRIPTEN_KEEPALIVE void tp_battle_open_attack_menu() { gAttackMenuOpen = true;
 EMSCRIPTEN_KEEPALIVE void tp_battle_close_attack_menu() { gAttackMenuOpen = false; }
 
 void performAction(BattleAction action) {
-  if (gResolved) return;
+  if (!gOpen||gResolved) return;
+  if(gTrainer&&!trainerActorValid()){tp_battle_close();return;}
   gAttackMenuOpen = false;
   gTurn = stepBattle(gRun, action, rnd100());
 
@@ -375,16 +403,16 @@ const char *tp_battle_result_text() { return T(gTurn.playerWon ? S_WIN : S_LOSS)
 EMSCRIPTEN_KEEPALIVE
 const char *tp_battle_rounds_line() {
   static std::string out;
-  char buf[20];
-  snprintf(buf, sizeof(buf), T(S_ROUNDS_FMT), gRun.round);
+  char buf[48];
+  snprintf(buf, sizeof(buf), T(S_ROUNDS_FMT), unsigned(gTrainerRounds+gRun.round));
   out = buf;
   return out.c_str();
 }
 EMSCRIPTEN_KEEPALIVE
 const char *tp_battle_damage_line() {
   static std::string out;
-  char buf[28];
-  snprintf(buf, sizeof(buf), T(S_DAMAGE_FMT), gRun.playerDamageTotal, gRun.enemyDamageTotal);
+  char buf[80];
+  snprintf(buf, sizeof(buf), T(S_DAMAGE_FMT), unsigned(gTrainerDealt+gRun.playerDamageTotal), unsigned(gTrainerTaken+gRun.enemyDamageTotal));
   out = buf;
   return out.c_str();
 }
@@ -401,7 +429,7 @@ const char *tp_battle_close_chance_text() {
 
 EMSCRIPTEN_KEEPALIVE
 void tp_battle_try_catch() {
-  if (!gCatchOffered || gCatchDone) return;
+  if (gTrainer||!gOpen||!gResolved||!gCatchOffered||gCatchDone) return;
   Pet &pet = tp_battle_pet();
   bool closeWin = gRun.playerHp <= gRun.playerMaxHp / 3;
   gCatchTried = true;
@@ -421,6 +449,44 @@ void tp_battle_leave_wild() {
   sfxPlay(SFX_TAP);
 }
 
+// F2: guarded starts, one native roster, no intermediate awards/catches.
+EMSCRIPTEN_KEEPALIVE int tp_f2_can() {
+ const Pet &p=tp_battle_pet();
+ return !gOpen&&!gWildPromptActive&&!p.isEgg()&&!p.sleeping&&p.ceremony==CER_NONE&&!p.evolving();
+}
+EMSCRIPTEN_KEEPALIVE int tp_f2_start(int team) {
+ if(team<0||team>=int(sizeof(kTrainerTeams)/sizeof(kTrainerTeams[0]))||!tp_f2_can())return 0;
+ const auto &entry=kTrainerTeams[team];
+ startBattle(entry.dex[0],tp_battle_pet().level());
+ const Pet &p=tp_battle_pet();
+ gTrainer=true;gTrainerId=uint8_t(team);gTrainerCount=entry.count;
+ gTrainerSpecies=p.speciesId;gTrainerAge=p.ageMinutes;
+ gTrainerGa=p.geneAtk;gTrainerGd=p.geneDef;gTrainerGs=p.geneSpe;
+ return 1;
+}
+EMSCRIPTEN_KEEPALIVE int tp_f2_can_actor(){return gOpen&&gTrainer&&trainerActorValid();}
+EMSCRIPTEN_KEEPALIVE int tp_f2_get(int key) {
+ if(key==0)return gOpen&&gTrainer;
+ if(key==1)return gTrainerCount;
+ if(key==2)return gTrainerIndex;
+ if(key==3)return gOpen&&gTrainer&&gTrainerNext;
+ if(key==4)return gTrainerId;
+ return 0;
+}
+EMSCRIPTEN_KEEPALIVE int tp_f2_next() {
+ if(!gOpen||!gTrainer||!gResolved||!gTrainerNext||!gTurn.playerWon||!gRun.playerHp)return 0;
+ if(!trainerActorValid()){tp_battle_close();return 0;}
+ const uint16_t hp=gRun.playerHp,maxHp=gRun.playerMaxHp;
+ const uint8_t rests=gRun.restUsesLeft;
+ gTrainerRounds+=gRun.round;gTrainerDealt+=gRun.playerDamageTotal;gTrainerTaken+=gRun.enemyDamageTotal;
+ ++gTrainerIndex;gDex=kTrainerTeams[gTrainerId].dex[gTrainerIndex];
+ gEnemy=wildBattleStats(gDex,gLevel);gEnemy.hp=0;
+ gRun=beginBattleRuntime(gPlayer,gEnemy);
+ gRun.playerHp=hp;gRun.playerMaxHp=maxHp;gRun.restUsesLeft=rests;
+ gTurn=BattleTurnResult{};gMessage[0]=0;gAttackMenuOpen=false;
+ gResolved=false;gTrainerNext=false;
+ return 1;
+}
 EMSCRIPTEN_KEEPALIVE int tp_e_battle_form(){return gOpen?gPlayerMegaForm:0;}
 EMSCRIPTEN_KEEPALIVE int tp_e_battle_mega(){return gOpen&&gPlayer.mega;}
 EMSCRIPTEN_KEEPALIVE int tp_e_battle_type1(){return gPlayer.type1;}

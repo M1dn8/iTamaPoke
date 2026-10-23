@@ -53,13 +53,15 @@ function step(now){
 function text(value,y,size=16,color=UI.ink){ctx.textAlign='center';ctx.fillStyle=color;ctx.font=`${size}px -apple-system,system-ui,sans-serif`;ctx.fillText(value,TP.cx,y);}
 function button(label,x,y,w,color=UI.ink){ctx.fillStyle=UI.white;roundRect(x,y,w,44,10);ctx.fill();ctx.strokeStyle=color;ctx.lineWidth=1;ctx.stroke();textAt(label,x+w/2,y+28,14,UI.ink);}
 function textAt(value,x,y,size,color){ctx.textAlign='center';ctx.fillStyle=color;ctx.font=`${size}px -apple-system,system-ui,sans-serif`;ctx.fillText(value,x,y);}
-function drawActor(now,x,ground,act){
+let actorBounds=null;
+function drawActor(now,x,ground,act,maxSize=140,centered=false){
+ actorBounds={left:x-25,top:ground-65,width:50,height:50};
  const sprite=currentSprite;
- if(!sprite){textAt('?',x,ground-25,36,UI.ink);return false;}
+ if(!sprite){if(centered)actorBounds={left:x-25,top:175,width:50,height:50};textAt('?',x,centered?215:ground-25,36,UI.ink);return false;}
  const selected=spriteHas(sprite,act)?act:TPAct.idle,a=sprite.actions[selected];if(!a)return false;
  const frame=frameIndexAt(a,now-state.start,true),img=frameImageData(sprite,selected,frame);if(!img)return false;
- const s=Math.min(spriteScale(sprite,a),2,140/a.w,140/a.h),w=a.w*s,h=a.h*s;
- frameCanvas.width=a.w;frameCanvas.height=a.h;frameCtx.putImageData(img,0,0);ctx.imageSmoothingEnabled=false;ctx.drawImage(frameCanvas,x-w/2,ground-a.base*s,w,h);return selected===act;
+ const s=Math.min(spriteScale(sprite,a),2,maxSize/a.w,maxSize/a.h),w=a.w*s,h=a.h*s;
+ frameCanvas.width=a.w;frameCanvas.height=a.h;frameCtx.putImageData(img,0,0);ctx.imageSmoothingEnabled=false;const top=centered?200-h/2:ground-a.base*s;actorBounds={left:x-w/2,top,width:w,height:h};ctx.drawImage(frameCanvas,x-w/2,top,w,h);return selected===act;
 }
 function draw(now){
  if(!state){leave();return;}const {ink}=drawGameScene();ensureSprite(fns.speciesId());const c=state.config;
@@ -81,8 +83,23 @@ function draw(now){
   ctx.strokeStyle=c.color;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(50,280);ctx.lineTo(416,280);ctx.stroke();
   const walking=drawActor(now,x,277,back?TPAct.walkL:TPAct.walkR);if(!walking)text('Bewegte Grundanimation – Laufgrafik nicht vorhanden',106,11,ink);
  }else{
-  drawActor(now,218,277,TPAct.idle);const pulse=Math.max(0,1-(now-state.lastHit)/220);ctx.strokeStyle=c.color;ctx.lineWidth=3+pulse*4;ctx.beginPath();ctx.moveTo(278,132);ctx.lineTo(313,145);ctx.lineTo(307,218);ctx.lineTo(278,243);ctx.lineTo(249,218);ctx.lineTo(243,145);ctx.closePath();ctx.stroke();
-  if(!pulse){const x=420-((now-state.start)%700)/700*110;ctx.fillStyle=c.color;ctx.beginPath();ctx.arc(x,181,6,0,Math.PI*2);ctx.fill();}
+  drawActor(now,233,0,TPAct.idle,110,true);
+  const b=actorBounds,cx=b.left+b.width/2,cy=b.top+b.height/2;
+  // sqrt(2) encloses even the frame corners; padding stays outside the actor.
+  const rx=(b.width/2+10)*Math.SQRT2,ry=(b.height/2+10)*Math.SQRT2;
+  const pulse=Math.max(0,1-(now-state.lastHit)/260);
+  ctx.save();ctx.beginPath();ctx.rect(30,96,406,204);ctx.clip();ctx.fillStyle='rgba(57,122,182,0.09)';ctx.strokeStyle=c.color;ctx.lineWidth=3+pulse*4;
+  ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  // Twelve simultaneous incoming blue points stop at the shell, never the pet.
+  for(let i=0;i<12;i++){
+   const angle=i*Math.PI/6,phase=((now-state.start+i*73)%900)/900;
+   const dx=Math.cos(angle),dy=Math.sin(angle),travel=(1-phase)*100;
+   const x=cx+dx*(rx+6+travel),y=cy+dy*(ry+6+travel);
+   ctx.strokeStyle='rgba(57,122,182,0.4)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+dx*12,y+dy*12);ctx.lineTo(x,y);ctx.stroke();
+   ctx.fillStyle='#397ab6';ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();
+   if(pulse>0){ctx.strokeStyle='rgba(57,122,182,'+pulse+')';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx+dx*(rx+2),cy+dy*(ry+2),4+(1-pulse)*9,0,Math.PI*2);ctx.stroke();}
+  }
+  ctx.restore();
  }
  text(c.counter+': '+state.hits,316,29,ink);text('Tippe auf die Spielfläche!',343,14,ink);drawTimeBar(357,12,Math.max(0,10000-(now-state.start)),10000);text('Rekord: '+state.record,391,12,ink);button('Abbrechen',151,400,164,ink);statusEl.textContent=c.title+' · '+state.hits;
 }

@@ -20,6 +20,12 @@ void Pet::begin() {
 }
 
 void Pet::newEgg() {
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_LIFE_TEST)
+  const auto &lifeStore=Preferences::store();const auto lv=lifeStore.find("f4lver"),li=lifeStore.find("f4life");
+  if(lv!=lifeStore.end()&&li!=lifeStore.end()&&std::holds_alternative<int64_t>(lv->second)&&std::holds_alternative<int64_t>(li->second)&&std::get<int64_t>(lv->second)==1){
+    const auto life=std::get<int64_t>(li->second);if(life>0&&life<0x7fffffffLL)Preferences::store()["f4life"]=int64_t(life+1);
+  }
+#endif
   megaNewCreature();
   if(!isEgg()&&lastEnd>=CER_FAREWELL&&lastEnd<=CER_RELEASE)journalAdd(JR_END,lastEnd);
   ceremony = CER_NONE;

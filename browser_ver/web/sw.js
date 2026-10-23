@@ -31,6 +31,7 @@ const FILES = [
   "./de-ui.js",
   "./mini-progress.js",
   "./minigames.js",
+  "./battle-training.js",
   "./dexentry.js",
   "./cry.js",
   "./dex-meta.js",

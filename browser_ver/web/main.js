@@ -849,7 +849,7 @@ function draw() {
       case 2: MemoGame.step(now); drawMemoGame(now); break;
       case 3: CleanGame.step(now); drawCleanGame(now); break;
       case 4: TypeGame.step(now); drawTypeGame(now); break;
-      case 5: SackGame.step(now); drawSackGame(now); break;
+      case 5: case 6: case 7: window.TPTraining.step(now); window.TPTraining.draw(now); break;
     }
     return;
   }
@@ -977,6 +977,7 @@ function draw() {
 }
 
 function handleTap(x, y) {
+  if(window.TPTraining?.busy)return;
   if(window.TPMega?.busy)return;
   if(window.TPAppMenu&&window.TPAppMenu.canvasTap(x,y))return;
   if (window.TPExpeditions && window.TPExpeditions.busy) return;
@@ -1039,8 +1040,8 @@ function handleTap(x, y) {
         }
         break;
       }
-      case 5:
-        SackGame.tap(now);
+      case 5: case 6: case 7:
+        window.TPTraining.tap(now,x,y);
         break;
     }
     return;
@@ -1229,6 +1230,7 @@ function checkHold(now) {
 
 canvas.addEventListener("pointerdown", (e) => {
   if (!Module) return;
+  if(window.TPTraining?.pointerDown(e))return;
   dragStart = toScreenSpace(e.clientX, e.clientY);
   dragNow = dragStart;
   dragStartAt = performance.now();
@@ -1690,8 +1692,8 @@ createTPCore({
     // button was pressed. Skipping tp_tick() here doesn't erase that decay,
     // just defers it to resume the instant the dialog closes -- mirrors
     // PetScreen.swift's fix, same reasoning.
-    if (!window.TPMega?.busy) { if (choice === "none") mod.ccall("tp_tick", null, ["number"], [t | 0]); }
-    tpPerf?.tick(tpSample,choice==="none"&&!window.TPMega?.busy);
+    if (!window.TPMega?.busy && !window.TPTraining?.busy) { if (choice === "none") mod.ccall("tp_tick", null, ["number"], [t | 0]); }
+    tpPerf?.tick(tpSample,choice==="none"&&!window.TPMega?.busy&&!window.TPTraining?.busy);
     if(window.TPAppMenu)window.TPAppMenu.markReady();
     // The rest of GameModel.tick(): the idle creature's pose scheduler, the
     // bath timer (which is what actually washes the creature when it ends),

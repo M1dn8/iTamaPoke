@@ -138,6 +138,7 @@ public:
   uint16_t newMedal = 0;   // recien conseguida(s), para celebrar
   uint16_t lastMilestone = 0;  // hito de racha ya celebrado
   uint16_t gameHi = 0;     // record del minijuego (del jugador)
+  uint16_t speedTrainHi = 0, defenseTrainHi = 0; // F1 player-wide tap records
   uint16_t strHi = 0;      // record de golpes al saco
   uint16_t catchHi = 0;    // record de capturas del minijuego catch
   uint16_t memoHi = 0;     // record de rondas del minijuego memo
@@ -199,6 +200,7 @@ public:
   void ensureDailyGoals();
   uint8_t dailyGoalTarget(uint8_t goalType) const;
   bool dailyGoalComplete(uint8_t index) const;
+  uint8_t trainCombat(uint8_t stat, uint16_t hits); // TRAIN_STAT_ATK/DEF/SPE
   uint8_t trainStrength(uint16_t hits);  // saco de entrenamiento (entrena FUE)
   BattleReward applyBattleWin(int16_t wildDex, bool closeWin);
   void applyBattleLoss();

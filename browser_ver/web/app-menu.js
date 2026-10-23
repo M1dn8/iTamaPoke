@@ -62,7 +62,7 @@ function sync(){
 }
 function species(id){try{const m=typeof TP_DEX_META!=="undefined"&&TP_DEX_META[id-1];if(m&&m.names)return m.names.de||m.names.en;}catch(_e){}return id&&ready()?fns.dexName(id):"Pokémon";}
 function actor(e){const name=species(e.s);return e.n?e.n+" ("+name+")":name;}
-const personality=["ausgeglichen","verspielt","mutig","ruhig","gemütlich"],game=["Ballspiel","Fangen","Merken","Putzen","Typentraining","Boxsacktraining"],route=["Erkundung","Beerenwiese","Quellpfad","Waldlichtung","Trainingspfad"],item=["Nahrung","Energie","Pflege","Training"];
+const personality=["ausgeglichen","verspielt","mutig","ruhig","gemütlich"],game=["Ballspiel","Fangen","Merken","Putzen","Typentraining","Boxsacktraining","Tempotraining","Verteidigungstraining"],route=["Erkundung","Beerenwiese","Quellpfad","Waldlichtung","Trainingspfad"],item=["Nahrung","Energie","Pflege","Training"];
 function eventText(e,count=1){
  switch(e.k){
  case 1:return "Ein neues Ei ist angekommen.";
@@ -70,7 +70,7 @@ function eventText(e,count=1){
  case 3:return actor(e)+" hat sich zu "+species(e.a)+" entwickelt.";
  case 4:return species(e.s)+" wurde zum ersten Mal gefangen.";
  case 5:return actor(e)+" ist jetzt "+(personality[e.b]||"ausgeglichen")+".";
- case 6:return "Neuer Rekord beim "+(game[e.a]||"Minispiel")+": "+e.b+(e.a===2?" Runden.":e.a===5?" Treffer.":" Punkte.");
+ case 6:return "Neuer Rekord beim "+(game[e.a]||"Minispiel")+": "+e.b+(e.a===2?" Runden.":e.a===5?" Treffer.":e.a===6?" Trainingsschritte.":e.a===7?" Abwehraktionen.":" Punkte.");
  case 7:return (route[e.a]||"Expedition")+": "+(item[e.b]||"Gegenstand")+" ×"+count+" erhalten.";
  case 8:return actor(e)+" hat Level "+e.a+" erreicht.";
  case 9:return e.a+" Arten aufgezogen.";

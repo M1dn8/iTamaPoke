@@ -148,57 +148,23 @@ function drawStatBar(y, label, value, maxBar, color) {
 }
 
 function drawCardStats() {
-  ctx.textAlign = "center";
-  ctx.fillStyle = UI.ink;
-  ctx.font = "bold 20px monospace";
-  ctx.fillText(fns.statsBattleTitle(), TP.cx, 54);
-
-  drawStatBar(112, fns.statLabel(0), fns.atkStat(), 260, UI.barBad);
-  drawStatBar(154, fns.statLabel(1), fns.defStat(), 260, "#4C98D9");
-  drawStatBar(196, fns.statLabel(2), fns.speStat(), 260, UI.barWarn);
-  drawStatBar(238, fns.statLabel(3), fns.weight(), 100, "#B3C8D9");
-
-  // Record line and the two full-width buttons, at PetScreen.swift's
-  // renderCardStats positions (TP.wildBattleBtn / TP.trainBtn: 96,290 and
-  // 96,332, 274x36) -- they used to sit side by side at other coordinates.
-  ctx.textAlign = "left";
-  ctx.fillStyle = UI.ink;
-  ctx.font = "11px monospace";
-  ctx.fillText(fns.battleRecordLine(), 74, 280);
-  ctx.fillText(fns.battleStreakLine(), 210, 280);
-  ctx.fillText(fns.battleBestLine(), 334, 280);
-
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.font = "bold 14px monospace";
-  ctx.fillStyle = "#4C98D9";
-  roundRect(96, 290, 274, 36, 11); ctx.fill();
-  ctx.fillStyle = UI.bgDay;
-  ctx.fillText(fns.wildBattleText(), 96 + 137, 290 + 18);
-
-  ctx.fillStyle = UI.barBad;
-  roundRect(96, 332, 274, 36, 11); ctx.fill();
-  ctx.fillStyle = UI.bgDay;
-  ctx.fillText(fns.trainButtonText(), 96 + 137, 332 + 18);
-  ctx.textBaseline = "alphabetic";
-
-  statusEl.textContent = TPText.status(`Card · Battle stats`);
+  ctx.textAlign='center';ctx.fillStyle=UI.ink;ctx.font='bold 20px monospace';ctx.fillText(fns.statsBattleTitle(),TP.cx,54);
+  drawStatBar(104,fns.statLabel(0),fns.atkStat(),260,UI.barBad);
+  drawStatBar(143,fns.statLabel(1),fns.defStat(),260,'#4C98D9');
+  drawStatBar(182,fns.statLabel(2),fns.speStat(),260,UI.barWarn);
+  ctx.font='12px monospace';ctx.fillStyle=UI.track;ctx.textAlign='center';ctx.fillText('TRAINING',TP.cx,225);
+  const ready=!!window.TPTraining?.canStart();
+  for(const [x,label,color]of [[44,'Stärke',UI.barBad],[174,'Tempo','#a27819'],[304,'Verteidigung','#397ab6']]){
+    ctx.fillStyle=ready?UI.white:UI.track;roundRect(x,232,118,44,10);ctx.fill();ctx.strokeStyle=color;ctx.lineWidth=1;ctx.stroke();ctx.fillStyle=UI.ink;ctx.font='13px -apple-system,system-ui,sans-serif';ctx.fillText(label,x+59,260);
+  }
+  ctx.fillStyle='#4C98D9';roundRect(96,286,274,44,11);ctx.fill();ctx.fillStyle=UI.bgDay;ctx.font='bold 14px monospace';ctx.fillText(fns.wildBattleText(),TP.cx,314);
+  ctx.textAlign='left';ctx.fillStyle=UI.ink;ctx.font='11px monospace';ctx.fillText(fns.battleRecordLine(),74,350);ctx.fillText(fns.battleStreakLine(),210,350);ctx.fillText(fns.battleBestLine(),334,350);
+  if(window.TPTraining?.notice){ctx.textAlign='center';ctx.fillStyle=UI.barBad;ctx.font='11px sans-serif';ctx.fillText(window.TPTraining.notice,TP.cx,371);}
+  statusEl.textContent=TPText.status('Card · Battle stats');
 }
-
-function cardStatsTap(x, y) {
-  if (x >= 96 && x <= 370 && y >= 290 && y <= 326) {
-    if (fns.battleCanStart() !== 0) {
-      Module._tp_battle_start();
-      battleReturn = "card";   // come back to this page when the battle closes
-      screen = "battle";
-    }
-    return;
-  }
-  if (x >= 96 && x <= 370 && y >= 332 && y <= 368) {
-    gameMode = 5;
-    SackGame.start(performance.now());
-    screen = "game";
-  }
+function cardStatsTap(x,y){
+  if(y>=232&&y<=276){for(const [left,kind] of [[44,0],[174,2],[304,1]])if(x>=left&&x<=left+118){window.TPTraining?.start(kind);return;}}
+  if(x>=96&&x<=370&&y>=286&&y<=330){if(fns.battleCanStart()!==0){Module._tp_battle_start();battleReturn='card';screen='battle';}return;}
 }
 
 function drawCardMedals() {

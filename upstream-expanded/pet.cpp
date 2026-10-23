@@ -1058,14 +1058,17 @@ PetPersonality Pet::personality() const {
 }
 
 // saco de entrenamiento: los golpes entrenan la fuerza. Devuelve la subida.
-uint8_t Pet::trainStrength(uint16_t hits) {
-  if (ceremony != CER_NONE || isEgg()) return 0;
-  uint8_t gain = hits / 4;          // ~4 golpes = 1 punto de entrenamiento
+uint8_t Pet::trainCombat(uint8_t stat, uint16_t hits) {
+  if (stat>TRAIN_STAT_SPE || ceremony != CER_NONE || isEgg()) return 0;
+  uint8_t &value=stat==TRAIN_STAT_ATK?trAtk:stat==TRAIN_STAT_DEF?trDef:trSpe;
+  uint16_t &record=stat==TRAIN_STAT_ATK?strHi:stat==TRAIN_STAT_DEF?defenseTrainHi:speedTrainHi;
+  uint16_t rawGain = hits / 4;
+  uint8_t gain = uint8_t(rawGain>18?18:rawGain);          // ~4 golpes = 1 punto de entrenamiento
   if (gain > 18) gain = 18;         // tope por sesion: la FUE se forja a fuego lento
-  uint8_t before = trAtk;
-  uint8_t v = trAtk + gain;
-  trAtk = v > 100 ? 100 : v;
-  gain = (uint8_t)(trAtk - before);  // el gain mostrado = lo realmente ganado,
+  uint8_t before = value;
+  uint16_t v = uint16_t(value) + gain;
+  value = v > 100 ? 100 : uint8_t(v);
+  gain = (uint8_t)(value - before);  // el gain mostrado = lo realmente ganado,
                                       // no el bruto antes de topar en 100 --
                                       // si no, "FUE +18" se mostraba aunque el
                                       // ataque casi no subiera por estar ya
@@ -1076,7 +1079,7 @@ uint8_t Pet::trainStrength(uint16_t hits) {
   weight = burn > 0 ? burn : 0;
   joy = clamp100(joy + 6);
   if (hits >= 20) heartUntil = millis() + HEART_MS;
-  if (hits > strHi) {strHi = hits;journalAdd(JR_RECORD,5,hits);}   // record de golpes
+  if (hits > record) {record = hits;journalAdd(JR_RECORD,stat==TRAIN_STAT_ATK?5:stat==TRAIN_STAT_SPE?6:7,hits);}   // record de golpes
   addBond(2);
   registerCare();
   if (hits > 0) notePersonality(0);
@@ -1084,6 +1087,7 @@ uint8_t Pet::trainStrength(uint16_t hits) {
   save();
   return gain;
 }
+uint8_t Pet::trainStrength(uint16_t hits) { return trainCombat(TRAIN_STAT_ATK,hits); }
 
 BattleReward Pet::applyBattleWin(int16_t wildDex, bool closeWin) {
   BattleReward reward;
@@ -1375,6 +1379,8 @@ void Pet::save() {
   prefs.putUShort("mstone", lastMilestone);
   prefs.putUShort("ghi", gameHi);
   prefs.putUShort("shi", strHi);
+  prefs.putUShort("sphi", speedTrainHi);
+  prefs.putUShort("dfhi", defenseTrainHi);
   prefs.putUShort("chi", catchHi);
   prefs.putUShort("mhi", memoHi);
   prefs.putUShort("clhi", cleanHi);
@@ -1478,6 +1484,8 @@ void Pet::load() {
   lastMilestone = prefs.getUShort("mstone", 0);
   gameHi = prefs.getUShort("ghi", 0);
   strHi = prefs.getUShort("shi", 0);
+  speedTrainHi = prefs.getUShort("sphi", 0);
+  defenseTrainHi = prefs.getUShort("dfhi", 0);
   catchHi = prefs.getUShort("chi", 0);
   memoHi = prefs.getUShort("mhi", 0);
   cleanHi = prefs.getUShort("clhi", 0);

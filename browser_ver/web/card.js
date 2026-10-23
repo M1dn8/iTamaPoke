@@ -157,16 +157,18 @@ function drawCardStats() {
   for(const [x,label,color]of [[44,'Stärke',UI.barBad],[174,'Tempo','#a27819'],[304,'Verteidigung','#397ab6']]){
     ctx.fillStyle=ready?UI.white:UI.track;roundRect(x,232,118,44,10);ctx.fill();ctx.strokeStyle=color;ctx.lineWidth=1;ctx.stroke();ctx.fillStyle=UI.ink;ctx.font='13px -apple-system,system-ui,sans-serif';ctx.fillText(label,x+59,260);
   }
-  ctx.fillStyle='#4C98D9';roundRect(96,286,156,44,11);ctx.fill();ctx.fillStyle=UI.bgDay;ctx.font='bold 14px monospace';ctx.fillText(fns.wildBattleText(),174,314);
-  ctx.fillStyle=window.TPTrainer?.canOpen()?UI.barBad:UI.track;roundRect(266,286,148,44,11);ctx.fill();ctx.fillStyle=UI.bgDay;ctx.fillText('TRAINER',340,314);
-  ctx.textAlign='left';ctx.fillStyle=UI.ink;ctx.font='11px monospace';ctx.fillText(fns.battleRecordLine(),74,350);ctx.fillText(fns.battleStreakLine(),210,350);ctx.fillText(fns.battleBestLine(),334,350);
+  for(const [x,label,color,on]of [[44,fns.wildBattleText(),'#4C98D9',fns.battleCanStart()!==0],[174,'TRAINER',UI.barBad,!!window.TPTrainer?.canOpen()],[304,'ARENA','#39814e',!!window.TPArena?.canOpen()]]){
+    ctx.fillStyle=on?color:UI.track;roundRect(x,286,118,44,11);ctx.fill();ctx.fillStyle=UI.bgDay;ctx.font='bold 13px monospace';ctx.fillText(label,x+59,314,110);
+  }
+  ctx.textAlign='center';ctx.fillStyle=UI.ink;ctx.font='11px monospace';ctx.fillText(fns.battleRecordLine(),103,350);ctx.fillText(fns.battleStreakLine(),233,350);ctx.fillText(fns.battleBestLine(),363,350);
   if(window.TPTraining?.notice){ctx.textAlign='center';ctx.fillStyle=UI.barBad;ctx.font='11px sans-serif';ctx.fillText(window.TPTraining.notice,TP.cx,371);}
   statusEl.textContent=TPText.status('Card · Battle stats');
 }
 function cardStatsTap(x,y){
   if(y>=232&&y<=276){for(const [left,kind] of [[44,0],[174,2],[304,1]])if(x>=left&&x<=left+118){window.TPTraining?.start(kind);return;}}
-  if(x>=266&&x<=414&&y>=286&&y<=330){window.TPTrainer?.open();return;}
-  if(x>=96&&x<=252&&y>=286&&y<=330){if(fns.battleCanStart()!==0){Module._tp_battle_start();battleReturn='card';screen='battle';}return;}
+  if(x>=304&&x<=422&&y>=286&&y<=330){window.TPArena?.open();return;}
+  if(x>=174&&x<=292&&y>=286&&y<=330){window.TPTrainer?.open();return;}
+  if(x>=44&&x<=162&&y>=286&&y<=330){if(fns.battleCanStart()!==0){Module._tp_battle_start();battleReturn='card';screen='battle';}return;}
 }
 
 function drawCardMedals() {

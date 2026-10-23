@@ -823,6 +823,7 @@ function draw() {
     if(window.TPAppMenu)window.TPAppMenu.drawDexBack();
     return;
   }
+  if (screen === "arena") { window.TPArena.draw(); return; }
   if (screen === "trainer") { window.TPTrainer.draw(); return; }
   if (screen === "battle") {
     drawBattle(performance.now());
@@ -978,6 +979,7 @@ function draw() {
 }
 
 function handleTap(x, y) {
+  if(window.TPArena?.busy)return;
   if(window.TPTraining?.busy)return;
   if(window.TPMega?.busy)return;
   if(window.TPAppMenu&&window.TPAppMenu.canvasTap(x,y))return;
@@ -994,9 +996,11 @@ function handleTap(x, y) {
     if (dexScreen === "detail") dexDetailTap(x, y); else dexGridTap(x, y);
     return;
   }
+  if (screen === "arena") { window.TPArena.tap(x,y); return; }
   if (screen === "trainer") { window.TPTrainer.tap(x,y); return; }
   if (screen === "battle") {
     battleTap(x, y);
+    window.TPArena?.checkEnd();
     return;
   }
   if (screen === "card") {
@@ -1127,7 +1131,7 @@ function handleTap(x, y) {
 function swipeAllowed() {
   if(window.TPMega?.busy)return false;
   if (window.TPExpeditions && window.TPExpeditions.busy) return false;
-  if (screen === "game" || screen === "battle" || screen === "trainer" || screen === "gamemenu") return false;
+  if (screen === "game" || screen === "battle" || screen === "trainer" || screen === "arena" || screen === "gamemenu") return false;
   // Same extra gates as PetScreen.swift's swipe guard: an open feed menu
   // or release dialog owns the touch until it closes.
   const now = performance.now();
@@ -1694,8 +1698,8 @@ createTPCore({
     // button was pressed. Skipping tp_tick() here doesn't erase that decay,
     // just defers it to resume the instant the dialog closes -- mirrors
     // PetScreen.swift's fix, same reasoning.
-    if (!window.TPMega?.busy && !window.TPTraining?.busy) { if (choice === "none") mod.ccall("tp_tick", null, ["number"], [t | 0]); }
-    tpPerf?.tick(tpSample,choice==="none"&&!window.TPMega?.busy&&!window.TPTraining?.busy);
+    if (!window.TPMega?.busy && !window.TPTraining?.busy && !window.TPArena?.busy) { if (choice === "none") mod.ccall("tp_tick", null, ["number"], [t | 0]); }
+    tpPerf?.tick(tpSample,choice==="none"&&!window.TPMega?.busy&&!window.TPTraining?.busy&&!window.TPArena?.busy);
     if(window.TPAppMenu)window.TPAppMenu.markReady();
     // The rest of GameModel.tick(): the idle creature's pose scheduler, the
     // bath timer (which is what actually washes the creature when it ends),

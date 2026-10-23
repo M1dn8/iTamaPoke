@@ -39,6 +39,8 @@ const FILES = [
   "./comfort.js",
   "./dex.js",
   "./battle.js",
+  "./arena-kanto.js",
+  "./arena.js",
   "./card.js",
   "./expedition.js",
   "./ceremony.js",

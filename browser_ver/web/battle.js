@@ -10,7 +10,7 @@
 let battleReturn = "idle";
 
 function drawBattleHpBar(x, y, cur, max, color) {
-  const w = 150, m = max === 0 ? 1 : max;
+  const w = 130, m = max === 0 ? 1 : max;
   const fw = Math.min(w * cur / m, w);
   ctx.fillStyle = UI.track;
   roundRect(x, y, w, 14, 4);
@@ -32,7 +32,7 @@ function battleSprite(dex) {
   return dex === currentDex ? currentSprite : spriteFor(dex, false);
 }
 
-function drawBattleSprite(dex, x, now, player=false) {
+function drawBattleSprite(dex, x, now, player=false,limit=0) {
   const sprite=player?(window.TPMega?.battleActive()?megaSpriteFor(window.TPMega.shiny(),window.TPMega.battleForm()):spriteFor(dex,!!window.TPMega?.shiny())):spriteFor(dex,false);
   if (!sprite) {
     ctx.font = "bold 40px monospace";
@@ -46,7 +46,7 @@ function drawBattleSprite(dex, x, now, player=false) {
   const frame = frameIndexAt(a, now, true);
   const img = frameImageData(sprite, TPAct.idle, frame);
   if (!img) return;
-  const s = Math.min(spriteScale(sprite, a), 3);
+  const s = Math.min(spriteScale(sprite, a), 3,limit?limit/a.w:Infinity,limit?limit/a.h:Infinity);
   const w = a.w * s, h = a.h * s;
   frameCanvas.width = a.w; frameCanvas.height = a.h;
   frameCtx.putImageData(img, 0, 0);
@@ -55,6 +55,7 @@ function drawBattleSprite(dex, x, now, player=false) {
 }
 
 function drawBattle(now) {
+  if(window.TPArena?.intercept(now))return;
   if(!Module.ccall("tp_battle_is_open","number",[],[])){screen=battleReturn;return;}
   // The creature's own habitat behind the fight, as renderBattle's
   // drawGameScene does on iOS -- not a flat panel.
@@ -70,13 +71,13 @@ function drawBattle(now) {
 
   ctx.textAlign = "left";
   ctx.font = "bold 15px monospace";
-  ctx.fillText(fns.battlePlayerLabel(), 28, 88);
+  ctx.textAlign="center";ctx.fillText(fns.battlePlayerLabel(), 123, 88,178);
   const rightLabel = fns.battleEnemyLabel();
-  ctx.textAlign = "right";
-  ctx.fillText(rightLabel, 438, 88);
+  ctx.textAlign = "center";
+  ctx.fillText(rightLabel, 343, 88,178);
 
-  drawBattleHpBar(28, 110, fns.battlePlayerHp(), fns.battlePlayerMaxHp(), UI.barOK);
-  drawBattleHpBar(288, 110, fns.battleEnemyHp(), fns.battleEnemyMaxHp(), UI.barBad);
+  drawBattleHpBar(58, 110, fns.battlePlayerHp(), fns.battlePlayerMaxHp(), UI.barOK);
+  drawBattleHpBar(278, 110, fns.battleEnemyHp(), fns.battleEnemyMaxHp(), UI.barBad);
 
   const dex = fns.speciesId(), wildDex = fns.battleWildDex();
   ctx.textAlign = "left";
@@ -85,12 +86,12 @@ function drawBattle(now) {
   const t1=TYPE_NAMES[pt1]||"";
   const t2=pt2?("/"+(TYPE_NAMES[pt2]||"")):"";
   ctx.fillStyle = TYPE_COLORS[fns.dexType1(dex)] || ink;
-  ctx.fillText(t1 + t2, 28, 134);
+  ctx.textAlign="center";ctx.fillText(t1 + t2, 123, 134);
   const et1 = TYPE_NAMES[fns.dexType1(wildDex)] || "";
   const et2 = fns.dexType2(wildDex) ? "/" + TYPE_NAMES[fns.dexType2(wildDex)] : "";
-  ctx.textAlign = "right";
+  ctx.textAlign = "center";
   ctx.fillStyle = TYPE_COLORS[fns.dexType1(wildDex)] || ink;
-  ctx.fillText(et1 + et2, 438, 134);
+  ctx.fillText(et1 + et2, 343, 134);
 
   const resolved = fns.battleResolved() !== 0;
   if (!resolved || (trainer&&window.TPTrainer.get(3))) {
@@ -108,10 +109,10 @@ function drawBattle(now) {
   // and spot as PetScreen.swift's renderBattle. Drawn after the RUN box so
   // it isn't painted over while the battle is still in progress (the iOS
   // build had exactly that bug until its draw order was fixed).
-  if (fns.battleWildAlreadyCaught() !== 0) drawIcon(TPIcon.food, 258, 108, 1);
+  if (fns.battleWildAlreadyCaught() !== 0) drawIcon(TPIcon.food, 420, 108, 1);
 
-  drawBattleSprite(dex, 142, now, true);
-  drawBattleSprite(wildDex, 328, now);
+  drawBattleSprite(dex, 123, now, true);
+  drawBattleSprite(wildDex, 343, now);
 
   if(trainer&&window.TPTrainer.get(3)){
     ctx.textAlign='center';ctx.fillStyle=ink;ctx.font='bold 22px sans-serif';ctx.fillText('Gegner besiegt',TP.cx,316);
@@ -130,7 +131,7 @@ function drawBattle(now) {
     ctx.fillText(fns.battleRoundsLine(), TP.cx, 338);
     ctx.fillText(fns.battleDamageLine(), TP.cx, 360);
 
-    if(trainer){ctx.font='12px sans-serif';ctx.fillStyle=ink;ctx.fillText('Grundsystem – noch ohne Belohnungen',TP.cx,382);}
+    if(trainer){ctx.font='12px sans-serif';ctx.fillStyle=ink;ctx.fillText(window.TPArena?.active()?'Arena verloren – kein Orden':'Grundsystem – noch ohne Belohnungen',TP.cx,382);}
     if (won) {
       const reward = fns.battleRewardLine();
       if (reward) { ctx.fillStyle = UI.barWarn; ctx.fillText(reward, TP.cx, 382); }
@@ -218,6 +219,7 @@ function drawBattle(now) {
 }
 
 function battleTap(x, y) {
+  if(window.TPArena?.busy||window.TPArena?.battleTap(x,y))return;
   if(window.TPTrainer.active()&&window.TPTrainer.get(3)){
     if(x>=118&&x<=348&&y>=365&&y<=417){Module.ccall('tp_f2_next','number',[],[]);return;}
     if(x>=184&&x<=282&&y>=100&&y<=136)window.TPTrainer.abort();
@@ -305,7 +307,7 @@ function active(){return !!get(0);}
 function canOpen(){try{return screen==='card'&&cardPage===4&&choice==='none'&&!tpSaveReplacing&&!window.TPTraining?.busy&&!window.TPMega?.busy&&!window.TPExpeditions?.busy&&!!call('tp_f2_can');}catch(_e){return false;}}
 function open(){if(!canOpen())return false;dragStart=dragNow=null;screen='trainer';return true;}
 function back(){dragStart=dragNow=null;screen='card';cardPage=4;}
-function abort(){if(active())Module._tp_battle_close();back();}
+function abort(){if(window.TPArena?.busy)return;if(window.TPArena?.active()){window.TPArena.abort();return;}if(active())Module._tp_battle_close();back();}
 function button(label,y,color){ctx.fillStyle=color;roundRect(118,y,230,52,12);ctx.fill();ctx.fillStyle=UI.bgDay;ctx.textAlign='center';ctx.font='bold 16px sans-serif';ctx.fillText(label,TP.cx,y+32);}
 function start(team){
  if(screen!=='trainer'||tpSaveReplacing||document.visibilityState!=='visible'||window.TPTraining?.busy||window.TPMega?.busy||window.TPExpeditions?.busy)return false;

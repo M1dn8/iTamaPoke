@@ -14,6 +14,8 @@
 #include <cstring>
 #include <string>
 #include <ctime>
+#include <memory>
+#include "arena-kanto.h"
 
 #include <emscripten.h>
 
@@ -74,6 +76,21 @@ bool gOpen = false, gResolved = false;
 struct TrainerTeam { uint8_t count; int16_t dex[2]; };
 constexpr TrainerTeam kTrainerTeams[] = {{1,{19,0}}, {2,{16,19}}};
 bool gTrainer=false, gTrainerNext=false;
+int gArenaId=-1,gArenaPhase=0;
+uint32_t gArenaSerial=0,gArenaToken=0;
+std::unique_ptr<Pet> gArenaUndo;
+std::map<std::string,Preferences::Value> gArenaStore;
+int arenaMask(){
+ const auto &store=Preferences::store();const auto ver=store.find("agver");
+ if(ver==store.end()){
+  if(store.count("agmask"))return -1;
+  for(unsigned i=0;i<8;i++)if(store.count("agt"+std::to_string(i)))return -1;
+  return 0;
+ }
+ if(!std::holds_alternative<int64_t>(ver->second)||std::get<int64_t>(ver->second)!=1)return -1;
+ const auto entry=store.find("agmask");if(entry==store.end()||!std::holds_alternative<int64_t>(entry->second))return -1;
+ const auto mask=std::get<int64_t>(entry->second);return mask>=0&&mask<=255?int(mask):-1;
+}
 uint8_t gTrainerId=0, gTrainerIndex=0, gTrainerCount=0;
 uint32_t gTrainerRounds=0, gTrainerDealt=0, gTrainerTaken=0;
 int16_t gTrainerSpecies=-1;
@@ -122,6 +139,8 @@ uint8_t dayPhaseNow() {
 }
 
 void startBattle(int16_t forcedDex, uint8_t forcedLevel) {
+  if(gArenaUndo)return;
+  gArenaId=-1;gArenaPhase=0;gArenaToken=0;
   gTrainer=false;gTrainerNext=false;gTrainerCount=gTrainerIndex=0;
   gTrainerRounds=gTrainerDealt=gTrainerTaken=0;
   gRewardLine.clear();
@@ -204,7 +223,7 @@ extern "C" {
 EMSCRIPTEN_KEEPALIVE const char *tp_battle_wild_question_text() { return T(S_WILD_Q); }
 EMSCRIPTEN_KEEPALIVE const char *tp_battle_fight_text() { return T(S_FIGHT); }
 EMSCRIPTEN_KEEPALIVE const char *tp_battle_later_text() { return T(S_LATER); }
-EMSCRIPTEN_KEEPALIVE const char *tp_battle_title_text() { return gTrainer?"TRAINERKAMPF":T(S_WILD_BATTLE); }
+EMSCRIPTEN_KEEPALIVE const char *tp_battle_title_text() { return gArenaId>=0?"ARENAKAMPF":gTrainer?"TRAINERKAMPF":T(S_WILD_BATTLE); }
 EMSCRIPTEN_KEEPALIVE const char *tp_battle_run_text() { return gTrainer?"ABBRUCH":T(S_RUN_BATTLE); }
 EMSCRIPTEN_KEEPALIVE const char *tp_battle_attack_text() { return T(S_ATTACK); }
 EMSCRIPTEN_KEEPALIVE const char *tp_battle_dodge_text() { return T(S_DODGE); }
@@ -278,6 +297,8 @@ int tp_battle_can_start() {
 EMSCRIPTEN_KEEPALIVE void tp_battle_start() { if(!gOpen&&tp_battle_can_start())startBattle(0, 0); }
 EMSCRIPTEN_KEEPALIVE
 void tp_battle_close() {
+  if(gArenaUndo)return;
+  gArenaId=-1;gArenaToken=0;gArenaPhase=0;
   gTrainer=false;gTrainerNext=false;gTrainerCount=gTrainerIndex=0;
   gOpen = false;
   gResolved = false;
@@ -479,13 +500,59 @@ EMSCRIPTEN_KEEPALIVE int tp_f2_next() {
  const uint16_t hp=gRun.playerHp,maxHp=gRun.playerMaxHp;
  const uint8_t rests=gRun.restUsesLeft;
  gTrainerRounds+=gRun.round;gTrainerDealt+=gRun.playerDamageTotal;gTrainerTaken+=gRun.enemyDamageTotal;
- ++gTrainerIndex;gDex=kTrainerTeams[gTrainerId].dex[gTrainerIndex];
+ ++gTrainerIndex;
+ if(gArenaId>=0){const auto &m=kKantoArenas[gArenaId].team[gTrainerIndex];gDex=m.dex;gLevel=m.level;}
+ else gDex=kTrainerTeams[gTrainerId].dex[gTrainerIndex];
  gEnemy=wildBattleStats(gDex,gLevel);gEnemy.hp=0;
  gRun=beginBattleRuntime(gPlayer,gEnemy);
  gRun.playerHp=hp;gRun.playerMaxHp=maxHp;gRun.restUsesLeft=rests;
  gTurn=BattleTurnResult{};gMessage[0]=0;gAttackMenuOpen=false;
  gResolved=false;gTrainerNext=false;
  return 1;
+}
+// Profile-level arena keys live in the existing exported Preferences table.
+EMSCRIPTEN_KEEPALIVE int tp_f3_mask(){return arenaMask();}
+EMSCRIPTEN_KEEPALIVE uint32_t tp_f3_date(int id){
+ if(id<0||id>=int(kKantoArenaCount)||arenaMask()<0||!(arenaMask()&(1<<id)))return 0;
+ const auto &s=Preferences::store();const auto it=s.find("agt"+std::to_string(id));
+ if(it==s.end()||!std::holds_alternative<int64_t>(it->second))return 0;
+ const auto value=std::get<int64_t>(it->second);return value>=946684800&&value<=0xffffffffLL?uint32_t(value):0;
+}
+EMSCRIPTEN_KEEPALIVE int tp_f3_get(int key){
+ if(key==0)return gOpen&&gArenaId>=0;
+ if(key==1)return gArenaId;
+ if(key==2)return int(gArenaToken);
+ if(key==3)return gArenaPhase;
+ return 0;
+}
+EMSCRIPTEN_KEEPALIVE int tp_f3_start(int id){
+ if(id<0||id>=int(kKantoArenaCount)||!tp_f2_can()||arenaMask()<0||gArenaUndo||gArenaSerial>=0x7ffffffe)return 0;
+ const auto &leader=kKantoArenas[id];startBattle(leader.team[0].dex,leader.team[0].level);
+ const Pet &p=tp_battle_pet();gTrainer=true;gTrainerCount=leader.count;gArenaId=id;gArenaToken=++gArenaSerial;
+ gTrainerSpecies=p.speciesId;gTrainerAge=p.ageMinutes;gTrainerGa=p.geneAtk;gTrainerGd=p.geneDef;gTrainerGs=p.geneSpe;
+ return int(gArenaToken);
+}
+EMSCRIPTEN_KEEPALIVE int tp_f3_apply(int token){
+ if(token<=0||uint32_t(token)!=gArenaToken||gArenaId<0||!gOpen||!gTrainer||!gResolved||gTrainerNext||
+ gTrainerIndex+1!=gTrainerCount||!gTurn.playerWon||!gRun.playerHp||gArenaPhase||gArenaUndo||!trainerActorValid())return 0;
+ const int mask=arenaMask();if(mask<0)return 0;
+ if(mask&(1<<gArenaId)){gArenaPhase=3;return 2;}
+ const std::time_t clock=std::time(nullptr);if(clock<946684800||uint64_t(clock)>0xffffffffULL)return 0;
+ gArenaUndo=std::make_unique<Pet>(tp_battle_pet());gArenaStore=Preferences::store();
+ Preferences p;p.putUChar("agver",1);p.putUChar("agmask",uint8_t(mask|(1<<gArenaId)));
+ const std::string key="agt"+std::to_string(gArenaId);p.putUInt(key.c_str(),uint32_t(clock));gArenaPhase=1;return 1;
+}
+EMSCRIPTEN_KEEPALIVE int tp_f3_finish(int token,int committed){
+ if(token<=0||uint32_t(token)!=gArenaToken||gArenaPhase!=1||!gArenaUndo||(committed!=0&&committed!=1))return 0;
+ if(!committed){tp_battle_pet()=*gArenaUndo;Preferences::store()=gArenaStore;gArenaPhase=0;}else gArenaPhase=2;
+ gArenaUndo.reset();gArenaStore.clear();return 1;
+}
+EMSCRIPTEN_KEEPALIVE const char *tp_f3_catalog(){
+ static std::string out;out="[";
+ for(unsigned i=0;i<kKantoArenaCount;++i){if(i)out+=",";const auto &l=kKantoArenas[i];
+ out+="{\"id\":\""+std::string(l.id)+"\",\"name\":\""+l.name+"\",\"city\":\""+l.city+"\",\"badge\":\""+l.badge+"\",\"team\":[";
+ for(unsigned j=0;j<l.count;++j){if(j)out+=",";out+="["+std::to_string(l.team[j].dex)+","+std::to_string(l.team[j].level)+"]";}out+="]}";}
+ out+="]";return out.c_str();
 }
 EMSCRIPTEN_KEEPALIVE int tp_e_battle_form(){return gOpen?gPlayerMegaForm:0;}
 EMSCRIPTEN_KEEPALIVE int tp_e_battle_mega(){return gOpen&&gPlayer.mega;}

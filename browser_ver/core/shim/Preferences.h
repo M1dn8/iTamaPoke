@@ -67,7 +67,7 @@ public:
     if (it == store().end() || !std::holds_alternative<std::vector<uint8_t>>(it->second)) return 0;
     const auto &v = std::get<std::vector<uint8_t>>(it->second);
     size_t n = v.size() < maxLen ? v.size() : maxLen;
-    std::memcpy(out, v.data(), n);
+    if (n) std::memcpy(out, v.data(), n);
     return n;
   }
 

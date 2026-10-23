@@ -54,6 +54,12 @@ function drawBattleSprite(dex, x, now, player=false,limit=0) {
   ctx.drawImage(frameCanvas, x - w / 2, 286 - (a.base > 0 ? a.base : a.h) * s, w, h);
 }
 
+function drawCaughtPokeball(x,y){
+ ctx.save();ctx.translate(x,y);ctx.fillStyle="#fff";ctx.strokeStyle="#263e33";ctx.lineWidth=1.5;
+ ctx.beginPath();ctx.arc(0,0,8,0,Math.PI*2);ctx.fill();ctx.fillStyle="#c65350";ctx.beginPath();ctx.arc(0,0,8,Math.PI,Math.PI*2);ctx.closePath();ctx.fill();
+ ctx.beginPath();ctx.arc(0,0,8,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.moveTo(-8,0);ctx.lineTo(8,0);ctx.stroke();
+ ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(0,0,2.7,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();
+}
 function drawBattle(now) {
   if(window.TPArena?.intercept(now))return;
   if(!Module.ccall("tp_battle_is_open","number",[],[])){screen=battleReturn;return;}
@@ -61,6 +67,7 @@ function drawBattle(now) {
   // drawGameScene does on iOS -- not a flat panel.
   const { night, ink } = drawGameScene();
   const trainer=window.TPTrainer.active();
+  if(!trainer)window.TPCapture?.status();
   if(trainer&&(!Module.ccall('tp_f2_can_actor','number',[],[])||document.visibilityState!=='visible')){window.TPTrainer.abort();return;}
   if(trainer){ctx.fillStyle=ink;ctx.textAlign='center';ctx.font='12px sans-serif';ctx.fillText('Gegner '+(window.TPTrainer.get(2)+1)+' / '+window.TPTrainer.get(1),TP.cx,62);}
 
@@ -109,7 +116,7 @@ function drawBattle(now) {
   // and spot as PetScreen.swift's renderBattle. Drawn after the RUN box so
   // it isn't painted over while the battle is still in progress (the iOS
   // build had exactly that bug until its draw order was fixed).
-  if (fns.battleWildAlreadyCaught() !== 0) drawIcon(TPIcon.food, 420, 108, 1);
+  if (fns.battleWildAlreadyCaught() !== 0) drawCaughtPokeball(424,116);
 
   drawBattleSprite(dex, 123, now, true);
   drawBattleSprite(wildDex, 343, now);
@@ -142,14 +149,16 @@ function drawBattle(now) {
 
     const catchOffered = fns.battleCatchOffered() !== 0, catchDone = fns.battleCatchDone() !== 0;
     if (catchOffered && !catchDone) {
-      ctx.fillStyle = UI.barOK;
+      const captureState=window.TPCapture?.status();
+      if(captureState?.message){ctx.fillStyle=UI.barBad;ctx.font="11px sans-serif";ctx.textAlign="center";ctx.fillText(captureState.message,233,382,420);}
+      ctx.fillStyle = captureState&&!captureState.allowed?UI.track:UI.barOK;
       roundRect(76, 396, 148, 52, 14); ctx.fill();
       ctx.fillStyle = UI.track;
       roundRect(242, 396, 148, 52, 14); ctx.fill();
       ctx.fillStyle = UI.bgDay;
       ctx.font = "bold 13px monospace";
       ctx.textBaseline = "middle";
-      ctx.fillText(fns.battleCatchWildText(), 150, 422);
+      ctx.fillText(captureState&&!captureState.allowed?(captureState.stored>=200?"Boxen voll":"Sammlung pruefen"):fns.battleCatchWildText(),150,422,140);
       ctx.fillText(fns.battleLeaveWildText(), 316, 422);
       ctx.textBaseline = "alphabetic";
     } else {
@@ -157,7 +166,7 @@ function drawBattle(now) {
         const success = fns.battleCatchSuccess() !== 0;
         ctx.fillStyle = success ? UI.barOK : UI.barBad;
         ctx.font = "13px monospace";
-        ctx.fillText(success ? fns.battleCaughtOkText() : fns.battleEscapedText(), TP.cx, 382);
+        ctx.fillText(success ? (window.TPCapture?.message||fns.battleCaughtOkText()) : fns.battleEscapedText(), TP.cx, 382);
       }
       ctx.fillStyle = UI.barOK;
       roundRect(118, 396, 230, 52, 14); ctx.fill();
@@ -229,7 +238,7 @@ function battleTap(x, y) {
   if (resolved) {
     const catchOffered = fns.battleCatchOffered() !== 0, catchDone = fns.battleCatchDone() !== 0;
     if (catchOffered && !catchDone) {
-      if (x >= 76 && x <= 224 && y >= 392 && y <= 448) { Module._tp_battle_try_catch(); return; }
+      if (x >= 76 && x <= 224 && y >= 392 && y <= 448) { if(window.TPCapture)window.TPCapture.tryCatch(window.TPBoxes?.state.box||0);else if(!window.TPCollection)Module._tp_battle_try_catch();return; }
       if (x >= 242 && x <= 390 && y >= 392 && y <= 448) { Module._tp_battle_leave_wild(); return; }
       return;
     }

@@ -10,5 +10,22 @@ test('Lokaler Diagnosebericht enthaelt keine Spielstandinhalte',async({page},inf
  const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Bericht speichern',exact:true}).click()]);const path=info.outputPath('diagnose.json');await download.saveAs(path);const text=await fs.readFile(path,'utf8'),data=JSON.parse(text);expect(data.format).toBe('iTamaPoke-Diagnose-1');expect(text).not.toContain('Browser-Test');expect(text).not.toContain('GEHEIM');expect(data.fehler.some(x=>x.code==='manager')).toBe(true);
 });
 test('Fehlgeschlagener Schreibversuch wird nicht als gespeichert bestaetigt',async({page})=>{
- const result=await page.evaluate(async()=>{await saveNow(Module);const before=TPDiagnostics.state().letzteSpeicherung;const real=openDb;try{openDb=async()=>{throw new DOMException('Synthetischer Test','QuotaExceededError');};await writeSave(new Uint8Array([0]));}finally{openDb=real;}return {before,after:TPDiagnostics.state()};});expect(result.before).not.toBeNull();expect(result.after.speicherergebnis).toBe('Fehler');expect(result.after.letzteSpeicherung).toEqual(result.before);await open(page);await expect(page.locator('.tp-diagnostics')).toContainText('Letzter erfasster Schreibversuch fehlgeschlagen');
+ const result=await page.evaluate(async()=>{
+  await saveNow(Module);
+  const bytes=exportStateBytes(Module);TPStoreTools.parseLegacy(bytes);
+  const before=TPDiagnostics.state().letzteSpeicherung;
+  const diskBefore=Array.from(await loadSave());
+  const real=openDb;let attempts=0,saved;
+  try{openDb=async()=>{attempts++;throw new DOMException('Synthetischer Test','QuotaExceededError');};saved=await writeSave(bytes);}
+  finally{openDb=real;}
+  const after=TPDiagnostics.state(),diskAfter=Array.from(await loadSave());
+  return {before,after,attempts,saved,bytes:bytes.byteLength,diskBefore,diskAfter};
+ });
+ expect(result.before).not.toBeNull();expect(result.bytes).toBeGreaterThan(0);
+ expect(result.attempts).toBe(1);expect(result.saved).toBe(false);
+ expect(result.after.speicherergebnis).toBe('Fehler');
+ expect(result.after.letzteSpeicherung).toEqual(result.before);
+ expect(result.after.fehler.some(e=>e.code==='write'&&e.art==='QuotaExceededError')).toBe(true);
+ expect(result.diskAfter).toEqual(result.diskBefore);
+ await open(page);await expect(page.locator('.tp-diagnostics')).toContainText('Letzter erfasster Schreibversuch fehlgeschlagen');
 });

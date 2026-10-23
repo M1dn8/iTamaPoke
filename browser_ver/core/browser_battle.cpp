@@ -116,6 +116,13 @@ bool gCatchOffered = false, gCatchTried = false, gCatchDone = false,
      gCatchSuccess = false, gRespectCatch = false;
 uint8_t gCatchChance = 0;
 std::string gRewardLine;
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+uint32_t gF4BattleId=0,gF4CatchEpoch=0,gF4ActorAge=0;
+int gF4Outcome=-1;bool gF4QuietCatch=false,gF4ActorShiny=false;
+int16_t gF4ActorDex=0;uint8_t gF4ActorGa=0,gF4ActorGd=0,gF4ActorGs=0;
+struct F4CatchUndo {uint32_t token=0;bool tried=false,done=false,success=false,attempted=false;};
+F4CatchUndo gF4CatchUndo;
+#endif
 
 BattleStats realPlayerStats() {
   Pet &pet = tp_battle_pet();
@@ -139,6 +146,11 @@ uint8_t dayPhaseNow() {
 }
 
 void startBattle(int16_t forcedDex, uint8_t forcedLevel) {
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+  if(gF4CatchUndo.token)return;
+  if(++gF4BattleId==0)++gF4BattleId;
+  gF4Outcome=-1;gF4CatchEpoch=0;
+#endif
   if(gArenaUndo)return;
   gArenaId=-1;gArenaPhase=0;gArenaToken=0;
   gTrainer=false;gTrainerNext=false;gTrainerCount=gTrainerIndex=0;
@@ -156,6 +168,9 @@ void startBattle(int16_t forcedDex, uint8_t forcedLevel) {
     gDex = pickWildSpecies(static_cast<uint32_t>(std::rand()), phase);
     gLevel = wildLevelFor(pet.level(), rnd100());
   }
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+  gF4ActorDex=pet.speciesId;gF4ActorGa=pet.geneAtk;gF4ActorGd=pet.geneDef;gF4ActorGs=pet.geneSpe;gF4ActorShiny=pet.shiny;gF4ActorAge=pet.ageMinutes;
+#endif
   gPlayer = realPlayerStats();
   gPlayerMegaForm=gPlayer.mega?pet.megaFormId():0;
   gEnemy = wildBattleStats(gDex, gLevel);
@@ -297,6 +312,10 @@ int tp_battle_can_start() {
 EMSCRIPTEN_KEEPALIVE void tp_battle_start() { if(!gOpen&&tp_battle_can_start())startBattle(0, 0); }
 EMSCRIPTEN_KEEPALIVE
 void tp_battle_close() {
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+  if(gF4CatchUndo.token)return;
+  gF4Outcome=-1;gF4CatchEpoch=0;
+#endif
   if(gArenaUndo)return;
   gArenaId=-1;gArenaToken=0;gArenaPhase=0;
   gTrainer=false;gTrainerNext=false;gTrainerCount=gTrainerIndex=0;
@@ -450,6 +469,9 @@ const char *tp_battle_close_chance_text() {
 
 EMSCRIPTEN_KEEPALIVE
 void tp_battle_try_catch() {
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+  if(gF4CatchUndo.token&&!gF4QuietCatch)return;
+#endif
   if (gTrainer||!gOpen||!gResolved||!gCatchOffered||gCatchDone) return;
   Pet &pet = tp_battle_pet();
   bool closeWin = gRun.playerHp <= gRun.playerMaxHp / 3;
@@ -461,10 +483,16 @@ void tp_battle_try_catch() {
   } else {
     gCatchSuccess = pet.tryCatchWild(gDex, gLevel, gPlayer.level, closeWin, luck);
   }
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+  if(!gF4QuietCatch)
+#endif
   sfxPlay(gCatchSuccess ? SFX_CATCH_OK : SFX_CATCH_FAIL);
 }
 EMSCRIPTEN_KEEPALIVE
 void tp_battle_leave_wild() {
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+  if(gF4CatchUndo.token)return;
+#endif
   gCatchDone = true;
   gCatchTried = false;
   sfxPlay(SFX_TAP);
@@ -558,4 +586,44 @@ EMSCRIPTEN_KEEPALIVE int tp_e_battle_form(){return gOpen?gPlayerMegaForm:0;}
 EMSCRIPTEN_KEEPALIVE int tp_e_battle_mega(){return gOpen&&gPlayer.mega;}
 EMSCRIPTEN_KEEPALIVE int tp_e_battle_type1(){return gPlayer.type1;}
 EMSCRIPTEN_KEEPALIVE int tp_e_battle_type2(){return gPlayer.type2;}
+
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+extern uint32_t tp_f4_store_begin_catch_context();
+extern int tp_f4_store_finish(uint32_t,int);
+static bool f4CaptureEligible(){const auto&p=tp_battle_pet();return !gTrainer&&gArenaId<0&&!gArenaUndo&&gOpen&&gResolved&&gCatchOffered&&!gCatchDone&&!p.isEgg()&&p.ceremony==CER_NONE&&p.speciesId==gF4ActorDex&&p.shiny==gF4ActorShiny&&p.geneAtk==gF4ActorGa&&p.geneDef==gF4ActorGd&&p.geneSpe==gF4ActorGs&&p.ageMinutes>=gF4ActorAge;}
+EMSCRIPTEN_KEEPALIVE int tp_f4_capture_audio_quiet(){return gF4QuietCatch?1:0;}
+EMSCRIPTEN_KEEPALIVE int tp_f4_capture_battle_id(){return gOpen&&!gTrainer?int(gF4BattleId&0x7fffffffu):0;}
+EMSCRIPTEN_KEEPALIVE const char *tp_f4_capture_snapshot(){
+ static std::string out;if(!gOpen||gTrainer||gDex<1||gDex>DEX_COUNT){out="null";return out.c_str();}
+ out="{\"dex\":"+std::to_string(gDex)+",\"level\":"+std::to_string(gLevel)+",\"nickname\":\"\",\"shiny\":false,\"origin\":\"wild\",\"data\":{\"stats\":{\"atk\":"+std::to_string(gEnemy.atk)+",\"def\":"+std::to_string(gEnemy.def)+",\"spe\":"+std::to_string(gEnemy.spe)+"},\"genes\":null,\"training\":null";
+ if(gF4CatchEpoch&&gF4Outcome==1)out+=",\"capturedAt\":"+std::to_string(gF4CatchEpoch);
+ out+="}}";return out.c_str();
+}
+EMSCRIPTEN_KEEPALIVE uint32_t tp_f4_capture_begin(){
+ if(gF4CatchUndo.token||!f4CaptureEligible())return 0;
+ const auto token=tp_f4_store_begin_catch_context();if(!token)return 0;
+ gF4CatchUndo={token,gCatchTried,gCatchDone,gCatchSuccess,false};return token;
+}
+EMSCRIPTEN_KEEPALIVE int tp_f4_capture_attempt(uint32_t token){
+ if(!token||gF4CatchUndo.token!=token||gF4CatchUndo.attempted||!f4CaptureEligible())return -1;
+ gF4CatchUndo.attempted=true;
+ if(gF4Outcome<0){gF4QuietCatch=true;tp_battle_try_catch();gF4QuietCatch=false;gF4Outcome=gCatchSuccess?1:0;gF4CatchEpoch=uint32_t(std::time(nullptr));}
+ else{
+  // Re-apply the already rolled result, never a new random chance. Current
+  // existing chance bounds make 0 replay success and 99 replay failure.
+  Pet&p=tp_battle_pet();const uint8_t replay=gF4Outcome?0:99;
+  gCatchTried=gCatchDone=true;gF4QuietCatch=true;
+  gCatchSuccess=gRespectCatch?p.tryRespectCatchWild(gDex,gLevel,gPlayer.level,replay):p.tryCatchWild(gDex,gLevel,gPlayer.level,gRun.playerHp<=gRun.playerMaxHp/3,replay);
+  gF4QuietCatch=false;if(int(gCatchSuccess)!=gF4Outcome)return -2;
+ }
+ return gF4Outcome;
+}
+EMSCRIPTEN_KEEPALIVE int tp_f4_capture_finish(uint32_t token,int commit){
+ if(!token||gF4CatchUndo.token!=token||(commit!=0&&commit!=1))return 0;
+ if(!tp_f4_store_finish(token,commit))return 0;
+ if(!commit){gCatchTried=gF4CatchUndo.tried;gCatchDone=gF4CatchUndo.done;gCatchSuccess=gF4CatchUndo.success;}
+ gF4CatchUndo={};return 1;
+}
+#endif
+
 } // extern "C"

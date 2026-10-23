@@ -32,6 +32,23 @@ function parseLegacy(input){
  if(!Number.isInteger(dex)||(dex!==-1&&(dex<1||dex>1025))||age<0||age>0xffffffff||target<1||target>1025)throw Error("Art, Ei oder Alter ausserhalb des unterstuetzten Bereichs.");
  for(const k of ["full","joy","ene","hyg","bond"]){const n=get(k,1,0);if(n<0||n>100)throw Error("Ungueltiger Wert: "+k);}
  for(const k of ["dexreg","dexcgt","dexsh"]){const v=get(k,3,new Uint8Array());if(v.length>129)throw Error("Sammlung stammt aus einem nicht unterstuetzten Datenumfang.");}
+ let collectionModel=null;
+ if(values.has("f4col")){
+  const collection=values.get("f4col");
+  if(collection.type!==3)throw Error("Falscher Typ fuer individuelle Sammlung.");
+  if(!root.TPCollectionModel)throw Error("Sammlungspruefung nicht geladen.");
+  try{collectionModel=root.TPCollectionModel.decode(dec.decode(collection.value));}
+  catch(e){throw Error("Individuelle Sammlung ungueltig oder nicht unterstuetzt: "+(e.code||e.message));}
+ }
+ if(values.has("f4lver")||values.has("f4life")){
+  const ver=get("f4lver",1,0),life=get("f4life",1,0);
+  if(ver!==1||!Number.isInteger(life)||life<1||life>0x7fffffff||!collectionModel)throw Error("Pflege-Identitaetsdaten ungueltig oder nicht unterstuetzt.");
+  const ceremony=get("cerp",1,0);
+  if(collectionModel.active!==null){const m=collectionModel.mons.find(m=>m.id===collectionModel.active);
+   if(dex<1||ceremony||!m||m.data.lifeToken!==life||m.dex!==dex||m.shiny!==get("shy",0,false))throw Error("Pflege-Pokemon und Sammlungsidentitaet passen nicht zusammen.");
+   const genes=m.data.genes;if(!genes||genes.atk!==get("gatk",1,100)||genes.def!==get("gdef",1,100)||genes.spe!==get("gspe",1,100))throw Error("Individuelle Pflege-Gene passen nicht zusammen.");
+  }else if(dex>0&&!ceremony)throw Error("Aktuelles Pflege-Pokemon fehlt in der individuellen Sammlung.");
+ }else if(collectionModel?.active!==null&&collectionModel?.active!==undefined){const m=collectionModel.mons.find(m=>m.id===collectionModel.active);if(m&&m.data.lifeToken!==undefined)throw Error("Pflege-Identitaetsmetadaten fehlen.");}
  function bitCount(k){let n=0;const v=get(k,3,new Uint8Array());for(let d=0;d<1025;d++)if((v[d>>3]||0)&(1<<(d&7)))n++;return n;}
  return {raw:b.slice(),values,summary:{dex,level:Math.min(100,1+Math.floor(age/60)),age,bond:get("bond",1,0),nick:get("nick",2,""),raised:bitCount("dexreg"),caught:bitCount("dexcgt"),shiny:bitCount("dexsh")}};
 }
@@ -65,6 +82,7 @@ const megaForms=Object.freeze({
 });
 function megaFormInfo(id){return Object.prototype.hasOwnProperty.call(megaForms,id)?megaForms[id]:null;}
 function canonicalSprite(name){
+ const trainer=root.TPTrainerArt?.canonical(name);if(trainer)return trainer;
  if(/^thumbs\.bin$/i.test(name))return {key:"thumbs.bin",atlas:true};
  const extra=/^(p|ps)(\d{1,4})-mega(?:-(x))?\.bin$/i.exec(name);
  if(extra){const dex=Number(extra[2]),id=dex===6&&extra[3]?1:dex===376&&!extra[3]?2:dex===303&&!extra[3]?3:0;const f=megaFormInfo(id);if(!f)return null;const shiny=extra[1].toLowerCase()==="ps";return {key:shiny?f.shiny:f.normal,dex:f.dex,shiny,form:id===1?"mega-x":"mega",formId:id};}

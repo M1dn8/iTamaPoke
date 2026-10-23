@@ -37,6 +37,7 @@ em++ -std=c++17 $OPT \
   browser_ver/core/browser_battle.cpp \
   browser_ver/core/browser_card2.cpp \
   browser_ver/core/browser_training.cpp \
+  browser_ver/core/browser_collection_store.cpp \
   browser_ver/core/browser_journal.cpp \
   browser_ver/core/browser_minigames.cpp \
   browser_ver/core/browser_expeditions.cpp \

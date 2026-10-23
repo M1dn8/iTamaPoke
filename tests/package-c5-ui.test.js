@@ -25,7 +25,7 @@ for(const name of ["Tagebuch","Entwicklung","Pokédex","Eier","Sicherungen","Ein
 const click=text=>{const b=flatten(root).find(n=>n.tagName==="button"&&n.textContent===text);assert(b,text);b.click();};
 click("Tagebuch");assert(flatten(root).some(n=>n.textContent.includes("Energie ×2 erhalten")));click("Zurück");
 click("Sicherungen");assert.equal(root.hidden,true);assert.equal(overlay.parentNode.id,"tp-game-shell");assert.equal(overlay.querySelector(".tp-modal-head button").textContent,"Zurück");overlay.querySelector(".tp-modal-head button").click();assert.equal(root.hidden,false);
-click("Einstellungen");click("Dateien verwalten");click("Pokémon-Grafiken laden");assert.equal(fileClicks,1);click("Zurück");click("Neues Spiel");assert.equal(resetClicks,1);click("Zurück");click("Zurück zum Pokémon");assert.equal(context.screen,"idle");assert.equal(app.active,false);
+click("Einstellungen");click("Dateien verwalten");click("Grafiken laden (Pokemon und Leiter)");assert.equal(fileClicks,1);click("Zurück");click("Neues Spiel");assert.equal(resetClicks,1);click("Zurück");click("Zurück zum Pokémon");assert.equal(context.screen,"idle");assert.equal(app.active,false);
 assert(app.eventText({k:1,s:999,a:999,f:1,n:"secret"}).includes("Ei"));assert(!app.eventText({k:1,s:999,a:999,f:1,n:"secret"}).includes("secret"));
 assert.equal(app.groupEntries(data).length,1);assert.equal(app.groupEntries(data)[0].count,2);assert(app.eventText({k:3,s:1,a:2,n:"Flamme"}).includes("Flamme"));
 const css=fs.readFileSync("browser_ver/web/app-menu.css","utf8");assert(css.includes("#toolbar,.tp-tools{display:none!important}"));assert(css.includes("touch-action:pan-y"));

@@ -7,7 +7,7 @@ const root=document.createElement("section");root.id="tp-app-page";root.hidden=t
 const overlays=new Set(),watched=new WeakSet();
 function visible(n){if(n.hidden||n.style.display==="none")return false;const c=typeof getComputedStyle==="function"?getComputedStyle(n):null;return !c||(c.display!=="none"&&c.visibility!=="hidden");}
 function ready(){return coreReady&&!!Module&&!!fns;}
-function quiet(){return ready()&&!tpSaveReplacing&&!(window.TPExpeditions&&window.TPExpeditions.busy)&&!["game","gamemenu","battle","trainer","keyboard","arena"].includes(screen)&&!fns.ceremony()&&!fns.evolvingNow()&&!fns.wildPromptActive()&&choice==="none";}
+function quiet(){return ready()&&!window.TPBoxes?.active&&!window.TPCollectionGame?.dialogOpen&&!tpSaveReplacing&&!(window.TPExpeditions&&window.TPExpeditions.busy)&&!["game","gamemenu","battle","trainer","keyboard","arena"].includes(screen)&&!fns.ceremony()&&!fns.evolvingNow()&&!fns.wildPromptActive()&&choice==="none";}
 function el(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
 function button(text,fn,cls){const b=el("button",text,cls);b.type="button";b.addEventListener("click",e=>{if(Date.now()<suppressClickUntil){e.preventDefault();return;}try{fn();}catch(err){notice(err.message||String(err));}});return b;}
 function notice(text){let n=root.querySelector(".tp-app-notice");if(!n){n=el("p",undefined,"tp-app-notice");n.setAttribute("role","status");root.appendChild(n);}n.textContent=text;}
@@ -15,8 +15,8 @@ function remember(value){try{if(value)sessionStorage.setItem("tp-app-return",val
 function show(which="main"){
  if(!quiet())return;const tpPage=window.TPPerformance?.begin();active=true;page=which;screen="settings";root.hidden=false;root.replaceChildren();root.className=which==="main"?"tp-app-main":"";
  dragStart=null;dragNow=null;choice="none";feedMenuUntil=0;confirmUntil=0;
- const head=el("header",undefined,"tp-app-head");head.appendChild(el("h2",{main:"Menü",journal:"Tagebuch",settings:"Einstellungen",files:"Dateien",diagnostics:"Diagnose"}[which]||"Menü"));
- if(which!=="main")head.appendChild(button("Zurück",()=>show(["files","diagnostics"].includes(which)?"settings":"main")));
+ const head=el("header",undefined,"tp-app-head");head.appendChild(el("h2",{main:"Menü",journal:"Tagebuch",settings:"Einstellungen",files:"Dateien",diagnostics:"Diagnose",rights:"Quellen & Nutzungsrechte"}[which]||"Menü"));
+ if(which!=="main")head.appendChild(button("Zurück",()=>show(["files","diagnostics","rights"].includes(which)?"settings":"main")));
  root.appendChild(head);
  if(which==="main"){
   const grid=el("div",undefined,"tp-app-grid");
@@ -24,15 +24,17 @@ function show(which="main"){
   root.append(grid,button("Zurück zum Pokémon",close,"tp-app-home"));
  }else if(which==="settings"){
   const list=el("div",undefined,"tp-app-actions");
-  list.append(button("Ton: "+["Aus","Vibration","An"][soundMode],()=>{setSoundMode((soundMode+1)%3);if(soundMode!==0)playSfx(18);show("settings");}),button("Sprache: "+["Spanisch","Englisch","Französisch","Deutsch","Italienisch","Portugiesisch","Koreanisch","Koreanische Namen"][fns.language()],()=>{Module.ccall("tp_set_language",null,["number"],[(fns.language()+1)%LANG_CODES.length]);saveNow(Module);show("settings");}),button("Dateien verwalten",()=>show("files")),button("Diagnose",()=>show("diagnostics")));
+  list.append(button("Ton: "+["Aus","Vibration","An"][soundMode],()=>{setSoundMode((soundMode+1)%3);if(soundMode!==0)playSfx(18);show("settings");}),button("Sprache: "+["Spanisch","Englisch","Französisch","Deutsch","Italienisch","Portugiesisch","Koreanisch","Koreanische Namen"][fns.language()],()=>{Module.ccall("tp_set_language",null,["number"],[(fns.language()+1)%LANG_CODES.length]);saveNow(Module);show("settings");}),button("Dateien verwalten",()=>show("files")),button("Diagnose",()=>show("diagnostics")),button("Quellen & Nutzungsrechte",()=>show("rights")));
   root.appendChild(list);const danger=el("div",undefined,"tp-app-danger");danger.append(el("p","Startet mit einem neuen Spielstand. Vorherige Sicherheitsabfragen bleiben erhalten."),button("Neues Spiel",()=>{remember(null);clickID("gameReset","settings");}));root.appendChild(danger);
  }else if(which==="files"){
   const list=el("div",undefined,"tp-app-actions");
-  for(const[text,id]of [["Pokémon-Grafiken laden","spriteLoad"],["Rufe laden","cryLoad"],["Pokédex-Texte laden","dexEntryLoad"]])list.appendChild(button(text,()=>clickID(id,"files")));
+  for(const[text,id]of [["Grafiken laden (Pokemon und Leiter)","spriteLoad"],["Rufe laden","cryLoad"],["Pokédex-Texte laden","dexEntryLoad"]])list.appendChild(button(text,()=>clickID(id,"files")));
   list.appendChild(button("Dateibestand prüfen",()=>legacy(["Dateien","Assets"],"files")));root.appendChild(list);
  }else if(which==="diagnostics"){
   const body=el("div",undefined,"tp-diagnostics");root.appendChild(body);
   if(window.TPDiagnostics)window.TPDiagnostics.mount(body,()=>active&&!proxy&&page==="diagnostics");else body.appendChild(el("p","Diagnose nicht verfügbar. Bitte aktuellen Build öffnen."));
+ }else if(which==="rights"){
+  const body=el("div",undefined,"tp-rights-scroll");root.appendChild(body);window.TPRights.mount(body).catch(e=>notice(e.message));
  }else if(which==="journal"){
   const list=el("div",undefined,"tp-app-list");list.tabIndex=0;list.setAttribute("aria-label","Tagebucheinträge");root.appendChild(list);
   try{const snapshot=Module.ccall("tp_journal_json","string",[],[]);renderJournal(list,JSON.parse(snapshot));setTimeout(()=>{if(!active||proxy||page!=="journal"||!ready())return;try{const next=Module.ccall("tp_journal_json","string",[],[]);if(next!==snapshot){const top=list.scrollTop;list.replaceChildren();renderJournal(list,JSON.parse(next));list.scrollTop=top;}}catch(_e){}},1100);}catch(_e){list.appendChild(el("p","Tagebuch nicht verfügbar. Bitte den aktuellen Test-Build öffnen."));}
@@ -95,7 +97,7 @@ function renderJournal(list,entries){
 root.addEventListener("pointerdown",e=>{if(page==="main"&&!proxy)gesture={x:e.clientX,y:e.clientY};});
 root.addEventListener("pointerup",e=>{if(!gesture)return;const dx=e.clientX-gesture.x,dy=e.clientY-gesture.y;gesture=null;if(page==="main"&&Math.abs(dy)>60&&Math.abs(dy)>Math.abs(dx)*1.4){suppressClickUntil=Date.now()+350;e.preventDefault();if(dy<0)close();}});
 root.addEventListener("click",e=>{if(Date.now()<suppressClickUntil){e.preventDefault();e.stopImmediatePropagation();}},true);
-root.addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();if(page==="main")close();else show(["files","diagnostics"].includes(page)?"settings":"main");}if(e.key==="Tab"){const nodes=Array.from(root.querySelectorAll("button:not(:disabled),.tp-app-list")),first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}});
+root.addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();if(page==="main")close();else show(["files","diagnostics","rights"].includes(page)?"settings":"main");}if(e.key==="Tab"){const nodes=Array.from(root.querySelectorAll(page==="rights"?"button:not(:disabled),a[href],summary,.tp-rights-scroll":"button:not(:disabled),.tp-app-list")),first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}});
 canvas.addEventListener("keydown",e=>{if(e.key==="ArrowDown"&&screen==="idle"&&quiet()&&(typeof swipeAllowed!=="function"||swipeAllowed())){e.preventDefault();show("main");}});
 adopt();new MutationObserver(adopt).observe(document.body,{childList:true});
 window.TPAppMenu={

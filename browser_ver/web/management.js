@@ -6,7 +6,7 @@ const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefine
 const button=(text,fn)=>{const b=el("button",text);b.type="button";b.addEventListener("click",()=>Promise.resolve().then(fn).catch(error));return b;};
 const error=e=>{window.TPDiagnostics?.record("manager",e);console.error("[manager]",e);alert(e&&e.message?e.message:String(e));};
 function loaded(){return !!Module&&typeof fns.speciesId==="function";}
-function safe(){return loaded()&&!["game","gamemenu","battle","keyboard"].includes(screen)&&!fns.evolvingNow()&&!fns.ceremony()&&!fns.wildPromptActive();}
+function safe(){return loaded()&&!window.TPCollectionGame?.dialogOpen&&!tpSaveReplacing&&!["game","gamemenu","battle","keyboard"].includes(screen)&&!fns.evolvingNow()&&!fns.ceremony()&&!fns.wildPromptActive();}
 function openDB(){if(!dbPromise)dbPromise=new Promise((resolve,reject)=>{const r=indexedDB.open("itamapoke-management",1);r.onupgradeneeded=()=>{r.result.createObjectStore("snapshots",{keyPath:"id"});r.result.createObjectStore("assetInfo");};r.onsuccess=()=>resolve(r.result);r.onerror=()=>{dbPromise=null;reject(r.error);};});return dbPromise;}
 async function getAll(store){const db=await openDB();return new Promise((resolve,reject)=>{const r=db.transaction(store,"readonly").objectStore(store).getAll();r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error);});}
 async function put(store,key,value){const db=await openDB();return new Promise((resolve,reject)=>{const tx=db.transaction(store,"readwrite");tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error("Speichertransaktion abgebrochen."));if(key===null)tx.objectStore(store).put(value);else tx.objectStore(store).put(value,key);});}
@@ -94,15 +94,15 @@ async function inventory(){
  const a=await openAssetDb(),c=await openCryDb(),t=await openDexEntryDb();
  try{return {sprites:await allKeys(a,ASSET_STORE),cries:await allKeys(c,CRY_STORE),text:await allKeys(t,DEXENTRY_STORE),info:await getAll("assetInfo")};}finally{a.close();c.close();t.close();}
 }
-function spriteIndex(keys){const out=new Set();for(const key of keys){const m=T.canonicalSprite(String(key));if(m&&!m.atlas&&!m.form)out.add(m.key);}return out;}
+function spriteIndex(keys){const out=new Set();for(const key of keys){const m=T.canonicalSprite(String(key));if(m&&!m.trainer&&!m.atlas&&!m.form)out.add(m.key);}return out;}
 function missing(index,shiny){const out=[];for(let i=1;i<=1025;i++){const key=(shiny?"ps":"p")+String(i).padStart(3,"0")+".bin";if(!index.has(key))out.push(key);}return out;}
 function progress(title){begin(title);const p=el("progress",undefined,"tp-progress");p.max=1;p.value=0;const text=el("p","Vorbereitung…","tp-manager-status");panel.append(p,text);return {p,text};}
 async function validateInventory(){
  const ui=progress("Grafik-Bestand pruefen");busy=true;let db;let good=0,bad=0,single=0;const issues=[];
  try{db=await openAssetDb();const keys=await allKeys(db,ASSET_STORE);ui.p.max=Math.max(1,keys.length);
   for(let i=0;i<keys.length;i++){const key=String(keys[i]),m=T.canonicalSprite(key);if(!m){issues.push(key+": unbekannter Dateiname");continue;}
-   let result;try{const raw=await read(db,ASSET_STORE,keys[i]);result=m.atlas?T.inspectThumbs(raw):T.inspectSprite(raw);good++;if(result.kind==="single-frame")single++;}catch(e){result={valid:false,kind:"invalid",error:e.message};bad++;issues.push(key+": "+e.message);}
-   await put("assetInfo",key,{key,...result,checkedAt:Date.now()});ui.p.value=i+1;ui.text.textContent=(i+1)+" / "+keys.length+" geprueft";
+   let result;try{const raw=await read(db,ASSET_STORE,keys[i]);result=m.trainer?await TPTrainerArt.inspect(raw,m.leader):m.atlas?T.inspectThumbs(raw):T.inspectSprite(raw);good++;if(result.kind==="single-frame")single++;}catch(e){result={valid:false,kind:"invalid",error:e.message};bad++;issues.push(key+": "+e.message);}
+   const {png,...indexResult}=result;await put("assetInfo",key,{key,...indexResult,checkedAt:Date.now()});ui.p.value=i+1;ui.text.textContent=(i+1)+" / "+keys.length+" geprueft";
    if(i%10===0)await new Promise(r=>setTimeout(r,0));
   }
   ui.text.textContent="Gueltig: "+good+" · Fehler: "+bad+" · Einzelbild-Grafiken: "+single;
@@ -116,12 +116,17 @@ async function importAssets(kind,files,onlyMissing=false){
  if(!files.length)return;const ui=progress("Dateien importieren");busy=true;
  let db;
  const store=kind==="sprites"?ASSET_STORE:kind==="cries"?CRY_STORE:DEXENTRY_STORE;
- let imported=0,skipped=0,failed=0;const errors=[];
+ let imported=0,skipped=0,failed=0,trainerImported=0,trainerSkipped=0,trainerFailed=0;const errors=[];
  try{
   db=kind==="sprites"?await openAssetDb():kind==="cries"?await openCryDb():await openDexEntryDb();
   const existing=new Set(await allKeys(db,store));const info=new Map((await getAll("assetInfo")).map(x=>[x.key,x]));ui.p.max=files.length;
+  if(kind==="sprites"&&window.TPTrainerArt){const trainers=files.filter(f=>TPTrainerArt.looksLike(f.name));if(trainers.length){try{
+   const result=await TPTrainerArt.importBatch(db,store,trainers,{onlyMissing,readExisting:key=>read(db,store,key)});trainerImported=result.saved;trainerSkipped=result.skipped;imported+=result.saved;skipped+=result.skipped;
+   for(const item of result.items){try{await put("assetInfo",item.key,{key:item.key,valid:true,kind:"trainer",leader:item.leader,width:item.width,height:item.height,metadata:item.metadata,checkedAt:Date.now()});}catch(_){note("Leitergrafik gespeichert; Zusatzindex nicht aktualisiert. Angaben bleiben im BIN.");}}
+   if(result.saved||result.skipped)window.TPArena?.invalidatePortraits?.();
+  }catch(e){trainerFailed=trainers.length;failed+=trainers.length;errors.push("Leiterpaket nicht uebernommen: "+e.message);}}}
   for(let i=0;i<files.length;i++){
-   const file=files[i];let key,raw,details;
+   const file=files[i];if(kind==="sprites"&&window.TPTrainerArt?.looksLike(file.name)){ui.p.value=i+1;continue;}let key,raw,details;
    try{
     if(kind==="sprites"){
      const m=T.canonicalSprite(file.name);if(!m)throw Error("Kein unterstuetzter Grafik-/Atlasname (1–1025).");key=m.key;
@@ -144,10 +149,12 @@ async function importAssets(kind,files,onlyMissing=false){
   if(kind==="sprites"){spriteCache.clear();spriteLoading.clear();currentDex=0;loadingDex=-1;await refreshThumbs();}
   if(kind==="cries"){stopCry();cryBufferCache.clear();await refreshCryIndex();}
   if(kind==="text")dexEntryCache={};
+  ui.text.textContent="Importiert "+imported+" (Leiter "+trainerImported+") · Uebersprungen "+skipped+" · Nicht uebernommen "+failed;
   for(const line of errors.slice(0,30))note(line);
   if(errors.length)panel.appendChild(button("Importbericht exportieren",()=>download(errors.join("\n"),"iTamaPoke-Importfehler.txt","text/plain")));
   if(kind==="cries")note("Audio-Dateinamen und Dateigroesse wurden geprueft. Die Abspielbarkeit wird erst beim Dekodieren in der Wiedergabe festgestellt.");
-  note("Gueltige Dateien wurden einzeln gespeichert; Fehler bei anderen Dateien rollen sie nicht zurueck.");
+  if(kind==="sprites")note("Leiter: "+trainerImported+" gespeichert · "+trainerSkipped+" uebersprungen · "+trainerFailed+" nicht uebernommen. Leiterpakete sind atomar. Pokemon-/Atlasdateien behalten die bisherige Einzeldatei-Regel.");
+  else note("Gueltige Dateien wurden einzeln gespeichert; Fehler bei anderen Dateien rollen sie nicht zurueck.");
  }finally{if(db)db.close();busy=false;}
  panel.appendChild(button("Zur Dateiübersicht",openAssets));return imported;
 }
@@ -155,7 +162,8 @@ async function openAssets(){
  begin("Dateiverwaltung");const tpPage=window.TPPerformance?.begin();const view=viewId;const inv=await inventory();if(view!==viewId)return;const index=spriteIndex(inv.sprites),normal=missing(index,false),shiny=missing(index,true);
  panel.appendChild(el("p","Normal: "+(1025-normal.length)+" / 1025 · Schillernd: "+(1025-shiny.length)+" / 1025"));
  note("Diese Zahlen zaehlen vorhandene Dateinamen. Erst 'Bestand pruefen' kontrolliert alle gespeicherten Grafik-Dateien.");
- const checked=inv.info.filter(x=>inv.sprites.includes(x.key)),single=checked.filter(x=>x.valid&&x.kind==="single-frame").length;
+ note("Leiterdateien: "+inv.sprites.filter(k=>!!window.TPTrainerArt?.canonical(k)).length+" / 8. Rechte je Datei pruefen.");
+ const checked=inv.info.filter(x=>inv.sprites.includes(x.key)&&x.kind!=="trainer"),single=checked.filter(x=>x.valid&&x.kind==="single-frame").length;
  note("Letzte Pruefergebnisse: "+checked.length+" Dateien · "+checked.filter(x=>!x.valid).length+" Fehler · "+single+" Einzelbild-Grafiken. Herkunft/Originalanimation ist daraus nicht sicher ableitbar.");
  const cryIDs=new Set(inv.cries.map(k=>/^psnd(\d{1,4})\./i.exec(String(k))).filter(Boolean).map(m=>+m[1]));
  note("Rufe fuer "+cryIDs.size+" Arten (nicht auf Abspielbarkeit geprueft). Textsprachen: "+(inv.text.join(", ")||"keine")+".");

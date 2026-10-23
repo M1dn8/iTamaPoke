@@ -1,0 +1,11 @@
+/* Offline documentation; never untrusted HTML or automatic fetch. */
+(function(){'use strict';
+function node(tag,text){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;}
+function card(root,e){const c=node('section');c.className='tp-rights-card';c.append(node('h3',e.name),node('p',e.author),node('p',e.status),node('p',e.note));if(e.source){c.append(node('p','Quelle: '+e.source));try{const url=new URL(e.source);if(['http:','https:'].includes(url.protocol)){const a=node('a','Quelle bewusst oeffnen');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';c.append(a);}}catch(_){}}root.append(c);}
+async function mount(root){root.className='tp-rights-scroll';root.tabIndex=0;root.append(node('p','Quellen & Nutzungsrechte · Stand 23.10.2026'),node('p','Dokumentation, keine Rechtsberatung oder Rechtsgarantie. Credits ersetzen keine fehlenden Rechte. Externe Quellenlinks werden nicht automatisch aufgerufen.'));for(const e of window.TPRightsData.entries)card(root,e);
+ const local=node('section');local.className='tp-rights-card';local.append(node('h3','Lokal dokumentierte Leiter-BINs'));root.append(local);let count=0;
+ if(window.TPTrainerArt&&typeof loadSpriteAsset==='function')for(const id of TPTrainerArt.ids){try{const raw=await loadSpriteAsset('trainer-kanto-'+id+'.bin');if(!raw)continue;const item=await TPTrainerArt.inspect(raw,id),m=item.metadata;count++;card(local,{name:id,author:m.author||'Urheber nicht dokumentiert',status:m.license?'Angegebene Lizenz/Erlaubnis (nicht verifiziert): '+m.license:'Lizenz/Erlaubnis nicht dokumentiert',note:m.changes?'Angegebene Aenderungen: '+m.changes:'Aenderungen nicht dokumentiert',source:m.source});}catch(e){card(local,{name:id,author:'Lokaler Datensatz',status:'Nicht pruefbar',note:e.message,source:''});}}
+ if(!count)local.append(node('p','Keine gueltigen Leiter-BIN-Angaben gefunden. Alte PNG-Portraets koennen dennoch vorhanden sein.'));
+ for(const item of window.TPRightsData.licenses){const d=node('details');d.className='tp-rights-card';d.append(node('summary',item.name),node('pre',item.text));root.append(d);}root.append(node('p','Lizenztexte und Hinweise sind offline enthalten. Links brauchen erst beim Antippen Internet. Nutzerdateien werden nicht hochgeladen.'));
+}
+window.TPRights=Object.freeze({mount});})();

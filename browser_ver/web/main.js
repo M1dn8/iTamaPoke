@@ -979,6 +979,8 @@ function draw() {
 }
 
 function handleTap(x, y) {
+  if(window.TPBoxes?.active)return;
+  if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen)return;
   if(window.TPArena?.busy)return;
   if(window.TPTraining?.busy)return;
   if(window.TPMega?.busy)return;
@@ -1064,7 +1066,7 @@ function handleTap(x, y) {
   if (now < confirmUntil) {
     if (x >= RELEASE_YES.x && x <= RELEASE_YES.x + RELEASE_YES.w &&
         y >= RELEASE_YES.y && y <= RELEASE_YES.y + RELEASE_YES.h) {
-      Module._tp_release();
+      if(window.TPCollectionGame)window.TPCollectionGame.openEnd("release");else Module._tp_release();
     }
     confirmUntil = 0;
     return;
@@ -1129,6 +1131,8 @@ function handleTap(x, y) {
 // during a tap, which SwiftUI/the DOM can both report as a large jump) must
 // not be read as "swipe out of the game."
 function swipeAllowed() {
+  if(window.TPBoxes?.active)return false;
+  if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen)return false;
   if(window.TPMega?.busy)return false;
   if (window.TPExpeditions && window.TPExpeditions.busy) return false;
   if (screen === "game" || screen === "battle" || screen === "trainer" || screen === "arena" || screen === "gamemenu") return false;
@@ -1143,6 +1147,8 @@ function swipeAllowed() {
 // swipe opens the dex; on the dex/card, it turns pages; dir 1 = swiped
 // right, -1 = swiped left (left advances, matching upstream).
 function onSwipe(dir) {
+  if(window.TPBoxes?.active)return;
+  if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen)return;
   if (window.TPExpeditions && window.TPExpeditions.busy) return;
   if (fns.awaitingStarter() !== 0) {
     starterPage = Math.min(Math.max(starterPage + (dir > 0 ? -1 : 1), 0), starterPageCount() - 1);
@@ -1310,26 +1316,32 @@ async function loadSave() {
 
 var tpSaveEpoch = 0;
 async function writeSave(bytes, force = false) {
+  if(typeof window!=="undefined"&&window.TPCollectionGame){
+    if(!window.TPCollectionGame.supported){if(force)throw Error("Aktuellen WASM-Build laden.");return false;}
+    try{window.TPStoreTools.parseLegacy(bytes);}catch(e){if(force)throw e;return false;}
+  }
   const epoch = tpSaveEpoch;
-  if (tpSaveReplacing && !force) return;
+  if (tpSaveReplacing && !force) return false;
   const tpPerf=typeof window!=="undefined"?window.TPPerformance:null;
   const tpWrite=tpPerf?.begin();
   try {
     const db = await openDb();
     // Reject stale autosaves even after a direct C2 action released the gate.
-    if (!force && (tpSaveReplacing || epoch !== tpSaveEpoch)){tpPerf?.saved(tpWrite,"verworfen");return;}
+    if (!force && (tpSaveReplacing || epoch !== tpSaveEpoch)){tpPerf?.saved(tpWrite,"verworfen");return false;}
     await new Promise((resolve,reject)=>{
       const tx=db.transaction(STORE_NAME,"readwrite");
       tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error("Save transaction aborted"));
       tx.objectStore(STORE_NAME).put(bytes,SAVE_KEY);
     });
-    if(typeof window!=="undefined")window.TPDiagnostics?.saved(bytes?.byteLength||0);
-    tpPerf?.saved(tpWrite,"bestaetigt");
+    try{if(typeof window!=="undefined")window.TPDiagnostics?.saved(bytes?.byteLength||0);}catch(_e){}
+    try{tpPerf?.saved(tpWrite,"bestaetigt");}catch(_e){}
+    return true;
   } catch(e) {
-    tpPerf?.saved(tpWrite,"fehlgeschlagen");
-    if(typeof window!=="undefined")window.TPDiagnostics?.record("write",e);
+    try{tpPerf?.saved(tpWrite,"fehlgeschlagen");}catch(_e){}
+    try{if(typeof window!=="undefined")window.TPDiagnostics?.record("write",e);}catch(_e){}
     console.warn("[save] write failed:",e);
     if(force)throw e;
+    return false;
   }
 }
 
@@ -1355,8 +1367,10 @@ function importStateBytes(mod, bytes) {
 }
 
 async function saveNow(mod) {
-  if (!mod || tpSaveReplacing) return;   // replacement/reset owns storage
-  await writeSave(exportStateBytes(mod));
+  if(!mod||tpSaveReplacing)return;
+  try{if(window.TPCollectionGame){if(!window.TPCollectionGame.supported)return;if(await window.TPCollectionGame.ensureCurrent())return;}}
+  catch(e){try{window.TPDiagnostics?.record("write",e);}catch(_e){}return;}
+  if(Module!==mod||tpSaveReplacing)return;await writeSave(exportStateBytes(mod));
 }
 
 // Package B routes local asset pickers through validation and progress.
@@ -1675,6 +1689,31 @@ createTPCore({
     console.log("[save] no existing save -- starting fresh");
   }
 
+  if(window.TPCollectionPersistence&&window.TPCollectionModel){
+    const plainBridge=window.TPCollectionPersistence.nativeBridge(mod);
+    const reportCollection=(message,error)=>{statusEl.textContent=message;try{if(error)window.TPDiagnostics?.record("manager",error);}catch(_e){}};
+    const life=window.TPCollectionLifecycle?.create(mod,window.TPCollectionModel,{
+      notify:reportCollection,nameForDex:d=>fns.dexName(d),
+      canSync:()=>Module===mod&&!!window.TPAppMenu?.ready&&!tpSaveReplacing&&!window.TPCollection?.busy&&!window.TPMega?.busy&&!window.TPTraining?.busy&&!window.TPArena?.busy&&!window.TPExpeditions?.busy&&["idle","card","settings"].includes(screen)&&choice==="none"
+    });
+    const capture=window.TPCollectionCapture?.create(mod,window.TPCollectionModel,plainBridge,reportCollection,life?life.reconcile:undefined);
+    window.TPCollection=window.TPCollectionPersistence.create({
+      model:window.TPCollectionModel,
+      bridge:capture?capture.bridge:plainBridge,
+      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{})},
+      acquire:(context)=>{
+        if(Module!==mod||!window.TPAppMenu?.ready||tpSaveReplacing||window.TPMega?.busy||window.TPTraining?.busy||window.TPArena?.busy||window.TPExpeditions?.busy||(context==="wildCapture"?screen!=="battle":!["idle","card","settings"].includes(screen))||(window.TPCollectionGame?.dialogOpen&&context!=="careEnd")||choice!=="none"||(context!=="careSync"&&(fns.ceremony()||fns.evolvingNow()))||fns.wildPromptActive())throw Error("Sammlung: Spiel ist gerade beschaeftigt.");
+        tpSaveReplacing=true;tpSaveEpoch++;dragStart=null;dragNow=null;
+        return ()=>{tpSaveEpoch++;tpSaveReplacing=false;};
+      },
+      exportSave:()=>exportStateBytes(mod),
+      validateSave:bytes=>window.TPStoreTools.parseLegacy(bytes),
+      persist:bytes=>writeSave(bytes,true)
+    });
+    if(capture){capture.bind(window.TPCollection);window.TPCapture=capture;}
+    if(life){life.bind(window.TPCollection);window.TPCollectionGame=life;}
+  }
+
   // Periodic autosave, plus on tab hide/close -- pagehide fires reliably on
   // both a real close and a background/app-switch on mobile Safari, unlike
   // beforeunload.
@@ -1686,8 +1725,12 @@ createTPCore({
 
   function frame(t) {
     const tpPerf=window.TPPerformance;
-    const tpMode=window.TPAppMenu?.active?"menue":screen==="game"?(gameMode===4?"typenspiel":"minispiel"):screen;
+    const tpMode=(window.TPBoxes?.active||window.TPAppMenu?.active)?"menue":screen==="game"?(gameMode===4?"typenspiel":"minispiel"):screen;
     const tpSample=tpPerf?.frame(tpMode,t);
+    if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen){
+      tpPerf?.tick(tpSample,false);tpPerf?.frameEnd(tpSample,false,true);
+      requestAnimationFrame(frame);return;
+    }
     // Frozen while a decision dialog (evolve/farewell) is up -- tp_tick's
     // gPet.update() is a real-time catch-up loop keyed off millis(), so
     // stats keep decaying for as long as the page is open, dialog or not.
@@ -1701,6 +1744,7 @@ createTPCore({
     if (!window.TPMega?.busy && !window.TPTraining?.busy && !window.TPArena?.busy) { if (choice === "none") mod.ccall("tp_tick", null, ["number"], [t | 0]); }
     tpPerf?.tick(tpSample,choice==="none"&&!window.TPMega?.busy&&!window.TPTraining?.busy&&!window.TPArena?.busy);
     if(window.TPAppMenu)window.TPAppMenu.markReady();
+    if(window.TPCollectionGame?.poll()){tpPerf?.frameEnd(tpSample,false,true);requestAnimationFrame(frame);return;}
     // The rest of GameModel.tick(): the idle creature's pose scheduler, the
     // bath timer (which is what actually washes the creature when it ends),
     // and the long-press check -- all on the tick, never in a draw.
@@ -1712,17 +1756,18 @@ createTPCore({
     // A draw that throws must not kill the loop: on a phone there is no
     // console, so the only symptom would be a frozen "loading…" line. Show
     // the error there and keep ticking so the save still happens.
-    const tpCanvasDraw=!!Module&&!window.TPAppMenu?.active;
+    const tpCanvasDraw=!!Module&&!window.TPAppMenu?.active&&!window.TPBoxes?.active;
     let tpDrawOK=false;
     tpPerf?.drawStart(tpSample);
     try {
-      draw();
+      if(!window.TPBoxes?.active)draw();
       tpDrawOK=true;
     } catch (e) {
       statusEl.textContent = TPText.status("error: " + (e && e.message ? e.message : e));
       if(typeof window!=="undefined")window.TPDiagnostics?.record("frame",e);
       console.error(e);
     }
+    if(window.TPCollectionGame?.message)statusEl.textContent=window.TPCollectionGame.message;
     tpPerf?.frameEnd(tpSample,tpCanvasDraw,tpDrawOK);
     requestAnimationFrame(frame);
   }

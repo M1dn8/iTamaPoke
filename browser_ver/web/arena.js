@@ -2,7 +2,7 @@
 (function(){'use strict';
 const data=window.TPKantoArena;
 let selected=0,tab='leaders',detail=false,origin='leaders',session=null,saving=false,artBusy=false,message='';
-const pictures=new Map(),loading=new Set();
+const pictures=new Map(),loading=new Set();let artGeneration=0;
 const call=(name,...args)=>Module.ccall(name,'number',args.map(()=> 'number'),args);
 const get=k=>call('tp_f3_get',k),mask=()=>call('tp_f3_mask');
 function active(){try{return typeof Module!=='undefined'&&!!Module&&!!get(0);}catch(_e){return false;}}
@@ -45,6 +45,7 @@ async function complete(){
 function text(value,x,y,size=16,color=UI.ink,max=390){ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.fillStyle=color;ctx.font=`${size}px -apple-system,system-ui,sans-serif`;ctx.fillText(String(value),x,y,max);}
 function button(label,x,y,w=326,h=42,enabled=true){ctx.fillStyle=enabled?UI.white:'#e5e5df';roundRect(x,y,w,h,10);ctx.fill();ctx.strokeStyle=enabled?UI.ink:UI.track;ctx.lineWidth=1;ctx.stroke();text(label,x+w/2,y+h/2+6,16,enabled?UI.ink:'#747474',w-16);}
 function badge(id,x,y,r=24,owned=true){
+ if(window.TPBadgeUI){window.TPBadgeUI.draw(Number(id),x,y,r,owned);return;}
  const l=data.leaders[id];ctx.save();ctx.translate(x,y);ctx.scale(r/30,r/30);ctx.strokeStyle=owned?l.color:'#8f9292';ctx.fillStyle=owned?l.color:'#dedfda';ctx.lineWidth=2;
  function poly(points){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.closePath();ctx.fill();ctx.stroke();}
  if(id===0){poly([[-15,-25],[15,-25],[26,-11],[26,11],[15,25],[-15,25],[-26,11],[-26,-11]]);ctx.beginPath();ctx.moveTo(-15,-25);ctx.lineTo(15,25);ctx.moveTo(15,-25);ctx.lineTo(-15,25);ctx.stroke();}
@@ -64,6 +65,7 @@ function draw(){
  if(m<0){text('Ordensstand nicht unterstützt',233,170,20);text('Keine Arena-Vergabe möglich.',233,205,16);button('Zurück',70,410);return;}
  if(detail){drawDetail(m);return;}
  text(tab==='badges'?'Ordenkoffer · Kanto':'Arenen · Kanto',233,30,23);button('Arenen',70,44,156,34);button('Orden',240,44,156,34);
+ if(tab==='badges'){drawCase(m);return;}
  text(tab==='badges'?'Kanto · '+Array.from({length:8},(_,i)=>owned(i,m)?1:0).reduce((a,b)=>a+b,0)+' von 8':'Rot/Blau · feste Originallevel',233,97,13);
  for(let i=0;i<8;i++){
   const l=data.leaders[i],x=i%2?242:44,y=104+Math.floor(i/2)*72,got=owned(i,m);
@@ -73,16 +75,23 @@ function draw(){
  }
  if(message)text(message,233,403,11,UI.barBad);button('Zurück zum Kampfbereich',70,414,326,36);statusEl.textContent='Arena · '+(tab==='badges'?'Ordenkoffer':'Kanto-Auswahl');
 }
+function drawCase(m){
+ text('Deine Kanto-Sammlung · '+Array.from({length:8},(_,i)=>owned(i,m)?1:0).reduce((a,b)=>a+b,0)+' von 8',233,101,14);
+ ctx.fillStyle='#54645b';roundRect(38,113,390,239,22);ctx.fill();ctx.fillStyle='#e7e5d9';roundRect(48,123,370,219,16);ctx.fill();ctx.strokeStyle='#9b9279';ctx.lineWidth=2;ctx.stroke();
+ for(let i=0;i<8;i++){const x=98+(i%4)*90,y=132+Math.floor(i/4)*105,got=owned(i,m);ctx.fillStyle=got?'#fffdf4':'#d1d7cd';roundRect(x-39,y,78,94,12);ctx.fill();ctx.strokeStyle=got?'#b49959':'#9ba89a';ctx.lineWidth=got?2:1;ctx.stroke();badge(i,x,y+36,25,got);text(data.leaders[i].badge,x,y+74,10,UI.ink,74);text(got?'✓ Erhalten':'Offen',x,y+88,9,UI.ink,74);}
+ if(message)text(message,233,390,11,UI.barBad);button('Zurück zum Kampfbereich',70,414,326,36);statusEl.textContent='Arena · Ordenkoffer';
+}
 function drawDetail(m){
  const l=data.leaders[selected],got=owned(selected,m);picture(selected);text(l.name,233,32,25);text(l.city+' · Kanto / Rot-Blau',233,57,14);badge(selected,233,112,30,got);text(l.badge+(got?' · Erhalten':''),233,165,20);
  l.team.forEach(([dex,level],i)=>text(fns.dexName(dex)+' · Lv. '+level,233,196+i*21,16));
  text(got?'Erstmals erhalten: '+date(selected):'Sieg über das ganze Team gibt diesen Orden.',233,303,12);text(message||'Du kämpfst mit deinem aktuellen Pokémon.',233,321,12,message?UI.barBad:UI.ink);
- button(got?'Erneut herausfordern':'Arena herausfordern',70,333,326,42,!busy()&&!tpSaveReplacing);button(artBusy?'Grafik wird gespeichert …':'Grafik für '+l.name+' laden (PNG)',70,381,326,30,!busy());button('Zurück',70,420,326,30,!busy());statusEl.textContent='Arena · '+l.name;
+ button(got?'Erneut herausfordern':'Arena herausfordern',70,333,326,42,!busy()&&!tpSaveReplacing);button('Grafiken laden (Pokemon und Leiter-BINs)',70,381,326,30,!busy());button('Zurück',70,420,326,30,!busy());statusEl.textContent='Arena · '+l.name;
 }
 function tap(x,y){
  if(busy())return;if(mask()<0){if(x>=70&&x<=396&&y>=410&&y<=452)leave();return;}
- if(detail){if(x<70||x>396)return;if(y>=333&&y<=375)start(selected);else if(y>=381&&y<=411)pickPortrait(selected);else if(y>=420&&y<=450){detail=false;tab=origin;message='';}return;}
+ if(detail){if(x<70||x>396)return;if(y>=333&&y<=375)start(selected);else if(y>=381&&y<=411)document.getElementById('spriteLoad')?.click();else if(y>=420&&y<=450){detail=false;tab=origin;message='';}return;}
  if(y>=44&&y<=78){if(x>=70&&x<=226)tab='leaders';else if(x>=240&&x<=396)tab='badges';return;}
+ if(tab==='badges'){for(let i=0;i<8;i++){const cx=98+i%4*90,top=132+Math.floor(i/4)*105;if(x>=cx-39&&x<=cx+39&&y>=top&&y<=top+94){selected=i;origin=tab;detail=true;message='';return;}}if(x>=70&&x<=396&&y>=414&&y<=450)leave();return;}
  for(let i=0;i<8;i++){const left=i%2?242:44,top=104+Math.floor(i/2)*72;if(x>=left&&x<=left+180&&y>=top&&y<=top+66){selected=i;origin=tab;detail=true;message='';return;}}
  if(x>=70&&x<=396&&y>=414&&y<=450)leave();
 }
@@ -119,9 +128,14 @@ function portraitBlob(value){
  if(value instanceof ArrayBuffer||ArrayBuffer.isView(value))return new Blob([value],{type:'image/png'});
  throw Error('Gespeicherte Leitergrafik hat ein unbekanntes Format.');
 }
+function invalidatePortraits(){artGeneration++;pictures.clear();loading.clear();}
 function picture(id){
  if(pictures.has(id))return pictures.get(id);
- if(!loading.has(id)){loading.add(id);(async()=>{try{const db=await database(),blob=await new Promise((resolve,reject)=>{const tx=db.transaction('portraits','readonly'),req=tx.objectStore('portraits').get(data.leaders[id].id);let value=null;req.onsuccess=()=>value=req.result;tx.oncomplete=()=>resolve(value);tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('Lesen abgebrochen'));});const decoded=blob?await decode(portraitBlob(blob)):null;if(!pictures.has(id))pictures.set(id,decoded);}catch(_e){if(!pictures.has(id))pictures.set(id,null);}finally{loading.delete(id);}})();}return null;
+ if(!loading.has(id)){const generation=artGeneration;loading.add(id);(async()=>{let image=null;try{
+  if(window.TPTrainerArt){try{const result=await TPTrainerArt.picture(data.leaders[id].id);if(result)image=result.image;}catch(e){window.TPDiagnostics?.record('manager',e);}}
+  if(!image){const db=await database(),value=await new Promise((resolve,reject)=>{const tx=db.transaction('portraits','readonly'),q=tx.objectStore('portraits').get(data.leaders[id].id);let found=null;q.onsuccess=()=>{found=q.result;};tx.oncomplete=()=>resolve(found);tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('Lesen abgebrochen'));});image=value?await decode(portraitBlob(value)):null;}
+  if(generation===artGeneration&&!pictures.has(id))pictures.set(id,image);
+ }catch(_){if(generation===artGeneration&&!pictures.has(id))pictures.set(id,null);}finally{if(generation===artGeneration)loading.delete(id);}})();}return null;
 }
 async function importPortrait(file,id){
  if(artBusy||saving||screen!=='arena'||active()||tpSaveReplacing||!Number.isInteger(id)||id<0||id>=8)throw Error('Grafikimport gerade gesperrt');artBusy=true;message='';
@@ -129,7 +143,7 @@ async function importPortrait(file,id){
   if(!file||file.size<24||file.size>1024*1024)throw Error('Bitte eine PNG bis 1 MB auswählen.');const bytes=new Uint8Array(await file.arrayBuffer());if([137,80,78,71,13,10,26,10].some((v,i)=>bytes[i]!==v))throw Error('Datei ist keine PNG.');const view=new DataView(bytes.buffer),width=view.getUint32(16),height=view.getUint32(20);if(!width||!height||width>1024||height>1024)throw Error('PNG-Abmessungen: maximal 1024 × 1024.');
   const image=await decode(new Blob([bytes],{type:'image/png'}));const canvas=document.createElement('canvas'),s=Math.min(1,512/image.width,512/image.height);canvas.width=Math.max(1,Math.round(image.width*s));canvas.height=Math.max(1,Math.round(image.height*s));canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
   const clean=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('PNG konnte nicht vorbereitet werden')),'image/png'));const normalized=await decode(clean),db=await database(),stored=await clean.arrayBuffer();
-  await new Promise((resolve,reject)=>{const tx=db.transaction('portraits','readwrite');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('Speichern abgebrochen'));tx.objectStore('portraits').put(stored,data.leaders[id].id);});pictures.set(id,normalized);message='Leitergrafik lokal gespeichert.';return true;
+  await new Promise((resolve,reject)=>{const tx=db.transaction('portraits','readwrite');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('Speichern abgebrochen'));tx.objectStore('portraits').put(stored,data.leaders[id].id);});pictures.set(id,normalized);if(window.TPTrainerArt)invalidatePortraits();message='Leitergrafik lokal gespeichert.';return true;
  }catch(e){message=e.message||'Grafik konnte nicht geladen werden.';throw e;}finally{artBusy=false;}
 }
 let picker=null;
@@ -137,5 +151,5 @@ function pickPortrait(id){
  if(busy())return;picker?.remove();const input=document.createElement('input');picker=input;input.type='file';input.accept='image/png,.png';input.hidden=true;input.setAttribute('data-tp-arena-portrait','');document.body.appendChild(input);input.addEventListener('change',()=>{const file=input.files?.[0];input.remove();if(file)importPortrait(file,id).catch(e=>window.TPDiagnostics?.record('manager',e));},{once:true});input.addEventListener('cancel',()=>input.remove(),{once:true});input.click();
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'&&active()&&!saving)abort();});window.addEventListener('pagehide',()=>{if(active()&&!saving)abort();});
-window.TPArena=Object.freeze({open,canOpen,start,active,abort,draw,tap,intercept,battleTap,checkEnd,complete,badge,importPortrait,get busy(){return busy();},get snapshot(){return session?{id:session.id,token:session.token,phase:session.phase,error:session.error}:null;}});
+window.TPArena=Object.freeze({open,canOpen,start,active,abort,draw,tap,intercept,battleTap,checkEnd,complete,badge,importPortrait,invalidatePortraits,get busy(){return busy();},get snapshot(){return session?{id:session.id,token:session.token,phase:session.phase,error:session.error}:null;}});
 })();

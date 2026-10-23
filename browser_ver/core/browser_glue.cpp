@@ -47,7 +47,9 @@ EM_JS(void, tp_js_on_sfx, (int id), {
   if (Module.onSfx) Module.onSfx(id);
 });
 
-void sfxPlay(uint8_t id) { tp_js_on_sfx((int)id); }
+extern "C" int tp_f4_capture_audio_quiet();
+extern "C" int tp_f4_life_audio_quiet();
+void sfxPlay(uint8_t id) { if(tp_f4_capture_audio_quiet()||tp_f4_life_audio_quiet())return;tp_js_on_sfx((int)id); }
 
 extern "C" {
 
@@ -344,7 +346,7 @@ const char *tp_release_question() {
 }
 EMSCRIPTEN_KEEPALIVE const char *tp_yes_text() { return T(S_YES); }
 EMSCRIPTEN_KEEPALIVE const char *tp_no_text() { return T(S_NO); }
-EMSCRIPTEN_KEEPALIVE void tp_release() { gPet.release(); }
+EMSCRIPTEN_KEEPALIVE void tp_release() { if(Preferences().isKey("f4lver"))return;gPet.release(); }
 
 // --- Ball minigame ---------------------------------------------------
 //
@@ -724,8 +726,8 @@ EMSCRIPTEN_KEEPALIVE float tp_ceremony_progress() { return gPet.ceremonyT(); }
 EMSCRIPTEN_KEEPALIVE void tp_evolve() { gPet.evolve(); }
 EMSCRIPTEN_KEEPALIVE void tp_decline_evolve() { gPet.declineEvolve(); }
 EMSCRIPTEN_KEEPALIVE void tp_decline_farewell() { gPet.declineFarewell(); }
-EMSCRIPTEN_KEEPALIVE void tp_start_farewell() { gPet.startFarewell(); }
-EMSCRIPTEN_KEEPALIVE void tp_start_runaway() { gPet.startRunaway(); }
+EMSCRIPTEN_KEEPALIVE void tp_start_farewell() { if(Preferences().isKey("f4lver"))return;gPet.startFarewell(); }
+EMSCRIPTEN_KEEPALIVE void tp_start_runaway() { if(Preferences().isKey("f4lver"))return;gPet.startRunaway(); }
 
 namespace {
 std::string TPNamedPrompt(StrId id) {

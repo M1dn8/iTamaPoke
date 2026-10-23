@@ -5,7 +5,7 @@ TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 CXX=${CXX:-g++}
 for tool in node python3 "$CXX"; do command -v "$tool" >/dev/null || { echo "Fehlendes Testwerkzeug: $tool" >&2; exit 1; }; done
-for test in tests/package-f3-browser-fix.test.js tests/package-f3.test.js tests/package-f2.test.js tests/package-f1.test.js tests/package-ci-perf.test.js tests/package-e3.test.js tests/package-e2-name.test.js tests/package-e2-size.test.js tests/package-e2.test.js tests/package-e.test.js tests/package-d3b.test.js tests/package-d3.test.js tests/package-d2.test.js tests/package-d1.test.js tests/package-a.test.js tests/package-b.test.js tests/package-c1-ui.test.js tests/package-c2-ui.test.js tests/package-c4-ui.test.js tests/package-c5-ui.test.js tests/package-c5-theme.test.js; do
+for test in tests/package-f4-boxes.test.js tests/package-f4-lifecycle-ui.test.js tests/package-f4-lifecycle.test.js tests/package-f4-capture.test.js tests/package-f4-persistence.test.js tests/package-f4-collection.test.js tests/package-f3-browser-fix.test.js tests/package-f3.test.js tests/package-f2.test.js tests/package-f1.test.js tests/package-ci-perf.test.js tests/package-e3.test.js tests/package-e2-name.test.js tests/package-e2-size.test.js tests/package-e2.test.js tests/package-e.test.js tests/package-d3b.test.js tests/package-d3.test.js tests/package-d2.test.js tests/package-d1.test.js tests/package-a.test.js tests/package-b.test.js tests/package-c1-ui.test.js tests/package-c2-ui.test.js tests/package-c4-ui.test.js tests/package-c5-ui.test.js tests/package-c5-theme.test.js; do
   echo "Pruefe $test"; node "$test"
 done
 for file in browser_ver/web/*.js; do node --check "$file"; done
@@ -47,8 +47,13 @@ E3_NATIVE_JSON="$TMP/e3-native.json" node tests/package-e3.test.js
 "$TMP/f1"
 "$CXX" -O2 -std=c++17 -I tests/c2_wasm_stub -I browser_ver/core/shim -I upstream-expanded upstream-expanded/pet.cpp upstream-expanded/battle.cpp upstream-expanded/i18n.cpp tests/package-f2.cpp -o "$TMP/f2"
 "$TMP/f2"
-"$CXX" -O2 -std=c++17 -I tests/c2_wasm_stub -I browser_ver/core/shim -I upstream-expanded upstream-expanded/pet.cpp upstream-expanded/battle.cpp upstream-expanded/i18n.cpp tests/package-f3.cpp -o "$TMP/f3"
+"$CXX" -O2 -std=c++17 -I tests/c2_wasm_stub -I browser_ver/core/shim -I upstream-expanded -DTP_F4_CAPTURE_TEST upstream-expanded/pet.cpp upstream-expanded/battle.cpp upstream-expanded/i18n.cpp browser_ver/core/browser_collection_store.cpp tests/package-f3.cpp -o "$TMP/f3"
 "$TMP/f3"
 "$TMP/f3" --json > "$TMP/f3-native.json"
 F3_NATIVE_JSON="$TMP/f3-native.json" node tests/package-f3.test.js
+python3 tools/quality/test-f4-store.py
+"$CXX" -O2 -std=c++17 -DTP_F4_CAPTURE_TEST -I tests/c2_wasm_stub -I browser_ver/core/shim -I upstream-expanded upstream-expanded/pet.cpp upstream-expanded/battle.cpp upstream-expanded/i18n.cpp browser_ver/core/browser_collection_store.cpp tests/package-f4-capture.cpp -o "$TMP/f4-capture"
+"$TMP/f4-capture"
+python3 tools/quality/test-f4-lifecycle.py
+python3 tools/quality/test-f4-trainer.py
 echo "Alle zentralen Logik-/Oberflaechen-Vorpruefungen erfolgreich."

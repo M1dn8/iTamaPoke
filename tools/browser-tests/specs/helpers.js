@@ -8,7 +8,7 @@ function fixture(entries=120){
  const count=Buffer.alloc(4);count.writeUInt32LE(Object.keys(fields).length);
  return Buffer.concat([count,...Object.entries(fields).map(([key,[type,value]])=>{const k=Buffer.from(key),len=Buffer.alloc(4);len.writeUInt32LE(value.length);return Buffer.concat([Buffer.from([k.length]),k,Buffer.from([type]),len,value]);})]);
 }
-async function waitReady(page){await page.waitForFunction(()=>typeof TPAppMenu!=='undefined'&&TPAppMenu.ready===true);}
+async function waitReady(page){await page.waitForFunction(()=>typeof TPAppMenu!=='undefined'&&TPAppMenu.ready===true&&(!window.TPCollectionGame||TPCollectionGame.ready));}
 async function point(page,x,y){const r=await page.locator('#tp').boundingBox();return {x:r.x+x*r.width/466,y:r.y+y*r.height/466};}
 async function tap(page,x,y){const p=await point(page,x,y);await page.mouse.click(p.x,p.y);}
 async function openMenu(page){

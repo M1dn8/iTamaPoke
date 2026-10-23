@@ -239,7 +239,7 @@ function cardTap(x, y) {
     return;
   }
   if (cardPage === 4) cardStatsTap(x, y);
-  if (cardPage === 3) cardBoxTap(x, y);
+  if (cardPage === 3) { cardBoxTap(x, y);if(window.TPBoxes?.active)return; }
   if (cardPage === 7) cardExpeditionTap(x, y);
   if (y >= 370 && y <= 394) {
     // Page-dot row: tap left half to go back a page, right half forward.

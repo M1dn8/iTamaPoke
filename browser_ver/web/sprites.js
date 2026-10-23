@@ -160,7 +160,8 @@ async function importSpriteFiles(files) {
     // (thumbs.js) -- everything upstream's mons/ folder holds for art.
     const info = TPStoreTools.canonicalSprite(f.name);
     if (!info) continue;
-    entries.push([info.key, await f.arrayBuffer()]);
+    if(info.trainer&&(!Number.isSafeInteger(f.size)||f.size>1056816))throw Error("Leiterdatei zu gross.");
+    const raw=await f.arrayBuffer();if(info.trainer){const parsed=await TPTrainerArt.inspect(raw,info.leader);await TPTrainerArt.decodePNG(parsed.png);if(entries.some(([k])=>k===info.key))throw Error("Doppelte Leiterdatei.");}entries.push([info.key,raw]);
   }
   if (entries.length === 0) return 0;
 
@@ -172,6 +173,7 @@ async function importSpriteFiles(files) {
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
+  if(entries.some(([k])=>!!TPStoreTools.canonicalSprite(k)?.trainer))window.TPArena?.invalidatePortraits?.();
   return entries.length;
 }
 
@@ -189,8 +191,8 @@ async function assetCount() {
   const db = await openAssetDb();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(ASSET_STORE, "readonly");
-    const req = tx.objectStore(ASSET_STORE).count();
-    req.onsuccess = () => resolve(req.result);
+    const req = tx.objectStore(ASSET_STORE).getAllKeys();
+    req.onsuccess = () => resolve((req.result||[]).filter(k=>{const m=TPStoreTools.canonicalSprite(String(k));return m&&!m.trainer;}).length);
     req.onerror = () => reject(req.error);
   });
 }

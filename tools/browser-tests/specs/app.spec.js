@@ -2,6 +2,7 @@ const {test,expect}=require('@playwright/test');
 const fs=require('node:fs/promises');
 if(!globalThis.crypto)globalThis.crypto=require('node:crypto').webcrypto;
 const H=require('./helpers');
+globalThis.TPCollectionModel=require('../../../browser_ver/web/collection-model.js');
 const T=require('../../../browser_ver/web/storage-tools.js');
 let errors;
 test.beforeEach(async({page})=>{errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});await H.prepare(page);});
@@ -17,7 +18,7 @@ test('Sechs Kacheln, Vollseiten, Rueckwege und gemeinsame Optik',async({page})=>
 });
 test('Dateiauswahl bleibt ueber das neue Menue erreichbar',async({page})=>{
  await H.openMenu(page);await page.getByRole('button',{name:'Einstellungen',exact:true}).click();await page.getByRole('button',{name:'Dateien verwalten',exact:true}).click();
- for(const label of ['Pokémon-Grafiken laden','Rufe laden','Pokédex-Texte laden']){
+ for(const label of ['Grafiken laden (Pokemon und Leiter)','Rufe laden','Pokédex-Texte laden']){
   const [chooser]=await Promise.all([page.waitForEvent('filechooser'),page.getByRole('button',{name:label,exact:true}).click()]);await chooser.setFiles([]);
  }
  await expect(page.getByRole('heading',{name:'Dateien',exact:true})).toBeVisible();

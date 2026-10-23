@@ -74,7 +74,7 @@ function evolveEndingTap(x, y) {
     return false;
   }
   if (!inRect(x, y, FAR_BTN)) return false;
-  if (fns.canRunaway() !== 0) { Module._tp_start_runaway(); return true; }
+  if (fns.canRunaway() !== 0) { if(window.TPCollectionGame)window.TPCollectionGame.end("runaway",false);else Module._tp_start_runaway();return true; }
   if (fns.wantsFarewell() !== 0) { choice = "farewell"; return true; }
   return false;
 }
@@ -134,7 +134,7 @@ function choiceDialogTap(x, y) {
       if (fns.canEvolveNow() !== 0) Module._tp_evolve();
       else playSfx(7); // deny
     } else {
-      Module._tp_start_farewell();
+      choice="none";if(window.TPCollectionGame)window.TPCollectionGame.openEnd("farewell");else Module._tp_start_farewell();
     }
     choice = "none";
     return;

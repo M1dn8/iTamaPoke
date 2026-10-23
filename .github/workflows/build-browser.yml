@@ -65,7 +65,7 @@ jobs:
           set -euo pipefail
           test -s browser_ver/web/tp_core.js
           test -s browser_ver/web/tp_core.wasm
-          if ls browser_ver/web | grep -Eiq '^(p|ps)[0-9]+(-mega(-[a-z]+)?)?\.bin$|^psnd[0-9]+\.|^dex_entries_|^thumbs\.bin$'; then
+          if ls browser_ver/web | grep -Eiq '^(p|ps)[0-9]+(-mega(-[a-z]+)?)?\.bin$|^psnd[0-9]+\.|^dex_entries_|^thumbs\.bin$|^trainer-kanto-.*\.bin$'; then
             echo "Abbruch: Figuren-Dateien im Webpaket." >&2
             exit 1
           fi

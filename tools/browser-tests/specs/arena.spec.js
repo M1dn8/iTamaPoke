@@ -39,5 +39,5 @@ test('Arena: Legacy-PNG-Speicherung/Fallback ohne Netzwerk oder vorzeitigen Orde
  await expect.poll(()=>portraitInfo(page)).toEqual(expectedPortrait);
  expect(await mask(page)).toBe(0);expect(external).toEqual([]);await page.reload();await H.waitReady(page);expect(await mask(page)).toBe(0);await expect.poll(()=>portraitInfo(page)).toEqual(expectedPortrait);
  await card(page);await arena(page);await page.evaluate(()=>{window.f3PortraitDrawn=false;const draw=ctx.drawImage;ctx.drawImage=function(image,...args){if(image instanceof HTMLImageElement&&image.naturalWidth===16&&image.naturalHeight===16)window.f3PortraitDrawn=true;return draw.call(this,image,...args);};});
- await H.tap(page,233,354);await expect.poll(()=>page.evaluate(()=>screen)).toBe('battle');await match(page);await H.tap(page,233,390);await match(page);await expect.poll(()=>page.evaluate(()=>TPArena.snapshot?.phase)).toBe('done');await expect.poll(()=>page.evaluate(()=>window.f3PortraitDrawn)).toBe(true);expect(await mask(page)).toBe(1);
+ await H.tap(page,233,354);await expect.poll(()=>page.evaluate(()=>screen)).toBe('battle');await match(page);await H.battleAction(page,'next');await match(page);await expect.poll(()=>page.evaluate(()=>TPArena.snapshot?.phase)).toBe('done');await expect.poll(()=>page.evaluate(()=>window.f3PortraitDrawn)).toBe(true);expect(await mask(page)).toBe(1);
 });

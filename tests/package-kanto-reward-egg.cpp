@@ -1,0 +1,29 @@
+#include <cassert>
+#include <ctime>
+#include <iostream>
+#include <tuple>
+#include "pet.h"
+uint32_t g_millis=1000;TPSerialShim Serial;void sfxPlay(uint8_t){}
+static Pet hero;static bool battle=false,prompt=false;Pet &tp_battle_pet(){return hero;}
+extern "C" int tp_battle_is_open(){return battle;}extern "C" int tp_wild_prompt_active(){return prompt;}
+#include "../browser_ver/core/browser_collection_store.cpp"
+#include "../browser_ver/core/browser_reward_egg.cpp"
+static void load(bool champ=true){if(undo)assert(tp_f4_store_finish(undo->token,0));Preferences::store().clear();g_millis=1000;battle=prompt=false;Preferences p;p.putBool("init",true);p.putShort("dexn",1);p.putShort("eggT2",1);p.putUInt("age",540);for(const char*k:{"full","joy","ene","hyg"})p.putUChar(k,80);for(const char*k:{"gatk","gdef","gspe"})p.putUChar(k,100);uint8_t reg[Pet::DEX_BITMAP_BYTES]={1};p.putBytes("dexreg",reg,sizeof(reg));p.putUChar("f4lver",1);p.putUInt("f4life",1);p.putUChar("lgver",1);p.putBool("lgkdone",champ);p.putUInt("lgkdate",champ?1700000000:0);Preferences::store()["f4col"]=std::vector<uint8_t>{'{','}'};hero=Pet();hero.begin();hero.setClock(uint32_t(std::time(nullptr)));hero.rename("Bleibt hier");}
+static tp_reward_detail::Reward reward(){tp_reward_detail::Reward r;assert(tp_reward_detail::load(r));return r;}
+static void choose(int d=4){auto t=tp_rg_prepare(0,d);assert(t&&tp_f4_store_finish(t,1));}
+static void arm(){auto t=tp_rg_prepare(1,0);assert(t&&tp_f4_store_finish(t,1));}
+int main(int argc,char**argv){load();if(argc>1){std::cout<<tp_rg_view()<<"\n";return 0;}for(int d:{1,4,7,133,147})assert(tp_rg_allowed(d));for(int d:{0,6,25,132,144,145,146,150,151,152,1026})assert(!tp_rg_allowed(d));load(false);auto before=Preferences::store();assert(!tp_rg_prepare(0,4)&&Preferences::store()==before);
+load();const int species=hero.speciesId;const auto age=hero.ageMinutes;const auto ga=hero.geneAtk;before=Preferences::store();auto t=tp_rg_prepare(0,4);assert(t&&!tp_rg_prepare(0,7)&&hero.speciesId==species&&hero.ageMinutes==age&&hero.geneAtk==ga);assert(tp_f4_store_finish(t,0)&&Preferences::store()==before);choose();assert(reward().state==1&&!tp_rg_prepare(0,7));t=tp_rg_prepare(1,0);assert(t&&tp_f4_store_finish(t,0)&&reward().state==1);arm();assert(reward().state==2&&reward().armed==1);t=tp_rg_prepare(2,0);assert(t&&tp_f4_store_finish(t,1)&&reward().state==1&&reward().dex==4);arm();assert(hero.setEggPlan(9,TYPE_GRASS,true));
+// Birth and voucher consumption are inside the existing full-Pet/Preferences undo.
+before=Preferences::store();t=tp_f4_store_begin();assert(t);hero.newEgg();assert(reward().state==3&&reward().born==2&&Preferences().getShort("eggT2",0)==4&&Preferences().getBool("eshy",false));assert(tp_f4_store_finish(t,0)&&Preferences::store()==before&&hero.speciesId==species&&reward().state==2);
+hero.newEgg();assert(hero.isEgg()&&!hero.awaitingStarter()&&reward().state==3&&reward().born==2);assert(hero.eggPlanGeneration()==9&&hero.eggPlanType()==TYPE_GRASS&&hero.eggPlanUnraised()&&hero.usedEggPlanGeneration()==0);const auto born=Preferences::store();for(int i=0;i<10;i++){std::srand(i);hero=Pet();hero.begin();assert(hero.isEgg()&&Preferences().getShort("eggT2",0)==4&&Preferences().getBool("eshy",false)&&reward().state==3);}
+hero.eggTap();hero.eggTap();hero.eggTap();assert(hero.speciesId==4&&hero.shiny&&hero.geneAtk>=90&&hero.geneAtk<=110&&hero.trAtk==0&&reward().state==3);assert(!tp_rg_prepare(0,7)&&!tp_rg_prepare(1,0)&&!tp_rg_prepare(2,0));hero.newEgg();assert(reward().born==2&&Preferences().getUInt("f4life",0)==3&&hero.usedEggPlanGeneration()==9&&hero.eggPlanGeneration()==0);
+// Normal offspring + RNG sequence are unchanged when no usable gift exists.
+int nonperfect=0;for(int seed=0;seed<256;seed++){load();std::srand(seed);hero.newEgg();auto normal=std::make_tuple(Preferences().getShort("eggT2",0),Preferences().getBool("eshy",false),std::rand());load();tp_reward_detail::Reward r{3,4,1,2};tp_reward_detail::save(r);std::srand(seed);hero.newEgg();assert(normal==std::make_tuple(Preferences().getShort("eggT2",0),Preferences().getBool("eshy",false),std::rand()));load();choose();arm();std::srand(seed);hero.newEgg();hero.eggTap();hero.eggTap();hero.eggTap();assert(hero.speciesId==4&&hero.shiny&&hero.geneAtk>=90&&hero.geneAtk<=110&&hero.geneDef>=90&&hero.geneDef<=110&&hero.geneSpe>=90&&hero.geneSpe<=110);if(hero.geneAtk!=110||hero.geneDef!=110||hero.geneSpe!=110)nonperfect++;}assert(nonperfect>250);
+// The ordinary release ceremony reaches the same hook, without a gift UI ending care.
+load();choose();arm();t=tp_f4_store_begin();assert(t&&tp_f4_life_end(t,1,1,g_millis)&&tp_f4_store_finish(t,1));assert(!hero.isEgg()&&reward().state==2);g_millis+=10001;hero.update(g_millis);assert(hero.isEgg()&&reward().state==3&&reward().born==2&&Preferences().getShort("eggT2",0)==4);
+load();choose();arm();Preferences p;p.putUInt("f4life",8);hero.newEgg();assert(reward().state==2);assert(reward().born==0);hero.eggTap();hero.eggTap();hero.eggTap();t=tp_rg_prepare(2,0);assert(t&&tp_f4_store_finish(t,1));
+load();choose();p.putUInt("rkver",2);before=Preferences::store();assert(!tp_rg_prepare(1,0));hero.newEgg();assert(Preferences().getUInt("rkver",0)==2);p.putUInt("rkver",1);p.putUInt("rkdex",150);before=Preferences::store();assert(!tp_rg_prepare(1,0)&&Preferences::store()==before);hero.factoryReset();assert(!p.isKey("rkver")&&!p.isKey("rkstate"));
+load();battle=true;assert(!tp_rg_prepare(0,4));battle=false;prompt=true;assert(!tp_rg_prepare(0,4));prompt=false;hero.sleeping=true;assert(!tp_rg_prepare(0,4));
+std::cout<<"Kanto shiny egg native passed: exact chosen basic species, guaranteed shiny, 256 ordinary gene/RNG comparisons, immutable selection, reserve/arm/disarm rollback, no active replacement, preserved regular plan, reload/hatch, actual release->birth, one birth only, stale nonce/future guards and reset.\n";
+}

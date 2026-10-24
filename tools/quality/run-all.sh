@@ -58,4 +58,5 @@ python3 tools/quality/test-f4-lifecycle.py
 python3 tools/quality/test-f4-trainer.py
 python3 tools/quality/test-kanto-league.py
 python3 tools/quality/test-kanto-hall.py
+python3 tools/quality/test-kanto-reward-egg.py
 echo "Alle zentralen Logik-/Oberflaechen-Vorpruefungen erfolgreich."

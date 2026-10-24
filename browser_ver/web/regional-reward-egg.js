@@ -1,0 +1,30 @@
+/* Regional shiny egg: reservation -> explicit next-life arming -> one birth.
+ * No ending/release/newEgg operation is exposed by this screen.
+ */
+(function(){'use strict';let active=false,busy=false,page=0,chosen=0,message='';const size=8;
+const c=(n,...a)=>Module.ccall(n,'number',a.map(()=> 'number'),a);
+function ready(){try{return !!Module&&typeof Module._tp_rg_view==='function';}catch(_){return false;}}
+function view(){return ready()?JSON.parse(Module.ccall('tp_rg_view','string',[],[])):{supported:0,eligible:0,state:0,dex:0,candidates:[]};}
+function open(){if(screen!=='league'||!window.TPHall?.active||window.TPHall?.busy||tpSaveReplacing||busy)return false;active=true;page=0;chosen=0;message='';dragStart=dragNow=null;return true;}
+function close(){if(busy)return;active=false;message='';dragStart=dragNow=null;}
+async function transaction(operation,dex=0){if(busy||tpSaveReplacing)return false;busy=true;tpSaveReplacing=true;tpSaveEpoch++;let token=0,durable=false;
+ try{token=c('tp_rg_prepare',operation,dex);if(!token)throw Error('Ehrenei-Aktion gerade nicht moeglich.');const bytes=exportStateBytes(Module);TPStoreTools.parseLegacy(bytes);if(await writeSave(bytes,true)!==true)throw Error('Speicherung nicht bestaetigt.');durable=true;if(c('tp_f4_store_finish',token,1)!==1)throw Error('Gespeichert. Bitte fuer lokalen Abschluss neu laden.');message=operation===0?'Auswahl dauerhaft reserviert.':operation===1?'Fuer das naechste regulaere Pflege-Ei vorgemerkt.':'Vormerkung aufgehoben; deine Auswahl bleibt reserviert.';return true;
+ }catch(e){if(token&&!durable)c('tp_f4_store_finish',token,0);message=e.message||String(e);return false;}
+ finally{tpSaveEpoch++;tpSaveReplacing=false;busy=false;}}
+function reserve(){const v=view();if(!v.canChoose||!v.candidates.includes(chosen))return;const name=fns.dexName(chosen);if(!confirm(name+' garantiert schillernd reservieren? Diese Artenwahl ist einmalig und danach fest. Dein aktuelles Pflege-Pokemon bleibt unveraendert.'))return;transaction(0,chosen);}
+function text(s,x,y,size=14,color='#34423d',max=420){ctx.fillStyle=color;ctx.textAlign='center';ctx.font=size+'px sans-serif';ctx.fillText(String(s),x,y,max);}
+function button(s,x,y,w=326,h=36,on=true,selected=false){ctx.fillStyle=selected?'#f2df99':on?'#fffaf0':'#d8d5c9';roundRect(x,y,w,h,7);ctx.fill();ctx.strokeStyle=selected?'#a67d2c':'#b9aa8c';ctx.lineWidth=selected?2:1;ctx.stroke();text(s,x+w/2,y+h/2+5,14,on?'#34423d':'#777b73',w-12);}
+function sprite(dex){if(!dex)return;const s=spriteFor(dex,true);if(!s){text('★',233,180,36,'#b58b32');return;}const a=s.actions[TPAct.idle];if(!a)return;const img=frameImageData(s,TPAct.idle,frameIndexAt(a,performance.now(),true));if(!img)return;frameCanvas.width=a.w;frameCanvas.height=a.h;frameCtx.putImageData(img,0,0);const z=Math.min(3,110/a.w,100/a.h);ctx.imageSmoothingEnabled=false;ctx.drawImage(frameCanvas,233-a.w*z/2,210-a.h*z,a.w*z,a.h*z);}
+function draw(){const v=view();ctx.fillStyle='#eee7d7';ctx.fillRect(0,0,466,466);text('Kanto · Shiny-Ehrenei',233,30,22);text('Einmal pro Region und Spielerprofil',233,54,13);
+ if(!v.supported||!v.eligible){text(!v.supported?'Ehrenei-Daten nicht unterstuetzt / Spielkern aktualisieren.':'Zuerst die Kanto-Liga samt Champ besiegen.',233,190,14);button('Zur Ruhmeshalle',70,424);return;}
+ if(v.state===0){text('Waehle eine zuechtbare Kanto-Grundform.',233,75,12);const pages=Math.max(1,Math.ceil(v.candidates.length/size));page=Math.min(page,pages-1);v.candidates.slice(page*size,(page+1)*size).forEach((d,i)=>button('#'+d+' · '+fns.dexName(d),70,86+i*32,326,28,!!v.canChoose,chosen===d));button('‹',40,353,76,30,page>0);button('›',350,353,76,30,page+1<pages);text((page+1)+' / '+pages,233,374,13);text(message||(!v.canChoose?'Wahl bleibt verfuegbar; Pflege-Pokemon gerade nicht bereit.':'Garantiert Shiny · normale Gene · Auswahl bleibt danach fest.'),233,400,11,message?'#934941':'#34423d');button('Spaeter',70,424,146,32);button('Reservieren',250,424,146,32,!!v.canChoose&&!!chosen);}
+ else{sprite(v.dex);text(fns.dexName(v.dex),233,238,23);text('Garantiert schillernd · normale Gene beim Schluepfen',233,264,13);
+  if(v.state===1){text('Dein Ehrenei ist dauerhaft reserviert.',233,300,16);text('Vormerken beendet keine Pflege und ersetzt kein Pokemon.',233,326,12);text('Dein normaler Eierplan bleibt fuer ein normales Ei erhalten.',233,348,12);button('Fuer naechstes Pflege-Ei vormerken',70,368,326,36,!!v.canArm);}
+  else if(v.state===2){text(v.stale?'Vormerkung bitte aufheben und erneut setzen.':'Beim naechsten regulaeren neuen Pflege-Ei.',233,300,15);text('Das aktuelle Pflege-Pokemon bleibt bis dahin unveraendert.',233,328,12);button('Vormerkung zuruecknehmen',70,368,326,36,!!v.canDisarm);}
+  else{text('Ehrenei wurde erzeugt · Anspruch eingeloest.',233,300,16);text('Weitere Titelgewinne erzeugen kein zweites Ehrenei.',233,329,12);}
+  if(message)text(message,233,414,11,'#934941');button('Zur Ruhmeshalle',70,430,326,30);}
+ statusEl.textContent='Shiny-Ehrenei · '+['Auswahl offen','Reserviert','Vorgemerkt','Eingeloest'][v.state];}
+function tap(x,y){if(busy||tpSaveReplacing)return;const v=view();if(!v.supported||!v.eligible){if(x>=70&&x<=396&&y>=424&&y<=460)close();return;}if(v.state===0){if(y>=424&&y<=460){if(x>=70&&x<=216)close();else if(x>=250&&x<=396)reserve();return;}if(y>=353&&y<=383){if(x>=40&&x<=116&&page>0)page--;else if(x>=350&&x<=426&&(page+1)*size<v.candidates.length)page++;return;}if(x>=70&&x<=396&&y>=86&&y<342){const i=Math.floor((y-86)/32);if((y-86)%32<=28){const d=v.candidates[page*size+i];if(d)chosen=d;}}return;}
+ if(x>=70&&x<=396&&y>=430&&y<=460){close();return;}if(x>=70&&x<=396&&y>=368&&y<=404){if(v.state===1&&v.canArm)transaction(1);else if(v.state===2&&v.canDisarm)transaction(2);}}
+window.TPRewardEgg=Object.freeze({open,close,draw,tap,get active(){return active;},get busy(){return busy;},get view(){return view();},get diagnostics(){return Object.freeze({active,busy,page,chosen,message});}});
+})();

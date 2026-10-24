@@ -4,6 +4,7 @@
 #include "evolution_rules.h"
 #include "audio.h"
 #include "dayphase.h"
+#include "regional_reward_egg.h"
 
 void Pet::begin() {
   prefs.begin("tamapoke", false);
@@ -20,6 +21,8 @@ void Pet::begin() {
 }
 
 void Pet::newEgg() {
+  const uint8_t rewardSavedGeneration=nextEggGeneration,rewardSavedType=nextEggType;
+  const bool rewardSavedUnraised=nextEggUnraised;
 #if defined(__EMSCRIPTEN__) || defined(TP_F4_LIFE_TEST)
   const auto &lifeStore=Preferences::store();const auto lv=lifeStore.find("f4lver"),li=lifeStore.find("f4life");
   if(lv!=lifeStore.end()&&li!=lifeStore.end()&&std::holds_alternative<int64_t>(lv->second)&&std::holds_alternative<int64_t>(li->second)&&std::get<int64_t>(lv->second)==1){
@@ -47,6 +50,11 @@ void Pet::newEgg() {
   int shinyBase = (lastEnd == CER_FAREWELL ? 24 : 48) - careBonus();
   if (shinyBase < 8) shinyBase = 8;
   eggShiny = (random(shinyBase) == 0);
+  if(tpRewardEggConsume(eggTarget,eggShiny)){
+    starterPick=false;
+    nextEggGeneration=rewardSavedGeneration;nextEggType=rewardSavedType;nextEggUnraised=rewardSavedUnraised;
+    usedEggGeneration=usedEggType=0;usedEggUnraised=false;
+  }
   // The outgoing pet's streak/bond already fed the shiny roll above via
   // careBonus() -- now it's spent, so the new pet starts its own streak at
   // zero rather than immediately re-qualifying for the 7-day-streak medal

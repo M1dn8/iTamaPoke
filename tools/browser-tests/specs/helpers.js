@@ -32,4 +32,15 @@ async function prepare(page){
  await page.goto('/');await waitReady(page);await importSave(page,fixture());
 }
 async function diary(page){await openMenu(page);await page.getByRole('button',{name:'Tagebuch',exact:true}).click();return page.locator('.tp-app-list');}
-module.exports={fixture,waitReady,point,tap,openMenu,game,modal,importSave,prepare,diary};
+async function battleAction(page,action){
+ const target=a=>page.evaluate(a=>{const ui=window.TPBattleView,m=ui?.current;if(!m||tpSaveReplacing)return null;if(screen==='league'){if(!TPLeague.state.live||TPLeague.busy||m.id!==TPLeague.state.battleId)return null;}else if(screen!=='battle'||!Module.ccall('tp_battle_is_open','number',[],[])||m.id!==Module.ccall('tp_bv_get','number',['number'],[0]))return null;return ui.target(a)||null;},a);
+ if(['quick','heavy','dodge','rest'].includes(action)&&!(await target(action))){
+  const back=await target('back');if(back)await tap(page,back.x,back.y);
+  await expect.poll(()=>target('fight')).not.toBe(null);const p=await target('fight');await tap(page,p.x,p.y);
+ }else if(action==='abort'&&!(await target('abort'))){const back=await target('back');if(back)await tap(page,back.x,back.y);}
+ await expect.poll(()=>target(action)).not.toBe(null);const p=await target(action);
+ if(action==='abort'&&await page.evaluate(()=>TPBattleView.current?.mode!=='wild'&&!TPBattleView.current?.resolved))page.once('dialog',d=>d.accept());
+ await tap(page,p.x,p.y);
+}
+
+module.exports={battleAction,fixture,waitReady,point,tap,openMenu,game,modal,importSave,prepare,diary};

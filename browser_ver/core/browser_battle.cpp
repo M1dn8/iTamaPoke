@@ -115,6 +115,7 @@ BattleStats gPlayer{}, gEnemy{};
 uint8_t gPlayerMegaForm=0;
 BattleRuntime gRun{};
 BattleTurnResult gTurn{};
+uint32_t gBvId=0;uint16_t gBvDealt=0,gBvTaken=0,gBvHeal=0;
 bool gAttackMenuOpen = false;
 char gMessage[28] = {0};
 bool gLowHpWarned = false;
@@ -179,6 +180,7 @@ void startBattle(int16_t forcedDex, uint8_t forcedLevel) {
 #if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
   gF4ActorDex=pet.speciesId;gF4ActorGa=pet.geneAtk;gF4ActorGd=pet.geneDef;gF4ActorGs=pet.geneSpe;gF4ActorShiny=pet.shiny;gF4ActorAge=pet.ageMinutes;
 #endif
+  if(++gBvId==0)++gBvId;gBvDealt=gBvTaken=gBvHeal=0;
   gPlayer = realPlayerStats();
   gPlayerMegaForm=gPlayer.mega?pet.megaFormId():0;
   gEnemy = wildBattleStats(gDex, gLevel);
@@ -335,6 +337,9 @@ void tp_battle_close() {
 }
 
 EMSCRIPTEN_KEEPALIVE int tp_battle_is_open() { return gOpen||leagueOwned() ? 1 : 0; }
+// Read-only battle presentation values; never use current level/form after expiry.
+EMSCRIPTEN_KEEPALIVE int tp_bv_get(int key){switch(key){case 0:return int(gBvId&0x7fffffff);case 1:return gPlayer.level;case 2:return gPlayer.atk;case 3:return gPlayer.def;case 4:return gPlayer.spe;case 5:return gPlayerMegaForm;case 6:return tp_battle_pet().shiny?1:0;case 7:return gBvDealt;case 8:return gBvTaken;case 9:return gBvHeal;case 10:return gArenaId;case 11:return gPlayer.type1;case 12:return gPlayer.type2;}return 0;}
+EMSCRIPTEN_KEEPALIVE const char *tp_bv_nick(){return tp_battle_pet().nick;}
 EMSCRIPTEN_KEEPALIVE int tp_battle_resolved() { return gResolved ? 1 : 0; }
 EMSCRIPTEN_KEEPALIVE int tp_battle_wild_dex() { return gDex; }
 EMSCRIPTEN_KEEPALIVE int tp_battle_wild_level() { return gLevel; }
@@ -398,7 +403,9 @@ void performAction(BattleAction action) {
   if (!gOpen||gResolved) return;
   if(gTrainer&&!trainerActorValid()){tp_battle_close();return;}
   gAttackMenuOpen = false;
+  const uint16_t dealt=gRun.playerDamageTotal,taken=gRun.enemyDamageTotal;
   gTurn = stepBattle(gRun, action, rnd100());
+  gBvDealt=uint16_t(gRun.playerDamageTotal-dealt);gBvTaken=uint16_t(gRun.enemyDamageTotal-taken);gBvHeal=gTurn.playerHeal;
 
   if (gTurn.restFailed) {
     snprintf(gMessage, sizeof(gMessage), "%s", T(S_NO_REST));
@@ -537,6 +544,7 @@ EMSCRIPTEN_KEEPALIVE int tp_f2_next() {
  const uint8_t rests=gRun.restUsesLeft;
  gTrainerRounds+=gRun.round;gTrainerDealt+=gRun.playerDamageTotal;gTrainerTaken+=gRun.enemyDamageTotal;
  ++gTrainerIndex;
+ if(++gBvId==0)++gBvId;gBvDealt=gBvTaken=gBvHeal=0;
  if(gArenaId>=0){const auto &m=kKantoArenas[gArenaId].team[gTrainerIndex];gDex=m.dex;gLevel=m.level;}
  else gDex=kTrainerTeams[gTrainerId].dex[gTrainerIndex];
  gEnemy=wildBattleStats(gDex,gLevel);gEnemy.hp=0;

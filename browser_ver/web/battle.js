@@ -62,6 +62,7 @@ function drawCaughtPokeball(x,y){
 }
 function drawBattle(now) {
   if(window.TPArena?.intercept(now))return;
+  if(window.TPBattleView?.drawStandard(now))return;
   if(!Module.ccall("tp_battle_is_open","number",[],[])){screen=battleReturn;return;}
   // The creature's own habitat behind the fight, as renderBattle's
   // drawGameScene does on iOS -- not a flat panel.
@@ -229,6 +230,7 @@ function drawBattle(now) {
 
 function battleTap(x, y) {
   if(window.TPArena?.busy||window.TPArena?.battleTap(x,y))return;
+  if(window.TPBattleView?.tapStandard(x,y))return;
   if(window.TPTrainer.active()&&window.TPTrainer.get(3)){
     if(x>=118&&x<=348&&y>=365&&y<=417){Module.ccall('tp_f2_next','number',[],[]);return;}
     if(x>=184&&x<=282&&y>=100&&y<=136)window.TPTrainer.abort();

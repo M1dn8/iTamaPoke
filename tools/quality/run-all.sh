@@ -60,4 +60,5 @@ python3 tools/quality/test-kanto-league.py
 python3 tools/quality/test-kanto-hall.py
 python3 tools/quality/test-kanto-reward-egg.py
 python3 tools/quality/test-battle-energy.py
+python3 tools/quality/test-battle-view.py
 echo "Alle zentralen Logik-/Oberflaechen-Vorpruefungen erfolgreich."

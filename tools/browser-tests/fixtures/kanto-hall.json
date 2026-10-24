@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "hex": "4c484b010100000004000000000000000000010100000096006401000100000000f15365020f5369656765722026203c45696e733ee6497bc2",
+  "view": {
+    "supported": 1,
+    "legacy": 0,
+    "legacyDate": 0,
+    "wins": 1,
+    "seen": 0,
+    "variants": 4,
+    "pendingCeremony": 1,
+    "records": [
+      {
+        "sequence": 1,
+        "dex": 150,
+        "level": 100,
+        "shiny": 1,
+        "form": 0,
+        "life": 1,
+        "date": 1700000000,
+        "variant": 2,
+        "nick": "Sieger & <Eins>"
+      }
+    ]
+  }
+}

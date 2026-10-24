@@ -5,6 +5,7 @@ async function battle(page){await H.game(page);const a=await H.point(page,233,30
 test.beforeEach(async({page})=>{await H.prepare(page);await importStrong(page);await battle(page);});
 test('F4-B3a: real wild result saves zero or one exact individual, then reload preserves it',async({page})=>{
  const preview=await page.evaluate(()=>JSON.parse(Module.ccall('tp_f4_capture_snapshot','string',[],[]))),before=await page.evaluate(()=>TPCollection.read().mons.length);
+ expect(preview.level).toBeGreaterThanOrEqual(1);expect(preview.level).toBeLessThanOrEqual(30);expect(await page.evaluate(()=>Module.ccall('tp_battle_wild_level','number',[],[]))).toBe(preview.level);
  await H.battleAction(page,'catch');await expect.poll(()=>page.evaluate(()=>!!fns.battleCatchDone()&&!TPCollection.busy)).toBe(true);
  const result=await page.evaluate(()=>({success:!!fns.battleCatchSuccess(),state:TPCollection.read()}));expect(result.state.mons.length).toBe(before+(result.success?1:0));
  if(result.success){const mon=result.state.mons[result.state.mons.length-1];expect(mon.dex).toBe(preview.dex);expect(mon.level).toBe(preview.level);expect(mon.origin).toBe('wild');expect(mon.data.stats).toEqual(preview.data.stats);expect(mon.data.genes).toBe(null);expect(mon.data.training).toBe(null);expect(mon.data.capturedAt).toBeGreaterThan(0);}

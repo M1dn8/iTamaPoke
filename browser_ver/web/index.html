@@ -36,11 +36,11 @@
     width: min(100vw, calc(100vh - 110px), 466px); height: auto; aspect-ratio: 1;
   }
   #status {
-    font: 11px/1.4 -apple-system, system-ui, sans-serif; color: #8a93a6;
+    font: 11px/1.4 monospace; color: #8a93a6;
     text-align: center; padding: 0 12px; pointer-events: none; min-height: 1.4em;
   }
   #build {
-    font: 10px -apple-system, system-ui, sans-serif; color: #4a5163;
+    font: 10px monospace; color: #4a5163;
     text-align: center; pointer-events: none;
   }
   #toolbar {
@@ -48,7 +48,7 @@
     width: min(100vw - 16px, 466px); padding: 6px 0 0;
   }
   .tool {
-    font: 12px -apple-system, system-ui, sans-serif;
+    font: 12px monospace;
     background: #1c2030; color: #cdd4e0; border: 1px solid #333a4d;
     border-radius: 8px; padding: 8px 4px; cursor: pointer; white-space: nowrap;
   }
@@ -138,6 +138,7 @@ window.addEventListener("unhandledrejection", (e) => {
 <script src="app-menu.js"></script>
 <script src="collection-boxes.js"></script>
 <script src="mega.js"></script>
+<script src="ui-scale.js"></script>
 <script>
 // Offline install (see sw.js). Only registers on https:// or localhost --
 // the browser refuses it anywhere else, and a plain dev server is fine

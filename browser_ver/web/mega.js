@@ -21,7 +21,7 @@ async function act(action){
  }catch(e){if(begun&&!committed)mod.ccall("tp_e_finish","number",["number"],[0]);window.TPDiagnostics?.record("manager",e);tell(committed?"Gespeichert. Bei Problemen App neu öffnen.":"Speichern fehlgeschlagen – Aktion zurückgenommen.");return false;}
  finally{if(locked){tpSaveEpoch++;tpSaveReplacing=false;}busy=false;cached=null;readAt=0;}
 }
-function line(text,y,size=14,color=UI.ink){ctx.font=size+"px -apple-system,system-ui,sans-serif";ctx.fillStyle=color;ctx.textAlign="center";ctx.fillText(text,TP.cx,y);}
+function line(text,y,size=14,color=UI.ink){ctx.font=size+"px monospace";ctx.fillStyle=color;ctx.textAlign="center";ctx.fillText(text,TP.cx,y);}
 function stateText(v){if(v.active)return "Mega-Form: noch "+Math.max(1,Math.ceil((v.end-v.now)/60))+" Minuten";if(!v.stone)return v.quest?"Mega-Prüfung bestanden":"Mega-Prüfung";if(v.cool>v.now)return "Wieder bereit in "+Math.ceil((v.cool-v.now)/60)+" Minuten";return "Mega-Entwicklung bereit";}
 function button(text,y,enabled){ctx.fillStyle=enabled?UI.white:UI.track;roundRect(75,y,316,44,10);ctx.fill();ctx.strokeStyle=UI.ink;ctx.lineWidth=1;ctx.stroke();line(text,y+28,16);}
 function draw(){

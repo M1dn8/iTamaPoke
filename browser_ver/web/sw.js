@@ -70,6 +70,7 @@ const FILES = [
   "./mega.js",
   "./app-menu.css",
   "./app-theme.css",
+  "./ui-scale.js",
   "./performance-metrics.js",
   "./diagnostics.js",
   "./main.js",

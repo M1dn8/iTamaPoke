@@ -12,7 +12,7 @@ async function acknowledge(){if(busy||tpSaveReplacing)return false;const v=view(
  try{token=c('tp_lg_prepare_seen');if(!token)throw Error('Ehrung gerade nicht abschliessbar.');const bytes=exportStateBytes(Module);TPStoreTools.parseLegacy(bytes);if(await writeSave(bytes,true)!==true)throw Error('Speicherung nicht bestaetigt.');durable=true;if(c('tp_lg_finish',token,1)!==1)throw Error('Gespeichert. Fuer den lokalen Abschluss bitte neu laden.');celebration=false;message='Dein Ehrenplatz bleibt dauerhaft erhalten.';return true;
  }catch(e){if(token&&!durable)c('tp_lg_finish',token,0);message=e.message||String(e);return false;}
  finally{tpSaveEpoch++;tpSaveReplacing=false;busy=false;}}
-function text(s,x,y,size=14,color='#34423d',max=410){ctx.fillStyle=color;ctx.textAlign='center';ctx.font=size+'px sans-serif';ctx.fillText(String(s),x,y,max);}
+function text(s,x,y,size=14,color='#34423d',max=410){ctx.fillStyle=color;ctx.textAlign='center';ctx.font=size+'px monospace';ctx.fillText(String(s),x,y,max);}
 function box(x,y,w,h,fill,stroke='#b9aa8c'){ctx.fillStyle=fill;roundRect(x,y,w,h,7);ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke();}
 function button(s,x,y,w=326,h=36){box(x,y,w,h,'#fffaf0');text(s,x+w/2,y+h/2+5,14,'#34423d',w-12);}
 function room(){ctx.fillStyle='#eee7d7';ctx.fillRect(0,0,466,466);ctx.fillStyle='#d6c8ab';ctx.fillRect(20,45,426,213);ctx.fillStyle='#f8efd8';ctx.fillRect(28,53,410,188);ctx.fillStyle='#b49b6b';ctx.fillRect(20,238,426,12);ctx.fillStyle='#ddd3bd';ctx.fillRect(20,250,426,154);

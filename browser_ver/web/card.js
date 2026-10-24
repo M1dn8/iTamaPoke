@@ -155,13 +155,13 @@ function drawCardStats() {
   ctx.font='12px monospace';ctx.fillStyle=UI.track;ctx.textAlign='center';ctx.fillText('TRAINING',TP.cx,225);
   const ready=!!window.TPTraining?.canStart();
   for(const [x,label,color]of [[44,'Stärke',UI.barBad],[174,'Tempo','#a27819'],[304,'Verteidigung','#397ab6']]){
-    ctx.fillStyle=ready?UI.white:UI.track;roundRect(x,232,118,44,10);ctx.fill();ctx.strokeStyle=color;ctx.lineWidth=1;ctx.stroke();ctx.fillStyle=UI.ink;ctx.font='13px -apple-system,system-ui,sans-serif';ctx.fillText(label,x+59,260);
+    ctx.fillStyle=ready?UI.white:UI.track;roundRect(x,232,118,44,10);ctx.fill();ctx.strokeStyle=color;ctx.lineWidth=1;ctx.stroke();ctx.fillStyle=UI.ink;ctx.font='13px monospace';ctx.fillText(label,x+59,260);
   }
   for(const [x,label,color,on]of [[44,fns.wildBattleText(),'#4C98D9',fns.battleCanStart()!==0],[174,'TRAINER',UI.barBad,!!window.TPTrainer?.canOpen()],[304,'ARENA','#39814e',!!window.TPArena?.canOpen()]]){
     ctx.fillStyle=on?color:UI.track;roundRect(x,286,118,44,11);ctx.fill();ctx.fillStyle=UI.bgDay;ctx.font='bold 13px monospace';ctx.fillText(label,x+59,314,110);
   }
   ctx.textAlign='center';ctx.fillStyle=UI.ink;ctx.font='11px monospace';ctx.fillText(fns.battleRecordLine(),103,350);ctx.fillText(fns.battleStreakLine(),233,350);ctx.fillText(fns.battleBestLine(),363,350);
-  if(window.TPTraining?.notice){ctx.textAlign='center';ctx.fillStyle=UI.barBad;ctx.font='11px sans-serif';ctx.fillText(window.TPTraining.notice,TP.cx,371);}
+  if(window.TPTraining?.notice){ctx.textAlign='center';ctx.fillStyle=UI.barBad;ctx.font='11px monospace';ctx.fillText(window.TPTraining.notice,TP.cx,371);}
   statusEl.textContent=TPText.status('Card · Battle stats');
 }
 function cardStatsTap(x,y){

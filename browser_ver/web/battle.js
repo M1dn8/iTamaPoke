@@ -70,7 +70,7 @@ function drawBattle(now) {
   const trainer=window.TPTrainer.active();
   if(!trainer)window.TPCapture?.status();
   if(trainer&&(!Module.ccall('tp_f2_can_actor','number',[],[])||document.visibilityState!=='visible')){window.TPTrainer.abort();return;}
-  if(trainer){ctx.fillStyle=ink;ctx.textAlign='center';ctx.font='12px sans-serif';ctx.fillText('Gegner '+(window.TPTrainer.get(2)+1)+' / '+window.TPTrainer.get(1),TP.cx,62);}
+  if(trainer){ctx.fillStyle=ink;ctx.textAlign='center';ctx.font='12px monospace';ctx.fillText('Gegner '+(window.TPTrainer.get(2)+1)+' / '+window.TPTrainer.get(1),TP.cx,62);}
 
   ctx.fillStyle = ink;
   ctx.textAlign = "center";
@@ -123,8 +123,8 @@ function drawBattle(now) {
   drawBattleSprite(wildDex, 343, now);
 
   if(trainer&&window.TPTrainer.get(3)){
-    ctx.textAlign='center';ctx.fillStyle=ink;ctx.font='bold 22px sans-serif';ctx.fillText('Gegner besiegt',TP.cx,316);
-    ctx.font='14px sans-serif';ctx.fillText('Deine Rest-KP: '+fns.battlePlayerHp()+' / '+fns.battlePlayerMaxHp(),TP.cx,344);
+    ctx.textAlign='center';ctx.fillStyle=ink;ctx.font='bold 22px monospace';ctx.fillText('Gegner besiegt',TP.cx,316);
+    ctx.font='14px monospace';ctx.fillText('Deine Rest-KP: '+fns.battlePlayerHp()+' / '+fns.battlePlayerMaxHp(),TP.cx,344);
     window.TPTrainer.button('Nächster Gegner',365,UI.barOK);
     statusEl.textContent='Trainerkampf: Gegnerwechsel ohne Heilung';return;
   }
@@ -139,7 +139,7 @@ function drawBattle(now) {
     ctx.fillText(fns.battleRoundsLine(), TP.cx, 338);
     ctx.fillText(fns.battleDamageLine(), TP.cx, 360);
 
-    if(trainer){ctx.font='12px sans-serif';ctx.fillStyle=ink;ctx.fillText(window.TPArena?.active()?'Arena verloren – kein Orden':'Grundsystem – noch ohne Belohnungen',TP.cx,382);}
+    if(trainer){ctx.font='12px monospace';ctx.fillStyle=ink;ctx.fillText(window.TPArena?.active()?'Arena verloren – kein Orden':'Grundsystem – noch ohne Belohnungen',TP.cx,382);}
     if (won) {
       const reward = fns.battleRewardLine();
       if (reward) { ctx.fillStyle = UI.barWarn; ctx.fillText(reward, TP.cx, 382); }
@@ -151,7 +151,7 @@ function drawBattle(now) {
     const catchOffered = fns.battleCatchOffered() !== 0, catchDone = fns.battleCatchDone() !== 0;
     if (catchOffered && !catchDone) {
       const captureState=window.TPCapture?.status();
-      if(captureState?.message){ctx.fillStyle=UI.barBad;ctx.font="11px sans-serif";ctx.textAlign="center";ctx.fillText(captureState.message,233,382,420);}
+      if(captureState?.message){ctx.fillStyle=UI.barBad;ctx.font="11px monospace";ctx.textAlign="center";ctx.fillText(captureState.message,233,382,420);}
       ctx.fillStyle = captureState&&!captureState.allowed?UI.track:UI.barOK;
       roundRect(76, 396, 148, 52, 14); ctx.fill();
       ctx.fillStyle = UI.track;
@@ -319,18 +319,18 @@ function canOpen(){try{return screen==='card'&&cardPage===4&&choice==='none'&&!t
 function open(){if(!canOpen())return false;dragStart=dragNow=null;screen='trainer';return true;}
 function back(){dragStart=dragNow=null;screen='card';cardPage=4;}
 function abort(){if(window.TPArena?.busy)return;if(window.TPArena?.active()){window.TPArena.abort();return;}if(active())Module._tp_battle_close();back();}
-function button(label,y,color){ctx.fillStyle=color;roundRect(118,y,230,52,12);ctx.fill();ctx.fillStyle=UI.bgDay;ctx.textAlign='center';ctx.font='bold 16px sans-serif';ctx.fillText(label,TP.cx,y+32);}
+function button(label,y,color){ctx.fillStyle=color;roundRect(118,y,230,52,12);ctx.fill();ctx.fillStyle=UI.bgDay;ctx.textAlign='center';ctx.font='bold 16px monospace';ctx.fillText(label,TP.cx,y+32);}
 function start(team){
  if(screen!=='trainer'||tpSaveReplacing||document.visibilityState!=='visible'||window.TPTraining?.busy||window.TPMega?.busy||window.TPExpeditions?.busy)return false;
  if(!call('tp_f2_start',team))return false;
  dragStart=dragNow=null;battleReturn='card';screen='battle';return true;
 }
 function draw(){
- const {ink}=drawGameScene();ctx.fillStyle=ink;ctx.textAlign='center';ctx.font='bold 24px sans-serif';ctx.fillText('Trainerkämpfe',TP.cx,58);
- ctx.font='15px sans-serif';ctx.fillText('Dein aktuelles Pokémon kämpft allein.',TP.cx,100);
+ const {ink}=drawGameScene();ctx.fillStyle=ink;ctx.textAlign='center';ctx.font='bold 24px monospace';ctx.fillText('Trainerkämpfe',TP.cx,58);
+ ctx.font='15px monospace';ctx.fillText('Dein aktuelles Pokémon kämpft allein.',TP.cx,100);
  ctx.fillText('Rest-KP und Erholungen bleiben erhalten.',TP.cx,126);
  button('Einzelduell · 1 Gegner',165,'#397ab6');button('Teamduell · 2 Gegner',235,UI.barBad);
- ctx.fillStyle=ink;ctx.font='13px sans-serif';ctx.fillText('Noch ohne Belohnungen und Fangoption.',TP.cx,320);
+ ctx.fillStyle=ink;ctx.font='13px monospace';ctx.fillText('Noch ohne Belohnungen und Fangoption.',TP.cx,320);
  ctx.fillText('App-Wechsel oder Neuladen beendet die Serie.',TP.cx,343);
  button('Zurück',365,UI.track);statusEl.textContent='Trainerkämpfe · Grundsystem';
 }

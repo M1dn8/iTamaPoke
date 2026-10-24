@@ -50,9 +50,9 @@ function step(now){
  if(document.visibilityState!=='visible'||Module!==state.mod||now<state.lastStep||now-state.lastStep>2000){abort('Training unterbrochen – keine Punkte oder Kosten.');return;}
  state.lastStep=now;if(now-state.start>=10000)complete(now);
 }
-function text(value,y,size=16,color=UI.ink){ctx.textAlign='center';ctx.fillStyle=color;ctx.font=`${size}px -apple-system,system-ui,sans-serif`;ctx.fillText(value,TP.cx,y);}
+function text(value,y,size=16,color=UI.ink){ctx.textAlign='center';ctx.fillStyle=color;ctx.font=`${size}px monospace`;ctx.fillText(value,TP.cx,y);}
 function button(label,x,y,w,color=UI.ink){ctx.fillStyle=UI.white;roundRect(x,y,w,44,10);ctx.fill();ctx.strokeStyle=color;ctx.lineWidth=1;ctx.stroke();textAt(label,x+w/2,y+28,14,UI.ink);}
-function textAt(value,x,y,size,color){ctx.textAlign='center';ctx.fillStyle=color;ctx.font=`${size}px -apple-system,system-ui,sans-serif`;ctx.fillText(value,x,y);}
+function textAt(value,x,y,size,color){ctx.textAlign='center';ctx.fillStyle=color;ctx.font=`${size}px monospace`;ctx.fillText(value,x,y);}
 let actorBounds=null;
 function drawActor(now,x,ground,act,maxSize=140,centered=false){
  actorBounds={left:x-25,top:ground-65,width:50,height:50};

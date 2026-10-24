@@ -6,7 +6,17 @@ async function matches(locator,palette,background){const s=await look(locator);e
 async function fits(locator){expect(await locator.evaluate(n=>n.scrollWidth<=n.clientWidth+1)).toBe(true);}
 test('Retro: Menue, Fokus, gesperrter und gedrueckter Button folgen dem Spiel',async({page})=>{
  await H.openMenu(page);const palette=await original(page),root=page.locator('#tp-app-page');await matches(root,palette,palette.bg);
- const button=root.getByRole('button',{name:'Entwicklung',exact:true});const s=await look(button);expect(s.border).toBe(palette.ink);expect(s.width).toBe('2px');expect(s.height).toBeGreaterThanOrEqual(44);
+ const button=root.getByRole('button',{name:'Entwicklung',exact:true});const s=await look(button);expect(s.border).toBe(palette.ink);const stroke=await button.evaluate(()=>{
+ const shell=document.getElementById('tp-game-shell'),canvas=document.getElementById('tp');
+ const expected=2*canvas.getBoundingClientRect().width/466;
+ const declared=parseFloat(getComputedStyle(shell).getPropertyValue('--tp-canvas-stroke'));
+ // Ask this browser to snap the expected Canvas-scaled stroke at its actual DPR.
+ const probe=document.createElement('span');probe.style.cssText='position:fixed;visibility:hidden;pointer-events:none;border:'+expected+'px solid transparent';
+ document.body.appendChild(probe);const snapped=getComputedStyle(probe).borderTopWidth;probe.remove();
+ return {expected,declared,snapped};
+ });
+ expect(Math.abs(stroke.declared-stroke.expected)).toBeLessThan(.01);
+ expect(s.width).toBe(stroke.snapped);expect(parseFloat(s.width)).toBeGreaterThan(0);expect(s.height).toBeGreaterThanOrEqual(44);
  // Test the app's explicit focus wrapping, not mobile WebKit's native Tab order.
  const first=root.getByRole('button',{name:'Tagebuch',exact:true});
  const last=root.getByRole('button',{name:'Zurück zum Pokémon',exact:true});

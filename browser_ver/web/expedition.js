@@ -51,7 +51,7 @@ function drawCardDaily() {
 let boxPage = 0;
 
 function drawCardBox() {
-  ctx.fillStyle=UI.white;roundRect(70,338,326,32,10);ctx.fill();ctx.strokeStyle=UI.ink;ctx.lineWidth=1;ctx.stroke();ctx.fillStyle=UI.ink;ctx.font="14px sans-serif";ctx.textAlign="center";ctx.fillText("Individuelle Boxen & Teamplanung",233,359);
+  ctx.fillStyle=UI.white;roundRect(70,338,326,32,10);ctx.fill();ctx.strokeStyle=UI.ink;ctx.lineWidth=1;ctx.stroke();ctx.fillStyle=UI.ink;ctx.font="14px monospace";ctx.textAlign="center";ctx.fillText("Individuelle Boxen & Teamplanung",233,359);
   Module._tp_box_invalidate(); // cheap at this size; always fresh rather than stale after a catch
   const rows = 5;
   const pages = fns.boxPageCount(rows);

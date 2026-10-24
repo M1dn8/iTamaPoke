@@ -220,13 +220,15 @@ bool canStartWildBattle(bool isEgg, bool sleeping, uint8_t ceremony) {
 
 uint8_t wildLevelFor(uint8_t petLevel, uint8_t luckRoll) {
   int base = (int)(petLevel ? petLevel : 1);
+  // Preserve low-level scaling; cap the base before the existing -4..+3 spread.
+  if (base > 27) base = 27;
   int delta;
   if (luckRoll < 55) delta = (int)(luckRoll % 3) - 1;       // -1..+1, most common
   else if (luckRoll < 85) delta = -2 - (int)(luckRoll % 3); // -2..-4, fair catch-up fights
   else delta = 2 + (int)(luckRoll % 2);                     // +2..+3, occasional danger
   int level = base + delta;
   if (level < 1) level = 1;
-  return level > 100 ? 100 : (uint8_t)level;
+  return level > 30 ? 30 : (uint8_t)level;
 }
 
 static bool wildTypePreferred(uint8_t type1, uint8_t type2, uint8_t phase) {

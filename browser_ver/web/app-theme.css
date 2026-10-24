@@ -132,3 +132,55 @@
 #tp-game-shell>.tp-modal .tp-panel .danger button,#tp-game-shell .tp-box-page .tp-box-danger{
  color:var(--tp-bad)!important;border-color:var(--tp-bad)!important;
 }
+
+/* Canvas reference, without virtual DOM pages or whole-page transforms. */
+#tp-game-shell{
+ --tp-canvas-title:20px;--tp-canvas-body:13px;--tp-canvas-control:14px;
+ --tp-canvas-section:14px;--tp-canvas-caption:11px;--tp-canvas-small:10px;
+ --tp-canvas-stroke:2px;--tp-canvas-radius:8px;--tp-canvas-space:9px;
+}
+#tp-game-shell #tp-app-page,#tp-game-shell>.tp-modal .tp-panel,
+#tp-game-shell .tp-box-page,#tp-game-shell .tp-f4-care-dialog{
+ font-family:monospace!important;font-size:var(--tp-canvas-body)!important;
+ background:var(--tp-page)!important;color:var(--tp-ink)!important;
+}
+#tp-game-shell .tp-app-head,#tp-game-shell .tp-modal-head,#tp-game-shell .tp-box-head{
+ display:grid!important;grid-template-columns:76px minmax(0,1fr) 76px;
+ align-items:center!important;gap:4px!important;min-height:44px;
+}
+#tp-game-shell .tp-app-head h2,#tp-game-shell .tp-modal-head h2,#tp-game-shell .tp-box-head h2{
+ grid-column:2;grid-row:1;text-align:center;
+ font:700 var(--tp-canvas-title)/1.2 monospace!important;
+}
+#tp-game-shell .tp-app-head>button,#tp-game-shell .tp-modal-head>button,#tp-game-shell .tp-box-head>button{
+ grid-column:3;grid-row:1;justify-self:end;
+}
+#tp-game-shell #tp-app-page button,#tp-game-shell>.tp-modal .tp-panel button,
+#tp-game-shell .tp-box-page button,#tp-game-shell .tp-f4-care-dialog button{
+ font:700 var(--tp-canvas-control)/1.25 monospace!important;
+ color:var(--tp-ink)!important;background:var(--tp-card)!important;
+ border:var(--tp-canvas-stroke) solid var(--tp-border)!important;
+ border-radius:var(--tp-canvas-radius)!important;min-height:44px!important;
+ padding:var(--tp-canvas-space)!important;
+}
+#tp-game-shell .tp-box-page .tp-box-tile{min-height:106px!important;padding:4px!important}
+#tp-game-shell>.tp-modal .tp-panel p:not([style*="color"]),
+#tp-game-shell>.tp-modal .tp-panel label:not([style*="color"]),
+#tp-game-shell>.tp-modal .tp-panel li:not([style*="color"]){font-size:var(--tp-canvas-body)!important}
+#tp-game-shell>.tp-modal .tp-panel p.tp-small,#tp-game-shell>.tp-modal .tp-panel p.tp-muted,
+#tp-game-shell .tp-box-note,#tp-game-shell .tp-app-notice,#tp-game-shell .tp-app-entry time{
+ font-size:var(--tp-canvas-caption)!important;
+}
+#tp-game-shell>.tp-modal .tp-panel h3,#tp-game-shell .tp-box-card h3,#tp-game-shell .tp-rights-card h3{
+ font:700 var(--tp-canvas-section)/1.35 monospace!important;
+}
+#tp-game-shell .tp-rights-scroll{font:var(--tp-canvas-body)/1.45 monospace}
+#tp-game-shell .tp-app-list p,#tp-game-shell .tp-app-date,#tp-game-shell .tp-app-entry{font-size:var(--tp-canvas-body)}
+#tp-game-shell .tp-box-tile span{font-size:var(--tp-canvas-caption)}
+#tp-game-shell .tp-box-tile small{font-size:var(--tp-canvas-small)}
+#tp-game-shell .tp-f4-care-dialog h2{font:700 var(--tp-canvas-title)/1.2 monospace;text-align:center}
+#tp-game-shell .tp-f4-care-dialog button:focus-visible{outline:3px solid var(--tp-accent);outline-offset:2px}
+#tp-game-shell .tp-f4-care-dialog button:disabled{opacity:.55;cursor:default}
+
+#tp-game-shell #tp-app-page .tp-app-grid{flex:none;grid-template-rows:repeat(3,minmax(44px,auto));align-content:start;gap:var(--tp-canvas-space)}
+#tp-game-shell #tp-app-page .tp-app-home{margin-top:auto}

@@ -11,7 +11,7 @@ test('Sechs Kacheln, Vollseiten, Rueckwege und gemeinsame Optik',async({page})=>
  await H.game(page);await H.openMenu(page);await expect(page.locator('#toolbar')).toBeHidden();await expect(page.locator('.tp-tools')).toBeHidden();
  const root=page.locator('#tp-app-page');for(const name of ['Tagebuch','Entwicklung','Pokédex','Eier','Sicherungen','Einstellungen'])await expect(root.getByRole('button',{name,exact:true})).toBeVisible();
  for(const name of ['Entwicklung','Pokédex','Eier','Sicherungen']){
-  await page.waitForFunction(label=>Array.from(document.querySelectorAll('.tp-tools button')).some(b=>b.textContent.trim()===label&&!b.disabled),name==='Pokédex'?'Dex-Suche':name);await root.getByRole('button',{name,exact:true}).click();const p=H.modal(page);await expect(p).toBeVisible();await expect(p.locator('.tp-panel')).toHaveCSS('background-color','rgb(244, 240, 231)');
+  await page.waitForFunction(label=>Array.from(document.querySelectorAll('.tp-tools button')).some(b=>b.textContent.trim()===label&&!b.disabled),name==='Pokédex'?'Dex-Suche':name);await root.getByRole('button',{name,exact:true}).click();const p=H.modal(page);await expect(p).toBeVisible();await expect(p.locator('.tp-panel')).toHaveCSS('background-color','rgb(247, 239, 230)');
   const box=await p.locator('.tp-panel').boundingBox(),shell=await page.locator('#tp-game-shell').boundingBox();expect(Math.abs(box.width-shell.width)).toBeLessThan(3);await p.locator('.tp-modal-head button').click();await expect(root).toBeVisible();
  }
  await root.getByRole('button',{name:'Einstellungen',exact:true}).click();await expect(root.getByRole('button',{name:'Dateien verwalten',exact:true})).toBeVisible();await root.getByRole('button',{name:'Zurück',exact:true}).click();

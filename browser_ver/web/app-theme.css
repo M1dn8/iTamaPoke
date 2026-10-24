@@ -1,25 +1,134 @@
-/* Shared appearance for all new in-game menu and management pages. */
-#tp-game-shell{--tp-page:#f4f0e7;--tp-card:#fff;--tp-ink:#273744;--tp-muted:#546471;--tp-border:#aeb7bc;--tp-line:#d3d4d0;--tp-accent:#457ca4}
-#tp-game-shell #tp-app-page,#tp-game-shell>.tp-modal .tp-panel{background:var(--tp-page)!important;color:var(--tp-ink)!important;font-family:-apple-system,system-ui,sans-serif!important;color-scheme:light}
-#tp-game-shell>.tp-modal .tp-panel{padding:14px!important;font-size:14px!important;line-height:1.4;overflow-wrap:anywhere}
-#tp-game-shell .tp-app-head,#tp-game-shell .tp-modal-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;margin:0 0 12px!important;flex:none}
-#tp-game-shell>.tp-modal .tp-modal-head{position:sticky;top:0;z-index:3;background:var(--tp-page)!important;padding:0 0 12px!important;border-bottom:1px solid var(--tp-line)!important}
-#tp-game-shell .tp-app-head h2,#tp-game-shell .tp-modal-head h2{font:600 23px/1.2 -apple-system,system-ui,sans-serif!important;color:var(--tp-ink)!important;margin:0!important;min-width:0;overflow-wrap:anywhere}
-#tp-game-shell .tp-app-head button,#tp-game-shell .tp-modal-head button{flex:none}
-#tp-game-shell #tp-app-page button,#tp-game-shell>.tp-modal .tp-panel button{font:400 16px/1.25 -apple-system,system-ui,sans-serif!important;color:var(--tp-ink)!important;background:var(--tp-card)!important;border:1px solid var(--tp-border)!important;border-radius:9px!important;min-height:44px!important;padding:9px 12px!important;box-shadow:none!important;text-shadow:none!important;cursor:pointer}
-#tp-game-shell #tp-app-page button:not(:disabled):hover,#tp-game-shell>.tp-modal .tp-panel button:not(:disabled):hover{background:#f7fafc!important}
-#tp-game-shell #tp-app-page button:focus-visible,#tp-game-shell>.tp-modal .tp-panel button:focus-visible,#tp-game-shell>.tp-modal .tp-panel input:focus-visible,#tp-game-shell>.tp-modal .tp-panel select:focus-visible,#tp-game-shell>.tp-modal .tp-panel textarea:focus-visible{outline:3px solid var(--tp-accent)!important;outline-offset:2px}
-#tp-game-shell>.tp-modal .tp-panel button:disabled,#tp-game-shell>.tp-modal .tp-panel input:disabled,#tp-game-shell>.tp-modal .tp-panel select:disabled{opacity:.55!important;cursor:default}
-#tp-game-shell>.tp-modal .tp-panel .tp-card{background:var(--tp-card)!important;color:var(--tp-ink)!important;border:1px solid var(--tp-line)!important;border-radius:9px!important;padding:12px!important;margin:10px 0!important;box-shadow:none!important}
-#tp-game-shell>.tp-modal .tp-panel h3{font:600 16px/1.35 -apple-system,system-ui,sans-serif!important;color:var(--tp-ink)!important;margin:0 0 8px!important}
-#tp-game-shell>.tp-modal .tp-panel p:not([style*="color"]),#tp-game-shell>.tp-modal .tp-panel label:not([style*="color"]),#tp-game-shell>.tp-modal .tp-panel li:not([style*="color"]){color:var(--tp-ink)!important;font-size:14px!important;line-height:1.4}
-#tp-game-shell>.tp-modal .tp-panel .tp-small,#tp-game-shell>.tp-modal .tp-panel .tp-muted{font-size:13px!important;color:var(--tp-muted)!important}
+/* Retro UI: DOM pages mirror the existing canvas UI palette and monospace.
+   Scoped to the game shell; no gameplay, storage or layout routing changes. */
+#tp-game-shell{
+ --tp-page:#f7efe6;--tp-card:#fff;--tp-ink:#292831;--tp-muted:#5d5960;
+ --tp-border:#292831;--tp-line:#ded2bd;--tp-accent:#292831;
+ --tp-track:#ded2bd;--tp-ok:#2f6b44;--tp-bad:#9c3030;
+ --tp-font:monospace;--tp-radius:8px;
+}
+#tp-game-shell #tp-app-page,
+#tp-game-shell>.tp-modal .tp-panel,
+#tp-game-shell .tp-box-page{
+ background:var(--tp-page)!important;color:var(--tp-ink)!important;
+ font:14px/1.4 var(--tp-font)!important;color-scheme:light;overflow-wrap:anywhere;
+}
+#tp-game-shell>.tp-modal .tp-panel{padding:14px!important}
+#tp-game-shell .tp-app-head,#tp-game-shell .tp-modal-head{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:8px!important;margin:0 0 12px!important;flex:none;
+}
+#tp-game-shell>.tp-modal .tp-modal-head{
+ position:sticky;top:0;z-index:3;background:var(--tp-page)!important;
+ padding:0 0 12px!important;border-bottom:2px solid var(--tp-line)!important;
+}
+#tp-game-shell .tp-box-head{border-bottom:2px solid var(--tp-line)}
+#tp-game-shell .tp-app-head h2,#tp-game-shell .tp-modal-head h2,#tp-game-shell .tp-box-head h2{
+ font:700 20px/1.2 var(--tp-font)!important;color:var(--tp-ink)!important;
+ margin:0!important;min-width:0;overflow-wrap:anywhere;
+}
+#tp-game-shell .tp-app-head button,#tp-game-shell .tp-modal-head button,
+#tp-game-shell .tp-box-head button{flex:none}
+#tp-game-shell #tp-app-page button,#tp-game-shell>.tp-modal .tp-panel button,
+#tp-game-shell .tp-box-page button{
+ font:700 16px/1.25 var(--tp-font)!important;color:var(--tp-ink)!important;
+ background:var(--tp-card)!important;border:2px solid var(--tp-border)!important;
+ border-radius:var(--tp-radius)!important;min-height:44px!important;
+ padding:9px 12px;box-sizing:border-box;min-width:0;max-width:100%;
+ white-space:normal;overflow-wrap:anywhere;box-shadow:none!important;
+ text-shadow:none!important;cursor:pointer;
+}
+@media(hover:hover){
+ #tp-game-shell #tp-app-page button:not(:disabled):hover,
+ #tp-game-shell>.tp-modal .tp-panel button:not(:disabled):hover,
+ #tp-game-shell .tp-box-page button:not(:disabled):hover{background:var(--tp-page)!important}
+}
+#tp-game-shell #tp-app-page button:not(:disabled):active,
+#tp-game-shell>.tp-modal .tp-panel button:not(:disabled):active,
+#tp-game-shell .tp-box-page button:not(:disabled):active,
+#tp-game-shell button[aria-pressed=true],#tp-game-shell button[aria-selected=true]{
+ background:var(--tp-track)!important;
+}
+#tp-game-shell #tp-app-page button:focus-visible,
+#tp-game-shell>.tp-modal .tp-panel :is(button,input,select,textarea,a,summary):focus-visible,
+#tp-game-shell .tp-box-page :focus-visible,
+#tp-game-shell .tp-rights-scroll :focus-visible{
+ outline:3px solid var(--tp-accent)!important;outline-offset:2px;
+}
+#tp-game-shell #tp-app-page button:disabled,
+#tp-game-shell>.tp-modal .tp-panel :is(button,input,select,textarea):disabled,
+#tp-game-shell .tp-box-page :is(button,input,select,textarea):disabled{
+ opacity:.55!important;cursor:default;
+}
+#tp-game-shell>.tp-modal .tp-panel .tp-card,
+#tp-game-shell .tp-box-card,#tp-game-shell .tp-rights-card{
+ background:var(--tp-card)!important;color:var(--tp-ink)!important;
+ border:2px solid var(--tp-line)!important;border-radius:var(--tp-radius)!important;
+ padding:12px!important;margin:10px 0!important;box-shadow:none!important;
+}
+#tp-game-shell>.tp-modal .tp-panel h3,#tp-game-shell .tp-box-card h3,
+#tp-game-shell .tp-rights-card h3{
+ font:700 16px/1.35 var(--tp-font)!important;color:var(--tp-ink)!important;
+ margin:0 0 8px!important;
+}
+#tp-game-shell>.tp-modal .tp-panel p:not([style*="color"]),
+#tp-game-shell>.tp-modal .tp-panel label:not([style*="color"]),
+#tp-game-shell>.tp-modal .tp-panel li:not([style*="color"]){
+ color:var(--tp-ink)!important;font-size:14px!important;line-height:1.4;
+}
+#tp-game-shell>.tp-modal .tp-panel .tp-small,
+#tp-game-shell>.tp-modal .tp-panel .tp-muted,#tp-game-shell .tp-box-note,
+#tp-game-shell .tp-app-entry time,#tp-game-shell .tp-app-notice{
+ font-size:13px!important;color:var(--tp-muted)!important;
+}
+#tp-game-shell .tp-app-date{background:var(--tp-page)}
+#tp-game-shell .tp-app-entry{border-color:var(--tp-line)}
 #tp-game-shell>.tp-modal .tp-panel .tp-modal-row{gap:10px!important;flex-wrap:wrap}
-#tp-game-shell>.tp-modal .tp-panel input:not([type=checkbox]):not([type=radio]):not([type=file]),#tp-game-shell>.tp-modal .tp-panel select,#tp-game-shell>.tp-modal .tp-panel textarea{font:400 16px/1.35 -apple-system,system-ui,sans-serif!important;box-sizing:border-box;color:var(--tp-ink)!important;background:var(--tp-card)!important;border:1px solid var(--tp-border)!important;border-radius:9px!important;min-height:44px;padding:9px!important;box-shadow:none!important;max-width:100%}
-#tp-game-shell>.tp-modal .tp-panel input::placeholder,#tp-game-shell>.tp-modal .tp-panel textarea::placeholder{color:var(--tp-muted)!important;opacity:1}
-#tp-game-shell>.tp-modal .tp-panel input[type=checkbox],#tp-game-shell>.tp-modal .tp-panel input[type=radio],#tp-game-shell>.tp-modal .tp-panel progress{accent-color:var(--tp-accent)}
-#tp-game-shell>.tp-modal .tp-panel progress{width:100%;min-height:18px}
-#tp-game-shell>.tp-modal .tp-panel hr{border:0;border-top:1px solid var(--tp-line)}
-#tp-game-shell>.tp-modal .tp-panel .tp-ok,#tp-game-shell>.tp-modal .tp-panel .ok{color:#2f6b44!important}
-#tp-game-shell>.tp-modal .tp-panel .tp-bad,#tp-game-shell>.tp-modal .tp-panel .bad,#tp-game-shell>.tp-modal .tp-panel .tp-no{color:#9c3030!important}
-#tp-game-shell #tp-app-page .tp-app-danger button,#tp-game-shell>.tp-modal .tp-panel button.danger,#tp-game-shell>.tp-modal .tp-panel .danger button{color:#9c3030!important;border-color:#c88c87!important}
+#tp-game-shell>.tp-modal .tp-panel input:not([type=checkbox]):not([type=radio]):not([type=file]),
+#tp-game-shell>.tp-modal .tp-panel select,#tp-game-shell>.tp-modal .tp-panel textarea,
+#tp-game-shell .tp-box-page input:not([type=checkbox]):not([type=radio]):not([type=file]),
+#tp-game-shell .tp-box-page select,#tp-game-shell .tp-box-page textarea{
+ font:400 16px/1.35 var(--tp-font)!important;box-sizing:border-box;
+ color:var(--tp-ink)!important;background:var(--tp-card)!important;
+ border:2px solid var(--tp-border)!important;border-radius:var(--tp-radius)!important;
+ min-height:44px;padding:9px!important;box-shadow:none!important;max-width:100%;
+}
+#tp-game-shell>.tp-modal .tp-panel input::placeholder,
+#tp-game-shell>.tp-modal .tp-panel textarea::placeholder{color:var(--tp-muted)!important;opacity:1}
+#tp-game-shell>.tp-modal .tp-panel input[type=checkbox],
+#tp-game-shell>.tp-modal .tp-panel input[type=radio]{
+ -webkit-appearance:none;appearance:none;display:inline-grid;place-content:center;
+ box-sizing:border-box;width:24px;height:24px;min-height:24px;
+ padding:0!important;margin:0 8px 0 0;vertical-align:middle;
+ border:2px solid var(--tp-border)!important;border-radius:4px!important;
+ background:var(--tp-card)!important;color:var(--tp-ink)!important;
+}
+#tp-game-shell>.tp-modal .tp-panel input[type=radio]{border-radius:50%!important}
+#tp-game-shell>.tp-modal .tp-panel input[type=checkbox]:checked::after{
+ content:"";width:6px;height:11px;border:solid currentColor;border-width:0 3px 3px 0;
+ transform:translateY(-2px) rotate(45deg);
+}
+#tp-game-shell>.tp-modal .tp-panel input[type=radio]:checked::after{
+ content:"";width:10px;height:10px;border-radius:50%;background:currentColor;
+}
+#tp-game-shell>.tp-modal .tp-panel progress{
+ -webkit-appearance:none;appearance:none;accent-color:var(--tp-ink);
+ box-sizing:border-box;width:100%;height:22px;min-height:18px;
+ border:2px solid var(--tp-border);border-radius:4px;
+ background:var(--tp-track);overflow:hidden;
+}
+#tp-game-shell>.tp-modal .tp-panel progress::-webkit-progress-bar{background:var(--tp-track)}
+#tp-game-shell>.tp-modal .tp-panel progress::-webkit-progress-value{background:var(--tp-ink)}
+#tp-game-shell>.tp-modal .tp-panel progress::-moz-progress-bar{background:var(--tp-ink)}
+#tp-game-shell>.tp-modal .tp-panel hr{border:0;border-top:2px solid var(--tp-line)}
+#tp-game-shell .tp-rights-scroll{font:14px/1.45 var(--tp-font)}
+#tp-game-shell .tp-rights-card a{color:var(--tp-ink);text-decoration:underline;text-underline-offset:3px}
+#tp-game-shell .tp-box-empty{border:2px dashed var(--tp-line);border-radius:var(--tp-radius);color:var(--tp-muted)}
+#tp-game-shell .tp-box-page .tp-box-current{border-color:var(--tp-ok)!important}
+#tp-game-shell>.tp-modal .tp-panel .tp-ok,#tp-game-shell>.tp-modal .tp-panel .ok{color:var(--tp-ok)!important}
+#tp-game-shell>.tp-modal .tp-panel .tp-bad,#tp-game-shell>.tp-modal .tp-panel .bad,
+#tp-game-shell>.tp-modal .tp-panel .tp-no{color:var(--tp-bad)!important}
+#tp-game-shell #tp-app-page .tp-app-danger button,
+#tp-game-shell>.tp-modal .tp-panel button.danger,
+#tp-game-shell>.tp-modal .tp-panel .danger button,#tp-game-shell .tp-box-page .tp-box-danger{
+ color:var(--tp-bad)!important;border-color:var(--tp-bad)!important;
+}

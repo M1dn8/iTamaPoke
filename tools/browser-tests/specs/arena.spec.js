@@ -28,7 +28,16 @@ test('Arena: echte Serie, genau ein gespeicherter Orden, Koffer, Reload und Back
  await match(page);await expect.poll(()=>page.evaluate(()=>TPArena.snapshot?.phase)).toBe('done');expect(await mask(page)).toBe(1);expect(await page.evaluate(()=>fns.battleCatchOffered())).toBe(0);
  const date=await page.evaluate(()=>Module.ccall('tp_f3_date','number',['number'],[0]));expect(date).toBeGreaterThan(0);await H.tap(page,233,390);await expect.poll(()=>page.evaluate(()=>screen)).toBe('arena');const saved=Buffer.from(await page.evaluate(()=>Array.from(exportStateBytes(Module))));await page.reload();await H.waitReady(page);expect(await mask(page)).toBe(1);
  await card(page);await begin(page);await match(page);await H.battleAction(page,'next');await match(page);await expect.poll(()=>page.evaluate(()=>TPArena.snapshot?.phase)).toBe('repeat');expect(await mask(page)).toBe(1);expect(await page.evaluate(()=>Module.ccall('tp_f3_date','number',['number'],[0]))).toBe(date);
- await H.tap(page,233,435);await H.tap(page,233,435);await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');await H.tap(page,233,400);await expect.poll(()=>page.evaluate(()=>screen)).toBe('idle');await H.importSave(page,trainedFixture());expect(await mask(page)).toBe(0);await H.importSave(page,saved);expect(await mask(page)).toBe(1);expect(errors).toEqual([]);
+ // Wait for each rendered return page before sending the next canvas input.
+ await H.tap(page,233,435);
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('arena');
+ await page.waitForFunction(()=>screen==='arena'&&!TPArena.busy&&statusEl.textContent==='Arena · Kanto-Auswahl');
+ await H.tap(page,233,435);
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');
+ await page.waitForFunction(()=>screen==='card'&&cardPage===4&&statusEl.textContent===TPText.status('Card · Battle stats')&&!tpSaveReplacing&&!window.TPCollection?.busy&&!window.TPCollectionGame?.dialogOpen&&!window.TPArena?.busy&&!window.TPTraining?.busy&&!window.TPMega?.busy&&!window.TPLeague?.busy&&!window.TPExpeditions?.busy&&!window.TPAppMenu?.active&&choice==='none');
+ // Centre of the back-only area, below the page-dot row (370..394).
+ await H.tap(page,233,406);
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('idle');await H.importSave(page,trainedFixture());expect(await mask(page)).toBe(0);await H.importSave(page,saved);expect(await mask(page)).toBe(1);expect(errors).toEqual([]);
 });
 test('Arena: Speicherfehler, erneute Speicherung und Hintergrundabbruch ohne weiteren Orden',async({page})=>{
  await begin(page);await match(page);await H.battleAction(page,'next');await page.evaluate(()=>{window.f3Write=writeSave;writeSave=async()=>{throw new DOMException('synthetic badge write failure','QuotaExceededError');};});await match(page);await expect.poll(()=>page.evaluate(()=>TPArena.snapshot?.phase)).toBe('failed');expect(await mask(page)).toBe(0);expect(await page.evaluate(()=>tpSaveReplacing)).toBe(false);

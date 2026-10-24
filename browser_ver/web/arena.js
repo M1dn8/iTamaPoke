@@ -85,11 +85,11 @@ function drawDetail(m){
  const l=data.leaders[selected],got=owned(selected,m);picture(selected);text(l.name,233,32,25);text(l.city+' · Kanto / Rot-Blau',233,57,14);badge(selected,233,112,30,got);text(l.badge+(got?' · Erhalten':''),233,165,20);
  l.team.forEach(([dex,level],i)=>text(fns.dexName(dex)+' · Lv. '+level,233,196+i*21,16));
  text(got?'Erstmals erhalten: '+date(selected):'Sieg über das ganze Team gibt diesen Orden.',233,303,12);text(message||'Du kämpfst mit deinem aktuellen Pokémon.',233,321,12,message?UI.barBad:UI.ink);
- button(got?'Erneut herausfordern':'Arena herausfordern',70,333,326,42,!busy()&&!tpSaveReplacing);button('Grafiken laden (Pokemon und Leiter-BINs)',70,381,326,30,!busy());button('Zurück',70,420,326,30,!busy());statusEl.textContent='Arena · '+l.name;
+ button(got?'Erneut herausfordern':'Arena herausfordern',70,333,326,42,!busy()&&!tpSaveReplacing);button('Zurück',70,420,326,30,!busy());statusEl.textContent='Arena · '+l.name;
 }
 function tap(x,y){
  if(busy())return;if(mask()<0){if(x>=70&&x<=396&&y>=410&&y<=452)leave();return;}
- if(detail){if(x<70||x>396)return;if(y>=333&&y<=375)start(selected);else if(y>=381&&y<=411)document.getElementById('spriteLoad')?.click();else if(y>=420&&y<=450){detail=false;tab=origin;message='';}return;}
+ if(detail){if(x<70||x>396)return;if(y>=333&&y<=375)start(selected);else if(y>=420&&y<=450){detail=false;tab=origin;message='';}return;}
  if(y>=44&&y<=78){if(x>=70&&x<=226)tab='leaders';else if(x>=240&&x<=396)tab='badges';return;}
  if(tab==='badges'){for(let i=0;i<8;i++){const cx=98+i%4*90,top=132+Math.floor(i/4)*105;if(x>=cx-39&&x<=cx+39&&y>=top&&y<=top+94){selected=i;origin=tab;detail=true;message='';return;}}if(x>=70&&x<=396&&y>=414&&y<=450)leave();return;}
  for(let i=0;i<8;i++){const left=i%2?242:44,top=104+Math.floor(i/2)*72;if(x>=left&&x<=left+180&&y>=top&&y<=top+66){selected=i;origin=tab;detail=true;message='';return;}}

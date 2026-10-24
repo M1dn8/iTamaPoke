@@ -57,6 +57,7 @@ const FILES = [
   "./collection-lifecycle.js",
   "./collection-boxes.js",
   "./collection-boxes.css",
+  "./asset-packs.js",
   "./management.js",
   "./egg-planning.js",
   "./expedition-planning.js",

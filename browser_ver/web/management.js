@@ -2,6 +2,8 @@
 (function(){
 "use strict";
 const T=TPStoreTools;let busy=false,dbPromise=null,previousFocus=null,viewId=0;
+let assetPauseRequested=false,assetImportRunning=false;
+document.addEventListener("visibilitychange",()=>{if(assetImportRunning&&document.visibilityState!=="visible")assetPauseRequested=true;});
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,fn)=>{const b=el("button",text);b.type="button";b.addEventListener("click",()=>Promise.resolve().then(fn).catch(error));return b;};
 const error=e=>{window.TPDiagnostics?.record("manager",e);console.error("[manager]",e);alert(e&&e.message?e.message:String(e));};
@@ -113,19 +115,22 @@ async function validateInventory(){
  panel.appendChild(button("Zur Dateiübersicht",openAssets));
 }
 async function importAssets(kind,files,onlyMissing=false){
- if(!files.length)return;const ui=progress("Dateien importieren");busy=true;
+ if(!files.length)return;const ui=progress("Dateien importieren");busy=true;assetPauseRequested=false;assetImportRunning=kind==="sprites";
+ if(kind==="sprites"){const pause=button("Nach aktueller Datei pausieren",()=>{assetPauseRequested=true;pause.disabled=true;ui.text.textContent="Pause angefordert – laufende Speicherung wird abgeschlossen.";});panel.appendChild(pause);}
  let db;
  const store=kind==="sprites"?ASSET_STORE:kind==="cries"?CRY_STORE:DEXENTRY_STORE;
- let imported=0,skipped=0,failed=0,trainerImported=0,trainerSkipped=0,trainerFailed=0;const errors=[];
+ let imported=0,skipped=0,failed=0,trainerImported=0,trainerSkipped=0,trainerFailed=0,packCount=0;const errors=[];
  try{
+  if(kind==="sprites"&&window.TPAssetPacks){const prepared=await TPAssetPacks.prepare(files,{notify:text=>{ui.text.textContent=text;}});files=prepared.files;packCount=prepared.packs;}
   db=kind==="sprites"?await openAssetDb():kind==="cries"?await openCryDb():await openDexEntryDb();
   const existing=new Set(await allKeys(db,store));const info=new Map((await getAll("assetInfo")).map(x=>[x.key,x]));ui.p.max=files.length;
-  if(kind==="sprites"&&window.TPTrainerArt){const trainers=files.filter(f=>TPTrainerArt.looksLike(f.name));if(trainers.length){try{
+  if(!assetPauseRequested&&kind==="sprites"&&window.TPTrainerArt){const trainers=files.filter(f=>TPTrainerArt.looksLike(f.name));if(trainers.length){try{
    const result=await TPTrainerArt.importBatch(db,store,trainers,{onlyMissing,readExisting:key=>read(db,store,key)});trainerImported=result.saved;trainerSkipped=result.skipped;imported+=result.saved;skipped+=result.skipped;
    for(const item of result.items){try{await put("assetInfo",item.key,{key:item.key,valid:true,kind:"trainer",leader:item.leader,width:item.width,height:item.height,metadata:item.metadata,checkedAt:Date.now()});}catch(_){note("Leitergrafik gespeichert; Zusatzindex nicht aktualisiert. Angaben bleiben im BIN.");}}
    if(result.saved||result.skipped)window.TPArena?.invalidatePortraits?.();
   }catch(e){trainerFailed=trainers.length;failed+=trainers.length;errors.push("Leiterpaket nicht uebernommen: "+e.message);}}}
   for(let i=0;i<files.length;i++){
+   if(kind==="sprites"&&assetPauseRequested)break;
    const file=files[i];if(kind==="sprites"&&window.TPTrainerArt?.looksLike(file.name)){ui.p.value=i+1;continue;}let key,raw,details;
    try{
     if(kind==="sprites"){
@@ -141,7 +146,7 @@ async function importAssets(kind,files,onlyMissing=false){
      if(file.size>4*1024*1024)throw Error("Textdatei zu gross.");raw=await file.text();const table=parseDexEntryText(raw);if(!Object.keys(table).some(d=>+d>=1&&+d<=1025))throw Error("Keine gueltigen Dex-Texte gefunden.");
     }
     await write(db,store,key,raw);existing.add(key);imported++;
-    if(details)await put("assetInfo",key,{key,...details,checkedAt:Date.now()});
+    if(details){try{await put("assetInfo",key,{key,...details,checkedAt:Date.now()});}catch(e){errors.push(file.name+": Grafik gespeichert, Zusatzindex nicht aktualisiert: "+e.message);}}
    }catch(e){failed++;errors.push(file.name+": "+e.message);}
    finally{ui.p.value=i+1;ui.text.textContent=(i+1)+" / "+files.length+" · Importiert "+imported+" · Uebersprungen "+skipped+" · Fehler "+failed;}
    if(i%5===0)await new Promise(r=>setTimeout(r,0));
@@ -149,13 +154,15 @@ async function importAssets(kind,files,onlyMissing=false){
   if(kind==="sprites"){spriteCache.clear();spriteLoading.clear();currentDex=0;loadingDex=-1;await refreshThumbs();}
   if(kind==="cries"){stopCry();cryBufferCache.clear();await refreshCryIndex();}
   if(kind==="text")dexEntryCache={};
-  ui.text.textContent="Importiert "+imported+" (Leiter "+trainerImported+") · Uebersprungen "+skipped+" · Nicht uebernommen "+failed;
+  ui.text.textContent=(assetPauseRequested?"Pausiert · ":"")+"Importiert "+imported+" (Leiter "+trainerImported+") · Uebersprungen "+skipped+" · Nicht uebernommen "+failed;
+  if(packCount)note(packCount+" Grafikpaket(e), "+files.length+" Eintraege. Nur benoetigte Dateiinhalte wurden gelesen und geprueft. Bei Nur-fehlende werden vorhandene, nicht als fehlerhaft bekannte Dateinamen geschuetzt; abweichende gueltige Varianten nur bei bewusst ausgeschalteter Option ersetzen.");
+  if(assetPauseRequested)note("Bereits bestaetigte Dateien bleiben gespeichert. Dieselben Pakete erneut waehlen und Nur fehlende Dateien aktiviert lassen. Import bitte im Vordergrund durchfuehren.");
   for(const line of errors.slice(0,30))note(line);
   if(errors.length)panel.appendChild(button("Importbericht exportieren",()=>download(errors.join("\n"),"iTamaPoke-Importfehler.txt","text/plain")));
   if(kind==="cries")note("Audio-Dateinamen und Dateigroesse wurden geprueft. Die Abspielbarkeit wird erst beim Dekodieren in der Wiedergabe festgestellt.");
   if(kind==="sprites")note("Leiter: "+trainerImported+" gespeichert · "+trainerSkipped+" uebersprungen · "+trainerFailed+" nicht uebernommen. Leiterpakete sind atomar. Pokemon-/Atlasdateien behalten die bisherige Einzeldatei-Regel.");
   else note("Gueltige Dateien wurden einzeln gespeichert; Fehler bei anderen Dateien rollen sie nicht zurueck.");
- }finally{if(db)db.close();busy=false;}
+ }finally{if(db)db.close();busy=false;assetImportRunning=false;}
  panel.appendChild(button("Zur Dateiübersicht",openAssets));return imported;
 }
 async function openAssets(){
@@ -169,6 +176,7 @@ async function openAssets(){
  note("Rufe fuer "+cryIDs.size+" Arten (nicht auf Abspielbarkeit geprueft). Textsprachen: "+(inv.text.join(", ")||"keine")+".");
  panel.appendChild(button("Grafik-Bestand pruefen",validateInventory));
  panel.appendChild(button("Liste fehlender Grafiken exportieren",()=>download(normal.concat(shiny).join("\n"),"iTamaPoke-fehlende-Grafiken.txt","text/plain")));
+ note("Viele Grafiken: lokale grafikpaket-*.bin statt Tausenden Einzeldateien waehlen. Pakete werden portionsweise gelesen; vorhandene Grafiken bleiben erhalten. Bitte App beim Import im Vordergrund lassen.");
  const only=el("input");only.type="checkbox";only.checked=true;const label=el("label");label.append(only,document.createTextNode("Nur fehlende Dateien importieren (bekannt fehlerhafte Grafiken werden ersetzt)"));panel.appendChild(label);
  for(const [kind,labelText,accept] of [["sprites","Grafiken / Atlas laden",".bin"],["cries","Rufe laden",".m4a,.mp3,.wav,.ogg"],["text","Dex-Texte laden",".txt"]]){
   const input=el("input");input.type="file";input.multiple=true;input.accept=accept;input.addEventListener("change",()=>{const files=Array.from(input.files||[]);input.value="";if(files.length)importAssets(kind,files,only.checked).catch(error);});panel.appendChild(input);panel.appendChild(button(labelText,()=>input.click()));

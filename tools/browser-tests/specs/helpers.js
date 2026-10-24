@@ -17,14 +17,14 @@ async function openMenu(page){
 }
 async function game(page){const root=page.locator('#tp-app-page');if(await root.isVisible())await root.getByRole('button',{name:'Zurück zum Pokémon',exact:true}).click();}
 const modal=page=>page.locator('#tp-game-shell > .tp-modal:visible');
-async function importSave(page,buffer){
+async function importSave(page,buffer,expectedSpecies=1){
  await openMenu(page);await page.waitForFunction(()=>Array.from(document.querySelectorAll('.tp-tools button')).some(b=>b.textContent.trim()==='Sicherungen'&&!b.disabled));await page.getByRole('button',{name:'Sicherungen',exact:true}).click();
  const panel=modal(page);await expect(panel).toBeVisible();
  await panel.locator('input[type=file]').setInputFiles({name:'Browser-Test.tpsave',mimeType:'application/octet-stream',buffer});
  const apply=panel.getByRole('button',{name:'Importieren und aktuellen Stand ersetzen',exact:true});await expect(apply).toBeVisible();
  const accept=dialog=>dialog.accept();page.once('dialog',accept);
  await Promise.all([page.waitForEvent('load'),apply.click()]);await waitReady(page);
- await expect.poll(()=>page.evaluate(()=>fns.speciesId())).toBe(1);
+ await expect.poll(()=>page.evaluate(()=>fns.speciesId())).toBe(expectedSpecies);
 }
 async function prepare(page){
  await page.addInitScript(()=>{try{Object.defineProperty(navigator,'canShare',{configurable:true,value:()=>false});}catch(_e){}});

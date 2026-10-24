@@ -73,7 +73,7 @@ function draw(){
   text(tab==='badges'?l.badge:l.name,x+113,y+23,15,UI.ink,124);text(tab==='badges'?(got?'✓ Erhalten':'Noch offen'):l.city,x+113,y+43,11,UI.ink,124);
   if(tab==='leaders')text(l.team.length+' Pokémon · Lv. '+Math.min(...l.team.map(m=>m[1]))+'–'+Math.max(...l.team.map(m=>m[1])),x+113,y+58,10,UI.ink,124);
  }
- if(message)text(message,233,403,11,UI.barBad);button('Zurück zum Kampfbereich',70,414,326,36);statusEl.textContent='Arena · '+(tab==='badges'?'Ordenkoffer':'Kanto-Auswahl');
+ if(message)text(message,233,403,11,UI.barBad);button('Liga',70,414,126,36);button('Zurück',206,414,190,36);statusEl.textContent='Arena · '+(tab==='badges'?'Ordenkoffer':'Kanto-Auswahl');
 }
 function drawCase(m){
  text('Deine Kanto-Sammlung · '+Array.from({length:8},(_,i)=>owned(i,m)?1:0).reduce((a,b)=>a+b,0)+' von 8',233,101,14);
@@ -93,7 +93,7 @@ function tap(x,y){
  if(y>=44&&y<=78){if(x>=70&&x<=226)tab='leaders';else if(x>=240&&x<=396)tab='badges';return;}
  if(tab==='badges'){for(let i=0;i<8;i++){const cx=98+i%4*90,top=132+Math.floor(i/4)*105;if(x>=cx-39&&x<=cx+39&&y>=top&&y<=top+94){selected=i;origin=tab;detail=true;message='';return;}}if(x>=70&&x<=396&&y>=414&&y<=450)leave();return;}
  for(let i=0;i<8;i++){const left=i%2?242:44,top=104+Math.floor(i/2)*72;if(x>=left&&x<=left+180&&y>=top&&y<=top+66){selected=i;origin=tab;detail=true;message='';return;}}
- if(x>=70&&x<=396&&y>=414&&y<=450)leave();
+ if(y>=414&&y<=450){if(x>=70&&x<=196)window.TPLeague?.open();else if(x>=206&&x<=396)leave();}
 }
 function drawLeader(id,x,y,w,h){
  const image=picture(id);if(image){const s=Math.min(w/image.width,h/image.height);ctx.imageSmoothingEnabled=false;ctx.drawImage(image,x+(w-image.width*s)/2,y+h-image.height*s,image.width*s,image.height*s);return;}

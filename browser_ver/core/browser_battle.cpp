@@ -16,6 +16,12 @@
 #include <ctime>
 #include <memory>
 #include "arena-kanto.h"
+#if defined(__EMSCRIPTEN__) || defined(TP_LG_TEST)
+extern "C" int tp_lg_owned();
+static bool leagueOwned(){return tp_lg_owned()!=0;}
+#else
+static bool leagueOwned(){return false;}
+#endif
 
 #include <emscripten.h>
 
@@ -146,6 +152,7 @@ uint8_t dayPhaseNow() {
 }
 
 void startBattle(int16_t forcedDex, uint8_t forcedLevel) {
+  if(leagueOwned())return;
 #if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
   if(gF4CatchUndo.token)return;
   if(++gF4BattleId==0)++gF4BattleId;
@@ -326,7 +333,7 @@ void tp_battle_close() {
   gCatchChance = 0;
 }
 
-EMSCRIPTEN_KEEPALIVE int tp_battle_is_open() { return gOpen ? 1 : 0; }
+EMSCRIPTEN_KEEPALIVE int tp_battle_is_open() { return gOpen||leagueOwned() ? 1 : 0; }
 EMSCRIPTEN_KEEPALIVE int tp_battle_resolved() { return gResolved ? 1 : 0; }
 EMSCRIPTEN_KEEPALIVE int tp_battle_wild_dex() { return gDex; }
 EMSCRIPTEN_KEEPALIVE int tp_battle_wild_level() { return gLevel; }
@@ -501,7 +508,7 @@ void tp_battle_leave_wild() {
 // F2: guarded starts, one native roster, no intermediate awards/catches.
 EMSCRIPTEN_KEEPALIVE int tp_f2_can() {
  const Pet &p=tp_battle_pet();
- return !gOpen&&!gWildPromptActive&&!p.isEgg()&&!p.sleeping&&p.ceremony==CER_NONE&&!p.evolving();
+ return !leagueOwned()&&!gOpen&&!gWildPromptActive&&!p.isEgg()&&!p.sleeping&&p.ceremony==CER_NONE&&!p.evolving();
 }
 EMSCRIPTEN_KEEPALIVE int tp_f2_start(int team) {
  if(team<0||team>=int(sizeof(kTrainerTeams)/sizeof(kTrainerTeams[0]))||!tp_f2_can())return 0;

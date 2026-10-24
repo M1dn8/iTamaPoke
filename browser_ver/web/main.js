@@ -824,6 +824,7 @@ function draw() {
     return;
   }
   if (screen === "arena") { window.TPArena.draw(); return; }
+  if (screen === "league") { window.TPLeague.draw(); return; }
   if (screen === "trainer") { window.TPTrainer.draw(); return; }
   if (screen === "battle") {
     drawBattle(performance.now());
@@ -979,6 +980,7 @@ function draw() {
 }
 
 function handleTap(x, y) {
+  if(window.TPLeague?.busy)return;
   if(window.TPBoxes?.active)return;
   if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen)return;
   if(window.TPArena?.busy)return;
@@ -999,6 +1001,7 @@ function handleTap(x, y) {
     return;
   }
   if (screen === "arena") { window.TPArena.tap(x,y); return; }
+  if (screen === "league") { window.TPLeague.tap(x,y); return; }
   if (screen === "trainer") { window.TPTrainer.tap(x,y); return; }
   if (screen === "battle") {
     battleTap(x, y);
@@ -1135,7 +1138,7 @@ function swipeAllowed() {
   if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen)return false;
   if(window.TPMega?.busy)return false;
   if (window.TPExpeditions && window.TPExpeditions.busy) return false;
-  if (screen === "game" || screen === "battle" || screen === "trainer" || screen === "arena" || screen === "gamemenu") return false;
+  if (screen === "game" || screen === "battle" || screen === "trainer" || screen === "arena" || screen === "league" || screen === "gamemenu") return false;
   // Same extra gates as PetScreen.swift's swipe guard: an open feed menu
   // or release dialog owns the touch until it closes.
   const now = performance.now();
@@ -1727,7 +1730,7 @@ createTPCore({
     const tpPerf=window.TPPerformance;
     const tpMode=(window.TPBoxes?.active||window.TPAppMenu?.active)?"menue":screen==="game"?(gameMode===4?"typenspiel":"minispiel"):screen;
     const tpSample=tpPerf?.frame(tpMode,t);
-    if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen){
+    if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen||window.TPLeague?.busy){
       tpPerf?.tick(tpSample,false);tpPerf?.frameEnd(tpSample,false,true);
       requestAnimationFrame(frame);return;
     }

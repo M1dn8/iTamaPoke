@@ -56,4 +56,5 @@ python3 tools/quality/test-f4-store.py
 "$TMP/f4-capture"
 python3 tools/quality/test-f4-lifecycle.py
 python3 tools/quality/test-f4-trainer.py
+python3 tools/quality/test-kanto-league.py
 echo "Alle zentralen Logik-/Oberflaechen-Vorpruefungen erfolgreich."

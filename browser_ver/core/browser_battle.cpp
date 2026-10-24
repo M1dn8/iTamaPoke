@@ -16,6 +16,7 @@
 #include <ctime>
 #include <memory>
 #include "arena-kanto.h"
+#include "battle-energy.h"
 #if defined(__EMSCRIPTEN__) || defined(TP_LG_TEST)
 extern "C" int tp_lg_owned();
 static bool leagueOwned(){return tp_lg_owned()!=0;}
@@ -562,6 +563,7 @@ EMSCRIPTEN_KEEPALIVE int tp_f3_get(int key){
 }
 EMSCRIPTEN_KEEPALIVE int tp_f3_start(int id){
  if(id<0||id>=int(kKantoArenaCount)||!tp_f2_can()||arenaMask()<0||gArenaUndo||gArenaSerial>=0x7ffffffe)return 0;
+ if(!tpEnergySpend(0))return 0;
  const auto &leader=kKantoArenas[id];startBattle(leader.team[0].dex,leader.team[0].level);
  const Pet &p=tp_battle_pet();gTrainer=true;gTrainerCount=leader.count;gArenaId=id;gArenaToken=++gArenaSerial;
  gTrainerSpecies=p.speciesId;gTrainerAge=p.ageMinutes;gTrainerGa=p.geneAtk;gTrainerGd=p.geneDef;gTrainerGs=p.geneSpe;

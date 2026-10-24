@@ -14,8 +14,18 @@ function leave(){if(busy())return;Module._tp_battle_close();session=null;screen=
 function abort(){if(saving)return false;const saved=session?.phase==='done';if(active())Module._tp_battle_close();session=null;screen='arena';detail=false;message=saved?'Arena beendet – Orden gespeichert.':'Arena beendet; kein weiterer Orden vergeben.';dragStart=dragNow=null;return true;}
 function start(id=selected){
  if(screen!=='arena'||busy()||tpSaveReplacing||document.visibilityState!=='visible'||choice!=='none'||!Number.isInteger(id)||id<0||id>=data.leaders.length||window.TPTraining?.busy||window.TPMega?.busy||window.TPExpeditions?.busy)return false;
+ if(window.TPBattleEnergy)return startPaid(id);
  const token=call('tp_f3_start',id);if(!token){message='Arena gerade nicht verfügbar.';return false;}
  selected=id;session={id,token,mod:Module,phase:'fighting',since:performance.now(),error:''};dragStart=dragNow=null;battleReturn='arena';screen='battle';picture(id);return true;
+}
+async function startPaid(id){
+ if(!window.TPBattleEnergy?.supported){message='Bitte den aktuellen Spielkern bauen.';return false;}
+ const e=window.TPBattleEnergy.view;
+ if(!e?.arena.can){message=window.TPBattleEnergy.line('arena');return false;}
+ saving=true;tpSaveReplacing=true;tpSaveEpoch++;let ticket=0,durable=false;
+ try{ticket=call('tp_energy_arena_begin',id);if(!ticket)throw Error('Arena-Start gerade nicht moeglich.');const bytes=exportStateBytes(Module);TPStoreTools.parseLegacy(bytes);if(await writeSave(bytes,true)!==true)throw Error('Energiekosten nicht gespeichert.');durable=true;const token=call('tp_energy_arena_finish',ticket,1);if(token<=0)throw Error('Kosten gespeichert. Bitte App neu oeffnen.');selected=id;session={id,token,mod:Module,phase:'fighting',since:performance.now(),error:''};message='';dragStart=dragNow=null;battleReturn='arena';screen='battle';picture(id);if(document.visibilityState!=='visible'){Module._tp_battle_close();session=null;screen='arena';detail=false;}return true;
+ }catch(e){if(ticket&&!durable)call('tp_energy_arena_finish',ticket,0);message=e.message||String(e);return false;}
+ finally{tpSaveEpoch++;tpSaveReplacing=false;saving=false;}
 }
 function checkEnd(){
  if(!session||session.mod!==Module||!active()||session.phase!=='fighting'||!fns.battleResolved()||!fns.battlePlayerWon()||window.TPTrainer.get(3))return false;
@@ -85,7 +95,7 @@ function drawDetail(m){
  const l=data.leaders[selected],got=owned(selected,m);picture(selected);text(l.name,233,32,25);text(l.city+' · Kanto / Rot-Blau',233,57,14);badge(selected,233,112,30,got);text(l.badge+(got?' · Erhalten':''),233,165,20);
  l.team.forEach(([dex,level],i)=>text(fns.dexName(dex)+' · Lv. '+level,233,196+i*21,16));
  text(got?'Erstmals erhalten: '+date(selected):'Sieg über das ganze Team gibt diesen Orden.',233,303,12);text(message||'Du kämpfst mit deinem aktuellen Pokémon.',233,321,12,message?UI.barBad:UI.ink);
- button(got?'Erneut herausfordern':'Arena herausfordern',70,333,326,42,!busy()&&!tpSaveReplacing);button('Zurück',70,420,326,30,!busy());statusEl.textContent='Arena · '+l.name;
+ button(got?'Erneut herausfordern':'Arena herausfordern',70,333,326,42,!busy()&&!tpSaveReplacing&&(!window.TPBattleEnergy||!!window.TPBattleEnergy.view?.arena.can));if(window.TPBattleEnergy)text(window.TPBattleEnergy.line('arena'),233,395,11,UI.ink,410);button('Zurück',70,420,326,30,!busy());statusEl.textContent='Arena · '+l.name;
 }
 function tap(x,y){
  if(busy())return;if(mask()<0){if(x>=70&&x<=396&&y>=410&&y<=452)leave();return;}

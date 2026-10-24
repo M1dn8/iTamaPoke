@@ -1,0 +1,26 @@
+#include <cassert>
+#include <ctime>
+#include <iostream>
+#include "pet.h"
+uint32_t g_millis=1000;TPSerialShim Serial;void sfxPlay(uint8_t){}
+static Pet hero;Pet &tp_battle_pet(){return hero;}
+extern "C" int tp_is_egg(){return hero.isEgg();}extern "C" int tp_sleeping(){return hero.sleeping;}extern "C" int tp_species_id(){return hero.speciesId;}extern "C" int tp_level(){return hero.level();}
+#include "../browser_ver/core/browser_battle.cpp"
+#include "../browser_ver/core/browser_league.cpp"
+#include "../browser_ver/core/browser_battle_energy.cpp"
+static void energy(int e){hero.energy=uint8_t(e);Preferences().putUChar("ene",e);}
+static void load(){if(gArenaUndo)assert(tp_f3_finish(gArenaToken,0));if(undo)assert(tp_lg_finish(token,0));tp_lg_abort();tp_battle_close();gWildPromptActive=false;Preferences::store().clear();Preferences p;p.putBool("init",true);p.putShort("dexn",150);p.putShort("eggT2",150);p.putUInt("age",5940);for(const char*k:{"gatk","gdef","gspe","tatk","tdef","tspe","full","joy","ene","hyg"})p.putUChar(k,100);p.putUChar("agver",1);p.putUChar("agmask",255);p.putUChar("f4lver",1);p.putUInt("f4life",1);p.putUChar("mgver",3);hero=Pet();hero.begin();hero.setClock(uint32_t(std::time(nullptr)));}
+static void leagueWin(){run.enemyHp=0;resolved=won=true;}
+int main(int argc,char**argv){load();if(argc>1){int t=tp_lg_prepare_start(0);assert(t>0&&tp_lg_finish(t,1));for(int i=0;i<20;i++){run.playerHp=run.playerMaxHp-10;run.restUsesLeft=3;leagueWin();t=tp_lg_prepare_win();assert(t>0&&tp_lg_finish(t,1));if(i<19){t=tp_lg_prepare_resume();assert(t>0&&tp_lg_finish(t,1));}}A a{};assert(read(a)&&a[3]==20);const auto bytes=std::get<std::vector<uint8_t>>(Preferences::store().at("lgkrun"));const char*h="0123456789abcdef";std::cout<<"{\"hex\":\"";for(auto x:bytes)std::cout<<h[x>>4]<<h[x&15];std::cout<<"\",\"hp\":"<<a[4]<<",\"rests\":"<<a[6]<<"}\n";return 0;}load();for(unsigned kind=0;kind<3;kind++){const int cost=tp_energy_detail::costs[kind];energy(cost+19);auto before=Preferences::store();assert(!tpEnergyCan(kind)&&!tpEnergySpend(kind)&&Preferences::store()==before);energy(cost+20);assert(tpEnergySpend(kind)&&hero.energy==20);}
+load();energy(44);auto before=Preferences::store();assert(!tp_energy_arena_begin(0)&&!gOpen&&hero.energy==44&&Preferences::store()==before);energy(100);before=Preferences::store();assert(!tp_energy_arena_begin(8)&&Preferences::store()==before);auto paid=tp_energy_arena_begin(0);assert(paid&&hero.energy==75&&gOpen&&gArenaId==0);assert(!tp_energy_arena_begin(0));assert(!tp_energy_arena_finish(paid+1,1));assert(tp_energy_arena_finish(paid,0)&&!gOpen&&hero.energy==100&&Preferences::store()==before);
+paid=tp_energy_arena_begin(0);int session=tp_energy_arena_finish(paid,1);assert(session>0&&hero.energy==75&&gOpen);assert(!tp_energy_arena_finish(paid,1));gRun.enemyHp=0;gTurn.playerWon=gTurn.battleEnded=true;finishBattle();assert(tp_f2_next()&&hero.energy==75);gRun.enemyHp=0;gTurn.playerWon=gTurn.battleEnded=true;finishBattle();assert(tp_f3_apply(session)==2&&hero.energy==75);tp_battle_close();assert(hero.energy==75);paid=tp_energy_arena_begin(0);assert(paid&&tp_energy_arena_finish(paid,1)>0&&hero.energy==50);tp_battle_close();assert(hero.energy==50);
+// 50 once for all 20 Top-Four Pokemon. No in-run energy gates/debits.
+load();energy(69);before=Preferences::store();assert(!tp_lg_prepare_start(0)&&hero.energy==69&&Preferences::store()==before);energy(100);before=Preferences::store();int t=tp_lg_prepare_start(0);assert(t>0&&hero.energy==50);assert(tp_lg_finish(t,0)&&hero.energy==100&&Preferences::store()==before);t=tp_lg_prepare_start(0);assert(t>0&&tp_lg_finish(t,1)&&hero.energy==50);
+for(int i=0;i<20;i++){assert(active[3]==unsigned(i));run.playerHp=run.playerMaxHp-10;run.restUsesLeft=3;leagueWin();t=tp_lg_prepare_win();assert(t>0&&tp_lg_finish(t,1)&&hero.energy==50);if(i<19){t=tp_lg_prepare_resume();assert(t>0&&tp_lg_finish(t,1)&&hero.energy==50&&run.restUsesLeft==3);}}
+A checkpoint{};assert(read(checkpoint)&&checkpoint[3]==20);energy(49);before=Preferences::store();assert(!tp_lg_prepare_resume()&&hero.energy==49&&Preferences::store()==before);energy(50);before=Preferences::store();t=tp_lg_prepare_resume();assert(t>0&&hero.energy==20);assert(tp_lg_finish(t,0)&&hero.energy==50&&Preferences::store()==before);t=tp_lg_prepare_resume();assert(t>0&&tp_lg_finish(t,1)&&hero.energy==20);
+for(int i=20;i<26;i++){assert(active[3]==unsigned(i));leagueWin();t=tp_lg_prepare_win();assert(t>0&&tp_lg_finish(t,1)&&hero.energy==20);if(i<25){t=tp_lg_prepare_resume();assert(t>0&&tp_lg_finish(t,1)&&hero.energy==20);}}
+assert(done());
+// Even depleted care energy may not impose a new Top-Four gate mid-section.
+load();energy(70);t=tp_lg_prepare_start(1);assert(t>0&&tp_lg_finish(t,1)&&hero.energy==20);energy(0);for(int i=0;i<20;i++){leagueWin();t=tp_lg_prepare_win();assert(t>0&&tp_lg_finish(t,1));if(i<19){t=tp_lg_prepare_resume();assert(t>0&&tp_lg_finish(t,1)&&hero.energy==0);}}assert(!tp_lg_prepare_resume());
+std::cout<<"Energy native passed: arena25 entry+whole-Pet/store rollback, repeat/abort not refunded; Top Four50 once across all20 Pokemon including zero-energy resumes; champion30 once across six; exact reserve20 gates; blocked start neutrality; paid HP/rest checkpoints unchanged. Synthetic victories, not balancing proof.\n";
+}

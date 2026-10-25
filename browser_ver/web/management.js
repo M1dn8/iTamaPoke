@@ -125,7 +125,7 @@ async function importAssets(kind,files,onlyMissing=false){
   db=kind==="sprites"?await openAssetDb():kind==="cries"?await openCryDb():await openDexEntryDb();
   const existing=new Set(await allKeys(db,store));const info=new Map((await getAll("assetInfo")).map(x=>[x.key,x]));ui.p.max=files.length;
   if(!assetPauseRequested&&kind==="sprites"&&window.TPTrainerArt){const trainers=files.filter(f=>TPTrainerArt.looksLike(f.name));if(trainers.length){try{
-   const result=await TPTrainerArt.importBatch(db,store,trainers,{onlyMissing,readExisting:key=>read(db,store,key)});trainerImported=result.saved;trainerSkipped=result.skipped;imported+=result.saved;skipped+=result.skipped;
+   const result=await TPTrainerArt.importBatch(db,store,trainers,{onlyMissing,readExisting:key=>read(db,store,key)});trainerImported=result.saved;trainerSkipped=result.skipped;window.TPOpponentTeam?.invalidatePortraits();imported+=result.saved;skipped+=result.skipped;
    for(const item of result.items){try{await put("assetInfo",item.key,{key:item.key,valid:true,kind:"trainer",leader:item.leader,width:item.width,height:item.height,metadata:item.metadata,checkedAt:Date.now()});}catch(_){note("Leitergrafik gespeichert; Zusatzindex nicht aktualisiert. Angaben bleiben im BIN.");}}
    if(result.saved||result.skipped)window.TPArena?.invalidatePortraits?.();
   }catch(e){trainerFailed=trainers.length;failed+=trainers.length;errors.push("Leiterpaket nicht uebernommen: "+e.message);}}}
@@ -169,7 +169,7 @@ async function openAssets(){
  begin("Dateiverwaltung");const tpPage=window.TPPerformance?.begin();const view=viewId;const inv=await inventory();if(view!==viewId)return;const index=spriteIndex(inv.sprites),normal=missing(index,false),shiny=missing(index,true);
  panel.appendChild(el("p","Normal: "+(1025-normal.length)+" / 1025 · Schillernd: "+(1025-shiny.length)+" / 1025"));
  note("Diese Zahlen zaehlen vorhandene Dateinamen. Erst 'Bestand pruefen' kontrolliert alle gespeicherten Grafik-Dateien.");
- note("Leiterdateien: "+inv.sprites.filter(k=>!!window.TPTrainerArt?.canonical(k)).length+" / 8. Rechte je Datei pruefen.");
+ note("Leiterdateien: "+inv.sprites.filter(k=>!!window.TPTrainerArt?.canonical(k)).length+" / "+window.TPTrainerArt.entries.length+". Rechte je Datei pruefen.");
  const checked=inv.info.filter(x=>inv.sprites.includes(x.key)&&x.kind!=="trainer"),single=checked.filter(x=>x.valid&&x.kind==="single-frame").length;
  note("Letzte Pruefergebnisse: "+checked.length+" Dateien · "+checked.filter(x=>!x.valid).length+" Fehler · "+single+" Einzelbild-Grafiken. Herkunft/Originalanimation ist daraus nicht sicher ableitbar.");
  const cryIDs=new Set(inv.cries.map(k=>/^psnd(\d{1,4})\./i.exec(String(k))).filter(Boolean).map(m=>+m[1]));

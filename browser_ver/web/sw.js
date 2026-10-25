@@ -41,6 +41,7 @@ const FILES = [
   "./battle.js",
   "./arena-kanto.js",
   "./arena-johto.js",
+  "./opponent-team.js",
   "./arena.js",
   "./league-kanto-data.js",
   "./league-johto-data.js",

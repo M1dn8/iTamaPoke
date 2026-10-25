@@ -4,6 +4,9 @@ import argparse,hashlib,json,os,struct,subprocess,tempfile,zlib
 from pathlib import Path
 IDS=['rocko','misty','major-bob','erika','koga','sabrina','pyro','giovanni'];MAX=1048576
 
+EXTRA=['johto-arena-falk', 'johto-arena-kai', 'johto-arena-bianka', 'johto-arena-jens', 'johto-arena-hartwig', 'johto-arena-jasmin', 'johto-arena-norbert', 'johto-arena-sandra', 'kanto-elite-lorelei', 'kanto-elite-bruno', 'kanto-elite-agathe', 'kanto-elite-siegfried', 'kanto-champ-blau', 'johto-elite-willi', 'johto-elite-koga', 'johto-elite-bruno', 'johto-elite-melanie', 'johto-champ-siegfried']
+ALL_IDS=IDS+EXTRA
+
 def png_check(b):
  if len(b)<45 or len(b)>MAX or b[:8]!=b'\x89PNG\r\n\x1a\n':raise ValueError('Keine PNG bis 1 MB')
  at=8;first=True;idat=0;ended=False
@@ -33,12 +36,12 @@ def build(leader,png,meta):
   if not isinstance(v,str) or len(v.encode('utf-8'))>2048 or '\x00' in v:raise ValueError('Metadaten ungueltig: '+k)
  m=json.dumps(meta,ensure_ascii=False,separators=(',',':')).encode('utf-8')
  if len(m)>8192:raise ValueError('Metadaten zu gross')
- body=b'TPTR'+struct.pack('<HHII',1,IDS.index(leader),len(m),len(png))+m+png
+ body=b'TPTR'+struct.pack('<HHII',1 if leader in IDS else 2,ALL_IDS.index(leader),len(m),len(png))+m+png
  return body+hashlib.sha256(body).digest()
 
 def main():
  p=argparse.ArgumentParser(description='Leiter-PNG lokal verpacken; keine Nutzungsrechte werden erteilt.')
- p.add_argument('--leader',required=True,choices=IDS);p.add_argument('--input',required=True);p.add_argument('--output-dir',required=True);p.add_argument('--force',action='store_true')
+ p.add_argument('--leader',required=True,choices=ALL_IDS);p.add_argument('--input',required=True);p.add_argument('--output-dir',required=True);p.add_argument('--force',action='store_true')
  for key in ['author','source','license','changes']:p.add_argument('--'+key,default='')
  a=p.parse_args();out=Path(a.output_dir).expanduser().resolve();probe=out
  while not probe.exists():probe=probe.parent
@@ -48,7 +51,7 @@ def main():
  except FileNotFoundError:pass
  source=Path(a.input).expanduser()
  if source.stat().st_size>MAX:raise ValueError('PNG groesser als 1 MB')
- data=build(a.leader,source.read_bytes(),{k:getattr(a,k) for k in ['author','source','license','changes']});out.mkdir(parents=True,exist_ok=True);target=out/('trainer-kanto-'+a.leader+'.bin')
+ data=build(a.leader,source.read_bytes(),{k:getattr(a,k) for k in ['author','source','license','changes']});out.mkdir(parents=True,exist_ok=True);target=out/(('trainer-kanto-'+a.leader if a.leader in IDS else 'trainer-'+a.leader)+'.bin')
  if a.force:
   fd,tmp=tempfile.mkstemp(prefix='.trainer-',dir=str(out))
   try:

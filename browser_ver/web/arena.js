@@ -99,8 +99,11 @@ function drawCase(m){
  if(message)text(message,233,390,11,UI.barBad);button('Zurück zum Kampfbereich',70,414,326,36);statusEl.textContent='Arena · Ordenkoffer';
 }
 function drawDetail(m){
- const l=data.leaders[selected],got=owned(selected,m);picture(selected);text(l.name,233,32,25);text(l.city+' · '+label()+' / '+(region===1?'Gold-Silber':'Rot-Blau'),233,57,14);badge(selected,233,112,30,got);text(l.badge+(got?' · Erhalten':''),233,165,20);
- l.team.forEach(([dex,level],i)=>text(fns.dexName(dex)+' · Lv. '+level,233,196+i*21,16));
+ const l=data.leaders[selected],got=owned(selected,m);
+ TPOpponentTeam.header({name:l.name,subtitle:label()+' · '+l.city,color:l.color,image:picture(selected),kind:'arena'});
+ badge(selected,119,43,17,got);
+ text(l.badge+(got?' · Erhalten':''),283,86,16,UI.ink,280);
+ TPOpponentTeam.draw(l.team,{y:110,rowHeight:60});
  text(got?'Erstmals erhalten: '+date(selected):'Sieg über das ganze Team gibt diesen Orden.',233,303,12);text(message||'Du kämpfst mit deinem aktuellen Pokémon.',233,321,12,message?UI.barBad:UI.ink);
  button(got?'Erneut herausfordern':'Arena herausfordern',70,333,326,42,!busy()&&!tpSaveReplacing&&(!window.TPBattleEnergy||!!window.TPBattleEnergy.view?.arena.can));if(window.TPBattleEnergy)text(window.TPBattleEnergy.line('arena'),233,395,11,UI.ink,410);button('Zurück',70,420,326,30,!busy());statusEl.textContent='Arena · '+l.name;
 }
@@ -147,7 +150,7 @@ function portraitBlob(value){
 }
 function invalidatePortraits(){artGeneration++;pictures.clear();loading.clear();}
 function picture(id){
- if(region!==0)return null;
+ if(region!==0)return TPOpponentTeam.portrait('johto-arena-'+data.leaders[id].id);
  if(pictures.has(id))return pictures.get(id);
  if(!loading.has(id)){const generation=artGeneration;loading.add(id);(async()=>{let image=null;try{
   if(window.TPTrainerArt){try{const result=await TPTrainerArt.picture(data.leaders[id].id);if(result)image=result.image;}catch(e){window.TPDiagnostics?.record('manager',e);}}

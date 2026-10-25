@@ -6,10 +6,13 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
 
 ## Aktueller Arbeitsstand
 
-- Aktives Paket: P01 Veröffentlichungsschutz für Trainerdateien.
-- Branch: hardening-trainer-publish.
+- Aktives Paket: P02 Dokumentation und Kontinuität — Restumfang prüfen.
+- Arbeitsbranch nach Integration: main.
+- P01 abgeschlossen mit Commit 99091dc.
 - Gezielter Schutztest und vollständige zentrale Prüfung lokal bestanden.
-- Commit/Push werden vorbereitet; CI und Veröffentlichung noch nicht bestätigt.
+- CI-/Veröffentlichungsworkflow laut Nutzerbestätigung erfolgreich.
+- Keine Spieloberfläche oder Spielmechanik in P01 verändert; keine neue
+  eigenständige iPhone-Abnahme dieses Schutzpakets durchgeführt.
 - Letzter abgenommener Funktionsstand:
   Kanto-/Johto-Teamübersichten, 26 lokale Trainerporträt-Zuordnungen,
   TPTR-v1/v2, Quellenanzeige.
@@ -38,7 +41,7 @@ Eine neue Sitzung darf abgeschlossene Arbeit nicht ungeprüft neu eröffnen.
 | ID | Paket | Status | Schwierigkeit | Abnahme |
 |---|---|---|---|---|
 | P00 | Kanto-/Johto-Übersichten und Trainerporträts | Abgenommen | Erledigt | Tests, Deployment und iPhone-Test erfolgreich |
-| P01 | Veröffentlichungsschutz Kanto und Johto | In Arbeit | Niedrig–mittel | Beide Workflow-Sperren und Artefaktsperre weisen alle 26 Trainerdateinamen ab; Negativtests und zentrale Prüfung grün |
+| P01 | Veröffentlichungsschutz Kanto und Johto | Abgeschlossen | Niedrig–mittel | Beide Workflow-Sperren und Artefaktsperre weisen alle 26 Trainerdateinamen ab; Negativtests und zentrale Prüfung grün |
 | P02 | Dokumentation und Kontinuität | Teilweise vorbereitet | Niedrig | Plan/Übergabe versioniert; veraltete Format-/Quellentexte geprüft und bereinigt |
 | P03 | Erweiterbare Spracharchitektur | Offen | Mittel–hoch | Sprachregister, Textschlüssel, Rückfallsprache, persistente Sprachwahl und Prüfung fehlender Übersetzungen |
 | P04 | Eigenes Team mit bis zu sechs Pokémon | Offen | Hoch | Auswahl aus besessenen individuellen Pokémon, Reihenfolge, Entfernen/Ersetzen, Speichern und Laden; keine unbeabsichtigten Duplikate |
@@ -91,9 +94,9 @@ gesondert behandelt werden; keine ungeprüfte automatische Übersetzung.
 
 ## Nächster konkreter Schritt
 
-P01: lokale Prüfungen bestanden. Änderungen committen und nach main pushen.
-Danach CI-/Veröffentlichungsergebnis bestätigen und hier dokumentieren.
-Erst anschließend P01 abschließen und P02-Restumfang prüfen.
+P02: bestehende Format-/Quellentexte und verbleibende Dokumentation prüfen.
+Plan und Übergabehinweise sind bereits versioniert.
+Keine Spielmechanik erweitern. Danach P03-Spracharchitektur vorbereiten.
 
 ## Ideenspeicher
 

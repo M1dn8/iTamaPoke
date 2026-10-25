@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Local PNG -> TPTR v1. Stdlib only; no download and no rights grant."""
+"""Local PNG -> TPTR v1/v2. Stdlib only; no download and no rights grant."""
 import argparse,hashlib,json,os,struct,subprocess,tempfile,zlib
 from pathlib import Path
 IDS=['rocko','misty','major-bob','erika','koga','sabrina','pyro','giovanni'];MAX=1048576

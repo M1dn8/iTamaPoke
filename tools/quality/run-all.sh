@@ -72,5 +72,6 @@ python3 tools/quality/test-kanto-reward-egg.py
 python3 tools/quality/test-battle-energy.py
 python3 tools/quality/test-battle-view.py
 python3 tools/quality/test-asset-packs.py
+node tests/package-trainer-labels.test.js
 node tests/package-trainer-publish-guard.test.js
 echo "Alle zentralen Logik-/Oberflaechen-Vorpruefungen erfolgreich."

@@ -169,7 +169,7 @@ async function openAssets(){
  begin("Dateiverwaltung");const tpPage=window.TPPerformance?.begin();const view=viewId;const inv=await inventory();if(view!==viewId)return;const index=spriteIndex(inv.sprites),normal=missing(index,false),shiny=missing(index,true);
  panel.appendChild(el("p","Normal: "+(1025-normal.length)+" / 1025 · Schillernd: "+(1025-shiny.length)+" / 1025"));
  note("Diese Zahlen zaehlen vorhandene Dateinamen. Erst 'Bestand pruefen' kontrolliert alle gespeicherten Grafik-Dateien.");
- note("Leiterdateien: "+inv.sprites.filter(k=>!!window.TPTrainerArt?.canonical(k)).length+" / "+window.TPTrainerArt.entries.length+". Rechte je Datei pruefen.");
+ note("Trainerdateien: "+inv.sprites.filter(k=>!!window.TPTrainerArt?.canonical(k)).length+" / "+window.TPTrainerArt.entries.length+". Rechte je Datei pruefen.");
  const checked=inv.info.filter(x=>inv.sprites.includes(x.key)&&x.kind!=="trainer"),single=checked.filter(x=>x.valid&&x.kind==="single-frame").length;
  note("Letzte Pruefergebnisse: "+checked.length+" Dateien · "+checked.filter(x=>!x.valid).length+" Fehler · "+single+" Einzelbild-Grafiken. Herkunft/Originalanimation ist daraus nicht sicher ableitbar.");
  const cryIDs=new Set(inv.cries.map(k=>/^psnd(\d{1,4})\./i.exec(String(k))).filter(Boolean).map(m=>+m[1]));

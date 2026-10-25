@@ -6,8 +6,8 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
 
 ## Aktueller Arbeitsstand
 
-- Aktives Paket: P02 Dokumentation und Kontinuität — Restumfang prüfen.
-- Arbeitsbranch nach Integration: main.
+- Aktives Paket: P02 Dokumentation und Kontinuität — Textbereinigung.
+- Arbeitsbranch: docs-trainer-labels.
 - P01 abgeschlossen mit Commit 99091dc.
 - Gezielter Schutztest und vollständige zentrale Prüfung lokal bestanden.
 - CI-/Veröffentlichungsworkflow laut Nutzerbestätigung erfolgreich.
@@ -42,7 +42,7 @@ Eine neue Sitzung darf abgeschlossene Arbeit nicht ungeprüft neu eröffnen.
 |---|---|---|---|---|
 | P00 | Kanto-/Johto-Übersichten und Trainerporträts | Abgenommen | Erledigt | Tests, Deployment und iPhone-Test erfolgreich |
 | P01 | Veröffentlichungsschutz Kanto und Johto | Abgeschlossen | Niedrig–mittel | Beide Workflow-Sperren und Artefaktsperre weisen alle 26 Trainerdateinamen ab; Negativtests und zentrale Prüfung grün |
-| P02 | Dokumentation und Kontinuität | Teilweise vorbereitet | Niedrig | Plan/Übergabe versioniert; veraltete Format-/Quellentexte geprüft und bereinigt |
+| P02 | Dokumentation und Kontinuität | In Arbeit | Niedrig | Plan/Übergabe versioniert; veraltete Format-/Quellentexte geprüft und bereinigt |
 | P03 | Erweiterbare Spracharchitektur | Offen | Mittel–hoch | Sprachregister, Textschlüssel, Rückfallsprache, persistente Sprachwahl und Prüfung fehlender Übersetzungen |
 | P04 | Eigenes Team mit bis zu sechs Pokémon | Offen | Hoch | Auswahl aus besessenen individuellen Pokémon, Reihenfolge, Entfernen/Ersetzen, Speichern und Laden; keine unbeabsichtigten Duplikate |
 | P05 | Eigenes Team in Kämpfen | Offen | Sehr hoch | Vereinbarte Kampfarten unterstützen Team, Wechsel, besiegte Mitglieder, Heilung, Ergebnis und Fortsetzen ohne Speicherfehler |
@@ -86,17 +86,22 @@ gesondert behandelt werden; keine ungeprüfte automatische Übersetzung.
   eine Kanto-Liste. Die Unterstützung neuer Trainer für diesen separaten
   Paketweg ist zu prüfen; der Einzeldateiimport der 26 BINs ist abgenommen.
   Nicht ungefragt im Schutz-Paket mitändern.
-- v1-only-Kommentare/Fehlermeldungen und Quellen-Seitentitel/-Datum
-  beim Textbereinigungsteil von P02 prüfen.
+- P02-Textbereinigung vorbereitet: Formatbeschreibung v1/v2,
+  Trainer-Gesamtzähler und Quellenabschnitt für Arenaleiter/Top Vier/Champs.
+  Pauschales Quelldatum entfernt; keine neue Rechteprüfung behauptet.
+  Bezeichnungstest, Trainer-/Rechteprüfungen und vollständige zentrale
+  Prüfung lokal bestanden. CI, Veröffentlichung und kurze iPhone-
+  Textprüfung noch bestätigen.
 - Alte Roadmap docs/ROADMAP.ko.md bleibt erhalten. Ihr historischer
   Aufgabenstatus ist nicht automatisch der aktuelle Projektstatus.
 - Diese Roadmap ist ein Plan, kein Nachweis abgeschlossener Implementierung.
 
 ## Nächster konkreter Schritt
 
-P02: bestehende Format-/Quellentexte und verbleibende Dokumentation prüfen.
-Plan und Übergabehinweise sind bereits versioniert.
-Keine Spielmechanik erweitern. Danach P03-Spracharchitektur vorbereiten.
+P02: lokale Prüfungen bestanden. Commit und Veröffentlichung durchführen.
+Danach CI-Erfolg und kurze iPhone-Textprüfung bestätigen:
+Trainerdateien-Zähler sowie Quellenabschnitt für Arenaleiter/Top Vier/Champs.
+Erst anschließend P02 abschließen und P03-Spracharchitektur vorbereiten.
 
 ## Ideenspeicher
 

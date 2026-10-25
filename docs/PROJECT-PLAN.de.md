@@ -6,8 +6,8 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
 
 ## Aktueller Arbeitsstand
 
-- Aktives Paket: P03 Erweiterbare Spracharchitektur — Grundlagen und Pilot.
-- Arbeitsbranch: i18n-foundation.
+- Aktives Paket: P04 Eigenes Team mit bis zu sechs Pokémon — Bestandsaufnahme.
+- Arbeitsbranch nach Integration: main.
 - P01 abgeschlossen mit Commit 99091dc.
 - Gezielter Schutztest und vollständige zentrale Prüfung lokal bestanden.
 - CI-/Veröffentlichungsworkflow laut Nutzerbestätigung erfolgreich.
@@ -43,7 +43,7 @@ Eine neue Sitzung darf abgeschlossene Arbeit nicht ungeprüft neu eröffnen.
 | P00 | Kanto-/Johto-Übersichten und Trainerporträts | Abgenommen | Erledigt | Tests, Deployment und iPhone-Test erfolgreich |
 | P01 | Veröffentlichungsschutz Kanto und Johto | Abgeschlossen | Niedrig–mittel | Beide Workflow-Sperren und Artefaktsperre weisen alle 26 Trainerdateinamen ab; Negativtests und zentrale Prüfung grün |
 | P02 | Dokumentation und Kontinuität | Abgenommen | Niedrig | Plan/Übergabe versioniert; veraltete Format-/Quellentexte geprüft und bereinigt |
-| P03 | Erweiterbare Spracharchitektur | In Arbeit | Mittel–hoch | Sprachregister, Textschlüssel, Rückfallsprache, persistente Sprachwahl und Prüfung fehlender Übersetzungen |
+| P03 | Erweiterbare Spracharchitektur | Abgenommen | Mittel–hoch | Sprachregister, Textschlüssel, Rückfallsprache, persistente Sprachwahl und Prüfung fehlender Übersetzungen |
 | P04 | Eigenes Team mit bis zu sechs Pokémon | Offen | Hoch | Auswahl aus besessenen individuellen Pokémon, Reihenfolge, Entfernen/Ersetzen, Speichern und Laden; keine unbeabsichtigten Duplikate |
 | P05 | Eigenes Team in Kämpfen | Offen | Sehr hoch | Vereinbarte Kampfarten unterstützen Team, Wechsel, besiegte Mitglieder, Heilung, Ergebnis und Fortsetzen ohne Speicherfehler |
 | P06 | Legendären-Geschichten Kanto | Offen | Hoch | Ein vollständig abgenommener Pilot, danach vereinbarte weitere Geschichten; Voraussetzungen, Fortschritt, Begegnung und Ergebnis persistent |
@@ -98,22 +98,12 @@ gesondert behandelt werden; keine ungeprüfte automatische Übersetzung.
 
 ## Nächster konkreter Schritt
 
-P03: TPText-Grundlage mit Textschlüsseln und DE/EN/ES/FR-Pilotkatalogen
-vorbereitet. Bestehende Kernindizes und Speicherung unverändert.
-Englischer Rückfall; Modus 7 bleibt englische UI mit koreanischen Namen.
-Sechs vorhandene Datei-Schaltflächen auf Textschlüssel umgestellt.
-Katalogregistrierung ergänzt; neue Kernsprachen/Pickerplätze nicht umgesetzt.
-Grundlagentest mit 69 Assertions und zentrale Prüfung bestanden.
-App-Menü/Einstellungen und Menütest nun auf echte TPText-Kataloge umgestellt.
-Grundlagen-/Menütests und vollständige zentrale Prüfung bestanden.
-Alle 10 gezielten Browserprüfungen in Chromium und WebKit bestanden:
-DE/EN/ES/FR sowie Kernmodus 7, echte Menü-Sprachwahl,
-Speichervorgänge, Reload und unveränderte aktive Pokémon-Zuordnung.
-Jetzt committen und veröffentlichen. Anschließend vollständigen
-CI-Erfolg und iPhone-Abnahme des Piloten bestätigen.
-P03 bleibt bis dahin In Arbeit; vollständige Übersetzung bleibt Q01.
-Tagebuchtexte und vollständige Oberflächenübersetzung bleiben Q01.
-P02 ist einschließlich Veröffentlichung und iPhone-Textprüfung abgeschlossen.
+P04: Sammlung, individuelle Pokémon-Identitäten, Box-/Pflegezuordnung,
+Speicherformat und vorhandene Auswahloberflächen lesen.
+Danach Regeln für ein Team mit bis zu sechs Pokémon festlegen.
+P04 umfasst Teamverwaltung und Speicherung; Kampfeinsatz folgt in P05.
+Keine Pokémon duplizieren oder bestehende Pflege-/Boxdaten ungeprüft ändern.
+P03 ist einschließlich Veröffentlichung und iPhone-Abnahme abgeschlossen.
 
 ## Ideenspeicher
 

@@ -6,7 +6,7 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
 
 ## Aktueller Arbeitsstand
 
-- Aktives Paket: P04 Eigenes Team mit bis zu sechs Pokémon — automatisiert geprüft; Veröffentlichung und iPhone-Abnahme offen.
+- Aktives Paket: P05 Eigenes Team in Kämpfen — Regelklärung; Implementierung noch nicht begonnen.
 - Arbeitsbranch nach Integration: main.
 - P01 abgeschlossen mit Commit 99091dc.
 - Gezielter Schutztest und vollständige zentrale Prüfung lokal bestanden.
@@ -44,7 +44,7 @@ Eine neue Sitzung darf abgeschlossene Arbeit nicht ungeprüft neu eröffnen.
 | P01 | Veröffentlichungsschutz Kanto und Johto | Abgeschlossen | Niedrig–mittel | Beide Workflow-Sperren und Artefaktsperre weisen alle 26 Trainerdateinamen ab; Negativtests und zentrale Prüfung grün |
 | P02 | Dokumentation und Kontinuität | Abgenommen | Niedrig | Plan/Übergabe versioniert; veraltete Format-/Quellentexte geprüft und bereinigt |
 | P03 | Erweiterbare Spracharchitektur | Abgenommen | Mittel–hoch | Sprachregister, Textschlüssel, Rückfallsprache, persistente Sprachwahl und Prüfung fehlender Übersetzungen |
-| P04 | Eigenes Team mit bis zu sechs Pokémon | Automatisiert geprüft; iPhone-Abnahme offen | Hoch | Auswahl aus besessenen individuellen Pokémon, Reihenfolge, Entfernen/Ersetzen, Speichern und Laden; keine unbeabsichtigten Duplikate |
+| P04 | Eigenes Team mit bis zu sechs Pokémon | Abgenommen | Erledigt | Individuelle Auswahl, sechs Plätze, Reihenfolge, Entfernen/Ersetzen und persistente Speicherung automatisiert sowie auf dem iPhone geprüft; Build grün, Nutzerabnahme am 25.10.2026 |
 | P05 | Eigenes Team in Kämpfen | Offen | Sehr hoch | Vereinbarte Kampfarten unterstützen Team, Wechsel, besiegte Mitglieder, Heilung, Ergebnis und Fortsetzen ohne Speicherfehler |
 | P06 | Legendären-Geschichten Kanto | Offen | Hoch | Ein vollständig abgenommener Pilot, danach vereinbarte weitere Geschichten; Voraussetzungen, Fortschritt, Begegnung und Ergebnis persistent |
 | P07 | Legendären-Geschichten Johto | Offen | Hoch | Auf Storysystem aufbauen; getrennte regionale Fortschritte und geprüfte Freischaltungen |
@@ -98,34 +98,35 @@ gesondert behandelt werden; keine ungeprüfte automatische Übersetzung.
 
 ## Nächster konkreter Schritt
 
-P04: Die bestehende Teamplanung erfüllt im geprüften Umfang die
-Anforderungen an Teamverwaltung und Speicherung. Kein zweites Teammodell
-und keine neue Spielmechanik eingeführt; Kampfeinsatz bleibt P05.
+P04 ist abgeschlossen und am 25.10.2026 auf dem iPhone abgenommen.
 
-Bestandsaufnahme und automatisierte Prüfung am 25.10.2026:
-- Bestehende individuelle IDs und Sammlungs-/Ganzspielstand-Transaktionen
-  weiterverwenden; Teamzugehörigkeit verändert weder Pflegezuordnung
-  noch Boxplatz.
-- Modelltest: 1.150 Assertions; deterministische Zufallsoperationen enthalten.
+Abgenommener Prüfstand:
+- Commit e8acbc1 auf main veröffentlicht; Build laut Nutzerbestätigung grün.
+- Bestehende Teamverwaltung weiterverwendet; kein zweites Teammodell
+  und keine neue Kampfmechanik eingeführt.
+- Modelltest: 1.150 Assertions mit deterministischen Zufallsoperationen.
 - Speichertest: 72 Assertions plus Ablehnungsprüfungen.
 - Simulierter Boxen-/Teamoberflächentest: 55 Assertions.
-- Neuer Browsertest collection-team.spec.js: zwei Testfälle in mobilem
-  Chromium und mobilem WebKit, insgesamt vier erfolgreiche Ausführungen.
-- Geprüft: sechs individuelle Teammitglieder, Ausschluss bereits gewählter
-  Exemplare aus der Ersetzungsauswahl, volle Belegung, Reihenfolge,
-  Ersetzen, Entfernen ohne Besitzverlust, unverändertes Pflege-Pokémon,
-  persistente Team-IDs/Reihenfolge nach Neuladen und Rückabwicklung
-  eines fehlgeschlagenen Team-Schreibvorgangs mit erfolgreichem Neuversuch.
-- Zentrale Qualitätsprüfung laut lokaler Ausgabe vollständig erfolgreich.
-- git diff --check ohne Befund vor dieser Planaktualisierung.
-- CI/Veröffentlichung dieses Test-/Dokumentationsstands noch nicht bestätigt.
-- Manuelle P04-iPhone-Abnahme noch offen; WebKit-Test ersetzt sie nicht.
+- Neuer Browser-Teamtest: zwei Testfälle jeweils in mobilem Chromium
+  und mobilem WebKit; alle vier Ausführungen erfolgreich.
+- Zentrale lokale Qualitätsprüfung erfolgreich.
+- Manuelle iPhone-Abnahme: Nutzer bestätigt alle aufgeführten Schritte
+  als erfolgreich, einschließlich Auswahl, Reihenfolge, Entfernen,
+  Wiederaufnehmen, Ersetzen bei voller Belegung, unveränderter
+  Pflegezuordnung und Erhaltung nach vollständigem Schließen/Neustart.
+- Keine gemeldeten Darstellungs- oder Bedienungsfehler.
 
-Nächster Schritt: Test und Plan versionieren, bestehenden
-CI-/Veröffentlichungsworkflow abwarten und danach die vorhandene
-Teamverwaltung auf dem iPhone gezielt abnehmen. Erst danach P04
-abschließen. P05 nicht ohne Festlegung der Kampfregeln beginnen.
-P03 ist einschließlich Veröffentlichung und iPhone-Abnahme abgeschlossen.
+P05 beginnt mit Regelklärung und Bestandsaufnahme, nicht unmittelbar
+mit Codeänderungen. Gemeinsam festlegen:
+- Welche Kampfarten das eigene Team zuerst unterstützen sollen.
+- Verhältnis zwischen Pflege-Pokémon, Team und aktivem Kämpfer.
+- Wechselregeln, besiegte Mitglieder, Niederlage und Abbruch.
+- KP, Heilung/Energie und Fortsetzung nach einem Kampf.
+- Speicherung, Neuladen und Rückabwicklung bei Fehlern.
+
+Erst nach diesen Entscheidungen die betroffenen Kampfmodule und Tests
+gezielt lesen und einen begrenzten ersten Umsetzungsschritt bestimmen.
+P03 und P04 nicht ohne konkreten Fehler erneut eröffnen.
 
 ## Ideenspeicher
 

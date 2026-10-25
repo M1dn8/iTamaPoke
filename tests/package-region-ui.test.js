@@ -31,7 +31,20 @@ function env(){
  const load=(n,transform=x=>x)=>vm.runInContext(transform(fs.readFileSync('browser_ver/web/'+n,'utf8')),c);
  for(const n of ['arena-kanto.js','league-kanto-data.js','arena-johto.js','league-johto-data.js','regions-ui.js'])load(n);
  for(const n of c.TPRegions.required)mod['_'+n]=()=>{};
- load('badge-ui.js');load('arena.js');
+ // Load the real shared presentation module before arena and league.
+ Object.assign(c,{
+  ensureSprite(){},
+  typeColor565:()=>0,
+  rgb565:()=>'#000000',
+  TYPE_NAMES:{1:'Normal'}
+ });
+ Object.assign(c.fns,{
+  dexType1:()=>1,
+  dexType2:()=>0
+ });
+ load('badge-ui.js');
+ load('opponent-team.js');
+ load('arena.js');
  load('league-kanto.js',s=>s.replace('window.TPLeague=Object.freeze','window.__forceLeagueRegion=r=>region=r;window.__leagueTransaction=transaction;window.TPLeague=Object.freeze'));
  load('league-hall.js',s=>s.replace('window.TPHall=Object.freeze','window.__forceHallRegion=r=>region=r;window.TPHall=Object.freeze'));
  load('regional-reward-egg.js',s=>s.replace('window.TPRewardEgg=Object.freeze','window.__forceGiftRegion=r=>region=r;window.__giftTransaction=transaction;window.TPRewardEgg=Object.freeze'));

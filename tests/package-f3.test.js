@@ -4,7 +4,26 @@ if(process.env.F3_NATIVE_JSON)assert.deepEqual(JSON.parse(fs.readFileSync(proces
 const code=fs.readFileSync('browser_ver/web/arena.js','utf8');
 function env({fail=false,delay=false,initial=0}={}){
  let serial=0,open=false,won=false,resolved=false,next=false,mask=initial,phase=0,before=0,release,failWrite=fail,writes=0;const events={},texts=[],calls=[];
- const c={Date,Math,Object,Number,Promise,Uint8Array,DataView,Blob,console,setTimeout,clearTimeout,performance:{now:()=>5000},TPKantoArena:catalog,screen:'card',cardPage:4,battleReturn:'card',choice:'none',dragStart:null,dragNow:null,tpSaveReplacing:false,tpSaveEpoch:0,document:{visibilityState:'visible',addEventListener:(k,f)=>events[k]=f},addEventListener:(k,f)=>events[k]=f,UI:{ink:'#111',white:'#fff',track:'#aaa',barBad:'#a00',bgDay:'#fff'},TP:{cx:233},ctx:new Proxy({fillText:t=>texts.push(t)},{get:(t,k)=>k in t?t[k]:(()=>{}),set(t,k,v){t[k]=v;return true;}}),roundRect(){},statusEl:{},drawBattleSprite(){},fns:{battleResolved:()=>resolved,battlePlayerWon:()=>won,speciesId:()=>150,name:()=>'Test',dexName:i=>'Dex '+i},TPTrainer:{canOpen:()=>c.screen==='card'&&c.cardPage===4&&!open,get:k=>k===3?next:0},TPDiagnostics:{record(){}},exportStateBytes:()=>new Uint8Array([mask]),writeSave:async(bytes,force)=>{writes++;assert(force&&c.tpSaveReplacing);assert.equal(bytes[0],mask);if(delay)await new Promise(r=>release=r);if(failWrite)throw Error('fixture write failure');},Module:{ccall(name,type,types,args){calls.push(name);if(name==='tp_f3_mask')return mask;if(name==='tp_f3_date')return mask&(1<<args[0])?1700000000:0;if(name==='tp_f3_get')return [open,0,serial,phase][args[0]];if(name==='tp_f3_start'){if(open)return 0;open=true;phase=0;resolved=won=false;return ++serial;}if(name==='tp_f3_apply'){if(!open||!resolved||!won||next||phase||args[0]!==serial)return 0;if(mask&1){phase=3;return 2;}before=mask;mask|=1;phase=1;return 1;}if(name==='tp_f3_finish'){assert.equal(args[0],serial);assert.equal(phase,1);if(!args[1])mask=before;phase=args[1]?2:0;return 1;}throw Error(name);},_tp_battle_close(){assert.notEqual(phase,1);open=false;}}};c.window=c;vm.createContext(c);vm.runInContext(code,c);
+ const c={Date,Math,Object,Number,Promise,Uint8Array,DataView,Blob,console,setTimeout,clearTimeout,performance:{now:()=>5000},TPKantoArena:catalog,screen:'card',cardPage:4,battleReturn:'card',choice:'none',dragStart:null,dragNow:null,tpSaveReplacing:false,tpSaveEpoch:0,document:{visibilityState:'visible',addEventListener:(k,f)=>events[k]=f},addEventListener:(k,f)=>events[k]=f,UI:{ink:'#111',white:'#fff',track:'#aaa',barBad:'#a00',bgDay:'#fff'},TP:{cx:233},ctx:new Proxy({fillText:t=>texts.push(t)},{get:(t,k)=>k in t?t[k]:(()=>{}),set(t,k,v){t[k]=v;return true;}}),roundRect(){},statusEl:{},drawBattleSprite(){},fns:{battleResolved:()=>resolved,battlePlayerWon:()=>won,speciesId:()=>150,name:()=>'Test',dexName:i=>'Dex '+i},TPTrainer:{canOpen:()=>c.screen==='card'&&c.cardPage===4&&!open,get:k=>k===3?next:0},TPDiagnostics:{record(){}},exportStateBytes:()=>new Uint8Array([mask]),writeSave:async(bytes,force)=>{writes++;assert(force&&c.tpSaveReplacing);assert.equal(bytes[0],mask);if(delay)await new Promise(r=>release=r);if(failWrite)throw Error('fixture write failure');},Module:{ccall(name,type,types,args){calls.push(name);if(name==='tp_f3_mask')return mask;if(name==='tp_f3_date')return mask&(1<<args[0])?1700000000:0;if(name==='tp_f3_get')return [open,0,serial,phase][args[0]];if(name==='tp_f3_start'){if(open)return 0;open=true;phase=0;resolved=won=false;return ++serial;}if(name==='tp_f3_apply'){if(!open||!resolved||!won||next||phase||args[0]!==serial)return 0;if(mask&1){phase=3;return 2;}before=mask;mask|=1;phase=1;return 1;}if(name==='tp_f3_finish'){assert.equal(args[0],serial);assert.equal(phase,1);if(!args[1])mask=before;phase=args[1]?2:0;return 1;}throw Error(name);},_tp_battle_close(){assert.notEqual(phase,1);open=false;}}};c.window=c;
+ // Use the real shared presentation module with deterministic local UI doubles.
+ Object.assign(c,{
+  spriteFor:()=>null,
+  ensureSprite(){},
+  typeColor565:()=>0,
+  rgb565:()=>'#000000',
+  TYPE_NAMES:{1:'Normal'}
+ });
+ Object.assign(c.fns,{
+  dexType1:()=>1,
+  dexType2:()=>0
+ });
+ vm.createContext(c);
+ vm.runInContext(
+  fs.readFileSync('browser_ver/web/opponent-team.js','utf8'),
+  c,
+  {filename:'opponent-team.js'}
+ );
+ vm.runInContext(code,c);
  return {c,api:c.TPArena,events,texts,calls,win(){resolved=won=true;},partial(){resolved=won=true;next=true;},next(){next=false;resolved=won=false;},setFail:v=>failWrite=v,release:()=>release(),get mask(){return mask;},get writes(){return writes;}};
 }
 (async()=>{

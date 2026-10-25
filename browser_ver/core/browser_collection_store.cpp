@@ -32,6 +32,8 @@ extern "C" {
 EMSCRIPTEN_KEEPALIVE int tp_f4_store_size(){const auto&s=Preferences::store();auto it=s.find(KEY);if(it==s.end())return 0;if(!std::holds_alternative<Bytes>(it->second))return -1;const auto&b=std::get<Bytes>(it->second);if(b.empty()||b.size()>size_t(LIMIT))return -2;if(!utf8(b.data(),int(b.size())))return -3;return int(b.size());}
 EMSCRIPTEN_KEEPALIVE const uint8_t *tp_f4_store_ptr(){if(tp_f4_store_size()<=0)return nullptr;return std::get<Bytes>(Preferences::store().at(KEY)).data();}
 EMSCRIPTEN_KEEPALIVE int tp_f4_store_pending(){return undo?1:0;}
+// Read-only token identity for region-owned callers; does not begin a transaction.
+EMSCRIPTEN_KEEPALIVE uint32_t tp_f4_store_pending_token(){return undo?undo->token:0;}
 static uint32_t beginStore(bool resolvedCatchContext){
  if(undo||(!resolvedCatchContext&&tp_battle_is_open())||!Preferences().getBool("init",false)||tp_f4_store_size()<0||serial>=0x7fffffffu)return 0;
  const uint32_t token=++serial;undo=std::make_unique<Undo>(tp_battle_pet(),Preferences::store(),token);return token;

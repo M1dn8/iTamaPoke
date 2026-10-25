@@ -56,6 +56,16 @@ python3 tools/quality/test-f4-store.py
 "$TMP/f4-capture"
 python3 tools/quality/test-f4-lifecycle.py
 python3 tools/quality/test-f4-trainer.py
+python3 tools/quality/test-region-keys.py
+python3 tools/quality/test-region-context.py
+python3 tools/quality/test-johto-catalog.py
+python3 tools/quality/test-region-arena.py
+python3 tools/quality/test-region-league.py
+python3 tools/quality/test-region-reward.py
+node tests/package-region-ui.test.js
+node tests/package-wild-capture-ui.test.js
+node tests/package-ui-unified.test.js
+node tests/retro-ui.test.js
 python3 tools/quality/test-kanto-league.py
 python3 tools/quality/test-kanto-hall.py
 python3 tools/quality/test-kanto-reward-egg.py

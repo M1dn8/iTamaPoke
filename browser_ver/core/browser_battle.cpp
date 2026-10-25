@@ -16,6 +16,7 @@
 #include <ctime>
 #include <memory>
 #include "arena-kanto.h"
+#include "arena-johto.h"
 #include "battle-energy.h"
 #if defined(__EMSCRIPTEN__) || defined(TP_LG_TEST)
 extern "C" int tp_lg_owned();
@@ -27,6 +28,7 @@ static bool leagueOwned(){return false;}
 #include <emscripten.h>
 
 #include "pet.h"
+#include "region-progress-keys.h"
 #include "dex.h"
 #include "i18n.h"
 #include "battle.h"
@@ -84,18 +86,26 @@ struct TrainerTeam { uint8_t count; int16_t dex[2]; };
 constexpr TrainerTeam kTrainerTeams[] = {{1,{19,0}}, {2,{16,19}}};
 bool gTrainer=false, gTrainerNext=false;
 int gArenaId=-1,gArenaPhase=0;
+int gArenaRegion=0;
+const TPArenaLeader *arenaLeaderFor(int region,int id){
+ if(id<0)return nullptr;
+ if(region==0)return id<int(kKantoArenaCount)?&kKantoArenas[id]:nullptr;
+ if(region==1)return tpJohtoArenaAt(unsigned(id));
+ return nullptr;
+}
+
 uint32_t gArenaSerial=0,gArenaToken=0;
 std::unique_ptr<Pet> gArenaUndo;
 std::map<std::string,Preferences::Value> gArenaStore;
-int arenaMask(){
- const auto &store=Preferences::store();const auto ver=store.find("agver");
+int arenaMask(const TPRegionProgressKeys &keys=TP_KANTO_KEYS){
+ const auto &store=Preferences::store();const auto ver=store.find(keys.arenaVersion);
  if(ver==store.end()){
-  if(store.count("agmask"))return -1;
-  for(unsigned i=0;i<8;i++)if(store.count("agt"+std::to_string(i)))return -1;
+  if(store.count(keys.arenaMask))return -1;
+  for(unsigned i=0;i<8;i++)if(store.count(keys.arenaDatePrefix+std::to_string(i)))return -1;
   return 0;
  }
  if(!std::holds_alternative<int64_t>(ver->second)||std::get<int64_t>(ver->second)!=1)return -1;
- const auto entry=store.find("agmask");if(entry==store.end()||!std::holds_alternative<int64_t>(entry->second))return -1;
+ const auto entry=store.find(keys.arenaMask);if(entry==store.end()||!std::holds_alternative<int64_t>(entry->second))return -1;
  const auto mask=std::get<int64_t>(entry->second);return mask>=0&&mask<=255?int(mask):-1;
 }
 uint8_t gTrainerId=0, gTrainerIndex=0, gTrainerCount=0;
@@ -161,7 +171,7 @@ void startBattle(int16_t forcedDex, uint8_t forcedLevel) {
   gF4Outcome=-1;gF4CatchEpoch=0;
 #endif
   if(gArenaUndo)return;
-  gArenaId=-1;gArenaPhase=0;gArenaToken=0;
+  gArenaId=-1;gArenaPhase=0;gArenaToken=0;gArenaRegion=0;
   gTrainer=false;gTrainerNext=false;gTrainerCount=gTrainerIndex=0;
   gTrainerRounds=gTrainerDealt=gTrainerTaken=0;
   gRewardLine.clear();
@@ -327,7 +337,7 @@ void tp_battle_close() {
   gF4Outcome=-1;gF4CatchEpoch=0;
 #endif
   if(gArenaUndo)return;
-  gArenaId=-1;gArenaToken=0;gArenaPhase=0;
+  gArenaId=-1;gArenaToken=0;gArenaPhase=0;gArenaRegion=0;
   gTrainer=false;gTrainerNext=false;gTrainerCount=gTrainerIndex=0;
   gOpen = false;
   gResolved = false;
@@ -545,7 +555,7 @@ EMSCRIPTEN_KEEPALIVE int tp_f2_next() {
  gTrainerRounds+=gRun.round;gTrainerDealt+=gRun.playerDamageTotal;gTrainerTaken+=gRun.enemyDamageTotal;
  ++gTrainerIndex;
  if(++gBvId==0)++gBvId;gBvDealt=gBvTaken=gBvHeal=0;
- if(gArenaId>=0){const auto &m=kKantoArenas[gArenaId].team[gTrainerIndex];gDex=m.dex;gLevel=m.level;}
+ if(gArenaId>=0){const auto *leader=arenaLeaderFor(gArenaRegion,gArenaId);if(!leader||gTrainerIndex>=leader->count){tp_battle_close();return 0;}const auto &m=leader->team[gTrainerIndex];gDex=m.dex;gLevel=m.level;}
  else gDex=kTrainerTeams[gTrainerId].dex[gTrainerIndex];
  gEnemy=wildBattleStats(gDex,gLevel);gEnemy.hp=0;
  gRun=beginBattleRuntime(gPlayer,gEnemy);
@@ -556,11 +566,21 @@ EMSCRIPTEN_KEEPALIVE int tp_f2_next() {
 }
 // Profile-level arena keys live in the existing exported Preferences table.
 EMSCRIPTEN_KEEPALIVE int tp_f3_mask(){return arenaMask();}
-EMSCRIPTEN_KEEPALIVE uint32_t tp_f3_date(int id){
- if(id<0||id>=int(kKantoArenaCount)||arenaMask()<0||!(arenaMask()&(1<<id)))return 0;
- const auto &s=Preferences::store();const auto it=s.find("agt"+std::to_string(id));
+static uint32_t arenaDateFor(const TPRegionProgressKeys &keys,int id){
+ if(id<0||id>=int(kKantoArenaCount)||arenaMask(keys)<0||!(arenaMask(keys)&(1<<id)))return 0;
+ const auto &s=Preferences::store();const auto it=s.find(keys.arenaDatePrefix+std::to_string(id));
  if(it==s.end()||!std::holds_alternative<int64_t>(it->second))return 0;
  const auto value=std::get<int64_t>(it->second);return value>=946684800&&value<=0xffffffffLL?uint32_t(value):0;
+}
+EMSCRIPTEN_KEEPALIVE uint32_t tp_f3_date(int id){return arenaDateFor(TP_KANTO_KEYS,id);}
+// Explicit region arguments; legacy arena entry points remain Kanto-only.
+EMSCRIPTEN_KEEPALIVE int tp_region_arena_mask(int region){
+ if(region<0||region>255)return -1;
+ const auto *keys=tpRegionProgressKeys(uint8_t(region));return keys?arenaMask(*keys):-1;
+}
+EMSCRIPTEN_KEEPALIVE uint32_t tp_region_arena_date(int region,int id){
+ if(region<0||region>255)return 0;
+ const auto *keys=tpRegionProgressKeys(uint8_t(region));return keys?arenaDateFor(*keys,id):0;
 }
 EMSCRIPTEN_KEEPALIVE int tp_f3_get(int key){
  if(key==0)return gOpen&&gArenaId>=0;
@@ -569,29 +589,41 @@ EMSCRIPTEN_KEEPALIVE int tp_f3_get(int key){
  if(key==3)return gArenaPhase;
  return 0;
 }
-EMSCRIPTEN_KEEPALIVE int tp_f3_start(int id){
- if(id<0||id>=int(kKantoArenaCount)||!tp_f2_can()||arenaMask()<0||gArenaUndo||gArenaSerial>=0x7ffffffe)return 0;
+static int arenaStartFor(int region,int id){
+ const auto *leader=arenaLeaderFor(region,id);
+ const auto *keys=region>=0&&region<=255?tpRegionProgressKeys(uint8_t(region)):nullptr;
+ if(!leader||!keys||!tp_f2_can()||arenaMask(*keys)<0||gArenaUndo||gArenaSerial>=0x7ffffffe)return 0;
  if(!tpEnergySpend(0))return 0;
- const auto &leader=kKantoArenas[id];startBattle(leader.team[0].dex,leader.team[0].level);
- const Pet &p=tp_battle_pet();gTrainer=true;gTrainerCount=leader.count;gArenaId=id;gArenaToken=++gArenaSerial;
+ startBattle(leader->team[0].dex,leader->team[0].level);
+ const Pet &p=tp_battle_pet();gTrainer=true;gTrainerCount=leader->count;gArenaId=id;gArenaRegion=region;gArenaToken=++gArenaSerial;
  gTrainerSpecies=p.speciesId;gTrainerAge=p.ageMinutes;gTrainerGa=p.geneAtk;gTrainerGd=p.geneDef;gTrainerGs=p.geneSpe;
  return int(gArenaToken);
 }
-EMSCRIPTEN_KEEPALIVE int tp_f3_apply(int token){
+EMSCRIPTEN_KEEPALIVE int tp_f3_start(int id){return arenaStartFor(0,id);}
+EMSCRIPTEN_KEEPALIVE int tp_region_arena_start(int region,int id){return arenaStartFor(region,id);}
+EMSCRIPTEN_KEEPALIVE int tp_region_arena_session_region(){return gOpen&&gArenaId>=0?gArenaRegion:-1;}
+static int arenaApplyFor(int region,int token){
+ if(region!=gArenaRegion||!arenaLeaderFor(region,gArenaId))return 0;
+ const auto *keys=tpRegionProgressKeys(uint8_t(region));if(!keys)return 0;
  if(token<=0||uint32_t(token)!=gArenaToken||gArenaId<0||!gOpen||!gTrainer||!gResolved||gTrainerNext||
  gTrainerIndex+1!=gTrainerCount||!gTurn.playerWon||!gRun.playerHp||gArenaPhase||gArenaUndo||!trainerActorValid())return 0;
- const int mask=arenaMask();if(mask<0)return 0;
+ const int mask=arenaMask(*keys);if(mask<0)return 0;
  if(mask&(1<<gArenaId)){gArenaPhase=3;return 2;}
  const std::time_t clock=std::time(nullptr);if(clock<946684800||uint64_t(clock)>0xffffffffULL)return 0;
  gArenaUndo=std::make_unique<Pet>(tp_battle_pet());gArenaStore=Preferences::store();
- Preferences p;p.putUChar("agver",1);p.putUChar("agmask",uint8_t(mask|(1<<gArenaId)));
- const std::string key="agt"+std::to_string(gArenaId);p.putUInt(key.c_str(),uint32_t(clock));gArenaPhase=1;return 1;
+ Preferences p;p.putUChar(keys->arenaVersion,1);p.putUChar(keys->arenaMask,uint8_t(mask|(1<<gArenaId)));
+ const std::string key=keys->arenaDatePrefix+std::to_string(gArenaId);p.putUInt(key.c_str(),uint32_t(clock));gArenaPhase=1;return 1;
 }
-EMSCRIPTEN_KEEPALIVE int tp_f3_finish(int token,int committed){
+EMSCRIPTEN_KEEPALIVE int tp_f3_apply(int token){return arenaApplyFor(0,token);}
+EMSCRIPTEN_KEEPALIVE int tp_region_arena_apply(int region,int token){return arenaApplyFor(region,token);}
+static int arenaFinishFor(int region,int token,int committed){
+ if(region!=gArenaRegion)return 0;
  if(token<=0||uint32_t(token)!=gArenaToken||gArenaPhase!=1||!gArenaUndo||(committed!=0&&committed!=1))return 0;
  if(!committed){tp_battle_pet()=*gArenaUndo;Preferences::store()=gArenaStore;gArenaPhase=0;}else gArenaPhase=2;
  gArenaUndo.reset();gArenaStore.clear();return 1;
 }
+EMSCRIPTEN_KEEPALIVE int tp_f3_finish(int token,int committed){return arenaFinishFor(0,token,committed);}
+EMSCRIPTEN_KEEPALIVE int tp_region_arena_finish(int region,int token,int committed){return arenaFinishFor(region,token,committed);}
 EMSCRIPTEN_KEEPALIVE const char *tp_f3_catalog(){
  static std::string out;out="[";
  for(unsigned i=0;i<kKantoArenaCount;++i){if(i)out+=",";const auto &l=kKantoArenas[i];

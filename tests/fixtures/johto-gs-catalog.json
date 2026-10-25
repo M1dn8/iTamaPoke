@@ -1,0 +1,293 @@
+{
+  "schema": 1,
+  "region": "Johto",
+  "edition": "Gold/Silber",
+  "sources": [
+    "https://www.serebii.net/gs/gyms.shtml",
+    "https://www.serebii.net/gs/elitefour.shtml",
+    "https://www.pokewiki.de/Johto"
+  ],
+  "arena": [
+    {
+      "id": "falk",
+      "name": "Falk",
+      "city": "Viola City",
+      "badge": "Flügelorden",
+      "team": [
+        [
+          16,
+          7
+        ],
+        [
+          17,
+          9
+        ]
+      ]
+    },
+    {
+      "id": "kai",
+      "name": "Kai",
+      "city": "Azalea City",
+      "badge": "Insektorden",
+      "team": [
+        [
+          11,
+          14
+        ],
+        [
+          14,
+          14
+        ],
+        [
+          123,
+          16
+        ]
+      ]
+    },
+    {
+      "id": "bianka",
+      "name": "Bianka",
+      "city": "Dukatia City",
+      "badge": "Basisorden",
+      "team": [
+        [
+          35,
+          18
+        ],
+        [
+          241,
+          20
+        ]
+      ]
+    },
+    {
+      "id": "jens",
+      "name": "Jens",
+      "city": "Teak City",
+      "badge": "Phantomorden",
+      "team": [
+        [
+          92,
+          21
+        ],
+        [
+          93,
+          21
+        ],
+        [
+          93,
+          23
+        ],
+        [
+          94,
+          25
+        ]
+      ]
+    },
+    {
+      "id": "hartwig",
+      "name": "Hartwig",
+      "city": "Anemonia City",
+      "badge": "Faustorden",
+      "team": [
+        [
+          57,
+          27
+        ],
+        [
+          62,
+          30
+        ]
+      ]
+    },
+    {
+      "id": "jasmin",
+      "name": "Jasmin",
+      "city": "Oliviana City",
+      "badge": "Stahlorden",
+      "team": [
+        [
+          81,
+          30
+        ],
+        [
+          81,
+          30
+        ],
+        [
+          208,
+          35
+        ]
+      ]
+    },
+    {
+      "id": "norbert",
+      "name": "Norbert",
+      "city": "Mahagonia City",
+      "badge": "Eisorden",
+      "team": [
+        [
+          86,
+          27
+        ],
+        [
+          87,
+          29
+        ],
+        [
+          221,
+          31
+        ]
+      ]
+    },
+    {
+      "id": "sandra",
+      "name": "Sandra",
+      "city": "Ebenholz City",
+      "badge": "Drachenorden",
+      "team": [
+        [
+          148,
+          37
+        ],
+        [
+          148,
+          37
+        ],
+        [
+          148,
+          37
+        ],
+        [
+          230,
+          40
+        ]
+      ]
+    }
+  ],
+  "league": {
+    "names": [
+      "Willi",
+      "Koga",
+      "Bruno",
+      "Melanie",
+      "Siegfried"
+    ],
+    "elite": [
+      [
+        [
+          178,
+          40
+        ],
+        [
+          124,
+          41
+        ],
+        [
+          103,
+          41
+        ],
+        [
+          80,
+          41
+        ],
+        [
+          178,
+          42
+        ]
+      ],
+      [
+        [
+          168,
+          40
+        ],
+        [
+          49,
+          41
+        ],
+        [
+          205,
+          43
+        ],
+        [
+          89,
+          42
+        ],
+        [
+          169,
+          44
+        ]
+      ],
+      [
+        [
+          237,
+          42
+        ],
+        [
+          106,
+          42
+        ],
+        [
+          107,
+          42
+        ],
+        [
+          95,
+          43
+        ],
+        [
+          68,
+          46
+        ]
+      ],
+      [
+        [
+          197,
+          42
+        ],
+        [
+          45,
+          42
+        ],
+        [
+          94,
+          45
+        ],
+        [
+          198,
+          44
+        ],
+        [
+          229,
+          47
+        ]
+      ]
+    ],
+    "champion": [
+      [
+        130,
+        44
+      ],
+      [
+        149,
+        47
+      ],
+      [
+        149,
+        47
+      ],
+      [
+        142,
+        46
+      ],
+      [
+        6,
+        46
+      ],
+      [
+        149,
+        50
+      ]
+    ]
+  }
+}

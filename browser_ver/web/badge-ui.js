@@ -10,4 +10,18 @@ function draw(id,x,y,r=24,owned=true){ctx.save();ctx.translate(x,y);ctx.scale(r/
  else if(id===5){ctx.beginPath();ctx.arc(0,0,27,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle=owned?'#f2dd91':'#e8ede3';ctx.beginPath();ctx.arc(0,0,16,0,Math.PI*2);ctx.fill();ctx.stroke();}
  else if(id===6)poly([[0,-29],[8,-12],[24,-20],[18,0],[28,8],[12,12],[0,29],[-12,12],[-28,8],[-18,0],[-24,-20],[-8,-12]]);
  else{ctx.beginPath();ctx.moveTo(-19,26);ctx.bezierCurveTo(-37,-9,-5,-28,25,-28);ctx.bezierCurveTo(26,7,8,34,-19,26);ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(-23,31);ctx.lineTo(14,-17);ctx.stroke();}ctx.restore();}
-window.TPBadgeUI=Object.freeze({draw});})();
+
+// Original simplified Johto symbols, not extracted game graphics.
+function drawJohto(id,x,y,r=24,owned=true){if(!Number.isInteger(id)||id<0||id>7)return;const colors=['#8c9aa4','#7eac78','#aeb7bc','#82738a','#b53a3a','#8a9aab','#729baa','#a27819'];ctx.save();ctx.translate(x,y);ctx.scale(r/30,r/30);ctx.strokeStyle=owned?'#292831':'#94a095';ctx.fillStyle=owned?colors[id]:'#d5dcd1';ctx.lineWidth=2;
+ const poly=pts=>{ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.closePath();ctx.fill();ctx.stroke();};
+ if(id===0){poly([[0,27],[-23,5],[-27,-15],[-12,-7],[0,-27],[12,-7],[27,-15],[23,5]]);ctx.beginPath();ctx.moveTo(0,-20);ctx.lineTo(0,24);ctx.stroke();}
+ else if(id===1){for(const a of [-1,1]){ctx.beginPath();ctx.ellipse(a*12,0,13,22,a*.3,0,Math.PI*2);ctx.fill();ctx.stroke();}ctx.fillStyle=owned?'#596b46':'#94a095';ctx.beginPath();ctx.ellipse(0,0,6,25,0,0,Math.PI*2);ctx.fill();ctx.stroke();}
+ else if(id===2){poly([[0,-28],[25,0],[0,28],[-25,0]]);ctx.fillStyle=owned?'#fff':'#e6e9de';ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.fill();ctx.stroke();}
+ else if(id===3){ctx.beginPath();ctx.moveTo(-23,23);ctx.bezierCurveTo(-30,-31,30,-31,23,23);ctx.lineTo(12,15);ctx.lineTo(0,26);ctx.lineTo(-12,15);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.fillRect(-12,-5,7,8);ctx.fillRect(5,-5,7,8);}
+ else if(id===4){poly([[-21,9],[-21,-13],[-12,-23],[-4,-16],[4,-23],[13,-16],[21,-15],[24,6],[12,25],[-10,25]]);ctx.beginPath();ctx.moveTo(-20,8);ctx.lineTo(17,8);ctx.stroke();}
+ else if(id===5){poly([[-15,-25],[15,-25],[29,0],[15,25],[-15,25],[-29,0]]);poly([[0,-17],[16,0],[0,17],[-16,0]]);}
+ else if(id===6){poly([[-27,16],[-17,-20],[-5,2],[4,-28],[15,0],[24,-13],[28,22],[0,29]]);ctx.strokeStyle=owned?'#fff':'#94a095';ctx.beginPath();ctx.moveTo(0,-16);ctx.lineTo(0,24);ctx.stroke();}
+ else{poly([[-25,23],[-20,-15],[-5,-5],[3,-28],[11,-8],[27,-22],[21,5],[7,25]]);ctx.beginPath();ctx.moveTo(-17,15);ctx.lineTo(15,-8);ctx.stroke();}
+ ctx.restore();}
+
+window.TPBadgeUI=Object.freeze({draw,drawJohto});})();

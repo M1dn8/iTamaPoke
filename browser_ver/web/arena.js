@@ -1,30 +1,36 @@
 // F3: local arena UI, profile badge case and commit-confirmed handover.
 (function(){'use strict';
-const data=window.TPKantoArena;
+let data=window.TPKantoArena,region=0,choosingRegion=false;
 let selected=0,tab='leaders',detail=false,origin='leaders',session=null,saving=false,artBusy=false,message='';
 const pictures=new Map(),loading=new Set();let artGeneration=0;
 const call=(name,...args)=>Module.ccall(name,'number',args.map(()=> 'number'),args);
-const get=k=>call('tp_f3_get',k),mask=()=>call('tp_f3_mask');
+const scoped=(mod,r,name,...args)=>window.TPRegions?TPRegions.call(mod,r,name,'number',args):r===0?mod.ccall(name,'number',args.map(()=> 'number'),args):0;
+const regional=(r,name,...args)=>scoped(Module,r,name,...args);
+const label=()=>region===1?'Johto':'Kanto';
+const get=k=>call('tp_f3_get',k),mask=()=>regional(region,'tp_f3_mask');
+function chooseRegion(id){if(screen!=='arena'||busy()||active()||tpSaveReplacing||!Number.isInteger(id)||id<0||id>1||window.TPRegions?.locked())return false;if(id===1&&!window.TPRegions?.available(1)){message='Johto benoetigt den neuen Spielkern.';return false;}const info=window.TPRegions?.catalog(id);if(!info&&id!==0)return false;if(window.TPRegions&&!TPRegions.remember(id))return false;region=id;data=info?info.arena:window.TPKantoArena;selected=0;tab=origin='leaders';detail=false;session=null;message='';choosingRegion=false;invalidatePortraits();return true;}
+function regionPicker(){ctx.fillStyle=UI.bgDay;ctx.fillRect(0,0,466,466);text('Region waehlen',233,44,22);text('Orden, Liga und Ehrenei bleiben getrennt.',233,83,13);for(let id=0;id<2;id++){const y=125+id*113,enabled=id===0||!!window.TPRegions?.available(id),p=window.TPRegions?.progress(id);button((region===id?'✓ ':'')+(id===0?'Kanto · Rot/Blau':'Johto · Gold/Silber'),60,y,346,68,enabled);text(enabled?(p&&p.mask>=0?'Orden '+Array.from({length:8},(_,i)=>!!(p.mask&(1<<i))).filter(Boolean).length+' / 8'+(p.league.done?' · Champ-Titel':''):'Fortschrittsdaten nicht lesbar'):'Neuen Spielkern laden.',233,y+91,12);}button('Zurueck',70,414,326,36);statusEl.textContent='Regionen · Kanto / Johto';}
+
 function active(){try{return typeof Module!=='undefined'&&!!Module&&!!get(0);}catch(_e){return false;}}
 function busy(){return saving||artBusy;}
 function canOpen(){return !busy()&&!!window.TPTrainer?.canOpen();}
-function open(){if(!canOpen())return false;session=null;message='';tab='leaders';detail=false;dragStart=dragNow=null;screen='arena';return true;}
+function open(){if(!canOpen())return false;session=null;message='';tab='leaders';detail=false;dragStart=dragNow=null;screen='arena';const wanted=window.TPRegions?.selected||0;if(!chooseRegion(wanted))chooseRegion(0);return true;}
 function back(){if(busy())return;Module._tp_battle_close();session=null;screen='arena';detail=false;dragStart=dragNow=null;}
 function leave(){if(busy())return;Module._tp_battle_close();session=null;screen='card';cardPage=4;dragStart=dragNow=null;}
 function abort(){if(saving)return false;const saved=session?.phase==='done';if(active())Module._tp_battle_close();session=null;screen='arena';detail=false;message=saved?'Arena beendet – Orden gespeichert.':'Arena beendet; kein weiterer Orden vergeben.';dragStart=dragNow=null;return true;}
 function start(id=selected){
  if(screen!=='arena'||busy()||tpSaveReplacing||document.visibilityState!=='visible'||choice!=='none'||!Number.isInteger(id)||id<0||id>=data.leaders.length||window.TPTraining?.busy||window.TPMega?.busy||window.TPExpeditions?.busy)return false;
  if(window.TPBattleEnergy)return startPaid(id);
- const token=call('tp_f3_start',id);if(!token){message='Arena gerade nicht verfügbar.';return false;}
- selected=id;session={id,token,mod:Module,phase:'fighting',since:performance.now(),error:''};dragStart=dragNow=null;battleReturn='arena';screen='battle';picture(id);return true;
+ const token=regional(region,'tp_f3_start',id);if(!token){message='Arena gerade nicht verfügbar.';return false;}
+ selected=id;session={region,id,token,mod:Module,phase:'fighting',since:performance.now(),error:''};dragStart=dragNow=null;battleReturn='arena';screen='battle';picture(id);return true;
 }
 async function startPaid(id){
  if(!window.TPBattleEnergy?.supported){message='Bitte den aktuellen Spielkern bauen.';return false;}
  const e=window.TPBattleEnergy.view;
  if(!e?.arena.can){message=window.TPBattleEnergy.line('arena');return false;}
- saving=true;tpSaveReplacing=true;tpSaveEpoch++;let ticket=0,durable=false;
- try{ticket=call('tp_energy_arena_begin',id);if(!ticket)throw Error('Arena-Start gerade nicht moeglich.');const bytes=exportStateBytes(Module);TPStoreTools.parseLegacy(bytes);if(await writeSave(bytes,true)!==true)throw Error('Energiekosten nicht gespeichert.');durable=true;const token=call('tp_energy_arena_finish',ticket,1);if(token<=0)throw Error('Kosten gespeichert. Bitte App neu oeffnen.');selected=id;session={id,token,mod:Module,phase:'fighting',since:performance.now(),error:''};message='';dragStart=dragNow=null;battleReturn='arena';screen='battle';picture(id);if(document.visibilityState!=='visible'){Module._tp_battle_close();session=null;screen='arena';detail=false;}return true;
- }catch(e){if(ticket&&!durable)call('tp_energy_arena_finish',ticket,0);message=e.message||String(e);return false;}
+ const owner=region,mod=Module;const paid=(name,...args)=>scoped(mod,owner,name,...args);saving=true;tpSaveReplacing=true;tpSaveEpoch++;let ticket=0,durable=false;
+ try{ticket=paid('tp_energy_arena_begin',id);if(!ticket)throw Error('Arena-Start gerade nicht moeglich.');const bytes=exportStateBytes(mod);TPStoreTools.parseLegacy(bytes);if(await writeSave(bytes,true)!==true)throw Error('Energiekosten nicht gespeichert.');durable=true;const token=paid('tp_energy_arena_finish',ticket,1);if(token<=0)throw Error('Kosten gespeichert. Bitte App neu oeffnen.');selected=id;session={region:owner,id,token,mod,phase:'fighting',since:performance.now(),error:''};message='';dragStart=dragNow=null;battleReturn='arena';screen='battle';picture(id);if(document.visibilityState!=='visible'){Module._tp_battle_close();session=null;screen='arena';detail=false;}return true;
+ }catch(e){if(ticket&&!durable)paid('tp_energy_arena_finish',ticket,0);message=e.message||String(e);return false;}
  finally{tpSaveEpoch++;tpSaveReplacing=false;saving=false;}
 }
 function checkEnd(){
@@ -34,7 +40,7 @@ function checkEnd(){
 async function complete(){
  if(!session||saving||session.mod!==Module||!active()||!['fighting','failed'].includes(session.phase))return false;
  const s=session,mod=Module;let applied=false,committed=false,locked=false;saving=true;s.phase='saving';s.error='';
- const native=(name,...args)=>mod.ccall(name,'number',args.map(()=> 'number'),args);
+ const native=(name,...args)=>scoped(mod,s.region??0,name,...args);
  try{
   if(tpSaveReplacing||window.TPTraining?.busy||window.TPMega?.busy||window.TPExpeditions?.busy)throw Error('Speicherung gerade gesperrt');
   tpSaveReplacing=true;tpSaveEpoch++;locked=true;
@@ -55,7 +61,7 @@ async function complete(){
 function text(value,x,y,size=16,color=UI.ink,max=390){ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.fillStyle=color;ctx.font=`${size}px monospace`;ctx.fillText(String(value),x,y,max);}
 function button(label,x,y,w=326,h=42,enabled=true){ctx.fillStyle=enabled?UI.white:'#e5e5df';roundRect(x,y,w,h,10);ctx.fill();ctx.strokeStyle=enabled?UI.ink:UI.track;ctx.lineWidth=1;ctx.stroke();text(label,x+w/2,y+h/2+6,16,enabled?UI.ink:'#747474',w-16);}
 function badge(id,x,y,r=24,owned=true){
- if(window.TPBadgeUI){window.TPBadgeUI.draw(Number(id),x,y,r,owned);return;}
+ if(region===1){if(window.TPBadgeUI?.drawJohto)window.TPBadgeUI.drawJohto(Number(id),x,y,r,owned);else{ctx.strokeStyle=UI.ink;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.stroke();}return;}if(window.TPBadgeUI){window.TPBadgeUI.draw(Number(id),x,y,r,owned);return;}
  const l=data.leaders[id];ctx.save();ctx.translate(x,y);ctx.scale(r/30,r/30);ctx.strokeStyle=owned?l.color:'#8f9292';ctx.fillStyle=owned?l.color:'#dedfda';ctx.lineWidth=2;
  function poly(points){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.closePath();ctx.fill();ctx.stroke();}
  if(id===0){poly([[-15,-25],[15,-25],[26,-11],[26,11],[15,25],[-15,25],[-26,11],[-26,-11]]);ctx.beginPath();ctx.moveTo(-15,-25);ctx.lineTo(15,25);ctx.moveTo(15,-25);ctx.lineTo(-15,25);ctx.stroke();}
@@ -69,41 +75,42 @@ function badge(id,x,y,r=24,owned=true){
  ctx.restore();
 }
 function owned(id,m=mask()){return m>=0&&!!(m&(1<<id));}
-function date(id){const value=call('tp_f3_date',id);return value?new Date(value*1000).toLocaleDateString('de-DE'):'Datum nicht hinterlegt';}
+function date(id){const value=regional(region,'tp_f3_date',id);return value?new Date(value*1000).toLocaleDateString('de-DE'):'Datum nicht hinterlegt';}
 function draw(){
+ if(choosingRegion){regionPicker();return;}
  ctx.fillStyle='#f7efe6';ctx.fillRect(0,0,466,466);const m=mask();
- if(m<0){text('Ordensstand nicht unterstützt',233,170,20);text('Keine Arena-Vergabe möglich.',233,205,16);button('Zurück',70,410);return;}
+ if(m<0){button('Regionen',348,6,108,30);text('Ordensstand nicht unterstützt',233,170,20);text('Keine Arena-Vergabe möglich.',233,205,16);button('Zurück',70,410);return;}
  if(detail){drawDetail(m);return;}
- text(tab==='badges'?'Ordenkoffer · Kanto':'Arenen · Kanto',233,30,23);button('Arenen',70,44,156,34);button('Orden',240,44,156,34);
+ text((tab==='badges'?'Ordenkoffer · ':'Arenen · ')+label(),190,30,20,UI.ink,280);button('Regionen',348,6,108,30);button('Arenen',70,44,156,34);button('Orden',240,44,156,34);
  if(tab==='badges'){drawCase(m);return;}
- text(tab==='badges'?'Kanto · '+Array.from({length:8},(_,i)=>owned(i,m)?1:0).reduce((a,b)=>a+b,0)+' von 8':'Rot/Blau · feste Originallevel',233,97,13);
+ text(tab==='badges'?label()+' · '+Array.from({length:8},(_,i)=>owned(i,m)?1:0).reduce((a,b)=>a+b,0)+' von 8':(region===1?'Gold/Silber':'Rot/Blau')+' · feste Originallevel',233,97,13);
  for(let i=0;i<8;i++){
   const l=data.leaders[i],x=i%2?242:44,y=104+Math.floor(i/2)*72,got=owned(i,m);
   ctx.fillStyle=UI.white;roundRect(x,y,180,66,11);ctx.fill();ctx.strokeStyle=got?l.color:'#c8cbc5';ctx.lineWidth=got?2:1;ctx.stroke();badge(i,x+30,y+31,19,tab==='leaders'||got);
   text(tab==='badges'?l.badge:l.name,x+113,y+23,15,UI.ink,124);text(tab==='badges'?(got?'✓ Erhalten':'Noch offen'):l.city,x+113,y+43,11,UI.ink,124);
   if(tab==='leaders')text(l.team.length+' Pokémon · Lv. '+Math.min(...l.team.map(m=>m[1]))+'–'+Math.max(...l.team.map(m=>m[1])),x+113,y+58,10,UI.ink,124);
  }
- if(message)text(message,233,403,11,UI.barBad);button('Liga',70,414,126,36);button('Zurück',206,414,190,36);statusEl.textContent='Arena · '+(tab==='badges'?'Ordenkoffer':'Kanto-Auswahl');
+ if(message)text(message,233,403,11,UI.barBad);button('Liga',70,414,126,36);button('Zurück',206,414,190,36);statusEl.textContent='Arena · '+(tab==='badges'?'Ordenkoffer':label()+'-Auswahl');
 }
 function drawCase(m){
- text('Deine Kanto-Sammlung · '+Array.from({length:8},(_,i)=>owned(i,m)?1:0).reduce((a,b)=>a+b,0)+' von 8',233,101,14);
+ text('Deine '+label()+'-Sammlung · '+Array.from({length:8},(_,i)=>owned(i,m)?1:0).reduce((a,b)=>a+b,0)+' von 8',233,101,14);
  ctx.fillStyle='#54645b';roundRect(38,113,390,239,22);ctx.fill();ctx.fillStyle='#e7e5d9';roundRect(48,123,370,219,16);ctx.fill();ctx.strokeStyle='#9b9279';ctx.lineWidth=2;ctx.stroke();
  for(let i=0;i<8;i++){const x=98+(i%4)*90,y=132+Math.floor(i/4)*105,got=owned(i,m);ctx.fillStyle=got?'#fffdf4':'#d1d7cd';roundRect(x-39,y,78,94,12);ctx.fill();ctx.strokeStyle=got?'#b49959':'#9ba89a';ctx.lineWidth=got?2:1;ctx.stroke();badge(i,x,y+36,25,got);text(data.leaders[i].badge,x,y+74,10,UI.ink,74);text(got?'✓ Erhalten':'Offen',x,y+88,9,UI.ink,74);}
  if(message)text(message,233,390,11,UI.barBad);button('Zurück zum Kampfbereich',70,414,326,36);statusEl.textContent='Arena · Ordenkoffer';
 }
 function drawDetail(m){
- const l=data.leaders[selected],got=owned(selected,m);picture(selected);text(l.name,233,32,25);text(l.city+' · Kanto / Rot-Blau',233,57,14);badge(selected,233,112,30,got);text(l.badge+(got?' · Erhalten':''),233,165,20);
+ const l=data.leaders[selected],got=owned(selected,m);picture(selected);text(l.name,233,32,25);text(l.city+' · '+label()+' / '+(region===1?'Gold-Silber':'Rot-Blau'),233,57,14);badge(selected,233,112,30,got);text(l.badge+(got?' · Erhalten':''),233,165,20);
  l.team.forEach(([dex,level],i)=>text(fns.dexName(dex)+' · Lv. '+level,233,196+i*21,16));
  text(got?'Erstmals erhalten: '+date(selected):'Sieg über das ganze Team gibt diesen Orden.',233,303,12);text(message||'Du kämpfst mit deinem aktuellen Pokémon.',233,321,12,message?UI.barBad:UI.ink);
  button(got?'Erneut herausfordern':'Arena herausfordern',70,333,326,42,!busy()&&!tpSaveReplacing&&(!window.TPBattleEnergy||!!window.TPBattleEnergy.view?.arena.can));if(window.TPBattleEnergy)text(window.TPBattleEnergy.line('arena'),233,395,11,UI.ink,410);button('Zurück',70,420,326,30,!busy());statusEl.textContent='Arena · '+l.name;
 }
 function tap(x,y){
- if(busy())return;if(mask()<0){if(x>=70&&x<=396&&y>=410&&y<=452)leave();return;}
+ if(busy())return;if(choosingRegion){if(y>=414){choosingRegion=false;return;}if(x>=60&&x<=406){if(y>=125&&y<=193)chooseRegion(0);else if(y>=238&&y<=306)chooseRegion(1);}return;}if(x>=348&&x<=456&&y>=6&&y<=36&&!detail){if(!active()&&!tpSaveReplacing&&!window.TPRegions?.locked())choosingRegion=true;return;}if(mask()<0){if(x>=70&&x<=396&&y>=410&&y<=452)leave();return;}
  if(detail){if(x<70||x>396)return;if(y>=333&&y<=375)start(selected);else if(y>=420&&y<=450){detail=false;tab=origin;message='';}return;}
  if(y>=44&&y<=78){if(x>=70&&x<=226)tab='leaders';else if(x>=240&&x<=396)tab='badges';return;}
  if(tab==='badges'){for(let i=0;i<8;i++){const cx=98+i%4*90,top=132+Math.floor(i/4)*105;if(x>=cx-39&&x<=cx+39&&y>=top&&y<=top+94){selected=i;origin=tab;detail=true;message='';return;}}if(x>=70&&x<=396&&y>=414&&y<=450)leave();return;}
  for(let i=0;i<8;i++){const left=i%2?242:44,top=104+Math.floor(i/2)*72;if(x>=left&&x<=left+180&&y>=top&&y<=top+66){selected=i;origin=tab;detail=true;message='';return;}}
- if(y>=414&&y<=450){if(x>=70&&x<=196)window.TPLeague?.open();else if(x>=206&&x<=396)leave();}
+ if(y>=414&&y<=450){if(x>=70&&x<=196)window.TPLeague?.open(region);else if(x>=206&&x<=396)leave();}
 }
 function drawLeader(id,x,y,w,h){
  const image=picture(id);if(image){const s=Math.min(w/image.width,h/image.height);ctx.imageSmoothingEnabled=false;ctx.drawImage(image,x+(w-image.width*s)/2,y+h-image.height*s,image.width*s,image.height*s);return;}
@@ -140,6 +147,7 @@ function portraitBlob(value){
 }
 function invalidatePortraits(){artGeneration++;pictures.clear();loading.clear();}
 function picture(id){
+ if(region!==0)return null;
  if(pictures.has(id))return pictures.get(id);
  if(!loading.has(id)){const generation=artGeneration;loading.add(id);(async()=>{let image=null;try{
   if(window.TPTrainerArt){try{const result=await TPTrainerArt.picture(data.leaders[id].id);if(result)image=result.image;}catch(e){window.TPDiagnostics?.record('manager',e);}}
@@ -148,6 +156,7 @@ function picture(id){
  }catch(_){if(generation===artGeneration&&!pictures.has(id))pictures.set(id,null);}finally{if(generation===artGeneration)loading.delete(id);}})();}return null;
 }
 async function importPortrait(file,id){
+ if(region!==0)throw Error('Johto-Leitergrafiken sind noch nicht importierbar; Platzhalter bleibt sichtbar.');
  if(artBusy||saving||screen!=='arena'||active()||tpSaveReplacing||!Number.isInteger(id)||id<0||id>=8)throw Error('Grafikimport gerade gesperrt');artBusy=true;message='';
  try{
   if(!file||file.size<24||file.size>1024*1024)throw Error('Bitte eine PNG bis 1 MB auswählen.');const bytes=new Uint8Array(await file.arrayBuffer());if([137,80,78,71,13,10,26,10].some((v,i)=>bytes[i]!==v))throw Error('Datei ist keine PNG.');const view=new DataView(bytes.buffer),width=view.getUint32(16),height=view.getUint32(20);if(!width||!height||width>1024||height>1024)throw Error('PNG-Abmessungen: maximal 1024 × 1024.');
@@ -161,5 +170,5 @@ function pickPortrait(id){
  if(busy())return;picker?.remove();const input=document.createElement('input');picker=input;input.type='file';input.accept='image/png,.png';input.hidden=true;input.setAttribute('data-tp-arena-portrait','');document.body.appendChild(input);input.addEventListener('change',()=>{const file=input.files?.[0];input.remove();if(file)importPortrait(file,id).catch(e=>window.TPDiagnostics?.record('manager',e));},{once:true});input.addEventListener('cancel',()=>input.remove(),{once:true});input.click();
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'&&active()&&!saving)abort();});window.addEventListener('pagehide',()=>{if(active()&&!saving)abort();});
-window.TPArena=Object.freeze({open,canOpen,start,active,abort,draw,tap,intercept,battleTap,checkEnd,complete,badge,importPortrait,invalidatePortraits,get busy(){return busy();},get snapshot(){return session?{id:session.id,token:session.token,phase:session.phase,error:session.error}:null;}});
+window.TPArena=Object.freeze({open,chooseRegion,get region(){return region;},get choosingRegion(){return choosingRegion;},canOpen,start,active,abort,draw,tap,intercept,battleTap,checkEnd,complete,badge,importPortrait,invalidatePortraits,get busy(){return busy();},get snapshot(){return session?{region:session.region??0,id:session.id,token:session.token,phase:session.phase,error:session.error}:null;}});
 })();

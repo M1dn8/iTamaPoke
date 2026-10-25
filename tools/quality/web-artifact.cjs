@@ -1,5 +1,5 @@
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
-const PRIVATE=/^(p|ps)[0-9]+(-mega(-[a-z]+)?)?\.bin$|^psnd[0-9]+\.|^dexentries_|^thumbs\.bin$|^trainer-kanto-.*\.bin$/i;
+const PRIVATE=/^(p|ps)[0-9]+(-mega(-[a-z]+)?)?\.bin$|^psnd[0-9]+\.|^dexentries_|^thumbs\.bin$|^trainer-(kanto|johto)-.*\.bin$/i;
 const digest=b=>crypto.createHash('sha256').update(b).digest('hex');
 function fail(s){throw Error(s);}
 function tree(root){

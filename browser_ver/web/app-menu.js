@@ -1,19 +1,27 @@
 // C5: in-game home menu and diary; existing functions become full-size pages.
 (function(){
 "use strict";
+
+// Translate display text only; keep legacy routing labels unchanged.
+const menuKeys=Object.freeze({"Menü":"menu.title","Tagebuch":"menu.journal","Entwicklung":"menu.evolution","Pokédex":"menu.dex","Eier":"menu.eggs","Sicherungen":"menu.backups","Einstellungen":"menu.settings","Dateien":"menu.files","Diagnose":"menu.diagnostics","Quellen & Nutzungsrechte":"menu.rights","Zurück zum Pokémon":"menu.home","Dateien verwalten":"menu.manage","Grafiken laden (Pokemon und Leiter)":"menu.graphics","Rufe laden":"menu.cries","Pokédex-Texte laden":"menu.dextext","Dateibestand prüfen":"menu.inventory","Neues Spiel":"menu.reset","Startet mit einem neuen Spielstand. Vorherige Sicherheitsabfragen bleiben erhalten.":"menu.resetNotice","Diagnose nicht verfügbar. Bitte aktuellen Build öffnen.":"menu.diagnosticsUnavailable","Tagebuch nicht verfügbar. Bitte den aktuellen Test-Build öffnen.":"menu.journalUnavailable","Diese Funktion ist gerade nicht verfügbar.":"menu.unavailable","Funktion gerade nicht eindeutig verfügbar.":"menu.ambiguous","Pokémon-Spiel. Nach unten wischen oder Pfeil nach unten: Menü.":"menu.ariaCanvas","Spielmenü":"menu.aria","Tagebucheinträge":"menu.journalEntries","Zurück":"common.back"});
+function menuText(value){
+ return typeof value==='string'&&Object.prototype.hasOwnProperty.call(menuKeys,value)
+  ?TPText.t(menuKeys[value]):value;
+}
+
 let coreReady=false,active=false,page="main",proxy=null,pendingOrigin="main",dexOrigin=false,restoreChecked=false,gesture=null,suppressClickUntil=0;
-const canvas=document.getElementById("tp"),shell=document.createElement("div");shell.id="tp-game-shell";canvas.parentNode.insertBefore(shell,canvas);shell.appendChild(canvas);canvas.tabIndex=0;canvas.setAttribute("aria-label","Pokémon-Spiel. Nach unten wischen oder Pfeil nach unten: Menü.");
-const root=document.createElement("section");root.id="tp-app-page";root.hidden=true;root.setAttribute("aria-label","Spielmenü");root.setAttribute("lang","de");shell.appendChild(root);
+const canvas=document.getElementById("tp"),shell=document.createElement("div");shell.id="tp-game-shell";canvas.parentNode.insertBefore(shell,canvas);shell.appendChild(canvas);canvas.tabIndex=0;canvas.setAttribute("aria-label",TPText.t("menu.ariaCanvas"));
+const root=document.createElement("section");root.id="tp-app-page";root.hidden=true;root.setAttribute("aria-label",TPText.t("menu.aria"));root.setAttribute("lang",TPText.language());shell.appendChild(root);
 const overlays=new Set(),watched=new WeakSet();
 function visible(n){if(n.hidden||n.style.display==="none")return false;const c=typeof getComputedStyle==="function"?getComputedStyle(n):null;return !c||(c.display!=="none"&&c.visibility!=="hidden");}
 function ready(){return coreReady&&!!Module&&!!fns;}
 function quiet(){return ready()&&!window.TPBoxes?.active&&!window.TPCollectionGame?.dialogOpen&&!tpSaveReplacing&&!(window.TPExpeditions&&window.TPExpeditions.busy)&&!["game","gamemenu","battle","trainer","keyboard","arena","league"].includes(screen)&&!fns.ceremony()&&!fns.evolvingNow()&&!fns.wildPromptActive()&&choice==="none";}
-function el(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
+function el(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=menuText(text);if(cls)n.className=cls;return n;}
 function button(text,fn,cls){const b=el("button",text,cls);b.type="button";b.addEventListener("click",e=>{if(Date.now()<suppressClickUntil){e.preventDefault();return;}try{fn();}catch(err){notice(err.message||String(err));}});return b;}
-function notice(text){let n=root.querySelector(".tp-app-notice");if(!n){n=el("p",undefined,"tp-app-notice");n.setAttribute("role","status");root.appendChild(n);}n.textContent=text;}
+function notice(text){let n=root.querySelector(".tp-app-notice");if(!n){n=el("p",undefined,"tp-app-notice");n.setAttribute("role","status");root.appendChild(n);}n.textContent=menuText(text);}
 function remember(value){try{if(value)sessionStorage.setItem("tp-app-return",value);else sessionStorage.removeItem("tp-app-return");}catch(_e){}}
 function show(which="main"){
- if(!quiet())return;const tpPage=window.TPPerformance?.begin();active=true;page=which;screen="settings";root.hidden=false;root.replaceChildren();root.className=which==="main"?"tp-app-main":"";
+ if(!quiet())return;const tpPage=window.TPPerformance?.begin();active=true;page=which;screen="settings";root.hidden=false;TPText.refresh();root.setAttribute("lang",TPText.language());root.setAttribute("aria-label",TPText.t("menu.aria"));canvas.setAttribute("aria-label",TPText.t("menu.ariaCanvas"));root.replaceChildren();root.className=which==="main"?"tp-app-main":"";
  dragStart=null;dragNow=null;choice="none";feedMenuUntil=0;confirmUntil=0;
  const head=el("header",undefined,"tp-app-head");head.appendChild(el("h2",{main:"Menü",journal:"Tagebuch",settings:"Einstellungen",files:"Dateien",diagnostics:"Diagnose",rights:"Quellen & Nutzungsrechte"}[which]||"Menü"));
  if(which!=="main")head.appendChild(button("Zurück",()=>show(["files","diagnostics","rights"].includes(which)?"settings":"main")));
@@ -25,7 +33,7 @@ function show(which="main"){
  }else if(which==="settings"){
   const rights=button("Quellen & Nutzungsrechte",()=>show("rights"),"tp-app-rights-link");rights.style.flex="0 0 auto";rights.style.marginBottom="10px";root.appendChild(rights);
   const list=el("div",undefined,"tp-app-actions");
-  list.append(button("Ton: "+["Aus","Vibration","An"][soundMode],()=>{setSoundMode((soundMode+1)%3);if(soundMode!==0)playSfx(18);show("settings");}),button("Sprache: "+["Spanisch","Englisch","Französisch","Deutsch","Italienisch","Portugiesisch","Koreanisch","Koreanische Namen"][fns.language()],()=>{Module.ccall("tp_set_language",null,["number"],[(fns.language()+1)%LANG_CODES.length]);saveNow(Module);show("settings");}),button("Dateien verwalten",()=>show("files")),button("Diagnose",()=>show("diagnostics")));
+  list.append(button(TPText.t("settings.sound",{value:TPText.t(["sound.off","sound.vibration","sound.on"][soundMode])}),()=>{setSoundMode((soundMode+1)%3);if(soundMode!==0)playSfx(18);show("settings");}),button(TPText.t("settings.language",{value:TPText.t(["language.es","language.en","language.fr","language.de","language.it","language.pt","language.ko","language.koNames"][fns.language()])}),()=>{Module.ccall("tp_set_language",null,["number"],[(fns.language()+1)%LANG_CODES.length]);saveNow(Module);show("settings");}),button("Dateien verwalten",()=>show("files")),button("Diagnose",()=>show("diagnostics")));
   root.appendChild(list);const danger=el("div",undefined,"tp-app-danger");danger.append(el("p","Startet mit einem neuen Spielstand. Vorherige Sicherheitsabfragen bleiben erhalten."),button("Neues Spiel",()=>{remember(null);clickID("gameReset","settings");}));root.appendChild(danger);
  }else if(which==="files"){
   const list=el("div",undefined,"tp-app-actions");
@@ -37,7 +45,7 @@ function show(which="main"){
  }else if(which==="rights"){
   const body=el("div",undefined,"tp-rights-scroll");root.appendChild(body);window.TPRights.mount(body).catch(e=>notice(e.message));
  }else if(which==="journal"){
-  const list=el("div",undefined,"tp-app-list");list.tabIndex=0;list.setAttribute("aria-label","Tagebucheinträge");root.appendChild(list);
+  const list=el("div",undefined,"tp-app-list");list.tabIndex=0;list.setAttribute("aria-label",TPText.t("menu.journalEntries"));root.appendChild(list);
   try{const snapshot=Module.ccall("tp_journal_json","string",[],[]);renderJournal(list,JSON.parse(snapshot));setTimeout(()=>{if(!active||proxy||page!=="journal"||!ready())return;try{const next=Module.ccall("tp_journal_json","string",[],[]);if(next!==snapshot){const top=list.scrollTop;list.replaceChildren();renderJournal(list,JSON.parse(next));list.scrollTop=top;}}catch(_e){}},1100);}catch(_e){list.appendChild(el("p","Tagebuch nicht verfügbar. Bitte den aktuellen Test-Build öffnen."));}
  }
  const first=root.querySelector("button");if(first)first.focus();window.TPPerformance?.page(which,tpPage);
@@ -55,7 +63,7 @@ function adopt(){
 }
 function sync(){
  const shown=Array.from(overlays).filter(visible);
- for(const n of shown){const back=n.querySelector(".tp-modal-head button");if(back&&back.textContent!=="Zurück")back.textContent="Zurück";}
+ for(const n of shown){const back=n.querySelector(".tp-modal-head button");if(back&&back.textContent!==TPText.t("common.back"))back.textContent=TPText.t("common.back");}
  if(shown.length){if(!proxy)proxy=pendingOrigin;active=true;root.hidden=true;return;}
  if(proxy){const origin=proxy;proxy=null;remember(null);
   if(ready()&&(fns.ceremony()||fns.evolvingNow())){active=false;root.hidden=true;screen="idle";return;}
@@ -106,7 +114,7 @@ window.TPAppMenu={
  swipe(dir){if(!quiet())return false;if(screen==="idle"&&dir>0&&choice==="none"){show("main");return true;}if(screen==="dex"&&dexOrigin){dexOrigin=false;show("main");return true;}return false;},
  canvasTap(x,y){if(active)return true;if(screen==="dex"&&dexOrigin&&x>=360&&x<=456&&y>=8&&y<=44){dexOrigin=false;show("main");return true;}return false;},
  returnDex(){if(!dexOrigin)return false;dexOrigin=false;show("main");return true;},
- drawDexBack(){if(!dexOrigin)return;ctx.fillStyle=UI.white;roundRect(360,8,96,36,8);ctx.fill();ctx.strokeStyle=UI.track;ctx.lineWidth=1;roundRect(360,8,96,36,8);ctx.stroke();ctx.fillStyle=UI.ink;ctx.font="bold 13px monospace";ctx.textAlign="center";ctx.fillText("Menü",408,31);},
+ drawDexBack(){if(!dexOrigin)return;ctx.fillStyle=UI.white;roundRect(360,8,96,36,8);ctx.fill();ctx.strokeStyle=UI.track;ctx.lineWidth=1;roundRect(360,8,96,36,8);ctx.stroke();ctx.fillStyle=UI.ink;ctx.font="bold 13px monospace";ctx.textAlign="center";ctx.fillText(TPText.t("menu.title"),408,31);},
  show,close,eventText,groupEntries,dayKey,
  get ready(){return ready();},
  get active(){return active;}

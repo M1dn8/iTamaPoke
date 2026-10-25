@@ -18,9 +18,34 @@ oldButtons.find(b=>b.textContent==="Sicherungen").addEventListener("click",()=>{
 const ids={tp:canvas,spriteLoad:new Element("button"),gameReset:new Element("button")};ids.spriteLoad.addEventListener("click",()=>fileClicks++);ids.gameReset.addEventListener("click",()=>resetClicks++);
 const stored=new Map(),data=[{t:1000,k:7,s:1,a:2,b:1,n:""},{t:1100,k:7,s:1,a:2,b:1,n:""}];
 context={Module:{ccall:()=>JSON.stringify(data)},fns:{ceremony:()=>0,evolvingNow:()=>0,wildPromptActive:()=>0,language:()=>3,dexName:d=>d===1?"Bisasam":"Bisaknosp"},screen:"idle",choice:"none",tpSaveReplacing:false,TPExpeditions:{busy:false},dragStart:null,dragNow:null,feedMenuUntil:0,confirmUntil:0,soundMode:2,LANG_CODES:["ES","EN","FR","DE","IT","PT","KR","kr"],setSoundMode(n){context.soundMode=n;},playSfx(){},saveNow(){},setInterval(){},setTimeout(){},MutationObserver:class{constructor(cb){this.cb=cb;}observe(target){if(target!==body)(observers.get(target)||observers.set(target,[]).get(target)).push(this.cb);}},sessionStorage:{setItem:(k,v)=>stored.set(k,v),getItem:k=>stored.get(k),removeItem:k=>stored.delete(k)},document:{body,activeElement:null,createElement:t=>new Element(t),getElementById:id=>ids[id]||flatten(body).find(n=>n.id===id),querySelectorAll(sel){return sel===".tp-tools button"?oldButtons:sel===".tp-modal"?flatten(body).filter(n=>n.className==="tp-modal"):[];}}};context.window=context;
-vm.createContext(context);vm.runInContext(fs.readFileSync("browser_ver/web/app-menu.js","utf8"),context);
+vm.createContext(context);vm.runInContext(fs.readFileSync("browser_ver/web/de-ui.js","utf8"),context);vm.runInContext(fs.readFileSync("browser_ver/web/app-menu.js","utf8"),context);
 const app=context.TPAppMenu;assert.equal(app.swipe(1),false);app.markReady();assert.equal(app.swipe(1),true);assert.equal(app.active,true);assert.equal(context.screen,"settings");
 const root=flatten(body).find(n=>n.id==="tp-app-page");let labels=()=>flatten(root).filter(n=>n.tagName==="button").map(n=>n.textContent);
+
+// P03: exercise the actual menu and settings with the real TPText catalogues.
+const originalLanguage=context.fns.language;
+for(const [index,menuLabel,settingsLabel,soundLabel,languageLabel,manageLabel] of [
+ [3,'Menü','Einstellungen','Ton: An','Sprache: Deutsch','Dateien verwalten'],
+ [1,'Menu','Settings','Sound: On','Language: English','Manage files'],
+ [0,'Menú','Ajustes','Sonido: Activado','Idioma: Español','Gestionar archivos'],
+ [2,'Menu','Paramètres','Son : Activé','Langue : Français','Gérer les fichiers'],
+ [7,'Menu','Settings','Sound: On','Language: Korean names','Manage files']
+]){
+ context.fns.language=()=>index;
+ app.show('main');
+ assert(flatten(root).some(n=>n.textContent===menuLabel));
+ assert(labels().includes(settingsLabel));
+ app.show('settings');
+ assert(labels().includes(soundLabel));
+ assert(labels().includes(languageLabel));
+ assert(labels().includes(manageLabel));
+ app.show('files');
+ assert(labels().includes(context.TPText.t('menu.graphics')));
+}
+context.fns.language=originalLanguage;
+context.TPText.refresh();
+app.show('main');
+
 for(const name of ["Tagebuch","Entwicklung","Pokédex","Eier","Sicherungen","Einstellungen"])assert(labels().includes(name));
 const click=text=>{const b=flatten(root).find(n=>n.tagName==="button"&&n.textContent===text);assert(b,text);b.click();};
 click("Tagebuch");assert(flatten(root).some(n=>n.textContent.includes("Energie ×2 erhalten")));click("Zurück");

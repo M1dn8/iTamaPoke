@@ -6,7 +6,7 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
 
 ## Aktueller Arbeitsstand
 
-- Aktives Paket: P04 Eigenes Team mit bis zu sechs Pokémon — Bestandsaufnahme.
+- Aktives Paket: P04 Eigenes Team mit bis zu sechs Pokémon — automatisiert geprüft; Veröffentlichung und iPhone-Abnahme offen.
 - Arbeitsbranch nach Integration: main.
 - P01 abgeschlossen mit Commit 99091dc.
 - Gezielter Schutztest und vollständige zentrale Prüfung lokal bestanden.
@@ -44,7 +44,7 @@ Eine neue Sitzung darf abgeschlossene Arbeit nicht ungeprüft neu eröffnen.
 | P01 | Veröffentlichungsschutz Kanto und Johto | Abgeschlossen | Niedrig–mittel | Beide Workflow-Sperren und Artefaktsperre weisen alle 26 Trainerdateinamen ab; Negativtests und zentrale Prüfung grün |
 | P02 | Dokumentation und Kontinuität | Abgenommen | Niedrig | Plan/Übergabe versioniert; veraltete Format-/Quellentexte geprüft und bereinigt |
 | P03 | Erweiterbare Spracharchitektur | Abgenommen | Mittel–hoch | Sprachregister, Textschlüssel, Rückfallsprache, persistente Sprachwahl und Prüfung fehlender Übersetzungen |
-| P04 | Eigenes Team mit bis zu sechs Pokémon | Offen | Hoch | Auswahl aus besessenen individuellen Pokémon, Reihenfolge, Entfernen/Ersetzen, Speichern und Laden; keine unbeabsichtigten Duplikate |
+| P04 | Eigenes Team mit bis zu sechs Pokémon | Automatisiert geprüft; iPhone-Abnahme offen | Hoch | Auswahl aus besessenen individuellen Pokémon, Reihenfolge, Entfernen/Ersetzen, Speichern und Laden; keine unbeabsichtigten Duplikate |
 | P05 | Eigenes Team in Kämpfen | Offen | Sehr hoch | Vereinbarte Kampfarten unterstützen Team, Wechsel, besiegte Mitglieder, Heilung, Ergebnis und Fortsetzen ohne Speicherfehler |
 | P06 | Legendären-Geschichten Kanto | Offen | Hoch | Ein vollständig abgenommener Pilot, danach vereinbarte weitere Geschichten; Voraussetzungen, Fortschritt, Begegnung und Ergebnis persistent |
 | P07 | Legendären-Geschichten Johto | Offen | Hoch | Auf Storysystem aufbauen; getrennte regionale Fortschritte und geprüfte Freischaltungen |
@@ -98,11 +98,33 @@ gesondert behandelt werden; keine ungeprüfte automatische Übersetzung.
 
 ## Nächster konkreter Schritt
 
-P04: Sammlung, individuelle Pokémon-Identitäten, Box-/Pflegezuordnung,
-Speicherformat und vorhandene Auswahloberflächen lesen.
-Danach Regeln für ein Team mit bis zu sechs Pokémon festlegen.
-P04 umfasst Teamverwaltung und Speicherung; Kampfeinsatz folgt in P05.
-Keine Pokémon duplizieren oder bestehende Pflege-/Boxdaten ungeprüft ändern.
+P04: Die bestehende Teamplanung erfüllt im geprüften Umfang die
+Anforderungen an Teamverwaltung und Speicherung. Kein zweites Teammodell
+und keine neue Spielmechanik eingeführt; Kampfeinsatz bleibt P05.
+
+Bestandsaufnahme und automatisierte Prüfung am 25.10.2026:
+- Bestehende individuelle IDs und Sammlungs-/Ganzspielstand-Transaktionen
+  weiterverwenden; Teamzugehörigkeit verändert weder Pflegezuordnung
+  noch Boxplatz.
+- Modelltest: 1.150 Assertions; deterministische Zufallsoperationen enthalten.
+- Speichertest: 72 Assertions plus Ablehnungsprüfungen.
+- Simulierter Boxen-/Teamoberflächentest: 55 Assertions.
+- Neuer Browsertest collection-team.spec.js: zwei Testfälle in mobilem
+  Chromium und mobilem WebKit, insgesamt vier erfolgreiche Ausführungen.
+- Geprüft: sechs individuelle Teammitglieder, Ausschluss bereits gewählter
+  Exemplare aus der Ersetzungsauswahl, volle Belegung, Reihenfolge,
+  Ersetzen, Entfernen ohne Besitzverlust, unverändertes Pflege-Pokémon,
+  persistente Team-IDs/Reihenfolge nach Neuladen und Rückabwicklung
+  eines fehlgeschlagenen Team-Schreibvorgangs mit erfolgreichem Neuversuch.
+- Zentrale Qualitätsprüfung laut lokaler Ausgabe vollständig erfolgreich.
+- git diff --check ohne Befund vor dieser Planaktualisierung.
+- CI/Veröffentlichung dieses Test-/Dokumentationsstands noch nicht bestätigt.
+- Manuelle P04-iPhone-Abnahme noch offen; WebKit-Test ersetzt sie nicht.
+
+Nächster Schritt: Test und Plan versionieren, bestehenden
+CI-/Veröffentlichungsworkflow abwarten und danach die vorhandene
+Teamverwaltung auf dem iPhone gezielt abnehmen. Erst danach P04
+abschließen. P05 nicht ohne Festlegung der Kampfregeln beginnen.
 P03 ist einschließlich Veröffentlichung und iPhone-Abnahme abgeschlossen.
 
 ## Ideenspeicher

@@ -4,7 +4,16 @@ function fixture(badges=0){const base=H.fixture(0),fields=new Map();let p=4;for(
  for(const [k,v]of Object.entries(extra)){const b=typeof v==='boolean'?Buffer.from([+v]):Buffer.alloc(8);if(typeof v!=='boolean')b.writeBigInt64LE(BigInt(v));fields.set(k,[typeof v==='boolean'?0:1,b]);}fields.set('nick',[2,Buffer.from('Johto-Test')]);const count=Buffer.alloc(4);count.writeUInt32LE(fields.size);return Buffer.concat([count,...[...fields].map(([k,[type,v]])=>{const key=Buffer.from(k),len=Buffer.alloc(4);len.writeUInt32LE(v.length);return Buffer.concat([Buffer.from([key.length]),key,Buffer.from([type]),len,v]);})]);}
 // Fixture-only recovery after the Top Four. League HP/rest/index bytes are untouched.
 function recovered(raw){const copy=Buffer.from(raw);let p=4;for(let i=0;i<copy.readUInt32LE(0);i++){const n=copy[p++],k=copy.toString('utf8',p,p+n);p+=n;const type=copy[p++],size=copy.readUInt32LE(p);p+=4;if(k==='ene'){if(type!==1||size!==8)throw Error('Bad energy field');copy.writeBigInt64LE(100n,p);}p+=size;}return copy;}
-async function exitToIdle(page){await H.tap(page,233,435);await expect.poll(()=>page.evaluate(()=>screen)).toBe('arena');await H.tap(page,300,435);await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');await H.tap(page,233,406);await expect.poll(()=>page.evaluate(()=>screen)).toBe('idle');}
+async function exitToIdle(page){
+ await H.tap(page,233,435);
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('arena');
+ await page.waitForFunction(()=>screen==='arena'&&!TPArena.busy&&statusEl.textContent==='Arena Johto-Auswahl');
+ await H.tap(page,300,435);
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');
+ await page.waitForFunction(()=>screen==='card'&&cardPage===4&&statusEl.textContent===TPText.statusCard('Battle stats')&&!tpSaveReplacing&&!window.TPCollection?.busy&&!window.TPCollectionGame?.dialogOpen&&!window.TPArena?.busy&&!window.TPTraining?.busy&&!window.TPMega?.busy&&!window.TPLeague?.busy&&!window.TPExpeditions?.busy&&!window.TPAppMenu?.active&&choice==='none');
+ await H.tap(page,233,406);
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('idle');
+}
 async function openArena(page){await H.game(page);const a=await H.point(page,233,300),b=await H.point(page,233,110);await page.mouse.move(a.x,a.y);await page.mouse.down();await page.mouse.move(b.x,b.y,{steps:8});await page.mouse.up();await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');for(let i=0;i<4;i++)await H.tap(page,350,382);await H.tap(page,363,308);await expect.poll(()=>page.evaluate(()=>screen)).toBe('arena');}
 async function johto(page){await openArena(page);if(await page.evaluate(()=>TPArena.region===1))return;await H.tap(page,402,21);await expect.poll(()=>page.evaluate(()=>TPArena.choosingRegion)).toBe(true);await page.waitForFunction(()=>!TPRegions.locked());await H.tap(page,233,270);await expect.poll(()=>page.evaluate(()=>TPArena.region)).toBe(1);}
 const mask=(page,r)=>page.evaluate(r=>Module.ccall('tp_region_arena_mask','number',['number'],[r]),r);

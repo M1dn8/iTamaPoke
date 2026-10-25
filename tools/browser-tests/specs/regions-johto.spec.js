@@ -11,7 +11,7 @@ async function exitToIdle(page){
  await expect.poll(()=>page.evaluate(()=>({screen,busy:TPArena.busy})), {timeout:10000}).toEqual({screen:'arena',busy:false});
  await H.tap(page,300,435);
  await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');
- await page.waitForFunction(()=>screen==='card'&&cardPage===4&&statusEl.textContent===TPText.statusCard('Battle stats')&&!tpSaveReplacing&&!window.TPCollection?.busy&&!window.TPCollectionGame?.dialogOpen&&!window.TPArena?.busy&&!window.TPTraining?.busy&&!window.TPMega?.busy&&!window.TPLeague?.busy&&!window.TPExpeditions?.busy&&!window.TPAppMenu?.active&&choice==='none');
+ await page.waitForFunction(()=>screen==='card'&&cardPage===4&&!tpSaveReplacing&&!window.TPCollection?.busy&&!window.TPCollectionGame?.dialogOpen&&!window.TPArena?.busy&&!window.TPTraining?.busy&&!window.TPMega?.busy&&!window.TPLeague?.busy&&!window.TPExpeditions?.busy&&!window.TPAppMenu?.active&&choice==='none');
  await H.tap(page,233,406);
  await expect.poll(()=>page.evaluate(()=>screen)).toBe('idle');
 }

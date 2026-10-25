@@ -10,6 +10,17 @@ async function johto(page){await openArena(page);if(await page.evaluate(()=>TPAr
 const mask=(page,r)=>page.evaluate(r=>Module.ccall('tp_region_arena_mask','number',['number'],[r]),r);
 const reward=page=>page.evaluate(()=>JSON.parse(Module.ccall('tp_region_rg_view','string',['number'],[1])));
 async function quiet(page){await page.waitForFunction(()=>!tpSaveReplacing&&!TPCollection.busy&&!Module.ccall('tp_f4_store_pending','number',[],[]));}
+async function resumeStoredLeague(page){
+ await quiet(page);
+ await expect.poll(()=>page.evaluate(()=>{const v=TPLeague.state;return screen==='league'&&TPLeague.region===1&&!TPLeague.busy&&!tpSaveReplacing&&v.supported&&v.unlocked&&v.actor&&v.state===1&&!v.live&&(v.index!==20||!!TPBattleEnergy.view.champ.can)?true:false;})).toBe(true);
+ const phase=await page.evaluate(()=>TPLeague.diagnostics.phase);
+ if(phase==='choose'){
+  await expect.poll(()=>page.evaluate(()=>document.getElementById('status').textContent)).toBe('Johto-Liga');
+  await H.tap(page,233,360); // The overview's Fortsetzen control (343..377).
+ }else if(phase==='checkpoint'){
+  await H.tap(page,233,270); // The immediate checkpoint's Weiter/Champ control.
+ }else throw Error('Unexpected league page before resume: '+phase);
+}
 async function savedLeague(page,index,live){await expect.poll(()=>page.evaluate(()=>({index:TPLeague.state.index,live:TPLeague.state.live,busy:TPLeague.busy,replacing:tpSaveReplacing}))).toEqual({index,live,busy:false,replacing:false});}
 test.beforeEach(async({page})=>{await H.prepare(page);await page.waitForFunction(()=>!!window.TPRegions);expect(await page.evaluate(()=>TPRegions.available(1))).toBe(true);});
 test('Johto UI: Auswahl, echte Falk-Serie, eigener Orden und Neustart ohne Kanto-Aenderung',async({page})=>{
@@ -29,7 +40,7 @@ test('Johto UI: echte Liga, regionale Ehrung und bewusstes Shiny-Ei ohne Kanto-A
  for(let index=0;index<26;index++){
   await expect.poll(()=>page.evaluate(()=>TPBattleView.current?.region)).toBe(1);
   for(let turn=0;turn<80;turn++){const v=await page.evaluate(()=>TPLeague.state);if(!v.live||v.resolved)break;await H.battleAction(page,v.rests&&v.hp*100<v.maxHp*40?'rest':'quick');}
-  if(index<25){await savedLeague(page,index+1,0);if(index===19){const carry=await page.evaluate(()=>({hp:TPLeague.state.hp,rests:TPLeague.state.rests}));const raw=Buffer.from(await page.evaluate(()=>Array.from(exportStateBytes(Module))));await exitToIdle(page);await H.importSave(page,recovered(raw),376);await johto(page);await H.tap(page,130,435);await savedLeague(page,20,0);expect(await page.evaluate(()=>({hp:TPLeague.state.hp,rests:TPLeague.state.rests}))).toEqual(carry);}await H.tap(page,233,270);await savedLeague(page,index+1,1);}else await savedLeague(page,0,0);
+  if(index<25){await savedLeague(page,index+1,0);if(index===19){const carry=await page.evaluate(()=>({hp:TPLeague.state.hp,rests:TPLeague.state.rests}));const raw=Buffer.from(await page.evaluate(()=>Array.from(exportStateBytes(Module))));await exitToIdle(page);await H.importSave(page,recovered(raw),376);await johto(page);await H.tap(page,130,435);await savedLeague(page,20,0);expect(await page.evaluate(()=>({hp:TPLeague.state.hp,rests:TPLeague.state.rests}))).toEqual(carry);}await resumeStoredLeague(page);await savedLeague(page,index+1,1);}else await savedLeague(page,0,0);
  }
  await expect.poll(()=>page.evaluate(()=>TPHall.active)).toBe(true);expect(await page.evaluate(()=>TPHall.region)).toBe(1);const hall=await page.evaluate(()=>TPHall.view);expect(hall.wins).toBe(1);expect(hall.records[0].dex).toBe(376);expect(hall.records[0].nick).toBe('Johto-Test');expect(await page.evaluate(()=>JSON.parse(Module.ccall('tp_hall_view','string',[],[])).wins)).toBe(0);expect(await mask(page,0)).toBe(0);
  await H.tap(page,320,440);await expect.poll(()=>page.evaluate(()=>!TPHall.busy&&!tpSaveReplacing&&TPHall.view.seen===TPHall.view.wins)).toBe(true);await H.tap(page,127,160);await expect.poll(()=>page.evaluate(()=>TPRewardEgg.active)).toBe(true);expect(await page.evaluate(()=>TPRewardEgg.region)).toBe(1);await H.tap(page,233,100);expect(await page.evaluate(()=>TPRewardEgg.diagnostics.chosen)).toBe(152);page.once('dialog',d=>d.accept());await H.tap(page,320,440);

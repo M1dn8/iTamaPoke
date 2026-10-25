@@ -107,6 +107,8 @@ public:
   bool berryKnown = false;  // ya descubrio su baya favorita
   bool shiny = false;       // variante de color rara (se sortea en el huevo)
   uint32_t ageMinutes = 0;
+  // P05: individual battle levels, independent of elapsed care time.
+  uint8_t battleLevelBonus = 0;
   int16_t speciesId = -1;      // numero de Pokedex (1-DEX_COUNT), -1 = huevo
   int16_t prevSpeciesId = -1;  // para la animacion de evolucion
   uint8_t careMistakes = 0;   // descuidos: cada uno retrasa la evolucion 1 nivel
@@ -202,6 +204,11 @@ public:
   bool dailyGoalComplete(uint8_t index) const;
   uint8_t trainCombat(uint8_t stat, uint16_t hits); // TRAIN_STAT_ATK/DEF/SPE
   uint8_t trainStrength(uint16_t hits);  // saco de entrenamiento (entrena FUE)
+  // Data operation only: the battle controller must ensure one reward
+  // per resolved victory and include this save in its durable transaction.
+  bool grantBattleLevel();
+  // Profile progress only; no training or personal care reward.
+  bool recordWildBattleOutcome(bool won);
   BattleReward applyBattleWin(int16_t wildDex, bool closeWin);
   void applyBattleLoss();
 
@@ -269,7 +276,8 @@ public:
   void factoryReset() { prefs.clear(); }  // borra la NVS (test: comando serie WIPE)
   void dbgRunawayReady() { fullness = joy = energy = hygiene = 0; neglectTicks = RUNAWAY_TICKS; }  // test
   uint8_t level() const {
-    uint32_t raw = 1UL + ageMinutes / MINUTES_PER_LEVEL;
+    uint32_t raw = 1UL + ageMinutes / MINUTES_PER_LEVEL
+        + battleLevelBonus;
     return raw > 100UL ? 100 : (uint8_t)raw;
   }
   bool isRegistered(int16_t dex) const {
@@ -447,7 +455,7 @@ private:
   uint32_t today() const { return lastSeenEpoch ? (lastSeenEpoch + 3600) / 86400 : 0; }
   void registerCare();   // primer cuidado del dia: racha + vinculo
   void addBond(uint8_t amt);
-  void noteDailyGoal(uint8_t goalType, uint8_t amount);
+  void noteDailyGoal(uint8_t goalType, uint8_t amount, bool personalReward = true);
   void applyDailyReward();
   void checkMedals();
   void tick();

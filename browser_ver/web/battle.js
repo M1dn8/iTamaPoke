@@ -296,10 +296,17 @@ function drawWildPrompt() {
   ctx.fillStyle = UI.bgDay;
   ctx.fillText(fns.battleLaterText(), TP.cx, 300);
   ctx.textBaseline = "alphabetic";
+  if(window.TPWildTeam?.notice){
+    ctx.fillStyle=UI.barBad;ctx.font="11px monospace";
+    ctx.textAlign="center";
+    ctx.fillText(window.TPWildTeam.notice,TP.cx,352,420);
+    statusEl.textContent=window.TPWildTeam.notice;
+  }
 }
 
 function wildPromptTap(x, y) {
   if (x >= 93 && x <= 373 && y >= 226 && y <= 270) {
+    if(window.TPWildTeam){window.TPWildTeam.start(true);return;}
     Module._tp_wild_accept();
     battleReturn = "idle";
     screen = "battle"; // its own screen id, distinct from the minigames' "game"

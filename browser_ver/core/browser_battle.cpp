@@ -18,6 +18,7 @@
 #include "arena-kanto.h"
 #include "arena-johto.h"
 #include "battle-energy.h"
+#include "wild-team-runtime.h"
 #if defined(__EMSCRIPTEN__) || defined(TP_LG_TEST)
 extern "C" int tp_lg_owned();
 static bool leagueOwned(){return tp_lg_owned()!=0;}
@@ -124,6 +125,19 @@ uint8_t gLevel = 0;
 BattleStats gPlayer{}, gEnemy{};
 uint8_t gPlayerMegaForm=0;
 BattleRuntime gRun{};
+struct WTMemberSnapshot {
+  TPWildTeamEntry entry{};
+  std::string nick;
+  bool shiny=false;
+  bool care=false;
+  uint8_t form=0;
+};
+std::array<WTMemberSnapshot,6> gWTMembers{};
+TPWildTeamRuntime gWildTeam;
+unsigned gWTStageCount=0,gWTStageMask=0;
+bool gWTResultPending=false;
+struct WTResultUndo {uint32_t token=0;bool applied=false;};
+WTResultUndo gWTResultUndo;
 BattleTurnResult gTurn{};
 uint32_t gBvId=0;uint16_t gBvDealt=0,gBvTaken=0,gBvHeal=0;
 bool gAttackMenuOpen = false;
@@ -164,7 +178,7 @@ uint8_t dayPhaseNow() {
 }
 
 void startBattle(int16_t forcedDex, uint8_t forcedLevel) {
-  if(leagueOwned())return;
+  if(leagueOwned()||gWTResultUndo.token)return;
 #if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
   if(gF4CatchUndo.token)return;
   if(++gF4BattleId==0)++gF4BattleId;
@@ -174,6 +188,7 @@ void startBattle(int16_t forcedDex, uint8_t forcedLevel) {
   gArenaId=-1;gArenaPhase=0;gArenaToken=0;gArenaRegion=0;
   gTrainer=false;gTrainerNext=false;gTrainerCount=gTrainerIndex=0;
   gTrainerRounds=gTrainerDealt=gTrainerTaken=0;
+  gWildTeam.clear();gWTResultPending=false;
   gRewardLine.clear();
   Pet &pet = tp_battle_pet();
   gWildPromptActive = false;
@@ -209,6 +224,16 @@ void startBattle(int16_t forcedDex, uint8_t forcedLevel) {
 void finishBattle() {
   if (gResolved) return;
   gResolved = true;
+  // P05: result is intentionally not rewarded by the legacy care method.
+  // The later result transaction must confirm this pending outcome.
+  if(gWildTeam.count()&&!gTrainer){
+    gWTResultPending=true;
+    gRewardLine.clear();
+    gCatchOffered=gCatchTried=gCatchDone=gCatchSuccess=gRespectCatch=false;
+    gCatchChance=0;
+    sfxPlay(gTurn.playerWon?SFX_BATTLE_WIN:SFX_BATTLE_LOSS);
+    return;
+  }
   Pet &pet = tp_battle_pet();
   if (gTrainer) {
     gCatchOffered=gCatchTried=gCatchDone=gCatchSuccess=gRespectCatch=false;
@@ -332,6 +357,7 @@ int tp_battle_can_start() {
 EMSCRIPTEN_KEEPALIVE void tp_battle_start() { if(!gOpen&&tp_battle_can_start())startBattle(0, 0); }
 EMSCRIPTEN_KEEPALIVE
 void tp_battle_close() {
+  if(gWTResultUndo.token)return;
 #if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
   if(gF4CatchUndo.token)return;
   gF4Outcome=-1;gF4CatchEpoch=0;
@@ -339,6 +365,8 @@ void tp_battle_close() {
   if(gArenaUndo)return;
   gArenaId=-1;gArenaToken=0;gArenaPhase=0;gArenaRegion=0;
   gTrainer=false;gTrainerNext=false;gTrainerCount=gTrainerIndex=0;
+  gWildTeam.clear();gWTResultPending=false;
+  gWTStageCount=gWTStageMask=0;
   gOpen = false;
   gResolved = false;
   gAttackMenuOpen = false;
@@ -348,8 +376,8 @@ void tp_battle_close() {
 
 EMSCRIPTEN_KEEPALIVE int tp_battle_is_open() { return gOpen||leagueOwned() ? 1 : 0; }
 // Read-only battle presentation values; never use current level/form after expiry.
-EMSCRIPTEN_KEEPALIVE int tp_bv_get(int key){switch(key){case 0:return int(gBvId&0x7fffffff);case 1:return gPlayer.level;case 2:return gPlayer.atk;case 3:return gPlayer.def;case 4:return gPlayer.spe;case 5:return gPlayerMegaForm;case 6:return tp_battle_pet().shiny?1:0;case 7:return gBvDealt;case 8:return gBvTaken;case 9:return gBvHeal;case 10:return gArenaId;case 11:return gPlayer.type1;case 12:return gPlayer.type2;}return 0;}
-EMSCRIPTEN_KEEPALIVE const char *tp_bv_nick(){return tp_battle_pet().nick;}
+EMSCRIPTEN_KEEPALIVE int tp_bv_get(int key){switch(key){case 0:return int(gBvId&0x7fffffff);case 1:return gPlayer.level;case 2:return gPlayer.atk;case 3:return gPlayer.def;case 4:return gPlayer.spe;case 5:return gPlayerMegaForm;case 6:return gWildTeam.count()?(gWTMembers[gWildTeam.activeIndex()].shiny?1:0):(tp_battle_pet().shiny?1:0);case 7:return gBvDealt;case 8:return gBvTaken;case 9:return gBvHeal;case 10:return gArenaId;case 11:return gPlayer.type1;case 12:return gPlayer.type2;}return 0;}
+EMSCRIPTEN_KEEPALIVE const char *tp_bv_nick(){return gWildTeam.count()?gWTMembers[gWildTeam.activeIndex()].nick.c_str():tp_battle_pet().nick;}
 EMSCRIPTEN_KEEPALIVE int tp_battle_resolved() { return gResolved ? 1 : 0; }
 EMSCRIPTEN_KEEPALIVE int tp_battle_wild_dex() { return gDex; }
 EMSCRIPTEN_KEEPALIVE int tp_battle_wild_level() { return gLevel; }
@@ -381,6 +409,16 @@ const char *tp_battle_round_label() {
 EMSCRIPTEN_KEEPALIVE
 const char *tp_battle_player_label() {
   static std::string out;
+  if(gWildTeam.count()){
+    const auto &m=gWTMembers[gWildTeam.activeIndex()];
+    const auto form=tpMegaById(m.form);
+    const char *label=!m.nick.empty()?m.nick.c_str():
+      (m.form&&form?form->name:dexName(m.entry.dex));
+    char buf[96];
+    snprintf(buf,sizeof(buf),"%.23s%s Lv.%u",label,
+      m.form&&!m.nick.empty()?" (Mega)":"",gPlayer.level);
+    out=buf;return out.c_str();
+  }
   Pet &pet = tp_battle_pet();
   const char *name = pet.nick[0] ? pet.nick : (gPlayer.mega&&tpMegaById(gPlayerMegaForm)?tpMegaById(gPlayerMegaForm)->name:dexName(pet.speciesId));
   char buf[64];
@@ -414,7 +452,14 @@ void performAction(BattleAction action) {
   if(gTrainer&&!trainerActorValid()){tp_battle_close();return;}
   gAttackMenuOpen = false;
   const uint16_t dealt=gRun.playerDamageTotal,taken=gRun.enemyDamageTotal;
-  gTurn = stepBattle(gRun, action, rnd100());
+  if(gWildTeam.count()&&!gTrainer){
+    const auto result=gWildTeam.act(gRun,action,rnd100());
+    if(!result.accepted)return;
+    gTurn=result.turn;
+    if(!result.resolved)gTurn.battleEnded=false;
+  }else{
+    gTurn = stepBattle(gRun, action, rnd100());
+  }
   gBvDealt=uint16_t(gRun.playerDamageTotal-dealt);gBvTaken=uint16_t(gRun.enemyDamageTotal-taken);gBvHeal=gTurn.playerHeal;
 
   if (gTurn.restFailed) {
@@ -494,6 +539,7 @@ const char *tp_battle_close_chance_text() {
 
 EMSCRIPTEN_KEEPALIVE
 void tp_battle_try_catch() {
+  if(gWTResultPending)return;
 #if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
   if(gF4CatchUndo.token&&!gF4QuietCatch)return;
 #endif
@@ -515,6 +561,7 @@ void tp_battle_try_catch() {
 }
 EMSCRIPTEN_KEEPALIVE
 void tp_battle_leave_wild() {
+  if(gWTResultPending)return;
 #if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
   if(gF4CatchUndo.token)return;
 #endif
@@ -639,7 +686,7 @@ EMSCRIPTEN_KEEPALIVE int tp_e_battle_type2(){return gPlayer.type2;}
 #if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
 extern uint32_t tp_f4_store_begin_catch_context();
 extern int tp_f4_store_finish(uint32_t,int);
-static bool f4CaptureEligible(){const auto&p=tp_battle_pet();return !gTrainer&&gArenaId<0&&!gArenaUndo&&gOpen&&gResolved&&gCatchOffered&&!gCatchDone&&!p.isEgg()&&p.ceremony==CER_NONE&&p.speciesId==gF4ActorDex&&p.shiny==gF4ActorShiny&&p.geneAtk==gF4ActorGa&&p.geneDef==gF4ActorGd&&p.geneSpe==gF4ActorGs&&p.ageMinutes>=gF4ActorAge;}
+static bool f4CaptureEligible(){const auto&p=tp_battle_pet();return !gWTResultPending&&!gTrainer&&gArenaId<0&&!gArenaUndo&&gOpen&&gResolved&&gCatchOffered&&!gCatchDone&&!p.isEgg()&&p.ceremony==CER_NONE&&p.speciesId==gF4ActorDex&&p.shiny==gF4ActorShiny&&p.geneAtk==gF4ActorGa&&p.geneDef==gF4ActorGd&&p.geneSpe==gF4ActorGs&&p.ageMinutes>=gF4ActorAge;}
 EMSCRIPTEN_KEEPALIVE int tp_f4_capture_audio_quiet(){return gF4QuietCatch?1:0;}
 EMSCRIPTEN_KEEPALIVE int tp_f4_capture_battle_id(){return gOpen&&!gTrainer?int(gF4BattleId&0x7fffffffu):0;}
 EMSCRIPTEN_KEEPALIVE const char *tp_f4_capture_snapshot(){
@@ -674,5 +721,232 @@ EMSCRIPTEN_KEEPALIVE int tp_f4_capture_finish(uint32_t token,int commit){
  gF4CatchUndo={};return 1;
 }
 #endif
+
+
+// P05 native entry points. Not yet enabled by the browser start buttons.
+static bool wtStoreFree(){
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+  extern int tp_f4_store_pending();
+  return tp_f4_store_pending()==0;
+#else
+  return true;
+#endif
+}
+
+static std::string wtQuote(const std::string &value){
+  std::string out="\"";
+  for(const unsigned char c:value){
+    if(c=='"'||c=='\\'){out+='\\';out+=char(c);}
+    else if(c<32){
+      char escaped[7];
+      snprintf(escaped,sizeof(escaped),"\\u%04x",unsigned(c));
+      out+=escaped;
+    }else out+=char(c);
+  }
+  return out+'"';
+}
+
+EMSCRIPTEN_KEEPALIVE int tp_wt_stage_begin(int count){
+  if(count<1||count>6||gOpen||leagueOwned()||gArenaUndo||
+     !wtStoreFree()||!tp_battle_can_start()||
+     tp_battle_pet().evolving())return 0;
+  gWTMembers={};
+  gWTStageCount=unsigned(count);gWTStageMask=0;
+  return 1;
+}
+
+EMSCRIPTEN_KEEPALIVE int tp_wt_stage_entry(
+    int index,uint32_t id,int dex,int level,int atk,int def,int spe,
+    int care,int shiny,const char *nick){
+  if(gOpen||!gWTStageCount||index<0||unsigned(index)>=gWTStageCount||
+     (gWTStageMask&(1u<<index))||!id||id==0xffffffffu||
+     dex<1||dex>DEX_COUNT||level<1||level>100||
+     atk<1||atk>65535||def<1||def>65535||spe<1||spe>65535||
+     (care!=0&&care!=1)||(shiny!=0&&shiny!=1)||
+     !nick||std::strlen(nick)>23)return 0;
+  for(unsigned i=0;i<gWTStageCount;i++)
+    if((gWTStageMask&(1u<<i))&&gWTMembers[i].entry.id==id)return 0;
+
+  BattleStats stats{};
+  uint8_t form=0;
+  std::string name=nick;
+  bool isShiny=shiny!=0;
+  if(care){
+    const auto &p=tp_battle_pet();
+    if(dex!=p.speciesId||level!=p.level()||isShiny!=p.shiny)return 0;
+    stats=realPlayerStats();
+    form=stats.mega?p.megaFormId():0;
+    name=p.nick;
+  }else{
+    stats.level=uint8_t(level);
+    stats.atk=uint16_t(atk);stats.def=uint16_t(def);stats.spe=uint16_t(spe);
+    stats.type1=DEX_TBL[dex].type1;stats.type2=DEX_TBL[dex].type2;
+  }
+  auto &m=gWTMembers[unsigned(index)];
+  m.entry={id,int16_t(dex),stats};
+  m.nick=name;m.shiny=isShiny;m.care=care!=0;m.form=form;
+  gWTStageMask|=1u<<index;
+  return 1;
+}
+
+EMSCRIPTEN_KEEPALIVE int tp_wt_start(int prompt){
+  if((prompt!=0&&prompt!=1)||gOpen||leagueOwned()||gArenaUndo||
+     !wtStoreFree()||!tp_battle_can_start()||
+     tp_battle_pet().evolving()||!gWTStageCount||
+     gWTStageMask!=((1u<<gWTStageCount)-1u))return 0;
+  if(prompt&&!tp_wild_prompt_active())return 0;
+  if(!prompt&&gWildPromptActive)return 0;
+
+  const unsigned count=gWTStageCount;
+  TPWildTeamEntry entries[6]{};
+  for(unsigned i=0;i<count;i++)entries[i]=gWTMembers[i].entry;
+  const int16_t dex=prompt?gWildPromptDex:0;
+  const uint8_t level=prompt?gWildPromptLevel:0;
+
+  startBattle(dex,level);
+  if(!gOpen||!gWildTeam.begin(gRun,entries,count,gEnemy)){
+    if(gOpen)tp_battle_close();
+    return 0;
+  }
+  gWTStageCount=gWTStageMask=0;
+  gPlayer=gRun.player;
+  gPlayerMegaForm=gWTMembers[0].form;
+  return 1;
+}
+
+EMSCRIPTEN_KEEPALIVE int tp_wt_switch(int index){
+  if(!gOpen||gTrainer||gResolved||gWTResultPending||index<0||
+     !gWildTeam.count())return 0;
+  const auto dealt=gRun.playerDamageTotal,taken=gRun.enemyDamageTotal;
+  const auto result=gWildTeam.select(gRun,unsigned(index),rnd100());
+  if(!result.accepted)return 0;
+  gPlayer=gRun.player;
+  gPlayerMegaForm=gWTMembers[gWildTeam.activeIndex()].form;
+  gTurn=result.turn;
+  if(!result.resolved)gTurn.battleEnded=false;
+  gBvDealt=uint16_t(gRun.playerDamageTotal-dealt);
+  gBvTaken=uint16_t(gRun.enemyDamageTotal-taken);
+  gBvHeal=0;gAttackMenuOpen=false;gLowHpWarned=false;gMessage[0]=0;
+  if(result.resolved)finishBattle();
+  return 1;
+}
+
+EMSCRIPTEN_KEEPALIVE int tp_wt_player_dex(){
+  return gWildTeam.count()?
+    gWTMembers[gWildTeam.activeIndex()].entry.dex:tp_battle_pet().speciesId;
+}
+
+EMSCRIPTEN_KEEPALIVE const char *tp_wt_view(){
+  static std::string out;
+  const auto count=gWildTeam.count();
+  out="{\"live\":"+std::to_string(gOpen&&count?1:0)+
+    ",\"count\":"+std::to_string(count)+
+    ",\"active\":"+std::to_string(gWildTeam.activeIndex())+
+    ",\"needsSwitch\":"+(gWildTeam.needsSwitch()?std::string("true"):"false")+
+    ",\"resultPending\":"+(gWTResultPending?std::string("true"):"false")+
+    ",\"winnerId\":"+std::to_string(
+      gResolved&&gTurn.playerWon?gWildTeam.activeId():0)+
+    ",\"members\":[";
+  for(unsigned i=0;i<count;i++){
+    if(i)out+=",";
+    const auto &m=gWTMembers[i];
+    const auto &s=m.entry.stats;
+    out+="{\"id\":"+std::to_string(m.entry.id)+
+      ",\"dex\":"+std::to_string(m.entry.dex)+
+      ",\"level\":"+std::to_string(s.level)+
+      ",\"nick\":"+wtQuote(m.nick)+
+      ",\"shiny\":"+(m.shiny?std::string("true"):"false")+
+      ",\"form\":"+std::to_string(m.form)+
+      ",\"hp\":"+std::to_string(gWildTeam.hp(i))+
+      ",\"maxHp\":"+std::to_string(gWildTeam.maxHp(i))+"}";
+  }
+  out+="]}";return out.c_str();
+}
+
+
+// P05 result transaction. JS must stage the validated complete collection
+// and confirm the whole-save durable write before committing this token.
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+extern uint32_t tp_f4_store_begin_wild_result_context();
+extern int tp_f4_store_finish(uint32_t,int);
+
+static bool wtResultActorValid(){
+  const auto &p=tp_battle_pet();
+  return !p.isEgg()&&p.ceremony==CER_NONE&&
+    p.speciesId==gF4ActorDex&&p.shiny==gF4ActorShiny&&
+    p.geneAtk==gF4ActorGa&&p.geneDef==gF4ActorGd&&
+    p.geneSpe==gF4ActorGs&&p.ageMinutes>=gF4ActorAge;
+}
+#endif
+
+EMSCRIPTEN_KEEPALIVE uint32_t tp_wt_result_begin(){
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+  if(!gOpen||gTrainer||!gResolved||!gWildTeam.count()||
+     !gWTResultPending||gWTResultUndo.token||!wtResultActorValid())return 0;
+  const auto token=tp_f4_store_begin_wild_result_context();
+  if(!token)return 0;
+  gWTResultUndo={token,false};
+  return token;
+#else
+  return 0;
+#endif
+}
+
+EMSCRIPTEN_KEEPALIVE int tp_wt_result_apply(uint32_t token,uint32_t winnerId){
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+  if(!token||token!=gWTResultUndo.token||gWTResultUndo.applied||
+     !gWTResultPending||!wtResultActorValid())return 0;
+  const uint32_t expected=gTurn.playerWon?gWildTeam.activeId():0;
+  if(winnerId!=expected)return 0;
+
+  auto &p=tp_battle_pet();
+  const auto &winner=gWTMembers[gWildTeam.activeIndex()];
+  if(gTurn.playerWon&&winner.care&&p.level()<100){
+    if(!p.grantBattleLevel())return 0;
+  }
+
+  // Preserve the existing catch policy, using the frozen combat level.
+  // No training bonus or legacy care win/loss method is called here.
+  gCatchTried=gCatchDone=gCatchSuccess=false;
+  gRespectCatch=false;
+  if(gTurn.playerWon){
+    const bool closeWin=gRun.playerHp<=gRun.playerMaxHp/3;
+    gCatchChance=p.catchChanceForWild(gDex,gLevel,gPlayer.level,closeWin);
+    gCatchOffered=true;
+  }else{
+    const bool closeLoss=gRun.enemyHp>0&&
+      uint32_t(gRun.enemyHp)*100UL<=uint32_t(gRun.enemyMaxHp)*30UL;
+    gCatchChance=closeLoss?
+      p.respectCatchChanceForWild(gDex,gLevel,gPlayer.level):0;
+    gCatchOffered=gCatchChance>0;
+    gRespectCatch=gCatchOffered;
+  }
+  if(!p.recordWildBattleOutcome(gTurn.playerWon))return 0;
+  gWTResultUndo.applied=true;
+  return 1;
+#else
+  (void)token;(void)winnerId;
+  return 0;
+#endif
+}
+
+EMSCRIPTEN_KEEPALIVE int tp_wt_result_finish(uint32_t token,int commit){
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+  if(!token||token!=gWTResultUndo.token||(commit!=0&&commit!=1)||
+     (commit&&!gWTResultUndo.applied))return 0;
+  if(!tp_f4_store_finish(token,commit))return 0;
+  if(commit){
+    gWTResultPending=false;
+  }else{
+    gCatchOffered=gCatchTried=gCatchDone=gCatchSuccess=gRespectCatch=false;
+    gCatchChance=0;
+  }
+  gWTResultUndo={};
+  return 1;
+#else
+  (void)token;(void)commit;
+  return 0;
+#endif
+}
 
 } // extern "C"

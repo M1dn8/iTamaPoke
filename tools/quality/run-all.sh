@@ -64,11 +64,16 @@ python3 tools/quality/test-region-league.py
 python3 tools/quality/test-region-reward.py
 node tests/package-region-ui.test.js
 node tests/package-wild-capture-ui.test.js
+node tests/package-p05-wild-routing.test.js
 node tests/package-ui-unified.test.js
 node tests/retro-ui.test.js
 python3 tools/quality/test-kanto-league.py
 python3 tools/quality/test-kanto-hall.py
 python3 tools/quality/test-kanto-reward-egg.py
+python3 tools/quality/test-p05-level.py
+python3 tools/quality/test-p05-team.py
+python3 tools/quality/test-p05-wild-start.py
+python3 tools/quality/test-p05-wild-result.py
 python3 tools/quality/test-battle-energy.py
 python3 tools/quality/test-battle-view.py
 python3 tools/quality/test-asset-packs.py

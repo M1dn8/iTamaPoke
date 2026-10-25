@@ -1700,12 +1700,16 @@ createTPCore({
       canSync:()=>Module===mod&&!!window.TPAppMenu?.ready&&!tpSaveReplacing&&!window.TPCollection?.busy&&!window.TPMega?.busy&&!window.TPTraining?.busy&&!window.TPArena?.busy&&!window.TPExpeditions?.busy&&["idle","card","settings"].includes(screen)&&choice==="none"
     });
     const capture=window.TPCollectionCapture?.create(mod,window.TPCollectionModel,plainBridge,reportCollection,life?life.reconcile:undefined);
+    const wildResult=window.TPCollectionWildResult?.create(
+      mod,window.TPCollectionModel,capture?capture.bridge:plainBridge,
+      life?life.reconcile:undefined
+    );
     window.TPCollection=window.TPCollectionPersistence.create({
       model:window.TPCollectionModel,
-      bridge:capture?capture.bridge:plainBridge,
-      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{})},
+      bridge:wildResult?wildResult.bridge:(capture?capture.bridge:plainBridge),
+      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{}),...(wildResult?wildResult.nativeActions:{})},
       acquire:(context)=>{
-        if(Module!==mod||!window.TPAppMenu?.ready||tpSaveReplacing||window.TPMega?.busy||window.TPTraining?.busy||window.TPArena?.busy||window.TPExpeditions?.busy||(context==="wildCapture"?screen!=="battle":!["idle","card","settings"].includes(screen))||(window.TPCollectionGame?.dialogOpen&&context!=="careEnd")||choice!=="none"||(context!=="careSync"&&(fns.ceremony()||fns.evolvingNow()))||fns.wildPromptActive())throw Error("Sammlung: Spiel ist gerade beschaeftigt.");
+        if(Module!==mod||!window.TPAppMenu?.ready||tpSaveReplacing||window.TPMega?.busy||window.TPTraining?.busy||window.TPArena?.busy||window.TPExpeditions?.busy||((context==="wildCapture"||context==="wildResult")?screen!=="battle":!["idle","card","settings"].includes(screen))||(window.TPCollectionGame?.dialogOpen&&context!=="careEnd")||choice!=="none"||(context!=="careSync"&&(fns.ceremony()||fns.evolvingNow()))||(context!=="wildPrepare"&&fns.wildPromptActive()))throw Error("Sammlung: Spiel ist gerade beschaeftigt.");
         tpSaveReplacing=true;tpSaveEpoch++;dragStart=null;dragNow=null;
         return ()=>{tpSaveEpoch++;tpSaveReplacing=false;};
       },
@@ -1715,6 +1719,7 @@ createTPCore({
     });
     if(capture){capture.bind(window.TPCollection);window.TPCapture=capture;}
     if(life){life.bind(window.TPCollection);window.TPCollectionGame=life;}
+    if(wildResult){wildResult.bind(window.TPCollection);window.TPWildResult=wildResult;}
   }
 
   // Periodic autosave, plus on tab hide/close -- pagehide fires reliably on

@@ -33,6 +33,8 @@ enum BattleAction : uint8_t {
   BATTLE_ATTACK_HEAVY,
   BATTLE_DODGE,
   BATTLE_REST,
+  // P05: no player attack, heal, dodge or guard; enemy acts normally.
+  BATTLE_SWITCH,
 };
 
 struct BattleRuntime {

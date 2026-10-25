@@ -41,6 +41,11 @@ static uint32_t beginStore(bool resolvedCatchContext){
 EMSCRIPTEN_KEEPALIVE uint32_t tp_f4_store_begin(){return beginStore(false);}
 // Internal pairing with tp_f4_capture_begin, which checks capture eligibility.
 EMSCRIPTEN_KEEPALIVE uint32_t tp_f4_store_begin_catch_context(){return tp_battle_is_open()?beginStore(true):0;}
+// Internal pairing only: tp_wt_result_begin checks the resolved team outcome.
+// Not a new general-purpose JavaScript collection-write entry point.
+uint32_t tp_f4_store_begin_wild_result_context(){
+ return tp_battle_is_open()?beginStore(true):0;
+}
 // Opaque UTF-8 ITC1 model bytes are validated in the JS model before this call.
 // The native layer checks transport/type/bounds, NOT the JSON model/checksum.
 EMSCRIPTEN_KEEPALIVE int tp_f4_store_stage(uint32_t token,const uint8_t *data,int len){

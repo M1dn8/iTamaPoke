@@ -43,4 +43,21 @@ async function battleAction(page,action){
  await tap(page,p.x,p.y);
 }
 
-module.exports={battleAction,fixture,waitReady,point,tap,openMenu,game,modal,importSave,prepare,diary};
+
+async function waitForWildCatchReady(page){
+ await expect.poll(()=>page.evaluate(()=>({
+  resolved:!!fns.battleResolved(),
+  offered:!!fns.battleCatchOffered(),
+  resultPending:JSON.parse(
+   Module.ccall('tp_wt_view','string',[],[])
+  ).resultPending,
+  busy:TPCollection.busy,
+  blocked:TPCollection.blocked,
+  gate:tpSaveReplacing
+ }))).toEqual({
+  resolved:true,offered:true,resultPending:false,
+  busy:false,blocked:false,gate:false
+ });
+}
+
+module.exports={waitForWildCatchReady,battleAction,fixture,waitReady,point,tap,openMenu,game,modal,importSave,prepare,diary};

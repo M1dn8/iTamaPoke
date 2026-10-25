@@ -72,6 +72,7 @@ void Pet::newEgg() {
   hygiene = 100;
   poops = 0;
   ageMinutes = 0;
+  battleLevelBonus = 0;
   lastPetInteractMinute = 0;
   evoDeclinedLv = 0;
   evoDeclinedAge = 0;
@@ -394,7 +395,7 @@ void Pet::applyDailyReward() {
   addBond(1);
 }
 
-void Pet::noteDailyGoal(uint8_t goalType, uint8_t amount) {
+void Pet::noteDailyGoal(uint8_t goalType, uint8_t amount, bool personalReward) {
   if (isEgg() || ceremony != CER_NONE || amount == 0) return;
   ensureDailyGoals();
   if (dailyGoalDay == 0) return;
@@ -407,9 +408,11 @@ void Pet::noteDailyGoal(uint8_t goalType, uint8_t amount) {
     changed = true;
     if (dailyGoalProgress[i] >= target) {
       dailyGoalDone |= (1 << i);
-      applyDailyReward();
-      heartUntil = millis() + HEART_MS;
-      sfxPlay(SFX_DAILY_GOAL);
+      if (personalReward) {
+        applyDailyReward();
+        heartUntil = millis() + HEART_MS;
+        sfxPlay(SFX_DAILY_GOAL);
+      }
     }
   }
   if (changed) save();
@@ -682,6 +685,7 @@ void Pet::release() {
 }
 
 void Pet::hatch() {
+  battleLevelBonus = 0;
   speciesId = eggTarget;
   shiny = eggShiny;
   // genes del individuo: 90-110% por stat (cada crianza es unica)
@@ -1103,6 +1107,29 @@ uint8_t Pet::trainCombat(uint8_t stat, uint16_t hits) {
 }
 uint8_t Pet::trainStrength(uint16_t hits) { return trainCombat(TRAIN_STAT_ATK,hits); }
 
+bool Pet::recordWildBattleOutcome(bool won) {
+  if (isEgg() || ceremony != CER_NONE) return false;
+  if (won) {
+    if (battleWins < 0xffffu) ++battleWins;
+    if (battleStreak < 0xffffu) ++battleStreak;
+    if (battleStreak > bestBattleStreak) bestBattleStreak = battleStreak;
+    // A wild victory grants only its separate level reward.
+    noteDailyGoal(DAILY_GOAL_BATTLE, 1, false);
+  } else {
+    if (battleLosses < 0xffffu) ++battleLosses;
+    battleStreak = 0;
+  }
+  save();
+  return true;
+}
+
+bool Pet::grantBattleLevel() {
+  if (isEgg() || ceremony != CER_NONE || level() >= 100) return false;
+  ++battleLevelBonus;
+  save();
+  return true;
+}
+
 BattleReward Pet::applyBattleWin(int16_t wildDex, bool closeWin) {
   BattleReward reward;
   if (ceremony != CER_NONE || isEgg()) return reward;
@@ -1368,6 +1395,7 @@ void Pet::save() {
   prefs.putBool("stpk", starterPick);
   prefs.putBytes("dexsh", dexShinyReg, sizeof(dexShinyReg));
   prefs.putUInt("age", ageMinutes);
+  prefs.putUChar("blvl", battleLevelBonus);
   prefs.putShort("dexn", speciesId);
   prefs.putShort("eggT2", eggTarget);
   prefs.putUChar("crack", eggTaps);
@@ -1470,6 +1498,8 @@ void Pet::load() {
   starterPick = prefs.getBool("stpk", false);
   prefs.getBytes("dexsh", dexShinyReg, sizeof(dexShinyReg));
   ageMinutes = prefs.getUInt("age", 0);
+  battleLevelBonus = prefs.getUChar("blvl", 0);
+  if (battleLevelBonus > 99) battleLevelBonus = 0;
   if (prefs.isKey("dexn")) {
     speciesId = prefs.getShort("dexn", -1);
     eggTarget = prefs.getShort("eggT2", 4);

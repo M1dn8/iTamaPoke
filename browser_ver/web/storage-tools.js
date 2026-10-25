@@ -29,6 +29,9 @@ function parseLegacy(input){
  if(get("init",0,false)!==true)throw Error("Kein initialisierter iTamaPoke-Spielstand.");
  if(!values.has("dexn")||!values.has("age"))throw Error("Pflichtfelder fehlen.");
  const dex=get("dexn",1,-1),age=get("age",1,0),target=get("eggT2",1,1);
+ const battleLevelBonus=get("blvl",1,0);
+ if(!Number.isInteger(battleLevelBonus)||battleLevelBonus<0||battleLevelBonus>99)throw Error("Ungueltiger Kampf-Levelbonus.");
+ if(dex===-1&&battleLevelBonus!==0)throw Error("Ein Ei darf keinen Kampf-Levelbonus besitzen.");
  if(!Number.isInteger(dex)||(dex!==-1&&(dex<1||dex>1025))||age<0||age>0xffffffff||target<1||target>1025)throw Error("Art, Ei oder Alter ausserhalb des unterstuetzten Bereichs.");
  for(const k of ["full","joy","ene","hyg","bond"]){const n=get(k,1,0);if(n<0||n>100)throw Error("Ungueltiger Wert: "+k);}
  for(const k of ["dexreg","dexcgt","dexsh"]){const v=get(k,3,new Uint8Array());if(v.length>129)throw Error("Sammlung stammt aus einem nicht unterstuetzten Datenumfang.");}
@@ -50,7 +53,7 @@ function parseLegacy(input){
   }else if(dex>0&&!ceremony)throw Error("Aktuelles Pflege-Pokemon fehlt in der individuellen Sammlung.");
  }else if(collectionModel?.active!==null&&collectionModel?.active!==undefined){const m=collectionModel.mons.find(m=>m.id===collectionModel.active);if(m&&m.data.lifeToken!==undefined)throw Error("Pflege-Identitaetsmetadaten fehlen.");}
  function bitCount(k){let n=0;const v=get(k,3,new Uint8Array());for(let d=0;d<1025;d++)if((v[d>>3]||0)&(1<<(d&7)))n++;return n;}
- return {raw:b.slice(),values,summary:{dex,level:Math.min(100,1+Math.floor(age/60)),age,bond:get("bond",1,0),nick:get("nick",2,""),raised:bitCount("dexreg"),caught:bitCount("dexcgt"),shiny:bitCount("dexsh")}};
+ return {raw:b.slice(),values,summary:{dex,level:Math.min(100,1+Math.floor(age/60)+battleLevelBonus),age,bond:get("bond",1,0),nick:get("nick",2,""),raised:bitCount("dexreg"),caught:bitCount("dexcgt"),shiny:bitCount("dexsh")}};
 }
 async function digest(input){
  if(!root.crypto||!root.crypto.subtle)throw Error("Sichere Pruefsumme nicht verfuegbar. HTTPS oder localhost verwenden.");

@@ -162,13 +162,13 @@ function drawCardStats() {
   }
   ctx.textAlign='center';ctx.fillStyle=UI.ink;ctx.font='11px monospace';ctx.fillText(fns.battleRecordLine(),103,350);ctx.fillText(fns.battleStreakLine(),233,350);ctx.fillText(fns.battleBestLine(),363,350);
   if(window.TPTraining?.notice){ctx.textAlign='center';ctx.fillStyle=UI.barBad;ctx.font='11px monospace';ctx.fillText(window.TPTraining.notice,TP.cx,371);}
-  statusEl.textContent=TPText.status('Card · Battle stats');
+  statusEl.textContent=window.TPWildTeam?.notice||TPText.status('Card · Battle stats');
 }
 function cardStatsTap(x,y){
   if(y>=232&&y<=276){for(const [left,kind] of [[44,0],[174,2],[304,1]])if(x>=left&&x<=left+118){window.TPTraining?.start(kind);return;}}
   if(x>=304&&x<=422&&y>=286&&y<=330){window.TPArena?.open();return;}
   if(x>=174&&x<=292&&y>=286&&y<=330){window.TPTrainer?.open();return;}
-  if(x>=44&&x<=162&&y>=286&&y<=330){if(fns.battleCanStart()!==0){Module._tp_battle_start();battleReturn='card';screen='battle';}return;}
+  if(x>=44&&x<=162&&y>=286&&y<=330){if(window.TPWildTeam){window.TPWildTeam.start(false);return;}if(fns.battleCanStart()!==0){Module._tp_battle_start();battleReturn='card';screen='battle';}return;}
 }
 
 function drawCardMedals() {

@@ -40,6 +40,19 @@ function selectTeam(s,id,replaceId=null){return change(s,n=>{mon(n,id);if(n.team
 function unselectTeam(s,id){return change(s,n=>{const at=n.team.indexOf(id);if(at<0)fail('NOT_SELECTED');n.team.splice(at,1);});}
 function moveTeam(s,id,direction){if(direction!==-1&&direction!==1)fail('INVALID_DIRECTION');return change(s,n=>{const at=n.team.indexOf(id);if(at<0)fail('NOT_SELECTED');const to=at+direction;if(to<0||to>=n.team.length)return;[n.team[at],n.team[to]]=[n.team[to],n.team[at]];});}
 function releaseStored(s,id,{confirmed=false}={}){if(confirmed!==true)fail('CONFIRMATION_REQUIRED');return change(s,n=>{const p=stored(n,id);n.boxes[p.box].slots[p.slot]=null;n.mons=n.mons.filter(m=>m.id!==id);n.team=n.team.filter(x=>x!==id);});}
+// P05: called by the bound native result action, not a generic UI operation.
+function grantStoredBattleLevel(s,id){
+ validate(s);stored(s,id);
+ const current=mon(s,id);
+ if(current.level===100)return s;
+ const stats=current.data.stats;
+ if(!plain(stats)||!['atk','def','spe'].every(k=>int(stats[k],1,65534)))fail('BATTLE_STATS_UNAVAILABLE');
+ return change(s,n=>{
+  const m=mon(n,id);
+  m.level++;
+  for(const k of ['atk','def','spe'])m.data.stats[k]++;
+ });
+}
 function summary(s){validate(s);return freeze({stored:s.boxes.reduce((a,b)=>a+b.slots.filter(x=>x!==null).length,0),capacity:BOXES*SLOTS,active:s.active,team:s.team.slice(),boxes:s.boxes.map(b=>({name:b.name,used:b.slots.filter(x=>x!==null).length,capacity:SLOTS}))});}
 function checksum(str){let h=2166136261;for(const b of utf8(str)){h^=b;h=Math.imul(h,16777619);}return (h>>>0).toString(16).padStart(8,'0');}
 function encode(s){validate(s);const payload=JSON.stringify(s);return JSON.stringify({format:'ITC1',payload,checksum:checksum(payload)});}
@@ -48,5 +61,5 @@ function decode(raw){if(typeof raw!=='string'||utf8(raw).length>MAX_TEXT)fail('I
 // caller's atomic durable write resolves. Rejected writes keep the old model.
 // This does not yet implement the native Pet/IndexedDB whole-save transaction.
 function session(initial,persist){if(typeof persist!=='function')fail('PERSIST_REQUIRED');let state=decode(encode(initial)),busy=false;return Object.freeze({get(){return state;},get busy(){return busy;},async apply(operation,...args){if(busy)fail('BUSY');if(!['attachCurrent','syncCurrent','catchWild','endCare','renameBox','renamePokemon','moveBox','selectTeam','unselectTeam','moveTeam','releaseStored'].includes(operation))fail('UNKNOWN_OPERATION');busy=true;try{const candidate=api[operation](state,...args);const result=await persist(encode(candidate));if(result===false)fail('PERSIST_REJECTED');state=candidate;return state;}finally{busy=false;}}});}
-const api=Object.freeze({BOXES,SLOTS,TEAM,CollectionError,create,validate,attachCurrent,syncCurrent,catchWild,endCare,renameBox,renamePokemon,moveBox,selectTeam,unselectTeam,moveTeam,releaseStored,summary,encode,decode,session});return api;
+const api=Object.freeze({BOXES,SLOTS,TEAM,CollectionError,create,validate,attachCurrent,syncCurrent,catchWild,endCare,renameBox,renamePokemon,moveBox,selectTeam,unselectTeam,moveTeam,releaseStored,grantStoredBattleLevel,summary,encode,decode,session});return api;
 });

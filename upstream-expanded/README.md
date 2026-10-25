@@ -147,3 +147,42 @@ wild-battle system, the catch minigame, and expeditions) was pulled in:
 `imu.cpp`, `imu.h`, `species_chirp.cpp`, `species_chirp.h` are **not**
 vendored -- nothing in these ten files references them, so leaving them out
 doesn't break the build.
+
+## Local modification: separate battle-level bonus (P05 foundation)
+
+`Pet` stores an individual `battleLevelBonus` under the optional `blvl`
+key (0..99). Missing keys load as zero. The effective level is capped at
+100 and combines elapsed care levels with this bonus; `ageMinutes` is not
+changed by a battle-level grant.
+
+The bonus resets in `newEgg()` and `hatch()`. `grantBattleLevel()` refuses
+eggs, active ending ceremonies and an effective level of 100. It changes
+no training, care bars or battle counters.
+
+This method is a data operation, not an idempotent victory transaction.
+The browser wild-team controller binds it to one resolved victory through
+`tp_wt_result_begin/apply/finish`, the collection result adapter and the
+existing durable whole-save transaction. The normal browser wild-combat
+entry points use this path rather than the legacy care reward method.
+The legacy method remains available for isolated legacy callers.
+
+Older builds ignore `blvl` and therefore do not retain the same effective
+level when reading these saves. Browser import validation checks the
+optional integer key (0..99), rejects a nonzero egg bonus and includes the
+bonus in save-summary levels.
+
+## Local modification: P05 profile battle outcomes
+
+The new browser wild-team result transaction calls
+`recordWildBattleOutcome()` once per applied result. Profile wins, losses,
+current/best win streak and the battle daily-goal progress are retained.
+Counters saturate at their 16-bit maximum.
+
+For this new wild-combat path, completing the battle daily goal does not
+grant additional joy/bond, heart animation or goal sound. Other existing
+daily-goal callers keep their previous rewards through the default
+`personalReward=true` argument.
+
+Statistics, daily-goal progress and the winner's level share the existing
+whole-Pet/store rollback. The old care win/loss methods are not called by
+this new result path.

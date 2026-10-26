@@ -6,19 +6,19 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
 
 ## Aktueller Arbeitsstand
 
-- Aktives Paket: P05b Team in Arena-Kämpfen — implementiert und lokal
-  automatisiert geprüft; Commit/Veröffentlichung und iPhone-Abnahme offen.
+- Aktives Paket: P05c Team in Liga-Kämpfen — Bestandsaufnahme;
+  P05a und P05b abgenommen.
 - P05a bleibt abgenommen: veröffentlichter Funktionsstand 6cf9c07,
   vollständige Nutzerabnahme am 26.10.2026.
-- P05b: zentrale Prüfung, aktueller WASM-Build und vollständige Browserprüfung
-  lokal erfolgreich; dies ist noch kein CI- oder iPhone-Abnahmenachweis.
+- P05b: Commit fb86920 auf main veröffentlicht; CI/Build vom Nutzer als
+  grün bestätigt. Erfolgreiche iPhone-Abnahme am 26.10.2026 bestätigt.
 - Arbeitsbranch nach Integration: main.
 - P01 abgeschlossen mit Commit 99091dc.
 - Gezielter Schutztest und vollständige zentrale Prüfung lokal bestanden.
 - CI-/Veröffentlichungsworkflow laut Nutzerbestätigung erfolgreich.
 - Keine Spieloberfläche oder Spielmechanik in P01 verändert; keine neue
   eigenständige iPhone-Abnahme dieses Schutzpakets durchgeführt.
-- Letzter abgenommener Funktionsstand: P05a Team in Wildkämpfen, 6cf9c07.
+- Letzter abgenommener Funktionsstand: P05b Team in Arena-Kämpfen, fb86920.
 - Ebenfalls bereits abgenommen: Kanto-/Johto-Teamübersichten,
   26 lokale Trainerporträt-Zuordnungen, TPTR-v1/v2 und Quellenanzeige.
 - Diese früheren Funktionsstände wurden nach grüner CI auf dem iPhone geprüft.
@@ -52,8 +52,8 @@ Eine neue Sitzung darf abgeschlossene Arbeit nicht ungeprüft neu eröffnen.
 | P04 | Eigenes Team mit bis zu sechs Pokémon | Abgenommen | Erledigt | Individuelle Auswahl, sechs Plätze, Reihenfolge, Entfernen/Ersetzen und persistente Speicherung automatisiert sowie auf dem iPhone geprüft; Build grün, Nutzerabnahme am 25.10.2026 |
 | P05 | Eigenes Team in Kämpfen | In Arbeit; stufenweise Umsetzung | Sehr hoch | P05a zuerst, danach P05b und P05c jeweils getrennt prüfen und abnehmen |
 | P05a | Team in Wildkämpfen | Abgenommen am 26.10.2026 | Erledigt | Individuelle Mitglieder, Wechsel, KP, Pokéball-Anzeigen, Levelbonus bis 100 und atomare Ergebnis-/Fangspeicherung |
-| P05b | Team in Arena-Kämpfen | Lokal automatisiert geprüft; Veröffentlichung und iPhone-Abnahme offen | Sehr hoch | Individuelle Teams, eigene Heilungsvorräte, regionale Energie-/Ordenstransaktionen und gemeinsame Levelbonus-Speicherung; iPhone-Abnahme noch ausstehend |
-| P05c | Team in Liga-Kämpfen | Offen | Sehr hoch | Nach P05b; regionale Läufe, KP, Wechsel, Checkpoints, Ergebnis und Fortsetzung absichern |
+| P05b | Team in Arena-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit fb86920; zentrale Prüfung, WASM-Build, Browserprüfungen, CI/Veröffentlichung und manuelle iPhone-Abnahme erfolgreich |
+| P05c | Team in Liga-Kämpfen | Bestandsaufnahme | Sehr hoch | P05b abgenommen; regionale Läufe, individuelle Teams, Checkpoints, Ergebnis und Fortsetzung vor Umsetzung prüfen |
 | P06 | Legendären-Geschichten Kanto | Offen | Hoch | Ein vollständig abgenommener Pilot, danach vereinbarte weitere Geschichten; Voraussetzungen, Fortschritt, Begegnung und Ergebnis persistent |
 | P07 | Legendären-Geschichten Johto | Offen | Hoch | Auf Storysystem aufbauen; getrennte regionale Fortschritte und geprüfte Freischaltungen |
 | P08 | Weitere Mega-Entwicklungen | Offen | Hoch | Bestand und Zielarten festlegen; Voraussetzungen, Werte, Darstellung, Rückverwandlung und Speicherung pro Ausbaustufe prüfen |
@@ -189,7 +189,7 @@ Tatsächlicher Prüfstand am 25.10.2026:
   einer natürlich auftauchenden Begegnung behauptet.
 - CI/Veröffentlichung von 6cf9c07 laut Nutzerbestätigung erfolgreich; vollständige manuelle P05a-iPhone-Abnahme am 26.10.2026 bestätigt.
 
-## Aktuelles Paket P05b — Team in Arena-Kämpfen
+## Abgenommener Stand P05b — Team in Arena-Kämpfen
 
 Regeln vom Nutzer am 26.10.2026 ausdrücklich freigegeben:
 - Geplante Individuen und Reihenfolge verwenden; bei leerem Team das
@@ -264,20 +264,27 @@ Tatsächlicher lokaler Prüfstand am 26.10.2026:
   liegt hier nur die übermittelte Gesamtsumme vor.
 - Frühere fehlgeschlagene Browserläufe wurden nicht als Erfolg gewertet.
 - git diff --check ohne Befund vor diesem Dokumentationsschritt.
-- P05b noch nicht veröffentlicht; CI-/Deployment-Ergebnis und manuelle
-  iPhone-Abnahme sind offen.
+- Commit fb86920 erfolgreich auf main veröffentlicht.
+- CI/Build vom Nutzer am 26.10.2026 als grün bestätigt.
+- Nutzerbestätigung am 26.10.2026: „P05b Abnahme erfolgreich abgeschlossen“.
+- P05b damit abgenommen; keine zusätzlichen manuellen Einzelprüfungen
+  über die vorliegende Nutzerbestätigung hinaus behauptet.
 
-## Nächster konkreter Schritt — ausschließlich P05b abschließen
+## Nächster konkreter Schritt — ausschließlich P05c
 
-1. Vollständigen Commit-Inhalt einschließlich neuer Dateien prüfen.
-2. Dokumentation und Implementierung über normale Git-Befehle committen/pushen.
-3. Bestehenden CI-/Build-/Veröffentlichungsworkflow abwarten.
-4. Auf dem iPhone Kanto und Johto, individuelle Heilungen, Wechsel,
-   Gegnerfortsetzung, Levelboni, Orden, Wiederholung und Neuladen prüfen.
-5. Abbruch sowie erreichbare Niederlagenfälle prüfen; nicht ausgeführte
-   Fälle ausdrücklich offenlassen und persönliche Spielstände nicht erzwingen.
-6. Nur tatsächlich bestätigte Ergebnisse als abgenommen dokumentieren.
-7. P05c Liga erst nach P05b-Abnahme beginnen.
+1. P05b-Abnahme im Projektplan committen und pushen.
+2. Aktuelle Liga-Steuerung, regionale Läufe, Spielerbindung, Energie,
+   Checkpoints, Fortsetzung und Ergebnis-/Hall-Transaktionen lesen.
+3. Bereits gespeicherte laufende Liga-Spielstände und deren Kompatibilität
+   ausdrücklich berücksichtigen; keine stillschweigende Teamersetzung.
+4. Regeln für Team-Snapshot, KP, Heilungen, Wechsel, Levelboni und die
+   Grenze zwischen Top Vier und Champ vor der Implementierung festlegen.
+5. P05a/P05b-Unterbau gezielt wiederverwenden; abgenommene Wild- und
+   Arena-Abläufe durch Regressionstests schützen.
+6. Kleine Umsetzungsschritte, gezielte und zentrale Tests, aktueller
+   WASM-Build, vollständige Browserprüfung, Veröffentlichung und eigene
+   iPhone-Abnahme.
+7. P06 und weitere Pakete bleiben außerhalb des aktiven Umfangs.
 
 ## Ideenspeicher
 

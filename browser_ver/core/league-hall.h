@@ -1,9 +1,11 @@
 #pragma once
 #include <cstdint>
 class Pet;
+namespace tp_league_team {struct State;}
 #if defined(__EMSCRIPTEN__) || defined(TP_HALL_TEST)
 bool tpHallSupported();
 bool tpHallSupportedFor(int);
+bool tpHallStageTeamWinFor(int,const tp_league_team::State&,uint32_t);
 bool tpHallStageWin(const Pet&,uint8_t level,uint8_t form,uint32_t life,uint8_t variant,uint32_t date);
 bool tpHallStageSeen();
 bool tpHallStageWinFor(int,const Pet&,uint8_t,uint8_t,uint32_t,uint8_t,uint32_t);

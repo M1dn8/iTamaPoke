@@ -76,6 +76,14 @@ python3 tools/quality/test-p05-wild-start.py
 python3 tools/quality/test-p05-wild-result.py
 python3 tools/quality/test-p05-arena-runtime.py
 python3 tools/quality/test-p05-arena-result.py
+python3 tools/quality/test-p05-league-state.py
+python3 tools/quality/test-p05-league-runtime.py
+python3 tools/quality/test-p05-league-session.py
+python3 tools/quality/test-p05-league-start.py
+python3 tools/quality/test-p05-team-hall.py
+node tests/package-p05-league-collection.test.js
+node tests/package-p05-league-ui.test.js
+node tests/package-p05-league-text.test.js
 python3 tools/quality/test-battle-energy.py
 python3 tools/quality/test-battle-view.py
 python3 tools/quality/test-asset-packs.py

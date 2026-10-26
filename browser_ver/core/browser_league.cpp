@@ -14,6 +14,15 @@
 #include "league-johto.h"
 #include "league-hall.h"
 #include "battle-energy.h"
+#if defined(__EMSCRIPTEN__) || defined(TP_LGT_TEST)
+extern "C" int tp_lgt_owned();
+extern "C" int tp_lgt_session_region();
+static bool leagueTeamOwned(){return tp_lgt_owned()!=0;}
+static int leagueTeamRegion(){return tp_lgt_session_region();}
+#else
+static bool leagueTeamOwned(){return false;}
+static int leagueTeamRegion(){return -1;}
+#endif
 extern "C" int tp_lg_finish(int,int);
 extern Pet &tp_battle_pet();
 extern "C" int tp_battle_is_open();
@@ -65,8 +74,8 @@ EMSCRIPTEN_KEEPALIVE const char *tp_region_league_view(int region){
  const uint32_t format=regionFormat(region);const bool valid=supported(*keys,format);A a{};const bool has=valid&&read(a,*keys,format);int64_t date=0;if(valid)integer(keys->leagueDate,date);
  out="{\"supported\":"+std::to_string(valid?1:0)+",\"region\":"+std::to_string(region)+",\"playable\":"+std::to_string(valid?1:0)+",\"unlocked\":"+std::to_string(mask(*keys)==255?1:0)+",\"done\":"+std::to_string(valid&&done(*keys)?1:0)+",\"date\":"+std::to_string(date)+",\"hasRun\":"+std::to_string(has?1:0)+",\"state\":"+std::to_string(has?a[1]:0)+",\"index\":"+std::to_string(has?a[3]:0)+",\"format\":"+std::to_string(format)+"}";return out.c_str();
 }
-EMSCRIPTEN_KEEPALIVE int tp_lg_owned(){return live||bool(undo);}
-EMSCRIPTEN_KEEPALIVE int tp_region_lg_session_region(){return undo?pendingRegion:live?activeRegion:-1;}
+EMSCRIPTEN_KEEPALIVE int tp_lg_owned(){return live||bool(undo)||leagueTeamOwned();}
+EMSCRIPTEN_KEEPALIVE int tp_region_lg_session_region(){return undo?pendingRegion:live?activeRegion:leagueTeamRegion();}
 EMSCRIPTEN_KEEPALIVE int tp_lg_prepare_start(int v){return leagueStartFor(0,v);}
 EMSCRIPTEN_KEEPALIVE int tp_region_lg_prepare_start(int r,int v){return leagueStartFor(r,v);}
 EMSCRIPTEN_KEEPALIVE int tp_lg_prepare_resume(){return leagueResumeFor(0);}

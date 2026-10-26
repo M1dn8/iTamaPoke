@@ -80,6 +80,7 @@ async function rendered(page){
      m.next!==!!TPTrainer.get(3)||
      m.player.hp!==fns.battlePlayerHp()||
      m.enemy.hp!==fns.battleEnemyHp()||
+     m.rests!==Module.ccall('tp_battle_rest_uses_left','number',[],[])||
      m.wildTeam?.active!==v.active||
      m.wildTeam?.needsSwitch!==v.needsSwitch)return false;
 
@@ -111,6 +112,13 @@ async function action(page,name){
     !!fns.battleResolved()||!!TPArena.teamView?.needsSwitch,
     before
    )).toBe(true);
+   // Native state may advance before the next Canvas frame.
+   // Final results have their own persistence/phase waits.
+   const stillFighting=await page.evaluate(()=>
+    screen==='battle'&&TPArena.snapshot?.phase==='fighting'&&
+    (!fns.battleResolved()||!!TPTrainer.get(3))
+   );
+   if(stillFighting)await rendered(page);
   }else if(name==='next'){
    await expect.poll(()=>page.evaluate(()=>
     Module.ccall('tp_bv_get','number',['number'],[0])

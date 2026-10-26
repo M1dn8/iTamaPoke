@@ -4,4 +4,36 @@ async function start(page){await H.importSave(page,fixture(),376);await H.game(p
 test.beforeEach(async({page})=>{await H.prepare(page);});
 test('Kampfansicht: echter Mega-Metagross-Snapshot, Level/KP beider Seiten und Eisraum',async({page})=>{await start(page);const m=await page.evaluate(()=>TPBattleView.current);expect(m.theme).toBe('ice');expect(m.player.form).toBe(2);expect(m.player.shiny).toBe(1);expect(m.player.level).toBe(100);expect(m.enemy.level).toBe(54);expect(m.player.maxHp).toBeGreaterThan(0);expect(m.enemy.maxHp).toBeGreaterThan(0);expect(await page.evaluate(()=>TPBattleView.label(TPBattleView.current.player))).toBe('Megametagross');expect(await page.evaluate(()=>TPBattleEnergy.view.energy)).toBe(50);});
 test('Kampfansicht: sichtbares Menue, echte Trefferwerte und unveraenderte KP-Rechnung',async({page})=>{await start(page);const hp=await page.evaluate(()=>TPLeague.state.enemyHp);await H.battleAction(page,'quick');await expect.poll(()=>page.evaluate(()=>TPLeague.state.round)).toBe(1);await expect.poll(()=>page.evaluate(()=>TPBattleView.current.round)).toBe(1);const v=await page.evaluate(()=>TPLeague.state);const m=await page.evaluate(()=>TPBattleView.current);expect(m.dealt).toBe(hp-v.enemyHp);expect(m.player.hp).toBe(v.hp);expect(m.enemy.hp).toBe(v.enemyHp);expect(m.taken).toBeGreaterThanOrEqual(0);expect(await page.evaluate(()=>TPBattleEnergy.view.energy)).toBe(50);});
-test('Kampfansicht: Pokemon-Feld zeigt nur Info, kein Teamwechsel/Heilungs- oder Energieverbrauch',async({page})=>{await start(page);const v=await page.evaluate(()=>({hp:TPLeague.state.hp,rest:TPLeague.state.rests,energy:TPBattleEnergy.view.energy,round:TPLeague.state.round}));await H.battleAction(page,'info');await expect.poll(()=>page.evaluate(()=>TPBattleView.menu)).toBe('info');await H.battleAction(page,'back');await expect.poll(()=>page.evaluate(()=>TPBattleView.menu)).toBe('main');expect(await page.evaluate(()=>({hp:TPLeague.state.hp,rest:TPLeague.state.rests,energy:TPBattleEnergy.view.energy,round:TPLeague.state.round}))).toEqual(v);});
+test('Kampfansicht: Teamansicht oeffnen und schliessen bleibt ohne Zug oder Ressourcenverbrauch',async({page})=>{
+ await start(page);
+ await expect.poll(()=>page.evaluate(()=>TPLeague.state.teamMode)).toBe(true);
+
+ const snapshot=()=>page.evaluate(()=>{
+  const v=TPLeague.state,s=TPCollection.read();
+  const ids=s.team.length?s.team:s.active===null?[]:[s.active];
+  return {
+   hp:v.hp,rest:v.rests,energy:TPBattleEnergy.view.energy,round:v.round,
+   active:v.active,care:s.active,ids,
+   members:v.members.map(m=>({
+    id:m.id,hp:m.hp,maxHp:m.maxHp,rests:m.rests
+   }))
+  };
+ });
+ const before=await snapshot();
+ expect(before.members.length).toBeGreaterThan(0);
+ expect(before.members.map(m=>m.id)).toEqual(before.ids);
+
+ await H.battleAction(page,'info');
+ await expect.poll(()=>page.evaluate(()=>TPBattleView.menu)).toBe('team');
+ await expect.poll(()=>page.evaluate(()=>
+  TPBattleView.current.wildTeam.members.map(m=>m.id)
+ )).toEqual(before.ids);
+ expect(await page.evaluate(()=>
+  TPBattleView.current.wildTeam.active
+ )).toBe(before.active);
+ expect(await snapshot()).toEqual(before);
+
+ await H.battleAction(page,'back');
+ await expect.poll(()=>page.evaluate(()=>TPBattleView.menu)).toBe('main');
+ expect(await snapshot()).toEqual(before);
+});

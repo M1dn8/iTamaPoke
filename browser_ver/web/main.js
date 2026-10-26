@@ -1709,17 +1709,27 @@ createTPCore({
       wildResult?wildResult.bridge:(capture?capture.bridge:plainBridge),
       life?life.reconcile:undefined
     );
+    const leagueStart=window.TPCollectionLeagueStart?.create(
+      mod,window.TPCollectionModel,window.TPLeagueTeamState,
+      arenaResult?arenaResult.bridge:
+        (wildResult?wildResult.bridge:(capture?capture.bridge:plainBridge)),
+      life?life.reconcile:undefined
+    );
     window.TPCollection=window.TPCollectionPersistence.create({
       model:window.TPCollectionModel,
-      bridge:arenaResult?arenaResult.bridge:(wildResult?wildResult.bridge:(capture?capture.bridge:plainBridge)),
-      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{}),...(wildResult?wildResult.nativeActions:{}),...(arenaResult?arenaResult.nativeActions:{})},
+      bridge:leagueStart?leagueStart.bridge:(arenaResult?arenaResult.bridge:(wildResult?wildResult.bridge:(capture?capture.bridge:plainBridge))),
+      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{}),...(wildResult?wildResult.nativeActions:{}),...(arenaResult?arenaResult.nativeActions:{}),...(leagueStart?leagueStart.nativeActions:{})},
       acquire:(context)=>{
+        const leagueContext=[
+          "leaguePrepare","leagueStart","leagueResume","leagueWin"
+        ].includes(context);
         const arenaContext=context==="arenaPrepare"||context==="arenaResult";
         const battleContext=["wildCapture","wildResult","arenaResult"].includes(context);
-        const correctScreen=battleContext?screen==="battle":
+        const correctScreen=leagueContext?screen==="league":battleContext?screen==="battle":
           context==="arenaPrepare"?screen==="arena":
           ["idle","card","settings"].includes(screen);
         if(Module!==mod||!window.TPAppMenu?.ready||tpSaveReplacing||
+           (window.TPLeague?.busy&&!leagueContext)||
            window.TPMega?.busy||window.TPTraining?.busy||
            (window.TPArena?.busy&&!arenaContext)||
            window.TPExpeditions?.busy||!correctScreen||
@@ -1739,6 +1749,10 @@ createTPCore({
     if(life){life.bind(window.TPCollection);window.TPCollectionGame=life;}
     if(wildResult){wildResult.bind(window.TPCollection);window.TPWildResult=wildResult;}
     if(arenaResult){arenaResult.bind(window.TPCollection);window.TPArenaResult=arenaResult;}
+    if(leagueStart){
+      leagueStart.bind(window.TPCollection);
+      window.TPLeagueCollection=leagueStart;
+    }
   }
 
   // Periodic autosave, plus on tab hide/close -- pagehide fires reliably on

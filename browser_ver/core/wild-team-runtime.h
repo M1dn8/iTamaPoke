@@ -13,6 +13,13 @@ struct TPWildTeamEntry {
   BattleStats stats{};
 };
 
+// Combat-only checkpoint. Names, ownership and reward history live outside.
+struct TPWildTeamCheckpoint {
+  TPWildTeamEntry entry{};
+  uint16_t hp=0,maxHp=0;
+  uint8_t rests=0;
+};
+
 struct TPWildTeamResult {
   bool accepted = false;
   bool needsSwitch = false;
@@ -37,6 +44,7 @@ class TPWildTeamRuntime {
   bool won_ = false;
   // Opt-in for arena series; existing wild callers keep shared rests.
   bool individualRests_ = false;
+  uint8_t restBudget_ = 2;
 
   TPWildTeamResult record(BattleRuntime &battle, BattleTurnResult turn) {
     members[active_].hp = battle.playerHp;
@@ -56,8 +64,8 @@ class TPWildTeamRuntime {
 public:
   bool begin(BattleRuntime &battle, const TPWildTeamEntry *entries,
              std::size_t count, const BattleStats &enemy,
-             bool individualRests = false) {
-    if (!entries || count < 1 || count > 6 ||
+             bool individualRests = false, uint8_t restBudget = 2) {
+    if (!entries || count < 1 || count > 6 || restBudget > 5 ||
         enemy.level < 1 || enemy.level > 100) return false;
     for (std::size_t i = 0; i < count; ++i) {
       const auto &e = entries[i];
@@ -71,14 +79,17 @@ public:
     next.size_ = count;
     next.live_ = true;
     next.individualRests_ = individualRests;
+    next.restBudget_ = restBudget;
     for (std::size_t i = 0; i < count; ++i) {
-      const auto initial = beginBattleRuntime(entries[i].stats, enemy);
+      auto initial = beginBattleRuntime(entries[i].stats, enemy);
+      initial.restUsesLeft = restBudget;
       next.members[i] = {
         entries[i], initial.playerHp, initial.playerMaxHp,
         initial.restUsesLeft
       };
     }
-    const auto initial = beginBattleRuntime(entries[0].stats, enemy);
+    auto initial = beginBattleRuntime(entries[0].stats, enemy);
+    initial.restUsesLeft = restBudget;
     *this = next;
     battle = initial;
     return true;
@@ -144,6 +155,80 @@ public:
     return true;
   }
 
+
+  // Only individual-rest sessions have independently restorable members.
+  // A pending replacement or final loss is not a resumable checkpoint.
+  bool snapshot(const BattleRuntime &battle, TPWildTeamCheckpoint *out,
+                std::size_t capacity, std::size_t &activeIndex) const {
+    if (!live_ || !individualRests_ || pending_ ||
+        (resolved_ && !won_) || !out || capacity < size_ ||
+        !battle.playerHp ||
+        battle.playerMaxHp != members[active_].maxHp ||
+        battle.playerHp > battle.playerMaxHp ||
+        battle.restUsesLeft > restBudget_) return false;
+
+    const auto &expected=members[active_].entry.stats;
+    const auto &actual=battle.player;
+    if (actual.hp!=expected.hp || actual.level!=expected.level ||
+        actual.atk!=expected.atk || actual.def!=expected.def ||
+        actual.spe!=expected.spe || actual.type1!=expected.type1 ||
+        actual.type2!=expected.type2 || actual.mega!=expected.mega)
+      return false;
+
+    std::array<TPWildTeamCheckpoint,6> next{};
+    for (std::size_t i=0;i<size_;i++) {
+      const auto &member=members[i];
+      next[i]={
+        member.entry,
+        i==active_?battle.playerHp:member.hp,
+        member.maxHp,
+        i==active_?battle.restUsesLeft:member.rests
+      };
+      if (next[i].hp>next[i].maxHp || next[i].rests>restBudget_)
+        return false;
+    }
+    for (std::size_t i=0;i<size_;i++)out[i]=next[i];
+    activeIndex=active_;
+    return true;
+  }
+
+  // Restore a committed checkpoint against a fresh opponent.
+  // Validate into temporary objects; failure changes neither receiver.
+  bool restore(BattleRuntime &battle,
+               const TPWildTeamCheckpoint *saved,
+               std::size_t count, std::size_t activeIndex,
+               const BattleStats &enemy, uint8_t restBudget=5) {
+    if (!saved || count<1 || count>6 || activeIndex>=count ||
+        restBudget>5) return false;
+
+    TPWildTeamEntry entries[6]{};
+    for (std::size_t i=0;i<count;i++)entries[i]=saved[i].entry;
+    TPWildTeamRuntime next;
+    BattleRuntime restored{};
+    if (!next.begin(restored,entries,count,enemy,true,restBudget))
+      return false;
+
+    for (std::size_t i=0;i<count;i++) {
+      if (saved[i].maxHp!=next.members[i].maxHp ||
+          saved[i].hp>saved[i].maxHp ||
+          saved[i].rests>restBudget) return false;
+      next.members[i].hp=saved[i].hp;
+      next.members[i].rests=saved[i].rests;
+    }
+    if (!next.members[activeIndex].hp) return false;
+
+    next.active_=activeIndex;
+    const auto &member=next.members[activeIndex];
+    restored.player=member.entry.stats;
+    restored.playerHp=member.hp;
+    restored.playerMaxHp=member.maxHp;
+    restored.restUsesLeft=member.rests;
+    restored.counterReady=false;
+    *this=next;
+    battle=restored;
+    return true;
+  }
+
   void clear() { *this = TPWildTeamRuntime{}; }
   std::size_t count() const { return size_; }
   std::size_t activeIndex() const { return active_; }
@@ -161,4 +246,8 @@ public:
   }
   bool needsSwitch() const { return pending_; }
   bool resolved() const { return resolved_; }
+  bool won() const { return resolved_&&won_; }
+  uint8_t rests(std::size_t i) const {
+    return i<size_?members[i].rests:0;
+  }
 };

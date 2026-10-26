@@ -1,4 +1,4 @@
-// Regional Hall of Fame. Existing league transaction owns every write/rollback.
+// Regional Hall of Fame. Caller owns every whole-save transaction.
 #include <algorithm>
 #include <cstring>
 #include <string>
@@ -7,32 +7,292 @@
 #include "pet.h"
 #include "region-progress-keys.h"
 #include "league-hall.h"
-namespace tp_hall_detail {
-struct Record {uint32_t sequence=0,life=0,date=0;uint16_t dex=0;uint8_t level=0,shiny=0,form=0,variant=0;std::string nick;};
-struct Hall {uint32_t wins=0,seen=0,legacyDate=0;uint8_t mask=0;bool legacy=false;std::vector<Record> records;};
-bool integer(const char *key,int64_t &out){auto it=Preferences::store().find(key);if(it==Preferences::store().end()||!std::holds_alternative<int64_t>(it->second))return false;out=std::get<int64_t>(it->second);return true;}
-bool legacy(int region=0){const auto *keys=region>=0&&region<=255?tpRegionProgressKeys(uint8_t(region)):nullptr;if(!keys)return false;int64_t v=0;auto b=Preferences::store().find(keys->leagueDone);return integer(keys->leagueVersion,v)&&v==1&&b!=Preferences::store().end()&&std::holds_alternative<bool>(b->second)&&std::get<bool>(b->second);}
-uint32_t oldDate(int region=0){const auto *keys=region>=0&&region<=255?tpRegionProgressKeys(uint8_t(region)):nullptr;if(!keys)return 0;int64_t n=0;return legacy(region)&&integer(keys->leagueDate,n)&&n>0&&n<=0xffffffffLL?uint32_t(n):0;}
-bool utf8(const std::string&s){size_t i=0;while(i<s.size()){unsigned c=(unsigned char)s[i++];if(c<0x20||c==0x7f)return false;if(c<0x80)continue;unsigned n=0,v=0,min=0;if(c>=0xc2&&c<=0xdf){n=1;v=c&31;min=0x80;}else if(c>=0xe0&&c<=0xef){n=2;v=c&15;min=0x800;}else if(c>=0xf0&&c<=0xf4){n=3;v=c&7;min=0x10000;}else return false;if(i+n>s.size())return false;while(n--){unsigned x=(unsigned char)s[i++];if((x&0xc0)!=0x80)return false;v=(v<<6)|(x&63);}if(v<min||v>0x10ffff||(v>=0xd800&&v<=0xdfff))return false;}return true;}
-uint32_t checksum(const std::vector<uint8_t>&b,size_t n){uint32_t x=2166136261u;for(size_t i=0;i<n;i++){x^=b[i];x*=16777619u;}return x;}
-void u32(std::vector<uint8_t>&b,uint32_t v){for(unsigned i=0;i<4;i++)b.push_back(uint8_t(v>>(8*i)));}
-std::vector<uint8_t> encode(const Hall&h,int region=0){std::vector<uint8_t>b={'L','H',uint8_t(region==0?'K':'J'),1};u32(b,h.wins);b.push_back(h.mask);u32(b,h.seen);b.push_back(h.legacy?1:0);u32(b,h.legacyDate);b.push_back(uint8_t(h.records.size()));for(const auto&r:h.records){u32(b,r.sequence);b.push_back(uint8_t(r.dex));b.push_back(uint8_t(r.dex>>8));b.push_back(r.level);b.push_back(r.shiny);b.push_back(r.form);u32(b,r.life);u32(b,r.date);b.push_back(r.variant);b.push_back(uint8_t(r.nick.size()));b.insert(b.end(),r.nick.begin(),r.nick.end());}u32(b,checksum(b,b.size()));return b;}
-bool decode(const std::vector<uint8_t>&b,Hall&h,int region=0){if(region<0||region>1)return false;if(b.size()<23||b.size()>2048||b[0]!='L'||b[1]!='H'||b[2]!=(region==0?'K':'J')||b[3]!=1)return false;size_t at=4;const size_t end=b.size()-4;bool ok=true;auto byte=[&](){if(at>=end){ok=false;return uint32_t(0);}return uint32_t(b[at++]);};auto number=[&](){uint32_t v=0;for(unsigned i=0;i<4;i++)v|=byte()<<(i*8);return v;};uint32_t crc=uint32_t(b[end])|(uint32_t(b[end+1])<<8)|(uint32_t(b[end+2])<<16)|(uint32_t(b[end+3])<<24);if(crc!=checksum(b,end))return false;
- h=Hall{};h.wins=number();h.mask=uint8_t(byte());h.seen=number();const auto flag=byte();h.legacy=flag==1;h.legacyDate=number();const auto count=byte();if(!ok||!h.wins||h.wins>0x7fffffff||h.seen>h.wins||!h.mask||h.mask>(region==0?7:1)||flag>1||(!h.legacy&&h.legacyDate)||count!=std::min(uint32_t(12),h.wins))return false;
- uint8_t observed=0;for(uint32_t i=0;i<count;i++){Record r;r.sequence=number();uint32_t lo=byte(),hi=byte();r.dex=uint16_t(lo|(hi<<8));r.level=uint8_t(byte());r.shiny=uint8_t(byte());r.form=uint8_t(byte());r.life=number();r.date=number();r.variant=uint8_t(byte());auto len=byte();if(!ok||len>23||at+len>end)return false;r.nick.assign(reinterpret_cast<const char*>(b.data()+at),len);at+=len;
- const uint32_t expected=i==0?1:h.wins<=12?i+1:h.wins-(count-1-i);if(r.sequence!=expected||r.dex<1||r.dex>DEX_COUNT||!r.level||r.level>100||r.shiny>1||r.form>3||!r.life||r.life>0x7fffffff||!r.date||r.variant>(region==0?2:0)||!utf8(r.nick))return false;observed|=uint8_t(1u<<r.variant);h.records.push_back(r);}
- return ok&&at==end&&(observed&h.mask)==observed&&(h.wins>12||h.mask==observed);}
-bool load(Hall&h,int region=0){const auto *keys=region>=0&&region<=255?tpRegionProgressKeys(uint8_t(region)):nullptr;if(!keys)return false;auto&s=Preferences::store();if(!s.count(keys->hallVersion)&&!s.count(keys->hallData)){h=Hall{};h.legacy=legacy(region);h.legacyDate=oldDate(region);return true;}int64_t v=0;auto it=s.find(keys->hallData);return integer(keys->hallVersion,v)&&v==1&&it!=s.end()&&std::holds_alternative<std::vector<uint8_t>>(it->second)&&decode(std::get<std::vector<uint8_t>>(it->second),h,region);}
-void save(const Hall&h,int region=0){const auto *keys=tpRegionProgressKeys(uint8_t(region));auto bytes=encode(h,region);Preferences p;p.putUChar(keys->hallVersion,1);Preferences::store()[keys->hallData]=std::move(bytes);}
-std::string quote(const std::string&s){std::string out="\"";for(unsigned char c:s){if(c=='"'||c=='\\'){out+='\\';out+=char(c);}else if(c<0x20){const char*hex="0123456789abcdef";out+="\\u00";out+=hex[c>>4];out+=hex[c&15];}else out+=char(c);}return out+'"';}
-}
-bool tpHallSupportedFor(int region){tp_hall_detail::Hall h;return tp_hall_detail::load(h,region);}
-bool tpHallStageWinFor(int region,const Pet&p,uint8_t level,uint8_t form,uint32_t life,uint8_t variant,uint32_t date){using namespace tp_hall_detail;Hall h;if(!load(h,region)||h.wins>=0x7fffffff||p.speciesId<1||p.speciesId>DEX_COUNT||!level||level>100||form>3||!life||life>0x7fffffff||variant>(region==0?2:0)||!date)return false;Record r;r.sequence=h.wins+1;r.dex=p.speciesId;r.level=level;r.shiny=p.shiny?1:0;r.form=form;r.life=life;r.date=date;r.variant=variant;size_t len=0;while(len<sizeof(p.nick)&&p.nick[len])len++;if(len>=sizeof(p.nick))return false;r.nick.assign(p.nick,len);if(!utf8(r.nick))return false;h.wins++;h.mask|=uint8_t(1u<<variant);h.records.push_back(r);if(h.records.size()>12)h.records.erase(h.records.begin()+1);save(h,region);return true;}
-bool tpHallStageSeenFor(int region){using namespace tp_hall_detail;Hall h;if(!load(h,region)||!h.wins||h.seen==h.wins)return false;h.seen=h.wins;save(h,region);return true;}
-static const char *hallViewFor(int region){using namespace tp_hall_detail;static std::string out;Hall h;const bool supported=load(h,region);if(!supported)h=Hall{};out="{\"supported\":"+std::to_string(supported?1:0)+",\"legacy\":"+std::to_string(h.legacy?1:0)+",\"legacyDate\":"+std::to_string(h.legacyDate)+",\"wins\":"+std::to_string(h.wins)+",\"seen\":"+std::to_string(h.seen)+",\"variants\":"+std::to_string(h.mask)+",\"pendingCeremony\":"+std::to_string(h.wins>h.seen?1:0)+",\"records\":[";for(size_t i=0;i<h.records.size();i++){const auto&r=h.records[i];if(i)out+=',';out+="{\"sequence\":"+std::to_string(r.sequence)+",\"dex\":"+std::to_string(r.dex)+",\"level\":"+std::to_string(r.level)+",\"shiny\":"+std::to_string(r.shiny)+",\"form\":"+std::to_string(r.form)+",\"life\":"+std::to_string(r.life)+",\"date\":"+std::to_string(r.date)+",\"variant\":"+std::to_string(r.variant)+",\"nick\":"+quote(r.nick)+"}";}out+="]}";return out.c_str();}
+#include "league-team-state.h"
 
+namespace tp_hall_detail {
+namespace L=tp_league_team;
+struct Record {
+ uint32_t sequence=0,life=0,date=0;
+ uint16_t dex=0;
+ uint8_t level=0,shiny=0,form=0,variant=0;
+ std::string nick;
+ std::vector<uint8_t> team;
+};
+struct Hall {
+ uint32_t wins=0,seen=0,legacyDate=0;
+ uint8_t mask=0,version=1;
+ bool legacy=false;
+ std::vector<Record> records;
+};
+const TPRegionProgressKeys *keysFor(int region){
+ return region>=0&&region<=1?tpRegionProgressKeys(uint8_t(region)):nullptr;
+}
+bool integer(const char *key,int64_t &out){
+ auto it=Preferences::store().find(key);
+ if(it==Preferences::store().end()||
+    !std::holds_alternative<int64_t>(it->second))return false;
+ out=std::get<int64_t>(it->second);return true;
+}
+bool legacy(int region=0){
+ const auto *keys=keysFor(region);if(!keys)return false;
+ int64_t v=0;auto b=Preferences::store().find(keys->leagueDone);
+ return integer(keys->leagueVersion,v)&&v==1&&
+  b!=Preferences::store().end()&&std::holds_alternative<bool>(b->second)&&
+  std::get<bool>(b->second);
+}
+uint32_t oldDate(int region=0){
+ const auto *keys=keysFor(region);if(!keys)return 0;
+ int64_t n=0;
+ return legacy(region)&&integer(keys->leagueDate,n)&&n>0&&
+  n<=0xffffffffLL?uint32_t(n):0;
+}
+bool utf8(const std::string &s){return L::utf8Name(s);}
+uint32_t checksum(const std::vector<uint8_t>&b,size_t n){
+ return L::checksum(b,n);
+}
+void u32(std::vector<uint8_t>&b,uint32_t v){L::put32(b,v);}
+std::vector<uint8_t> encode(const Hall &h,int region=0){
+ const bool teams=std::any_of(h.records.begin(),h.records.end(),
+  [](const Record &r){return !r.team.empty();});
+ const uint8_t version=h.version==2||teams?2:1;
+ std::vector<uint8_t>b={'L','H',uint8_t(region==0?'K':'J'),version};
+ u32(b,h.wins);b.push_back(h.mask);u32(b,h.seen);
+ b.push_back(h.legacy?1:0);u32(b,h.legacyDate);
+ b.push_back(uint8_t(h.records.size()));
+ for(const auto &r:h.records){
+  if(version==2)b.push_back(r.team.empty()?0:1);
+  u32(b,r.sequence);L::put16(b,r.dex);
+  b.push_back(r.level);b.push_back(r.shiny);b.push_back(r.form);
+  u32(b,r.life);u32(b,r.date);b.push_back(r.variant);
+  b.push_back(uint8_t(r.nick.size()));
+  b.insert(b.end(),r.nick.begin(),r.nick.end());
+  if(version==2&&!r.team.empty()){
+   L::put16(b,uint16_t(r.team.size()));
+   b.insert(b.end(),r.team.begin(),r.team.end());
+  }
+ }
+ u32(b,checksum(b,b.size()));return b;
+}
+bool decode(const std::vector<uint8_t>&b,Hall &out,int region=0){
+ if(!keysFor(region)||b.size()<23||b.size()>16384||
+    b[0]!='L'||b[1]!='H'||b[2]!=(region==0?'K':'J')||
+    (b[3]!=1&&b[3]!=2)||(b[3]==1&&b.size()>2048))return false;
+ size_t at=4;const size_t end=b.size()-4;bool ok=true;
+ auto byte=[&](){
+  if(at>=end){ok=false;return uint32_t(0);}
+  return uint32_t(b[at++]);
+ };
+ auto number=[&](){
+  uint32_t v=0;
+  for(unsigned i=0;i<4;i++)v|=byte()<<(i*8);
+  return v;
+ };
+ auto word=[&](){
+  const uint32_t lo=byte(),hi=byte();return lo|(hi<<8);
+ };
+ uint32_t crc=0;
+ for(unsigned i=0;i<4;i++)crc|=uint32_t(b[end+i])<<(8*i);
+ if(crc!=checksum(b,end))return false;
+
+ Hall h;h.version=b[3];h.wins=number();h.mask=uint8_t(byte());
+ h.seen=number();const auto flag=byte();h.legacy=flag==1;
+ h.legacyDate=number();const auto count=byte();
+ if(!ok||!h.wins||h.wins>0x7fffffff||h.seen>h.wins||
+    !h.mask||h.mask>(region==0?7:1)||flag>1||
+    (!h.legacy&&h.legacyDate)||
+    count!=std::min(uint32_t(12),h.wins))return false;
+ uint8_t observed=0;
+ for(uint32_t i=0;i<count;i++){
+  const auto kind=h.version==2?byte():0;
+  if(kind>1)return false;
+  Record r;r.sequence=number();r.dex=uint16_t(word());
+  r.level=uint8_t(byte());r.shiny=uint8_t(byte());r.form=uint8_t(byte());
+  r.life=number();r.date=number();r.variant=uint8_t(byte());
+  const auto len=byte();
+  if(!ok||len>23||len>end-at)return false;
+  r.nick.assign(reinterpret_cast<const char*>(b.data()+at),len);at+=len;
+  const uint32_t expected=i==0?1:
+   h.wins<=12?i+1:h.wins-(count-1-i);
+  if(r.sequence!=expected||r.dex<1||r.dex>DEX_COUNT||
+     !r.level||r.level>100||r.shiny>1||r.form>3||
+     !r.life||r.life>0x7fffffff||!r.date||
+     r.variant>(region==0?2:0)||!utf8(r.nick))return false;
+  if(kind==1){
+   const auto length=word();
+   if(!ok||!length||length>L::MAX_BYTES||length>end-at)return false;
+   r.team.assign(b.begin()+at,b.begin()+at+length);at+=length;
+   L::State team;
+   if(!L::decodeTerminal(r.team,region,team))return false;
+   const auto &winner=team.members[team.active];
+   if(team.care.life!=r.life||team.variant!=r.variant||
+      winner.dex!=r.dex||winner.stats.level!=r.level||
+      unsigned(winner.shiny)!=r.shiny||winner.form!=r.form||
+      winner.nick!=r.nick)return false;
+  }
+  observed|=uint8_t(1u<<r.variant);
+  h.records.push_back(std::move(r));
+ }
+ if(!ok||at!=end||(observed&h.mask)!=observed||
+    (h.wins<=12&&h.mask!=observed))return false;
+ out=std::move(h);return true;
+}
+bool load(Hall &h,int region=0){
+ const auto *keys=keysFor(region);if(!keys)return false;
+ auto &s=Preferences::store();
+ if(!s.count(keys->hallVersion)&&!s.count(keys->hallData)){
+  h=Hall{};h.legacy=legacy(region);h.legacyDate=oldDate(region);return true;
+ }
+ int64_t version=0;auto it=s.find(keys->hallData);
+ if(!integer(keys->hallVersion,version)||(version!=1&&version!=2)||
+    it==s.end()||!std::holds_alternative<std::vector<uint8_t>>(it->second))
+  return false;
+ const auto &b=std::get<std::vector<uint8_t>>(it->second);
+ return b.size()>3&&b[3]==version&&decode(b,h,region);
+}
+void save(const Hall &h,int region=0){
+ const auto *keys=keysFor(region);
+ auto bytes=encode(h,region);
+ Preferences p;p.putUChar(keys->hallVersion,bytes[3]);
+ Preferences::store()[keys->hallData]=std::move(bytes);
+}
+void append(Hall &h,Record r,int region){
+ h.wins++;h.mask|=uint8_t(1u<<r.variant);
+ h.records.push_back(std::move(r));
+ if(h.records.size()>12)h.records.erase(h.records.begin()+1);
+ save(h,region);
+}
+std::string quote(const std::string&s){
+ std::string out="\"";
+ for(unsigned char c:s){
+  if(c=='"'||c=='\\'){out+='\\';out+=char(c);}
+  else if(c<0x20){
+   const char *hex="0123456789abcdef";
+   out+="\\u00";out+=hex[c>>4];out+=hex[c&15];
+  }else out+=char(c);
+ }
+ return out+'"';
+}
+std::string teamJson(const L::State &s){
+ const auto &c=s.care;
+ std::string out="{\"region\":"+std::to_string(s.region)+
+  ",\"phase\":"+std::to_string(s.phase)+
+  ",\"variant\":"+std::to_string(s.variant)+
+  ",\"index\":"+std::to_string(s.index)+
+  ",\"active\":"+std::to_string(s.active)+
+  ",\"care\":{\"id\":"+std::to_string(c.id)+
+  ",\"life\":"+std::to_string(c.life)+
+  ",\"age\":"+std::to_string(c.age)+
+  ",\"dex\":"+std::to_string(c.dex)+
+  ",\"geneAtk\":"+std::to_string(c.geneAtk)+
+  ",\"geneDef\":"+std::to_string(c.geneDef)+
+  ",\"geneSpe\":"+std::to_string(c.geneSpe)+
+  ",\"shiny\":"+(c.shiny?"true":"false")+"},\"members\":[";
+ for(size_t i=0;i<s.members.size();i++){
+  if(i)out+=",";
+  const auto &m=s.members[i];const auto &p=m.stats;
+  out+="{\"id\":"+std::to_string(m.id)+
+   ",\"dex\":"+std::to_string(m.dex)+
+   ",\"level\":"+std::to_string(p.level)+
+   ",\"atk\":"+std::to_string(p.atk)+
+   ",\"def\":"+std::to_string(p.def)+
+   ",\"spe\":"+std::to_string(p.spe)+
+   ",\"type1\":"+std::to_string(p.type1)+
+   ",\"type2\":"+std::to_string(p.type2)+
+   ",\"form\":"+std::to_string(m.form)+
+   ",\"shiny\":"+(m.shiny?"true":"false")+
+   ",\"maxHp\":"+std::to_string(m.maxHp)+
+   ",\"hp\":"+std::to_string(m.hp)+
+   ",\"rests\":"+std::to_string(m.rests)+
+   ",\"wins\":"+std::to_string(m.wins)+
+   ",\"levelGains\":"+std::to_string(m.levelGains)+
+   ",\"nick\":"+quote(m.nick)+"}";
+ }
+ return out+"]}";
+}
+}
+bool tpHallSupportedFor(int region){
+ tp_hall_detail::Hall h;return tp_hall_detail::load(h,region);
+}
+bool tpHallStageWinFor(int region,const Pet &p,uint8_t level,uint8_t form,
+ uint32_t life,uint8_t variant,uint32_t date){
+ using namespace tp_hall_detail;
+ Hall h;
+ if(!load(h,region)||h.wins>=0x7fffffff||
+    p.speciesId<1||p.speciesId>DEX_COUNT||!level||level>100||
+    form>3||!life||life>0x7fffffff||variant>(region==0?2:0)||!date)
+  return false;
+ Record r;r.sequence=h.wins+1;r.dex=p.speciesId;r.level=level;
+ r.shiny=p.shiny?1:0;r.form=form;r.life=life;r.date=date;r.variant=variant;
+ size_t len=0;while(len<sizeof(p.nick)&&p.nick[len])len++;
+ if(len>=sizeof(p.nick))return false;
+ r.nick.assign(p.nick,len);if(!utf8(r.nick))return false;
+ append(h,std::move(r),region);return true;
+}
+bool tpHallStageTeamWinFor(int region,const tp_league_team::State &state,
+ uint32_t date){
+ using namespace tp_hall_detail;
+ Hall h;
+ if(state.region!=region||!date||!L::validTerminal(state)||
+    !load(h,region)||h.wins>=0x7fffffff)return false;
+ Record r;
+ if(!L::encodeTerminal(state,r.team))return false;
+ const auto &winner=state.members[state.active];
+ r.sequence=h.wins+1;r.life=state.care.life;r.date=date;
+ r.dex=winner.dex;r.level=winner.stats.level;
+ r.shiny=winner.shiny?1:0;r.form=winner.form;
+ r.variant=state.variant;r.nick=winner.nick;
+ h.version=2;append(h,std::move(r),region);return true;
+}
+bool tpHallStageSeenFor(int region){
+ using namespace tp_hall_detail;
+ Hall h;
+ if(!load(h,region)||!h.wins||h.seen==h.wins)return false;
+ h.seen=h.wins;save(h,region);return true;
+}
+static const char *hallViewFor(int region){
+ using namespace tp_hall_detail;
+ static std::string out;
+ Hall h;const bool supported=load(h,region);
+ if(!supported)h=Hall{};
+ out="{\"supported\":"+std::to_string(supported?1:0)+
+  ",\"legacy\":"+std::to_string(h.legacy?1:0)+
+  ",\"legacyDate\":"+std::to_string(h.legacyDate)+
+  ",\"wins\":"+std::to_string(h.wins)+
+  ",\"seen\":"+std::to_string(h.seen)+
+  ",\"variants\":"+std::to_string(h.mask)+
+  ",\"pendingCeremony\":"+std::to_string(h.wins>h.seen?1:0)+
+  ",\"records\":[";
+ for(size_t i=0;i<h.records.size();i++){
+  if(i)out+=",";
+  const auto &r=h.records[i];
+  out+="{\"sequence\":"+std::to_string(r.sequence)+
+   ",\"dex\":"+std::to_string(r.dex)+
+   ",\"level\":"+std::to_string(r.level)+
+   ",\"shiny\":"+std::to_string(r.shiny)+
+   ",\"form\":"+std::to_string(r.form)+
+   ",\"life\":"+std::to_string(r.life)+
+   ",\"date\":"+std::to_string(r.date)+
+   ",\"variant\":"+std::to_string(r.variant)+
+   ",\"nick\":"+quote(r.nick);
+  if(!r.team.empty()){
+   L::State team;
+   if(L::decodeTerminal(r.team,region,team))
+    out+=",\"winnerId\":"+std::to_string(team.members[team.active].id)+
+     ",\"team\":"+teamJson(team);
+  }
+  out+="}";
+ }
+ out+="]}";return out.c_str();
+}
 bool tpHallSupported(){return tpHallSupportedFor(0);}
-bool tpHallStageWin(const Pet&p,uint8_t l,uint8_t f,uint32_t life,uint8_t v,uint32_t date){return tpHallStageWinFor(0,p,l,f,life,v,date);}
+bool tpHallStageWin(const Pet &p,uint8_t l,uint8_t f,uint32_t life,
+ uint8_t v,uint32_t date){
+ return tpHallStageWinFor(0,p,l,f,life,v,date);
+}
 bool tpHallStageSeen(){return tpHallStageSeenFor(0);}
-extern "C" EMSCRIPTEN_KEEPALIVE const char *tp_hall_view(){return hallViewFor(0);}
-extern "C" EMSCRIPTEN_KEEPALIVE const char *tp_region_hall_view(int region){return hallViewFor(region);}
+extern "C" EMSCRIPTEN_KEEPALIVE const char *tp_hall_view(){
+ return hallViewFor(0);
+}
+extern "C" EMSCRIPTEN_KEEPALIVE const char *tp_region_hall_view(int region){
+ return hallViewFor(region);
+}

@@ -6,8 +6,9 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
 
 ## Aktueller Arbeitsstand
 
-- Aktives Paket: P05c Team in Liga-Kämpfen — Bestandsaufnahme;
-  P05a und P05b abgenommen.
+- Aktives Paket: P05c Team in Liga-Kämpfen — lokal implementiert und
+  vollständig lokal geprüft. CI/Veröffentlichung und iPhone-Abnahme
+  noch offen; P05a und P05b bleiben abgenommen.
 - P05a bleibt abgenommen: veröffentlichter Funktionsstand 6cf9c07,
   vollständige Nutzerabnahme am 26.10.2026.
 - P05b: Commit fb86920 auf main veröffentlicht; CI/Build vom Nutzer als
@@ -53,7 +54,7 @@ Eine neue Sitzung darf abgeschlossene Arbeit nicht ungeprüft neu eröffnen.
 | P05 | Eigenes Team in Kämpfen | In Arbeit; stufenweise Umsetzung | Sehr hoch | P05a zuerst, danach P05b und P05c jeweils getrennt prüfen und abnehmen |
 | P05a | Team in Wildkämpfen | Abgenommen am 26.10.2026 | Erledigt | Individuelle Mitglieder, Wechsel, KP, Pokéball-Anzeigen, Levelbonus bis 100 und atomare Ergebnis-/Fangspeicherung |
 | P05b | Team in Arena-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit fb86920; zentrale Prüfung, WASM-Build, Browserprüfungen, CI/Veröffentlichung und manuelle iPhone-Abnahme erfolgreich |
-| P05c | Team in Liga-Kämpfen | Bestandsaufnahme | Sehr hoch | P05b abgenommen; regionale Läufe, individuelle Teams, Checkpoints, Ergebnis und Fortsetzung vor Umsetzung prüfen |
+| P05c | Team in Liga-Kämpfen | Lokal implementiert und geprüft; Veröffentlichung/iPhone-Abnahme offen | Sehr hoch | Gebundene individuelle Teams, fünf Heilungen je Mitglied, atomare Bonus-/Checkpoint-Speicherung und Team-Ruhmeshalle V2; alte Läufe/Einträge erhalten; Veröffentlichung und iPhone-Abnahme ausstehend |
 | P06 | Legendären-Geschichten Kanto | Offen | Hoch | Ein vollständig abgenommener Pilot, danach vereinbarte weitere Geschichten; Voraussetzungen, Fortschritt, Begegnung und Ergebnis persistent |
 | P07 | Legendären-Geschichten Johto | Offen | Hoch | Auf Storysystem aufbauen; getrennte regionale Fortschritte und geprüfte Freischaltungen |
 | P08 | Weitere Mega-Entwicklungen | Offen | Hoch | Bestand und Zielarten festlegen; Voraussetzungen, Werte, Darstellung, Rückverwandlung und Speicherung pro Ausbaustufe prüfen |
@@ -270,21 +271,122 @@ Tatsächlicher lokaler Prüfstand am 26.10.2026:
 - P05b damit abgenommen; keine zusätzlichen manuellen Einzelprüfungen
   über die vorliegende Nutzerbestätigung hinaus behauptet.
 
+## Aktuelles Paket P05c — Team in Liga-Kämpfen
+
+Bestandsaufnahme vor Beginn der Implementierung:
+- P05b-Abnahme mit Commit 8c31e5c dokumentiert und auf main gepusht.
+- Native Liga-Steuerung, Browser-Steuerung und vorhandene Kanto-/Johto-
+  Liga-Prüfungen gelesen.
+- Hallenadapter, Hallenoberfläche und regionale Format-/Rollback-
+  Absicherungen gelesen.
+- Bestehende Liga-Läufe enthalten genau einen Spieler-Snapshot.
+- Bestehende Halleneinträge enthalten genau einen Pokémon-Snapshot;
+  keine nachträgliche Teamhistorie aus heutigen Sammlungsdaten erfinden.
+- Zu diesem damaligen Zeitpunkt war noch keine P05c-Spiellogik
+  implementiert oder getestet; aktueller Stand siehe unten.
+
+Vom Nutzer am 26.10.2026 freigegebene Liga-Regeln:
+- Neue Läufe binden die geplanten individuellen Mitglieder und ihre
+  Reihenfolge. Leere Planung verwendet das vorhandene Pflege-Pokémon allein.
+- Mitgliedschaft, Kampflevel, Kampfwerte, Typen und Form werden als
+  unveränderlicher Lauf-Snapshot gespeichert.
+- Änderungen der aktuellen Teamplanung ersetzen kein Team eines
+  gespeicherten Liga-Laufs.
+- Neue Läufe beginnen mit vollen KP und fünf eigenen Heilungen je Mitglied.
+- KP, verbrauchte Heilungen und ausgeschiedene Mitglieder bleiben über
+  alle 26 Gegner erhalten, einschließlich des Übergangs zum Champ.
+- Keine Zwischenheilung, Wiederbelebung oder Auffüllung durch Fortsetzen.
+- Freiwilliger Wechsel kostet einen Zug mit möglichem Gegnerangriff.
+- Pflichtwechsel nach eigenem K. o. ohne zusätzlichen Gratisangriff.
+- Bestehende Zeitlimitentscheidung beachten: kein zusätzlicher Wechsel
+  nach abschließendem Zeitlimit-Ergebnis.
+- Gesamte Teamniederlage beendet den Versuch.
+- Pflegezuordnung bleibt unverändert.
+- Energie weiterhin einmalig 50 für Top Vier und zusätzlich 30 beim
+  Start des Champ-Abschnitts, jeweils mit 20 Reserve beim Pflege-Pokémon.
+- Keine Zusatzkosten pro Mitglied oder gewöhnlicher Checkpoint-Fortsetzung.
+- Bereits bestätigte Eintrittskosten werden nicht erstattet.
+- Pro besiegtem Gegner erhält das siegreiche Individuum ein Level bis 100.
+- Levelbonus und nächster Checkpoint werden gemeinsam dauerhaft gespeichert.
+- Kampfwerte und maximale KP bleiben während des gesamten Laufs eingefroren.
+- Bereits bestätigte Boni bleiben bei späterer Niederlage oder Abbruch erhalten.
+- Fehlgeschlagene Speicherung darf weder Bonus noch Fortschritt übernehmen.
+- Retry darf weder Belohnung noch Gegnerfortschritt doppelt vergeben.
+- Letzter Bonus, regionaler Abschluss und Halleneintrag teilen eine Transaktion.
+- Bestehende Einzel-Pokémon-Läufe bleiben im bisherigen Modus nutzbar;
+  keine stillschweigende Umwandlung in ein aktuelles Team.
+
+Vom Nutzer am 26.10.2026 freigegebene Ruhmeshallen-Regeln:
+- Neue Team-Erfolge verewigen alle zum Lauf gebundenen Individuen
+  in ihrer gespeicherten Reihenfolge.
+- Das tatsächliche Siegerindividuum des letzten Champ-Gegners wird markiert.
+- Ausgeschiedene Mitglieder bleiben Teil des ausgezeichneten Teams;
+  ihr Zustand beim Abschluss wird kenntlich gemacht.
+- Angezeigt werden eingefrorene Kampflevel und Formen des Lauf-Snapshots,
+  nicht spätere Sammlungswerte.
+- Individuelle Sammlungs-IDs verwenden; Box-Mitgliedern keine Pflege-
+  Lebenskennung erfinden.
+- Jeder vollständig gewonnene Lauf zählt als ein Erfolg, nicht als
+  mehrere Erfolge pro Teammitglied.
+- Höchstens zwölf erfasste Erfolge nach bisherigem Aufbewahrungsprinzip:
+  erster Erfolg und bei längerer Historie elf neueste weitere Erfolge.
+- Bestehende Einzel-Pokémon-Einträge und historische Abschlüsse bleiben erhalten.
+- Alte laufende Einzel-Pokémon-Ligen erzeugen weiterhin passende Einzeleinträge.
+- Neues Teamformat ausdrücklich versionieren; unbekannte oder beschädigte
+  Daten nicht stillschweigend überschreiben.
+- Team-Historie nicht nachträglich für alte Siege rekonstruieren.
+
+## Lokaler Implementierungs- und Prüfstand P05c — 26.10.2026
+
+- Versionierter regionaler Liga-Teamzustand mit C++-/Python-/JS-Prüfungen.
+- Individuelle KP, fünf eigene Heilungen je Mitglied, ausgeschiedene Reserven,
+  eingefrorene Kampfwerte und Wiederherstellung ohne Auffüllen.
+- Start, Fortsetzung, Wechsel und Sieg-Abrechnung an die gemeinsame
+  Pflege-/Preferences-/Sammlungstransaktion angeschlossen.
+- Eintrittskosten weiterhin 50 für Top Vier und 30 beim Champ-Start;
+  gewöhnliche Fortsetzungen und Mitgliederwechsel ohne neue Eintrittskosten.
+- Individuelle Levelgewinne bis 100; Bonus und Checkpoint gemeinsam gespeichert.
+- Letzter Bonus, regionaler Titel, Team-Halleneintrag und Entfernen des
+  Laufzustands werden innerhalb einer gemeinsamen Transaktion vorbereitet.
+- Team-Hallenformat V2 mit gespeicherten Mitgliedern und separater Pflegebindung.
+  Vorhandene Einzelsieger bleiben Einzelsieger; keine erfundene Teamhistorie.
+- Liga- und Hallenoberfläche angeschlossen. Alte Einzelläufe behalten ihren Pfad.
+- Fortsetzen und Sieg-Abrechnung verwenden die gebundene gespeicherte
+  Mitgliederliste, nicht die heutige Teamplanung. Mitglieder müssen weiterhin
+  vorhanden sein; Pflegebindung und gespeicherter Fortschritt werden geprüft.
+- Neue P05c-Oberflächentexte über Textschlüssel für de/en/es/fr registriert;
+  englische Basisschlüssel werden zuerst angelegt. Keine Behauptung einer
+  vollständigen Übersetzung aller älteren Liga-Oberflächen; Q01 bleibt offen.
+
+Vorliegende lokale Prüfergebnisse:
+- Zentrale Logik-/Oberflächen-Vorprüfungen nach den letzten Korrekturen grün.
+- Regulärer Emscripten-WASM-Build erfolgreich; native Quellen danach unverändert.
+- 16 gezielte Team-Liga-Browserprüfungen in Chromium/WebKit bestanden:
+  beide Regionen, individuelle Sieger und Heilungen, Checkpoint-Reload,
+  Pflichtwechsel, Niederlage, Speicherfehler/Retry, Team-Halleneintrag sowie
+  Sicherungsimport mit abweichender heutiger Teamplanung.
+- 10 vorhandene Sprachpilot-Browserprüfungen bestanden.
+- Arena-Synchronisationsschutz: 12 gezielte Wiederholungen und alle
+  18 Arena-Team-Browserprüfungen bestanden; Erwartungen nicht abgeschwächt.
+- Vollständiger Browserlauf nach den abschließenden Sprach-/Planungskorrekturen
+  am 26.10.2026: 221 bestanden, 1 übersprungen, keine Fehlschläge
+  (222 Testausführungen über Chromium und WebKit; Laufzeit 13,1 Minuten).
+- Starke/schwache synthetische Sammlungswerte dienen der Integrationsprüfung,
+  nicht als Balancing-Nachweis.
+- Bekannte separate Build-Warnung: TPNamedPrompt mit C-Linkage und std::string
+  in browser_glue.cpp. Build erfolgreich; Warnung nicht behoben oder unterdrückt.
+- Keine CI-/Deployment-Bestätigung und keine iPhone-Abnahme durch diese
+  lokalen Ergebnisse behauptet; diese Schritte separat bestätigen.
+
 ## Nächster konkreter Schritt — ausschließlich P05c
 
-1. P05b-Abnahme im Projektplan committen und pushen.
-2. Aktuelle Liga-Steuerung, regionale Läufe, Spielerbindung, Energie,
-   Checkpoints, Fortsetzung und Ergebnis-/Hall-Transaktionen lesen.
-3. Bereits gespeicherte laufende Liga-Spielstände und deren Kompatibilität
-   ausdrücklich berücksichtigen; keine stillschweigende Teamersetzung.
-4. Regeln für Team-Snapshot, KP, Heilungen, Wechsel, Levelboni und die
-   Grenze zwischen Top Vier und Champ vor der Implementierung festlegen.
-5. P05a/P05b-Unterbau gezielt wiederverwenden; abgenommene Wild- und
-   Arena-Abläufe durch Regressionstests schützen.
-6. Kleine Umsetzungsschritte, gezielte und zentrale Tests, aktueller
-   WASM-Build, vollständige Browserprüfung, Veröffentlichung und eigene
-   iPhone-Abnahme.
-7. P06 und weitere Pakete bleiben außerhalb des aktiven Umfangs.
+1. Vollständiger Browserlauf bestätigt: 221 bestanden, 1 übersprungen.
+2. Dokumentation und gesamten Git-Diff einschließlich neuer Dateien prüfen.
+3. Danach Commit und Push über normale Git-Terminalbefehle.
+4. Bestehenden CI-/Build-/Deployment-Workflow abwarten und Ergebnis dokumentieren.
+5. Sichtbare Team-Liga-Funktionen auf dem iPhone abnehmen.
+6. Erst nach Nutzerbestätigung P05c als abgenommen markieren.
+   P06 und weitere Pakete bleiben außerhalb dieses Abschlusses.
 
 ## Ideenspeicher
 

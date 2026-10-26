@@ -36,6 +36,7 @@ em++ -std=c++17 $OPT \
   browser_ver/core/browser_comfort.cpp \
   browser_ver/core/browser_battle.cpp \
   browser_ver/core/browser_league.cpp \
+  browser_ver/core/browser_league_team.cpp \
   browser_ver/core/browser_hall.cpp \
   browser_ver/core/browser_reward_egg.cpp \
   browser_ver/core/browser_battle_energy.cpp \

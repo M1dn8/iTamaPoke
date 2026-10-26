@@ -2,6 +2,8 @@
  * Native snapshots own stats/damage; this module only renders and routes taps.
  */
 (function(){'use strict';let key='',menu='main',last=null,targets={},feedbackAt=0,feedbackKey='',captureFx=null,captureView=null;
+const leagueText=(key,params={})=>window.TPLeagueText?
+ window.TPLeagueText.t(key,params):TPText.t('leagueTeam.'+key,params);
 const call=(n,...a)=>Module.ccall(n,'number',a.map(()=> 'number'),a);
 const themes=['ice','rock','ghost','dragon','champ'];
 
@@ -57,7 +59,7 @@ function drawTeamMenu(m){
    (condition?' · '+condition:''),x+97.5,y+37,9,'#5d5960',183);
  });
  if(state.needsSwitch){
-  button('abort',teamText('flee'),50,350,366);
+  button('abort',m.mode==='league'?leagueText('giveUp'):teamText('flee'),50,350,366);
  }else{
   button('back',TPText.t('common.back'),50,350,366);
  }
@@ -159,7 +161,27 @@ function draw(m){prepare(m);const capture=captureState(m);if(capture&&ownsCaptur
  statusEl.textContent=capture?capture.headline+' '+capture.detail:m.title+' · '+m.player.hp+'/'+m.player.maxHp+' KP';}
 function actionAt(x,y){for(const [a,r]of Object.entries(targets))if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h)return a;return null;}
 function handle(x,y,m){const k=m.mode+':'+m.id;if(k!==key){key=k;menu='main';targets={};return null;}const a=actionAt(x,y);if(a==='fight'){menu='moves';return null;}if(a==='info'){menu=m.wildTeam?'team':'info';return null;}if(a==='back'){menu='main';return null;}if(m.resolved&&!['next','catch','leave','ok','retry','abort','resultRetry'].includes(a))return null;if(a&&/^member[0-5]$/.test(a))menu='main';return a;}
-function leagueModel(v,error='',retry=false){const trainer=Math.min(4,Math.floor(v.index/5)),region=v.region??window.TPLeague?.region??0,names=region===1?(window.TPJohtoLeagueData?.names||['Willi','Koga','Bruno','Melanie','Siegfried']):['Lorelei','Bruno','Agathe','Siegfried','Blau'];return {region,mode:'league',id:v.battleId,theme:(region===1?johtoThemes:themes)[trainer],title:(trainer<4?'Top Vier · '+names[trainer]:'Champ · '+names[4])+' · '+(trainer===4?v.index-19:v.index%5+1)+'/'+(trainer===4?6:5),round:v.round,rests:v.rests,note:v.note||'',resolved:!!v.resolved,won:!!v.won,dealt:v.dealt||0,taken:v.taken||0,heal:v.heal||0,error,retry,player:{dex:v.playerDex,level:v.playerLevel,form:v.form,shiny:v.shiny,nick:v.nick,hp:v.hp,maxHp:v.maxHp,atk:v.atk,def:v.def,spe:v.spe},enemy:{dex:v.dex,level:v.level,hp:v.enemyHp,maxHp:v.enemyMaxHp}};}
+function leagueTeam(v){
+ if(!v.teamMode||!Array.isArray(v.members)||!v.members.length)return null;
+ return {
+  live:v.live,count:v.members.length,active:v.active,
+  needsSwitch:!!v.needsSwitch,members:v.members
+ };
+}
+function leagueEnemies(v){
+ if(!v.teamMode)return null;
+ const region=v.region??0;
+ const data=window.TPRegions?.catalog(region)?.league||
+  (region===1?window.TPJohtoLeagueData:window.TPKantoLeagueData);
+ const trainer=Math.min(4,Math.floor(v.index/5));
+ const slot=trainer===4?v.index-20:v.index%5;
+ const roster=trainer<4?data?.elite?.[trainer]:
+  data?.champions?.[v.variant]||data?.champion;
+ return roster?.map((_,i)=>({
+  ready:i>slot||(i===slot&&v.enemyHp>0),active:i===slot
+ }))||null;
+}
+function leagueModel(v,error='',retry=false){const trainer=Math.min(4,Math.floor(v.index/5)),region=v.region??window.TPLeague?.region??0,names=region===1?(window.TPJohtoLeagueData?.names||['Willi','Koga','Bruno','Melanie','Siegfried']):['Lorelei','Bruno','Agathe','Siegfried','Blau'];return {region,...(v.teamMode?{wildTeam:leagueTeam(v),enemyTeam:leagueEnemies(v)}:{}),mode:'league',id:v.battleId,theme:(region===1?johtoThemes:themes)[trainer],title:(trainer<4?'Top Vier · '+names[trainer]:'Champ · '+names[4])+' · '+(trainer===4?v.index-19:v.index%5+1)+'/'+(trainer===4?6:5),round:v.round,rests:v.rests,note:v.note||'',resolved:!!v.resolved,won:!!v.won,dealt:v.dealt||0,taken:v.taken||0,heal:v.heal||0,error,retry,player:{dex:v.playerDex,level:v.playerLevel,form:v.form,shiny:v.shiny,nick:v.nick,hp:v.hp,maxHp:v.maxHp,atk:v.atk,def:v.def,spe:v.spe},enemy:{dex:v.dex,level:v.level,hp:v.enemyHp,maxHp:v.enemyMaxHp}};}
 
 function standard(){
  const b=k=>call('tp_bv_get',k),trainer=!!window.TPTrainer.active();

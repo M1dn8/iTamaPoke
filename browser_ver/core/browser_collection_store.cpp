@@ -9,6 +9,9 @@
 extern Pet &tp_battle_pet();
 extern uint32_t g_millis;
 extern "C" int tp_battle_is_open();
+#if defined(__EMSCRIPTEN__) || defined(TP_LGT_TEST)
+extern "C" int tp_lgt_can_result_begin();
+#endif
 namespace {
 constexpr const char *KEY="f4col";
 constexpr int LIMIT=262144;
@@ -51,6 +54,12 @@ uint32_t tp_f4_store_begin_wild_result_context(){
 uint32_t tp_f4_store_begin_arena_result_context(){
  return tp_battle_is_open()?beginStore(true):0;
 }
+#if defined(__EMSCRIPTEN__) || defined(TP_LGT_TEST)
+// Internal only. The league adapter verifies its resolved winning session.
+uint32_t tp_f4_store_begin_league_result_context(){
+ return tp_lgt_can_result_begin()?beginStore(true):0;
+}
+#endif
 // Opaque UTF-8 ITC1 model bytes are validated in the JS model before this call.
 // The native layer checks transport/type/bounds, NOT the JSON model/checksum.
 EMSCRIPTEN_KEEPALIVE int tp_f4_store_stage(uint32_t token,const uint8_t *data,int len){

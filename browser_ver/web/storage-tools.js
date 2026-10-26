@@ -52,6 +52,22 @@ function parseLegacy(input){
    const genes=m.data.genes;if(!genes||genes.atk!==get("gatk",1,100)||genes.def!==get("gdef",1,100)||genes.spe!==get("gspe",1,100))throw Error("Individuelle Pflege-Gene passen nicht zusammen.");
   }else if(dex>0&&!ceremony)throw Error("Aktuelles Pflege-Pokemon fehlt in der individuellen Sammlung.");
  }else if(collectionModel?.active!==null&&collectionModel?.active!==undefined){const m=collectionModel.mons.find(m=>m.id===collectionModel.active);if(m&&m.data.lifeToken!==undefined)throw Error("Pflege-Identitaetsmetadaten fehlen.");}
+ // Only the new LT format is interpreted here. Old single-player blobs
+ // retain their existing native validation path without JS migration.
+ for(const [region,key,versionKey] of [
+  [0,"lgkrun","lgver"],[1,"jlgrun","jlgver"]
+ ]){
+  const field=values.get(key);
+  if(!field||field.type!==3||
+     field.value[0]!==76||field.value[1]!==84)continue;
+  if(!root.TPLeagueTeamState)
+   throw Error("Liga-Teampruefung nicht geladen.");
+  if(get(versionKey,1,0)!==1||!collectionModel||
+     get("f4lver",1,0)!==1)
+   throw Error("Liga-Team-Metadaten fehlen oder sind ungueltig.");
+  try{root.TPLeagueTeamState.decode(field.value,region);}
+  catch(_){throw Error("Liga-Teamdaten ungueltig oder nicht unterstuetzt.");}
+ }
  function bitCount(k){let n=0;const v=get(k,3,new Uint8Array());for(let d=0;d<1025;d++)if((v[d>>3]||0)&(1<<(d&7)))n++;return n;}
  return {raw:b.slice(),values,summary:{dex,level:Math.min(100,1+Math.floor(age/60)+battleLevelBonus),age,bond:get("bond",1,0),nick:get("nick",2,""),raised:bitCount("dexreg"),caught:bitCount("dexcgt"),shiny:bitCount("dexsh")}};
 }

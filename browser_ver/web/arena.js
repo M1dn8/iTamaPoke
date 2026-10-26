@@ -18,44 +18,171 @@ function open(){if(!canOpen())return false;session=null;message='';tab='leaders'
 function back(){if(busy())return;Module._tp_battle_close();session=null;screen='arena';detail=false;dragStart=dragNow=null;}
 function leave(){if(busy())return;Module._tp_battle_close();session=null;screen='card';cardPage=4;dragStart=dragNow=null;}
 function abort(){if(saving)return false;const saved=session?.phase==='done';if(active())Module._tp_battle_close();session=null;screen='arena';detail=false;message=saved?'Arena beendet – Orden gespeichert.':'Arena beendet; kein weiterer Orden vergeben.';dragStart=dragNow=null;return true;}
+
+function teamView(){
+ if(!session?.team||session.mod!==Module||!active())return null;
+ try{
+  const v=JSON.parse(Module.ccall('tp_wt_view','string',[],[]));
+  return v.arena&&v.session===session.token&&v.region===session.region?v:null;
+ }catch(_){return null;}
+}
+function switchTo(index){
+ if(busy()||tpSaveReplacing||window.TPCollection?.busy||
+    window.TPCollection?.blocked||session?.phase!=='fighting'||
+    !Number.isInteger(index)||index<0||index>5)return false;
+ const v=teamView();
+ if(!v?.live||v.seriesDone||fns.battleResolved()||
+    index>=v.count||index===v.active||v.members[index].hp<=0)return false;
+ return call('tp_wt_switch',index)===1;
+}
 function start(id=selected){
- if(screen!=='arena'||busy()||tpSaveReplacing||document.visibilityState!=='visible'||choice!=='none'||!Number.isInteger(id)||id<0||id>=data.leaders.length||window.TPTraining?.busy||window.TPMega?.busy||window.TPExpeditions?.busy)return false;
- if(window.TPBattleEnergy)return startPaid(id);
- const token=regional(region,'tp_f3_start',id);if(!token){message='Arena gerade nicht verfügbar.';return false;}
- selected=id;session={region,id,token,mod:Module,phase:'fighting',since:performance.now(),error:''};dragStart=dragNow=null;battleReturn='arena';screen='battle';picture(id);return true;
+ if(screen!=='arena'||busy()||tpSaveReplacing||
+    document.visibilityState!=='visible'||choice!=='none'||
+    !Number.isInteger(id)||id<0||id>=data.leaders.length||
+    window.TPTraining?.busy||window.TPMega?.busy||
+    window.TPExpeditions?.busy||window.TPLeague?.busy||
+    window.TPCollection?.busy||window.TPCollection?.blocked)return false;
+ return startPaid(id);
 }
 async function startPaid(id){
- if(!window.TPBattleEnergy?.supported){message='Bitte den aktuellen Spielkern bauen.';return false;}
- const e=window.TPBattleEnergy.view;
- if(!e?.arena.can){message=window.TPBattleEnergy.line('arena');return false;}
- const owner=region,mod=Module;const paid=(name,...args)=>scoped(mod,owner,name,...args);saving=true;tpSaveReplacing=true;tpSaveEpoch++;let ticket=0,durable=false;
- try{ticket=paid('tp_energy_arena_begin',id);if(!ticket)throw Error('Arena-Start gerade nicht moeglich.');const bytes=exportStateBytes(mod);TPStoreTools.parseLegacy(bytes);if(await writeSave(bytes,true)!==true)throw Error('Energiekosten nicht gespeichert.');durable=true;const token=paid('tp_energy_arena_finish',ticket,1);if(token<=0)throw Error('Kosten gespeichert. Bitte App neu oeffnen.');selected=id;session={region:owner,id,token,mod,phase:'fighting',since:performance.now(),error:''};message='';dragStart=dragNow=null;battleReturn='arena';screen='battle';picture(id);if(document.visibilityState!=='visible'){Module._tp_battle_close();session=null;screen='arena';detail=false;}return true;
- }catch(e){if(ticket&&!durable)paid('tp_energy_arena_finish',ticket,0);message=e.message||String(e);return false;}
- finally{tpSaveEpoch++;tpSaveReplacing=false;saving=false;}
+ if(!window.TPBattleEnergy?.supported||
+    !window.TPArenaResult?.supported||
+    typeof Module._tp_wt_arena_attach!=='function'){
+  message='Bitte den aktuellen Spielkern laden.';return false;
+ }
+ if(!window.TPBattleEnergy.view?.arena.can){
+  message=window.TPBattleEnergy.line('arena');return false;
+ }
+ const owner=region,mod=Module;
+ const paid=(name,...args)=>scoped(mod,owner,name,...args);
+ saving=true;message='';
+ let ticket=0,durable=false,locked=false,hold=false;
+ try{
+  await window.TPArenaResult.prepare();
+  if(Module!==mod||screen!=='arena'||region!==owner||
+     document.visibilityState!=='visible'||choice!=='none'||
+     tpSaveReplacing||window.TPCollection?.blocked||
+     window.TPCollectionGame?.dialogOpen||
+     window.TPMega?.busy||window.TPTraining?.busy||
+     window.TPExpeditions?.busy||window.TPLeague?.busy||
+     fns.wildPromptActive())throw Error('Arena-Startkontext geändert.');
+
+  const state=TPCollection.read();
+  TPCollectionModel.validate(state);
+  const ids=state.team.length?state.team:
+   state.active===null?[]:[state.active];
+  if(!ids.length||ids.length>6)throw Error('Kein gültiges Arena-Team.');
+
+  const members=ids.map(id=>{
+   const m=state.mons.find(p=>p.id===id),stats=m?.data.stats;
+   if(!m||!stats||!['atk','def','spe'].every(
+    key=>Number.isInteger(stats[key])&&stats[key]>=1&&stats[key]<=65535
+   ))throw Error('Kampfwerte des Arena-Teams fehlen.');
+   return m;
+  });
+  if(call('tp_wt_stage_begin',members.length)!==1)
+   throw Error('Teamvorbereitung abgelehnt.');
+  members.forEach((m,index)=>{
+   const s=m.data.stats;
+   if(mod.ccall('tp_wt_stage_entry','number',[
+    'number','number','number','number','number','number','number',
+    'number','number','string'
+   ],[
+    index,m.id,m.dex,m.level,s.atk,s.def,s.spe,
+    m.id===state.active?1:0,m.shiny?1:0,m.nickname
+   ])!==1)throw Error('Teammitglied abgelehnt.');
+  });
+
+  tpSaveReplacing=true;tpSaveEpoch++;locked=true;
+  ticket=paid('tp_energy_arena_begin',id);
+  if(!ticket)throw Error('Arena-Start gerade nicht möglich.');
+  const tentative=call('tp_f3_get',2);
+  if(!tentative||call('tp_wt_arena_attach',tentative)!==1)
+   throw Error('Arena-Team konnte nicht angehängt werden.');
+
+  const bytes=exportStateBytes(mod);
+  TPStoreTools.parseLegacy(bytes);
+  if(await writeSave(bytes,true)!==true)
+   throw Error('Energiekosten nicht gespeichert.');
+  durable=true;
+  const token=paid('tp_energy_arena_finish',ticket,1);
+  if(token!==tentative)
+   throw Error('Startbestätigung unklar – bitte App neu öffnen.');
+
+  selected=id;
+  session={
+   region:owner,id,token,mod,team:true,phase:'fighting',
+   since:performance.now(),error:'',rewards:[]
+  };
+  message='';dragStart=dragNow=null;
+  battleReturn='arena';screen='battle';picture(id);
+  if(document.visibilityState!=='visible'){
+   Module._tp_battle_close();session=null;screen='arena';detail=false;
+  }
+  return true;
+ }catch(error){
+  if(ticket&&!durable){
+   try{
+    if(paid('tp_energy_arena_finish',ticket,0)!==1)hold=true;
+   }catch(_){hold=true;}
+  }else if(durable){
+   hold=true;
+  }
+  message=hold?'Speicherabschluss unklar – bitte App neu öffnen.':
+   error.message||String(error);
+  statusEl.textContent=message;
+  window.TPDiagnostics?.record('manager',error);
+  return false;
+ }finally{
+  if(locked)tpSaveEpoch++;
+  if(hold){tpSaveReplacing=true;saving=true;}
+  else{if(locked)tpSaveReplacing=false;saving=false;}
+ }
 }
+
 function checkEnd(){
- if(!session||session.mod!==Module||!active()||session.phase!=='fighting'||!fns.battleResolved()||!fns.battlePlayerWon()||window.TPTrainer.get(3))return false;
+ if(!session||session.mod!==Module||!active()||
+    session.phase!=='fighting'||!fns.battleResolved()||
+    window.TPTrainer.get(3))return false;
  complete();return true;
 }
 async function complete(){
- if(!session||saving||session.mod!==Module||!active()||!['fighting','failed'].includes(session.phase))return false;
- const s=session,mod=Module;let applied=false,committed=false,locked=false;saving=true;s.phase='saving';s.error='';
- const native=(name,...args)=>scoped(mod,s.region??0,name,...args);
+ if(!session||saving||session.mod!==Module||!active()||
+    !['fighting','failed'].includes(session.phase))return false;
+ const s=session,v=teamView();
+ if(!v?.seriesDone||v.resultDone)return false;
+ saving=true;s.phase='saving';s.error='';s.won=v.won;
  try{
-  if(tpSaveReplacing||window.TPTraining?.busy||window.TPMega?.busy||window.TPExpeditions?.busy)throw Error('Speicherung gerade gesperrt');
-  tpSaveReplacing=true;tpSaveEpoch++;locked=true;
-  const result=native('tp_f3_apply',s.token);
-  if(result===2){s.phase='repeat';s.since=performance.now();return true;}
-  if(result!==1)throw Error('Arena-Abschluss nicht bestätigt');
-  applied=true;await writeSave(exportStateBytes(mod),true);committed=true;
-  if(!native('tp_f3_finish',s.token,1))throw Error('Ordens-Commit nicht bestätigt');
-  s.phase='done';s.since=performance.now();if(typeof playSfx==='function')playSfx(6);return true;
- }catch(e){
-  if(applied&&!committed)native('tp_f3_finish',s.token,0);
-  window.TPDiagnostics?.record('manager',e);s.phase=committed?'done':'failed';s.since=performance.now();s.error=committed?'Gespeichert; bei Anzeigeproblemen neu öffnen.':'Nicht gespeichert – kein neuer Orden übernommen.';return false;
+  await window.TPArenaResult.complete();
+  const current=TPCollection.read();
+  s.rewards=v.members.filter(m=>m.levelGains>0).map(m=>{
+   const updated=current.mons.find(p=>p.id===m.id);
+   return {
+    id:m.id,gains:m.levelGains,
+    name:updated?.nickname||fns.dexName(m.dex),
+    level:updated?.level??m.level
+   };
+  });
+  s.phase=v.won?(get(3)===3?'repeat':'done'):'lost';
+  s.since=performance.now();
+  if(v.won&&typeof playSfx==='function')playSfx(6);
+  return true;
+ }catch(error){
+  const unsafe=window.TPCollection?.blocked;
+  s.phase=unsafe?'unsafe':'failed';
+  s.error=unsafe?'Speicherabschluss unklar – bitte App neu öffnen.':
+   'Nicht gespeichert – Ergebnis erneut speichern.';
+  s.since=performance.now();
+  statusEl.textContent=s.error;
+  window.TPDiagnostics?.record('manager',error);
+  return false;
  }finally{
-  if(locked){tpSaveEpoch++;tpSaveReplacing=false;}saving=false;
-  if(document.visibilityState!=='visible'&&s.phase!=='failed'){if(active())Module._tp_battle_close();session=null;screen='arena';detail=false;}
+  saving=false;
+  if(document.visibilityState!=='visible'&&
+     !['failed','unsafe'].includes(s.phase)){
+   if(active())Module._tp_battle_close();
+   session=null;screen='arena';detail=false;
+  }
  }
 }
 function text(value,x,y,size=16,color=UI.ink,max=390){ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.fillStyle=color;ctx.font=`${size}px monospace`;ctx.fillText(String(value),x,y,max);}
@@ -104,7 +231,7 @@ function drawDetail(m){
  badge(selected,119,43,17,got);
  text(l.badge+(got?' · Erhalten':''),283,86,16,UI.ink,280);
  TPOpponentTeam.draw(l.team,{y:110,rowHeight:60});
- text(got?'Erstmals erhalten: '+date(selected):'Sieg über das ganze Team gibt diesen Orden.',233,303,12);text(message||'Du kämpfst mit deinem aktuellen Pokémon.',233,321,12,message?UI.barBad:UI.ink);
+ text(got?'Erstmals erhalten: '+date(selected):'Sieg über das ganze Team gibt diesen Orden.',233,303,12);text(message||'Dein geplantes Team kämpft; leeres Team: Pflege-Pokémon.',233,321,12,message?UI.barBad:UI.ink);
  button(got?'Erneut herausfordern':'Arena herausfordern',70,333,326,42,!busy()&&!tpSaveReplacing&&(!window.TPBattleEnergy||!!window.TPBattleEnergy.view?.arena.can));if(window.TPBattleEnergy)text(window.TPBattleEnergy.line('arena'),233,395,11,UI.ink,410);button('Zurück',70,420,326,30,!busy());statusEl.textContent='Arena · '+l.name;
 }
 function tap(x,y){
@@ -119,18 +246,73 @@ function drawLeader(id,x,y,w,h){
  const image=picture(id);if(image){const s=Math.min(w/image.width,h/image.height);ctx.imageSmoothingEnabled=false;ctx.drawImage(image,x+(w-image.width*s)/2,y+h-image.height*s,image.width*s,image.height*s);return;}
  ctx.fillStyle='#a9b5ae';ctx.beginPath();ctx.arc(x+w/2,y+29,21,0,Math.PI*2);ctx.fill();roundRect(x+w/2-27,y+54,54,h-54,14);ctx.fill();ctx.strokeStyle='#83938a';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(x+w/2+20,y+65);ctx.lineTo(x+w+10,y+80);ctx.stroke();text('Grafik nicht geladen',x+w/2,y+h+16,10,UI.ink,136);
 }
+
 function handover(now){
- const s=session,l=data.leaders[s.id];ctx.fillStyle='#f7efe6';ctx.fillRect(0,0,466,466);text(s.phase==='saving'?'Arena gewonnen – speichern …':s.phase==='failed'?'Arena gewonnen – nicht gespeichert':'Arena gewonnen!',233,40,23);text(l.name+' · '+l.city,233,70,16);drawLeader(s.id,62,130,110,140);drawBattleSprite(fns.speciesId(),340,now,true,110);
- const awarded=s.phase==='done',reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches,progress=awarded?(reduced?1:Math.max(0,Math.min(1,(now-s.since)/1000))):0;
- const x=awarded?164+69*(1-(1-progress)**3):233;badge(s.id,x,218,awarded?22+progress*21:36,s.phase!=='failed');
- if(awarded&&progress<1&&!reduced){ctx.strokeStyle=l.color;ctx.lineWidth=2;for(let i=0;i<8;i++){const a=i*Math.PI/4,d=51+progress*12;ctx.beginPath();ctx.moveTo(x+Math.cos(a)*d,218+Math.sin(a)*d);ctx.lineTo(x+Math.cos(a)*(d+7),218+Math.sin(a)*(d+7));ctx.stroke();}}
- text(l.name,117,304,15);text(window.TPMega?.battleActive()?window.TPMega.name():fns.name(),340,304,15,UI.ink,160);text(s.phase==='saving'?'Bitte kurz warten.':s.phase==='repeat'?'Orden bereits erhalten – gut gekämpft!':s.phase==='failed'?'Kein neuer Orden übernommen.':l.name+' überreicht dir den '+l.badge+'!',233,337,16);
- if(s.error)text(s.error,233,357,11,UI.barBad);if(!saving){button(s.phase==='failed'?'Speichern erneut versuchen':'Ordenkoffer öffnen',70,371,326,36);button(s.phase==='failed'?'Arena verlassen':'Weiter',70,418,326,32);}statusEl.textContent='Arena · '+s.phase;
+ const s=session,l=data.leaders[s.id],v=teamView();
+ const player=v?.members[v.active];
+ const headline=s.phase==='saving'?'Arena-Ergebnis speichern …':
+  s.phase==='failed'?'Ergebnis nicht gespeichert':
+  s.phase==='unsafe'?'Bitte App neu öffnen':
+  s.phase==='lost'?'Arena verloren':'Arena gewonnen!';
+ ctx.fillStyle='#f7efe6';ctx.fillRect(0,0,466,466);
+ text(headline,233,40,23);
+ text(l.name+' · '+l.city,233,70,16);
+ drawLeader(s.id,62,130,110,140);
+ if(player)TPBattleView.drawMember(player,340,286,110);
+ if(s.won){
+  const awarded=s.phase==='done';
+  const reduced=typeof matchMedia==='function'&&
+   matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const progress=awarded?(reduced?1:
+   Math.max(0,Math.min(1,(now-s.since)/1000))):0;
+  const x=awarded?164+69*(1-(1-progress)**3):233;
+  badge(s.id,x,218,awarded?22+progress*21:36,s.phase!=='failed');
+ }
+ text(l.name,117,304,15);
+ text(player?(player.nick||TPBattleView.label(player)):'',340,304,15,UI.ink,160);
+ const line=s.phase==='saving'?'Bitte kurz warten.':
+  s.phase==='repeat'?'Orden bereits erhalten – Levelboni gespeichert.':
+  s.phase==='lost'?'Kein Orden. Verdiente Levelboni wurden gespeichert.':
+  s.phase==='done'?l.name+' überreicht dir den '+l.badge+'!':
+  'Noch keine neue Belohnung bestätigt.';
+ text(line,233,332,14);
+ const rewards=s.rewards||[];
+ text(s.error||(rewards.length?
+  rewards.map(r=>r.name+' Lv. '+r.level).join(' · '):
+  ['done','repeat','lost'].includes(s.phase)?'Keine zusätzlichen Levelboni.':''),
+  233,355,11,s.error?UI.barBad:UI.ink,438);
+ if(!saving&&s.phase!=='unsafe'){
+  button(s.phase==='failed'?'Speichern erneut versuchen':
+   s.phase==='lost'?'Zur Arenaübersicht':'Ordenkoffer öffnen',70,371,326,36);
+  button(s.phase==='failed'?'Arena verlassen':'Weiter',70,418,326,32);
+ }
+ statusEl.textContent='Arena · '+s.phase;
 }
-function intercept(now){if(!session||session.mod!==Module||!active())return false;checkEnd();if(!['saving','done','repeat','failed'].includes(session.phase))return false;handover(now);return true;}
+function intercept(now){
+ if(!session||session.mod!==Module||!active())return false;
+ checkEnd();
+ if(!['saving','done','repeat','lost','failed','unsafe'].includes(session.phase))
+  return false;
+ handover(now);return true;
+}
 function battleTap(x,y){
- if(!session||!active()||!['saving','done','repeat','failed'].includes(session.phase))return false;if(saving)return true;
- if(x>=70&&x<=396&&y>=371&&y<=407){if(session.phase==='failed')complete();else{back();tab='badges';}}else if(x>=70&&x<=396&&y>=418&&y<=450)back();return true;
+ if(!session||!active()||
+    !['saving','done','repeat','lost','failed','unsafe'].includes(session.phase))
+  return false;
+ if(saving||session.phase==='unsafe'||window.TPCollection?.blocked)return true;
+ if(x>=70&&x<=396&&y>=371&&y<=407){
+  if(session.phase==='failed')complete();
+  else{
+   const lost=session.phase==='lost';
+   back();tab=lost?'leaders':'badges';
+  }
+ }else if(x>=70&&x<=396&&y>=418&&y<=450){
+  if(session.phase==='failed'&&
+     !confirm('Nicht gespeicherte Levelboni verwerfen und Arena verlassen?'))
+   return true;
+  back();
+ }
+ return true;
 }
 // Local raster portraits only; no fetches and no remote URLs.
 let dbPromise=null;
@@ -173,5 +355,5 @@ function pickPortrait(id){
  if(busy())return;picker?.remove();const input=document.createElement('input');picker=input;input.type='file';input.accept='image/png,.png';input.hidden=true;input.setAttribute('data-tp-arena-portrait','');document.body.appendChild(input);input.addEventListener('change',()=>{const file=input.files?.[0];input.remove();if(file)importPortrait(file,id).catch(e=>window.TPDiagnostics?.record('manager',e));},{once:true});input.addEventListener('cancel',()=>input.remove(),{once:true});input.click();
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'&&active()&&!saving)abort();});window.addEventListener('pagehide',()=>{if(active()&&!saving)abort();});
-window.TPArena=Object.freeze({open,chooseRegion,get region(){return region;},get choosingRegion(){return choosingRegion;},canOpen,start,active,abort,draw,tap,intercept,battleTap,checkEnd,complete,badge,importPortrait,invalidatePortraits,get busy(){return busy();},get snapshot(){return session?{region:session.region??0,id:session.id,token:session.token,phase:session.phase,error:session.error}:null;}});
+window.TPArena=Object.freeze({open,chooseRegion,get region(){return region;},get choosingRegion(){return choosingRegion;},canOpen,start,active,abort,draw,tap,intercept,battleTap,checkEnd,complete,badge,importPortrait,invalidatePortraits,get busy(){return busy();},get teamView(){return teamView();},switchTo,get snapshot(){return session?{region:session.region??0,id:session.id,token:session.token,team:!!session.team,phase:session.phase,error:session.error,rewards:session.rewards||[]}:null;}});
 })();

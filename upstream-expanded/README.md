@@ -66,9 +66,10 @@ visit still finds it hungry at 15 with the counter at zero.
 
 ## Local modification: the dex runs to 386, not 151
 
-These files are otherwise vendored verbatim, with four deliberate exceptions
-(this one, the `nick` widening, the `neglectTicks` save and the neglect
-accrual above).
+This section describes the initial gen 1-3 dex extension. The local changes
+in this folder are not limited to the early modifications listed above:
+additional changes are documented in the sections below. This folder
+must not be described as an otherwise unmodified vendored copy.
 `dex.h` has been extended from the fork's 151 species to **386** (gen 1-3),
 with the extra rows transcribed from a third fork,
 [DylanPDao/TamaPoke](https://github.com/DylanPDao/TamaPoke) (`dex.h`, commit
@@ -186,3 +187,40 @@ daily-goal callers keep their previous rewards through the default
 Statistics, daily-goal progress and the winner's level share the existing
 whole-Pet/store rollback. The old care win/loss methods are not called by
 this new result path.
+
+## Local modification: combined team-arena results (P05b)
+
+Browser team arenas reuse `Pet::grantBattleLevel()` only inside their
+combined `tp_wt_arena_result_begin/apply/finish` transaction. Individual
+gains are accumulated in the browser battle adapter during the series;
+they do not change the frozen combat stats or maximum HP mid-series.
+
+At completion, the whole-Pet/Preferences checkpoint covers care-level
+grants, the staged validated collection and any new regional badge.
+Stored individuals are updated by the collection model, not by copying
+them into the live care Pet. Repeat victories still have a result
+transaction, but preserve the existing badge date. A later loss can commit
+earlier earned gains without awarding a badge. Rollback retains pending
+gains for a retry; closing an unfinished session discards them.
+
+This arena path does not call the legacy care win/loss methods or the
+wild profile-outcome method. Arena entry remains a separate existing
+paid-start transaction.
+
+## Local modification: read-only turn-limit query (P05b)
+
+`battle.h`/`battle.cpp` expose `battleRoundLimitReached()` so the browser
+team adapter can distinguish a final turn-limit result from an ordinary
+member knockout that permits a forced replacement.
+
+The existing 20-turn limit, damage calculations and remaining-HP-fraction
+winner comparison are unchanged. In the browser team adapter, a timeout
+loss is final rather than allowing another selection at an already
+exhausted round limit. A timeout win can advance to the next arena
+opponent even when the previous opponent retains HP.
+
+The accompanying native tests cover timeout loss with living members,
+a knockout on the final round and advancing after a timeout win.
+Browser tests separately cover timeout loss after an earned level gain
+and complete team knockout. This documents a local adapter correction,
+not a claim that all vendored battle files are unchanged.

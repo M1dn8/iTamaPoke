@@ -30,7 +30,7 @@ function drawTeamIndicators(m){
  const player=m.wildTeam.members.map((p,i)=>Object.freeze({
   id:p.id,ready:p.hp>0,active:i===m.wildTeam.active
  }));
- const enemy=[Object.freeze({ready:m.enemy.hp>0,active:true})];
+ const enemy=(m.enemyTeam||[{ready:m.enemy.hp>0,active:true}]).map(p=>Object.freeze({...p}));
  teamIndicators=Object.freeze({
   player:Object.freeze(player),enemy:Object.freeze(enemy)
  });
@@ -160,11 +160,70 @@ function draw(m){prepare(m);const capture=captureState(m);if(capture&&ownsCaptur
 function actionAt(x,y){for(const [a,r]of Object.entries(targets))if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h)return a;return null;}
 function handle(x,y,m){const k=m.mode+':'+m.id;if(k!==key){key=k;menu='main';targets={};return null;}const a=actionAt(x,y);if(a==='fight'){menu='moves';return null;}if(a==='info'){menu=m.wildTeam?'team':'info';return null;}if(a==='back'){menu='main';return null;}if(m.resolved&&!['next','catch','leave','ok','retry','abort','resultRetry'].includes(a))return null;if(a&&/^member[0-5]$/.test(a))menu='main';return a;}
 function leagueModel(v,error='',retry=false){const trainer=Math.min(4,Math.floor(v.index/5)),region=v.region??window.TPLeague?.region??0,names=region===1?(window.TPJohtoLeagueData?.names||['Willi','Koga','Bruno','Melanie','Siegfried']):['Lorelei','Bruno','Agathe','Siegfried','Blau'];return {region,mode:'league',id:v.battleId,theme:(region===1?johtoThemes:themes)[trainer],title:(trainer<4?'Top Vier · '+names[trainer]:'Champ · '+names[4])+' · '+(trainer===4?v.index-19:v.index%5+1)+'/'+(trainer===4?6:5),round:v.round,rests:v.rests,note:v.note||'',resolved:!!v.resolved,won:!!v.won,dealt:v.dealt||0,taken:v.taken||0,heal:v.heal||0,error,retry,player:{dex:v.playerDex,level:v.playerLevel,form:v.form,shiny:v.shiny,nick:v.nick,hp:v.hp,maxHp:v.maxHp,atk:v.atk,def:v.def,spe:v.spe},enemy:{dex:v.dex,level:v.level,hp:v.enemyHp,maxHp:v.enemyMaxHp}};}
-function standard(){const b=k=>call('tp_bv_get',k),trainer=!!window.TPTrainer.active(),arena=b(10),form=b(5);const arenaRegion=trainer&&arena>=0&&typeof Module._tp_region_arena_session_region==='function'?call('tp_region_arena_session_region'):0,arenaCatalog=arenaRegion===1?window.TPJohtoArena:window.TPKantoArena;const capture=trainer?null:window.TPCapture?.status();const team=trainer?null:window.TPWildTeam?.view;const teamActive=!!team?.live&&team.count>0;return {wildTeam:teamActive?team:null,resultPending:teamActive&&team.resultPending,resultSaving:teamActive&&!!window.TPWildTeam?.saving,reward:teamActive?window.TPWildTeam?.reward||'':'',region:arena>=0?arenaRegion:0,mode:trainer?(arena>=0?'arena':'trainer'):'wild',id:b(0),theme:arena>=0?(arenaRegion===1?['field','field','field','ghost','rock','rock','ice','dragon']:['rock','ice','field','field','ghost','ghost','champ','rock'])[arena]:'field',title:trainer?(arena>=0?arenaCatalog?.leaders?.[arena]?.name||'Arena':'Trainerkampf')+' · '+(window.TPTrainer.get(2)+1)+'/'+window.TPTrainer.get(1):'Wilder Kampf',round:fns.battleRound(),note:fns.battleMessage(),rests:call('tp_battle_rest_uses_left'),resolved:!!fns.battleResolved(),won:!!fns.battlePlayerWon(),next:trainer&&!!window.TPTrainer.get(3),catchOffered:!!fns.battleCatchOffered(),catchDone:!!fns.battleCatchDone(),catchTried:!trainer&&!!call('tp_battle_catch_tried'),catchSuccess:!trainer&&!!call('tp_battle_catch_success'),catchAllowed:capture?capture.allowed:true,error:(teamActive?window.TPWildTeam?.error:'')||capture?.message||'',dealt:b(7),taken:b(8),heal:b(9),player:{dex:teamActive?call('tp_wt_player_dex'):fns.speciesId(),level:b(1),form,shiny:b(6),nick:Module.ccall('tp_bv_nick','string',[],[]),hp:fns.battlePlayerHp(),maxHp:fns.battlePlayerMaxHp(),atk:b(2),def:b(3),spe:b(4)},enemy:{caught:!trainer&&(captureFx&&captureFx.id===b(0)&&captureFx.mod===Module?(captureFx.previouslyCaught||(captureFx.committed&&captureFx.success)):!!call('tp_battle_wild_already_caught')),dex:fns.battleWildDex(),level:call('tp_battle_wild_level'),hp:fns.battleEnemyHp(),maxHp:fns.battleEnemyMaxHp()}};}
+
+function standard(){
+ const b=k=>call('tp_bv_get',k),trainer=!!window.TPTrainer.active();
+ const arena=b(10),form=b(5);
+ const arenaRegion=trainer&&arena>=0&&
+  typeof Module._tp_region_arena_session_region==='function'?
+  call('tp_region_arena_session_region'):0;
+ const arenaCatalog=arenaRegion===1?window.TPJohtoArena:window.TPKantoArena;
+ const capture=trainer?null:window.TPCapture?.status();
+ const arenaTeam=trainer&&arena>=0?window.TPArena?.teamView:null;
+ const team=trainer?arenaTeam:window.TPWildTeam?.view;
+ const teamActive=!!team?.live&&team.count>0;
+ const enemyIndex=trainer?window.TPTrainer.get(2):0;
+ const enemyTeam=arenaTeam?arenaCatalog?.leaders?.[arena]?.team.map((_,i)=>({
+  ready:i>enemyIndex||(i===enemyIndex&&fns.battleEnemyHp()>0),
+  active:i===enemyIndex
+ })):null;
+ return {
+  wildTeam:teamActive?team:null,enemyTeam,
+  resultPending:teamActive&&(arenaTeam?
+   team.seriesDone&&!team.resultDone:team.resultPending),
+  resultSaving:teamActive&&(arenaTeam?
+   !!window.TPArena?.busy:!!window.TPWildTeam?.saving),
+  reward:teamActive&&!arenaTeam?window.TPWildTeam?.reward||'':'',
+  region:arena>=0?arenaRegion:0,
+  mode:trainer?(arena>=0?'arena':'trainer'):'wild',
+  id:b(0),
+  theme:arena>=0?(arenaRegion===1?
+   ['field','field','field','ghost','rock','rock','ice','dragon']:
+   ['rock','ice','field','field','ghost','ghost','champ','rock'])[arena]:'field',
+  title:trainer?(arena>=0?
+   arenaCatalog?.leaders?.[arena]?.name||'Arena':'Trainerkampf')+
+   ' · '+(enemyIndex+1)+'/'+window.TPTrainer.get(1):'Wilder Kampf',
+  round:fns.battleRound(),note:fns.battleMessage(),
+  rests:call('tp_battle_rest_uses_left'),
+  resolved:!!fns.battleResolved(),won:!!fns.battlePlayerWon(),
+  next:trainer&&!!window.TPTrainer.get(3),
+  catchOffered:!!fns.battleCatchOffered(),catchDone:!!fns.battleCatchDone(),
+  catchTried:!trainer&&!!call('tp_battle_catch_tried'),
+  catchSuccess:!trainer&&!!call('tp_battle_catch_success'),
+  catchAllowed:capture?capture.allowed:true,
+  error:(arenaTeam?window.TPArena?.snapshot?.error:
+   teamActive?window.TPWildTeam?.error:'')||capture?.message||'',
+  dealt:b(7),taken:b(8),heal:b(9),
+  player:{
+   dex:teamActive?call('tp_wt_player_dex'):fns.speciesId(),
+   level:b(1),form,shiny:b(6),
+   nick:Module.ccall('tp_bv_nick','string',[],[]),
+   hp:fns.battlePlayerHp(),maxHp:fns.battlePlayerMaxHp(),
+   atk:b(2),def:b(3),spe:b(4)
+  },
+  enemy:{
+   caught:!trainer&&(captureFx&&captureFx.id===b(0)&&captureFx.mod===Module?
+    (captureFx.previouslyCaught||(captureFx.committed&&captureFx.success)):
+    !!call('tp_battle_wild_already_caught')),
+   dex:fns.battleWildDex(),level:call('tp_battle_wild_level'),
+   hp:fns.battleEnemyHp(),maxHp:fns.battleEnemyMaxHp()
+  }
+ };
+}
 function supported(){try{return !!Module&&typeof Module._tp_bv_get==='function';}catch(_){return false;}}
 function drawStandard(){if(!supported())return false;if(!call('tp_battle_is_open')){captureFx=null;captureView=null;targets={};screen=battleReturn;return true;}if(window.TPTrainer.active()&&(!call('tp_f2_can_actor')||document.visibilityState!=='visible')){window.TPTrainer.abort();return true;}window.TPWildTeam?.poll();draw(standard());return true;}
 function abort(m){if(m.mode!=='wild'&&!m.resolved&&!confirm('Kampf aufgeben? Bereits bezahlte Energie wird nicht erstattet.'))return false;if(m.mode==='trainer'||m.mode==='arena')window.TPTrainer.abort();else{Module._tp_battle_close();screen=battleReturn;}return true;}
-function tapStandard(x,y){if(!supported())return false;const m=standard();if(ownsCapture(m)&&!captureFx.settled)return true;const a=handle(x,y,m);if(!a)return true;if(a==='resultRetry'){window.TPWildTeam?.retry();return true;}if(/^member[0-5]$/.test(a)){window.TPWildTeam?.switchTo(Number(a.slice(6)));return true;}if(a==='quick')Module._tp_battle_quick_attack();else if(a==='heavy')Module._tp_battle_heavy_attack();else if(a==='dodge')Module._tp_battle_dodge();else if(a==='rest')Module._tp_battle_rest();else if(a==='next')call('tp_f2_next');else if(a==='catch')startCapture(m);else if(a==='leave'){captureFx=null;captureView=null;Module._tp_battle_leave_wild();}else if(a==='ok'){Module._tp_battle_close();screen=battleReturn;}else if(a==='abort')abort(m);return true;}
+function tapStandard(x,y){if(!supported())return false;const m=standard();if(ownsCapture(m)&&!captureFx.settled)return true;const a=handle(x,y,m);if(!a)return true;if(a==='resultRetry'){if(m.mode==='arena')window.TPArena?.complete();else window.TPWildTeam?.retry();return true;}if(/^member[0-5]$/.test(a)){if(m.mode==='arena')window.TPArena?.switchTo(Number(a.slice(6)));else window.TPWildTeam?.switchTo(Number(a.slice(6)));return true;}if(a==='quick')Module._tp_battle_quick_attack();else if(a==='heavy')Module._tp_battle_heavy_attack();else if(a==='dodge')Module._tp_battle_dodge();else if(a==='rest')Module._tp_battle_rest();else if(a==='next')call('tp_f2_next');else if(a==='catch')startCapture(m);else if(a==='leave'){captureFx=null;captureView=null;Module._tp_battle_leave_wild();}else if(a==='ok'){Module._tp_battle_close();screen=battleReturn;}else if(a==='abort')abort(m);return true;}
 function tapLeague(x,y,v,error='',retry=false){return handle(x,y,leagueModel(v,error,retry));}
-window.TPBattleView=Object.freeze({draw,drawStandard,tapStandard,drawLeague:(v,e,r)=>draw(leagueModel(v,e,r)),tapLeague,get current(){return last;},get capture(){return captureView;},get teamIndicators(){return teamIndicators;},label:name,target:a=>{const r=targets[a];return r?{x:r.x+r.w/2,y:r.y+r.h/2}:null;},get menu(){return menu;},background});
+window.TPBattleView=Object.freeze({draw,drawStandard,tapStandard,drawLeague:(v,e,r)=>draw(leagueModel(v,e,r)),tapLeague,get current(){return last;},get capture(){return captureView;},get teamIndicators(){return teamIndicators;},label:name,drawMember:(p,x,bottom,limit)=>sprite(p,x,bottom,limit),target:a=>{const r=targets[a];return r?{x:r.x+r.w/2,y:r.y+r.h/2}:null;},get menu(){return menu;},background});
 })();

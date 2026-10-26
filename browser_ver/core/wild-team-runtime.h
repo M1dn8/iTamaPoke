@@ -26,6 +26,7 @@ class TPWildTeamRuntime {
     TPWildTeamEntry entry{};
     uint16_t hp = 0;
     uint16_t maxHp = 0;
+    uint8_t rests = 0;
   };
   std::array<Member, 6> members{};
   std::size_t size_ = 0;
@@ -33,22 +34,29 @@ class TPWildTeamRuntime {
   bool live_ = false;
   bool pending_ = false;
   bool resolved_ = false;
+  bool won_ = false;
+  // Opt-in for arena series; existing wild callers keep shared rests.
+  bool individualRests_ = false;
 
   TPWildTeamResult record(BattleRuntime &battle, BattleTurnResult turn) {
     members[active_].hp = battle.playerHp;
+    if (individualRests_)
+      members[active_].rests = battle.restUsesLeft;
     bool remaining = false;
     for (std::size_t i = 0; i < size_; ++i)
       remaining = remaining || members[i].hp > 0;
     pending_ = turn.battleEnded && !turn.playerWon &&
-      battle.enemyHp > 0 && remaining;
+      battle.playerHp == 0 && battle.enemyHp > 0 && remaining &&
+      !battleRoundLimitReached(battle);
     resolved_ = turn.battleEnded && !pending_;
-    return {true, pending_, resolved_,
-      resolved_ && turn.playerWon, turn};
+    won_ = resolved_ && turn.playerWon;
+    return {true, pending_, resolved_, won_, turn};
   }
 
 public:
   bool begin(BattleRuntime &battle, const TPWildTeamEntry *entries,
-             std::size_t count, const BattleStats &enemy) {
+             std::size_t count, const BattleStats &enemy,
+             bool individualRests = false) {
     if (!entries || count < 1 || count > 6 ||
         enemy.level < 1 || enemy.level > 100) return false;
     for (std::size_t i = 0; i < count; ++i) {
@@ -62,9 +70,13 @@ public:
     TPWildTeamRuntime next;
     next.size_ = count;
     next.live_ = true;
+    next.individualRests_ = individualRests;
     for (std::size_t i = 0; i < count; ++i) {
       const auto initial = beginBattleRuntime(entries[i].stats, enemy);
-      next.members[i] = {entries[i], initial.playerHp, initial.playerMaxHp};
+      next.members[i] = {
+        entries[i], initial.playerHp, initial.playerMaxHp,
+        initial.restUsesLeft
+      };
     }
     const auto initial = beginBattleRuntime(entries[0].stats, enemy);
     *this = next;
@@ -89,16 +101,47 @@ public:
     if (!forced && battle.playerHp == 0) return {};
 
     members[active_].hp = battle.playerHp;
+    if (individualRests_)
+      members[active_].rests = battle.restUsesLeft;
     active_ = index;
     battle.player = members[index].entry.stats;
     battle.playerHp = members[index].hp;
     battle.playerMaxHp = members[index].maxHp;
+    if (individualRests_)
+      battle.restUsesLeft = members[index].rests;
     // An earned counter is not transferred to another individual.
     battle.counterReady = false;
     pending_ = false;
 
     if (forced) return {true, false, false, false, {}};
     return record(battle, stepBattle(battle, BATTLE_SWITCH, luck));
+  }
+
+  // Start the next opponent only after a resolved individual victory.
+  // Keep the frozen player stats, active member, HP and remaining rests.
+  // The caller owns series totals and any deferred level rewards.
+  bool nextEnemy(BattleRuntime &battle, const BattleStats &enemy) {
+    if (!live_ || !resolved_ || !won_ || pending_ ||
+        battle.playerHp == 0 ||
+        enemy.level < 1 || enemy.level > 100) return false;
+
+    members[active_].hp = battle.playerHp;
+    if (individualRests_)
+      members[active_].rests = battle.restUsesLeft;
+
+    const auto hp = battle.playerHp;
+    const auto maxHp = battle.playerMaxHp;
+    const auto rests = battle.restUsesLeft;
+    auto next = beginBattleRuntime(members[active_].entry.stats, enemy);
+    next.playerHp = hp;
+    next.playerMaxHp = maxHp;
+    next.restUsesLeft = rests;
+
+    battle = next;
+    pending_ = false;
+    resolved_ = false;
+    won_ = false;
+    return true;
   }
 
   void clear() { *this = TPWildTeamRuntime{}; }

@@ -1,13 +1,10 @@
-// Wild-battle glue: a plain-C++ port of Sources/Core/TPBattle.mm (itself a
-// Swift-facing reimplementation of TamaPoke.ino's wild-encounter-prompt and
-// battle-screen logic -- ShadowEnemyx/TamaPoke "Expanded", not the
-// upstream/ submodule -- see upstream-expanded/README.md). battle.h/
-// battle.cpp (the actual combat math) are used unmodified, exactly like
-// browser_glue.cpp does for pet.cpp; this file only replaces TPBattle.mm's
-// two platform calls -- arc4random_uniform(100) -> std::rand() % 100, and
-// NSProcessInfo.systemUptime -> g_millis (already driven by tp_tick in
-// browser_glue.cpp) -- everything else mirrors it line for line so the
-// wild-encounter odds, cooldowns, and battle math match the iOS build.
+// Browser battle adapter derived from Sources/Core/TPBattle.mm and the
+// ShadowEnemyx/TamaPoke Expanded battle system. Local browser extensions
+// own individual teams, arena sessions and transactional result handover.
+// Combat calculations use upstream-expanded/battle.h and battle.cpp;
+// local additions include the neutral switch action and read-only turn-limit
+// query. See upstream-expanded/README.md for provenance and modifications.
+// This adapter is no longer a line-for-line copy of the iOS facade.
 #include <cstdint>
 #include <cstdlib>
 #include <cstdio>
@@ -134,10 +131,19 @@ struct WTMemberSnapshot {
 };
 std::array<WTMemberSnapshot,6> gWTMembers{};
 TPWildTeamRuntime gWildTeam;
+// Deferred arena-only gains; frozen combat stats are never changed here.
+std::array<uint8_t,6> gWTArenaLevelGains{};
 unsigned gWTStageCount=0,gWTStageMask=0;
 bool gWTResultPending=false;
 struct WTResultUndo {uint32_t token=0;bool applied=false;};
 WTResultUndo gWTResultUndo;
+struct WTArenaResultUndo {
+  uint32_t token=0;
+  bool applied=false;
+  int outcome=0;
+};
+WTArenaResultUndo gWTArenaResultUndo;
+bool gWTArenaResultDone=false;
 BattleTurnResult gTurn{};
 uint32_t gBvId=0;uint16_t gBvDealt=0,gBvTaken=0,gBvHeal=0;
 bool gAttackMenuOpen = false;
@@ -178,7 +184,7 @@ uint8_t dayPhaseNow() {
 }
 
 void startBattle(int16_t forcedDex, uint8_t forcedLevel) {
-  if(leagueOwned()||gWTResultUndo.token)return;
+  if(leagueOwned()||gWTResultUndo.token||gWTArenaResultUndo.token)return;
 #if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
   if(gF4CatchUndo.token)return;
   if(++gF4BattleId==0)++gF4BattleId;
@@ -189,6 +195,8 @@ void startBattle(int16_t forcedDex, uint8_t forcedLevel) {
   gTrainer=false;gTrainerNext=false;gTrainerCount=gTrainerIndex=0;
   gTrainerRounds=gTrainerDealt=gTrainerTaken=0;
   gWildTeam.clear();gWTResultPending=false;
+  gWTArenaLevelGains={};
+  gWTArenaResultDone=false;
   gRewardLine.clear();
   Pet &pet = tp_battle_pet();
   gWildPromptActive = false;
@@ -236,6 +244,13 @@ void finishBattle() {
   }
   Pet &pet = tp_battle_pet();
   if (gTrainer) {
+    if(gArenaId>=0&&gWildTeam.count()&&
+       gTurn.playerWon&&gRun.playerHp>0){
+      const auto index=gWildTeam.activeIndex();
+      const unsigned frozenLevel=gWTMembers[index].entry.stats.level;
+      if(frozenLevel+gWTArenaLevelGains[index]<100)
+        ++gWTArenaLevelGains[index];
+    }
     gCatchOffered=gCatchTried=gCatchDone=gCatchSuccess=gRespectCatch=false;
     gCatchChance=0;gRewardLine.clear();
     gTrainerNext=gTurn.playerWon&&gRun.playerHp>0&&gTrainerIndex+1<gTrainerCount;
@@ -357,7 +372,7 @@ int tp_battle_can_start() {
 EMSCRIPTEN_KEEPALIVE void tp_battle_start() { if(!gOpen&&tp_battle_can_start())startBattle(0, 0); }
 EMSCRIPTEN_KEEPALIVE
 void tp_battle_close() {
-  if(gWTResultUndo.token)return;
+  if(gWTResultUndo.token||gWTArenaResultUndo.token)return;
 #if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
   if(gF4CatchUndo.token)return;
   gF4Outcome=-1;gF4CatchEpoch=0;
@@ -366,6 +381,8 @@ void tp_battle_close() {
   gArenaId=-1;gArenaToken=0;gArenaPhase=0;gArenaRegion=0;
   gTrainer=false;gTrainerNext=false;gTrainerCount=gTrainerIndex=0;
   gWildTeam.clear();gWTResultPending=false;
+  gWTArenaLevelGains={};
+  gWTArenaResultDone=false;
   gWTStageCount=gWTStageMask=0;
   gOpen = false;
   gResolved = false;
@@ -452,7 +469,7 @@ void performAction(BattleAction action) {
   if(gTrainer&&!trainerActorValid()){tp_battle_close();return;}
   gAttackMenuOpen = false;
   const uint16_t dealt=gRun.playerDamageTotal,taken=gRun.enemyDamageTotal;
-  if(gWildTeam.count()&&!gTrainer){
+  if(gWildTeam.count()){
     const auto result=gWildTeam.act(gRun,action,rnd100());
     if(!result.accepted)return;
     gTurn=result.turn;
@@ -605,9 +622,19 @@ EMSCRIPTEN_KEEPALIVE int tp_f2_next() {
  if(gArenaId>=0){const auto *leader=arenaLeaderFor(gArenaRegion,gArenaId);if(!leader||gTrainerIndex>=leader->count){tp_battle_close();return 0;}const auto &m=leader->team[gTrainerIndex];gDex=m.dex;gLevel=m.level;}
  else gDex=kTrainerTeams[gTrainerId].dex[gTrainerIndex];
  gEnemy=wildBattleStats(gDex,gLevel);gEnemy.hp=0;
- gRun=beginBattleRuntime(gPlayer,gEnemy);
- gRun.playerHp=hp;gRun.playerMaxHp=maxHp;gRun.restUsesLeft=rests;
+ if(gWildTeam.count()){
+  if(!gWildTeam.nextEnemy(gRun,gEnemy)){
+   tp_battle_close();
+   return 0;
+  }
+  gPlayer=gRun.player;
+  gPlayerMegaForm=gWTMembers[gWildTeam.activeIndex()].form;
+ }else{
+  gRun=beginBattleRuntime(gPlayer,gEnemy);
+  gRun.playerHp=hp;gRun.playerMaxHp=maxHp;gRun.restUsesLeft=rests;
+ }
  gTurn=BattleTurnResult{};gMessage[0]=0;gAttackMenuOpen=false;
+ gLowHpWarned=false;
  gResolved=false;gTrainerNext=false;
  return 1;
 }
@@ -650,6 +677,8 @@ EMSCRIPTEN_KEEPALIVE int tp_f3_start(int id){return arenaStartFor(0,id);}
 EMSCRIPTEN_KEEPALIVE int tp_region_arena_start(int region,int id){return arenaStartFor(region,id);}
 EMSCRIPTEN_KEEPALIVE int tp_region_arena_session_region(){return gOpen&&gArenaId>=0?gArenaRegion:-1;}
 static int arenaApplyFor(int region,int token){
+ // Team arenas use the combined collection/care/badge result transaction.
+ if(gWildTeam.count())return 0;
  if(region!=gArenaRegion||!arenaLeaderFor(region,gArenaId))return 0;
  const auto *keys=tpRegionProgressKeys(uint8_t(region));if(!keys)return 0;
  if(token<=0||uint32_t(token)!=gArenaToken||gArenaId<0||!gOpen||!gTrainer||!gResolved||gTrainerNext||
@@ -814,9 +843,38 @@ EMSCRIPTEN_KEEPALIVE int tp_wt_start(int prompt){
   return 1;
 }
 
+// Attach staged individuals only to a pristine arena session.
+// The browser must call this before exporting the paid-start save.
+// A failed attachment must roll back that start through its energy token.
+EMSCRIPTEN_KEEPALIVE int tp_wt_arena_attach(int token){
+  if(token<=0||uint32_t(token)!=gArenaToken||
+     !gOpen||!gTrainer||gArenaId<0||gArenaPhase||gArenaUndo||
+     gResolved||gTrainerNext||gTrainerIndex!=0||
+     !trainerActorValid()||gWildTeam.count()||
+     gWTResultPending||gWTResultUndo.token||
+     gRun.round!=0||gRun.playerHp!=gRun.playerMaxHp||
+     !gWTStageCount||gWTStageCount>6||
+     gWTStageMask!=((1u<<gWTStageCount)-1u))return 0;
+
+  TPWildTeamEntry entries[6]{};
+  for(unsigned i=0;i<gWTStageCount;i++)
+    entries[i]=gWTMembers[i].entry;
+
+  if(!gWildTeam.begin(gRun,entries,gWTStageCount,gEnemy,true))
+    return 0;
+
+  gWTStageCount=gWTStageMask=0;
+  gPlayer=gRun.player;
+  gPlayerMegaForm=gWTMembers[gWildTeam.activeIndex()].form;
+  gTurn=BattleTurnResult{};
+  gAttackMenuOpen=false;gLowHpWarned=false;gMessage[0]=0;
+  return 1;
+}
+
 EMSCRIPTEN_KEEPALIVE int tp_wt_switch(int index){
-  if(!gOpen||gTrainer||gResolved||gWTResultPending||index<0||
-     !gWildTeam.count())return 0;
+  if(!gOpen||(gTrainer&&gArenaId<0)||gResolved||
+     gWTResultPending||index<0||!gWildTeam.count())return 0;
+  if(gTrainer&&!trainerActorValid())return 0;
   const auto dealt=gRun.playerDamageTotal,taken=gRun.enemyDamageTotal;
   const auto result=gWildTeam.select(gRun,unsigned(index),rnd100());
   if(!result.accepted)return 0;
@@ -841,6 +899,15 @@ EMSCRIPTEN_KEEPALIVE const char *tp_wt_view(){
   const auto count=gWildTeam.count();
   out="{\"live\":"+std::to_string(gOpen&&count?1:0)+
     ",\"count\":"+std::to_string(count)+
+    ",\"arena\":"+(gOpen&&gArenaId>=0?std::string("true"):"false")+
+    ",\"region\":"+std::to_string(gArenaRegion)+
+    ",\"session\":"+std::to_string(gArenaToken)+
+    ",\"opponentCount\":"+std::to_string(gTrainerCount)+
+    ",\"seriesDone\":"+(gOpen&&gArenaId>=0&&gResolved&&!gTrainerNext?
+      std::string("true"):"false")+
+    ",\"resultDone\":"+(gWTArenaResultDone?std::string("true"):"false")+
+    ",\"won\":"+(gResolved&&gTurn.playerWon?
+      std::string("true"):"false")+
     ",\"active\":"+std::to_string(gWildTeam.activeIndex())+
     ",\"needsSwitch\":"+(gWildTeam.needsSwitch()?std::string("true"):"false")+
     ",\"resultPending\":"+(gWTResultPending?std::string("true"):"false")+
@@ -857,6 +924,7 @@ EMSCRIPTEN_KEEPALIVE const char *tp_wt_view(){
       ",\"nick\":"+wtQuote(m.nick)+
       ",\"shiny\":"+(m.shiny?std::string("true"):"false")+
       ",\"form\":"+std::to_string(m.form)+
+      ",\"levelGains\":"+std::to_string(gWTArenaLevelGains[i])+
       ",\"hp\":"+std::to_string(gWildTeam.hp(i))+
       ",\"maxHp\":"+std::to_string(gWildTeam.maxHp(i))+"}";
   }
@@ -946,6 +1014,101 @@ EMSCRIPTEN_KEEPALIVE int tp_wt_result_finish(uint32_t token,int commit){
 #else
   (void)token;(void)commit;
   return 0;
+#endif
+}
+
+
+// P05b combined team-arena result. Outcomes: 1 new badge, 2 repeat, 3 loss.
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+extern uint32_t tp_f4_store_begin_arena_result_context();
+
+static bool wtArenaResultEligible(int region,int session){
+  if(region!=gArenaRegion||session<=0||
+     uint32_t(session)!=gArenaToken||
+     !gOpen||!gTrainer||gArenaId<0||!gWildTeam.count()||
+     !gResolved||gTrainerNext||gArenaPhase||gArenaUndo||
+     gWTArenaResultDone||gWTResultUndo.token||
+     !trainerActorValid())return false;
+  if(gTurn.playerWon&&
+     (gTrainerIndex+1!=gTrainerCount||!gRun.playerHp))return false;
+  const auto *keys=tpRegionProgressKeys(uint8_t(region));
+  return keys&&arenaLeaderFor(region,gArenaId)&&arenaMask(*keys)>=0;
+}
+#endif
+
+EMSCRIPTEN_KEEPALIVE uint32_t tp_wt_arena_result_begin(
+    int region,int session){
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+  if(gWTArenaResultUndo.token||
+     !wtArenaResultEligible(region,session))return 0;
+  const auto token=tp_f4_store_begin_arena_result_context();
+  if(!token)return 0;
+  gWTArenaResultUndo={token,false,0};
+  return token;
+#else
+  (void)region;(void)session;return 0;
+#endif
+}
+
+EMSCRIPTEN_KEEPALIVE int tp_wt_arena_result_apply(
+    int region,int session,uint32_t token){
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+  if(!token||token!=gWTArenaResultUndo.token||
+     gWTArenaResultUndo.applied||
+     !wtArenaResultEligible(region,session))return 0;
+
+  const auto *keys=tpRegionProgressKeys(uint8_t(region));
+  const int mask=arenaMask(*keys);
+  const bool newBadge=gTurn.playerWon&&!(mask&(1<<gArenaId));
+  uint32_t date=0;
+  if(newBadge){
+    const auto clock=std::time(nullptr);
+    if(clock<946684800||uint64_t(clock)>0xffffffffULL)return 0;
+    date=uint32_t(clock);
+  }
+
+  auto &pet=tp_battle_pet();
+  for(unsigned i=0;i<gWildTeam.count();i++){
+    if(!gWTMembers[i].care)continue;
+    for(unsigned gain=0;gain<gWTArenaLevelGains[i]&&pet.level()<100;gain++)
+      if(!pet.grantBattleLevel())return 0;
+  }
+
+  if(newBadge){
+    Preferences p;
+    p.putUChar(keys->arenaVersion,1);
+    p.putUChar(keys->arenaMask,uint8_t(mask|(1<<gArenaId)));
+    const auto key=keys->arenaDatePrefix+std::to_string(gArenaId);
+    p.putUInt(key.c_str(),date);
+  }
+
+  gWTArenaResultUndo.applied=true;
+  gWTArenaResultUndo.outcome=gTurn.playerWon?(newBadge?1:2):3;
+  return gWTArenaResultUndo.outcome;
+#else
+  (void)region;(void)session;(void)token;return 0;
+#endif
+}
+
+EMSCRIPTEN_KEEPALIVE int tp_wt_arena_result_finish(
+    int region,int session,uint32_t token,int commit){
+#if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
+  if(region!=gArenaRegion||session<=0||
+     uint32_t(session)!=gArenaToken||
+     !token||token!=gWTArenaResultUndo.token||
+     (commit!=0&&commit!=1)||
+     (commit&&!gWTArenaResultUndo.applied))return 0;
+
+  const int outcome=gWTArenaResultUndo.outcome;
+  if(!tp_f4_store_finish(token,commit))return 0;
+  if(commit){
+    gWTArenaResultDone=true;
+    gArenaPhase=outcome==1?2:outcome==2?3:4;
+  }
+  gWTArenaResultUndo={};
+  return 1;
+#else
+  (void)region;(void)session;(void)token;(void)commit;return 0;
 #endif
 }
 

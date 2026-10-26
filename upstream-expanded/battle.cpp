@@ -293,6 +293,10 @@ BattleRuntime beginBattleRuntime(const BattleStats &player, const BattleStats &e
   return battle;
 }
 
+bool battleRoundLimitReached(const BattleRuntime &battle) {
+  return battle.round >= MAX_TURN_ROUNDS;
+}
+
 BattleTurnResult stepBattle(BattleRuntime &battle, BattleAction action, uint8_t luckRoll) {
   BattleTurnResult turn = {};
   if (finished(battle)) {

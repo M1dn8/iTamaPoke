@@ -1704,12 +1704,30 @@ createTPCore({
       mod,window.TPCollectionModel,capture?capture.bridge:plainBridge,
       life?life.reconcile:undefined
     );
+    const arenaResult=window.TPCollectionArenaResult?.create(
+      mod,window.TPCollectionModel,
+      wildResult?wildResult.bridge:(capture?capture.bridge:plainBridge),
+      life?life.reconcile:undefined
+    );
     window.TPCollection=window.TPCollectionPersistence.create({
       model:window.TPCollectionModel,
-      bridge:wildResult?wildResult.bridge:(capture?capture.bridge:plainBridge),
-      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{}),...(wildResult?wildResult.nativeActions:{})},
+      bridge:arenaResult?arenaResult.bridge:(wildResult?wildResult.bridge:(capture?capture.bridge:plainBridge)),
+      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{}),...(wildResult?wildResult.nativeActions:{}),...(arenaResult?arenaResult.nativeActions:{})},
       acquire:(context)=>{
-        if(Module!==mod||!window.TPAppMenu?.ready||tpSaveReplacing||window.TPMega?.busy||window.TPTraining?.busy||window.TPArena?.busy||window.TPExpeditions?.busy||((context==="wildCapture"||context==="wildResult")?screen!=="battle":!["idle","card","settings"].includes(screen))||(window.TPCollectionGame?.dialogOpen&&context!=="careEnd")||choice!=="none"||(context!=="careSync"&&(fns.ceremony()||fns.evolvingNow()))||(context!=="wildPrepare"&&fns.wildPromptActive()))throw Error("Sammlung: Spiel ist gerade beschaeftigt.");
+        const arenaContext=context==="arenaPrepare"||context==="arenaResult";
+        const battleContext=["wildCapture","wildResult","arenaResult"].includes(context);
+        const correctScreen=battleContext?screen==="battle":
+          context==="arenaPrepare"?screen==="arena":
+          ["idle","card","settings"].includes(screen);
+        if(Module!==mod||!window.TPAppMenu?.ready||tpSaveReplacing||
+           window.TPMega?.busy||window.TPTraining?.busy||
+           (window.TPArena?.busy&&!arenaContext)||
+           window.TPExpeditions?.busy||!correctScreen||
+           (window.TPCollectionGame?.dialogOpen&&context!=="careEnd")||
+           choice!=="none"||
+           (context!=="careSync"&&(fns.ceremony()||fns.evolvingNow()))||
+           (context!=="wildPrepare"&&fns.wildPromptActive()))
+          throw Error("Sammlung: Spiel ist gerade beschaeftigt.");
         tpSaveReplacing=true;tpSaveEpoch++;dragStart=null;dragNow=null;
         return ()=>{tpSaveEpoch++;tpSaveReplacing=false;};
       },
@@ -1720,6 +1738,7 @@ createTPCore({
     if(capture){capture.bind(window.TPCollection);window.TPCapture=capture;}
     if(life){life.bind(window.TPCollection);window.TPCollectionGame=life;}
     if(wildResult){wildResult.bind(window.TPCollection);window.TPWildResult=wildResult;}
+    if(arenaResult){arenaResult.bind(window.TPCollection);window.TPArenaResult=arenaResult;}
   }
 
   // Periodic autosave, plus on tab hide/close -- pagehide fires reliably on

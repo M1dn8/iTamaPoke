@@ -60,6 +60,7 @@ const FILES = [
   "./collection-persistence.js",
   "./collection-capture.js",
   "./collection-wild-result.js",
+  "./collection-arena-result.js",
   "./collection-lifecycle.js",
   "./collection-boxes.js",
   "./collection-boxes.css",

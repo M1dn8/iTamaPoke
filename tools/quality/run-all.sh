@@ -74,6 +74,8 @@ python3 tools/quality/test-p05-level.py
 python3 tools/quality/test-p05-team.py
 python3 tools/quality/test-p05-wild-start.py
 python3 tools/quality/test-p05-wild-result.py
+python3 tools/quality/test-p05-arena-runtime.py
+python3 tools/quality/test-p05-arena-result.py
 python3 tools/quality/test-battle-energy.py
 python3 tools/quality/test-battle-view.py
 python3 tools/quality/test-asset-packs.py

@@ -6,7 +6,7 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
 
 ## Aktueller Arbeitsstand
 
-- Aktives Paket: P05a Team in Wildkämpfen — implementiert und lokal geprüft; Veröffentlichung und iPhone-Abnahme offen.
+- Aktives Paket: P05b Team in Arena-Kämpfen — Bestandsaufnahme; P05a abgenommen.
 - Arbeitsbranch nach Integration: main.
 - P01 abgeschlossen mit Commit 99091dc.
 - Gezielter Schutztest und vollständige zentrale Prüfung lokal bestanden.
@@ -46,8 +46,8 @@ Eine neue Sitzung darf abgeschlossene Arbeit nicht ungeprüft neu eröffnen.
 | P03 | Erweiterbare Spracharchitektur | Abgenommen | Mittel–hoch | Sprachregister, Textschlüssel, Rückfallsprache, persistente Sprachwahl und Prüfung fehlender Übersetzungen |
 | P04 | Eigenes Team mit bis zu sechs Pokémon | Abgenommen | Erledigt | Individuelle Auswahl, sechs Plätze, Reihenfolge, Entfernen/Ersetzen und persistente Speicherung automatisiert sowie auf dem iPhone geprüft; Build grün, Nutzerabnahme am 25.10.2026 |
 | P05 | Eigenes Team in Kämpfen | In Arbeit; stufenweise Umsetzung | Sehr hoch | P05a zuerst, danach P05b und P05c jeweils getrennt prüfen und abnehmen |
-| P05a | Team in Wildkämpfen | Lokal geprüft; Veröffentlichung und iPhone-Abnahme offen | Hoch | Individuelle Mitglieder, Wechsel, KP, Pokéball-Anzeigen, Levelbonus bis 100 und atomare Ergebnis-/Fangspeicherung |
-| P05b | Team in Arena-Kämpfen | Offen | Sehr hoch | Erst nach P05a-Abnahme beginnen; bestehende Energie-, Gegnerwechsel- und Ordenstransaktionen erhalten |
+| P05a | Team in Wildkämpfen | Abgenommen am 26.10.2026 | Erledigt | Individuelle Mitglieder, Wechsel, KP, Pokéball-Anzeigen, Levelbonus bis 100 und atomare Ergebnis-/Fangspeicherung |
+| P05b | Team in Arena-Kämpfen | Bestandsaufnahme | Sehr hoch | Erst nach P05a-Abnahme beginnen; bestehende Energie-, Gegnerwechsel- und Ordenstransaktionen erhalten |
 | P05c | Team in Liga-Kämpfen | Offen | Sehr hoch | Nach P05b; regionale Läufe, KP, Wechsel, Checkpoints, Ergebnis und Fortsetzung absichern |
 | P06 | Legendären-Geschichten Kanto | Offen | Hoch | Ein vollständig abgenommener Pilot, danach vereinbarte weitere Geschichten; Voraussetzungen, Fortschritt, Begegnung und Ergebnis persistent |
 | P07 | Legendären-Geschichten Johto | Offen | Hoch | Auf Storysystem aufbauen; getrennte regionale Fortschritte und geprüfte Freischaltungen |
@@ -104,8 +104,12 @@ gesondert behandelt werden; keine ungeprüfte automatische Übersetzung.
 P03 und P04 sind abgenommen. Die P04-iPhone-Abnahme wurde mit Commit
 6b2bacb dokumentiert. Aktuell ist ausschließlich P05a in Bearbeitung.
 
-P05a ist implementiert und lokal automatisiert geprüft. Veröffentlichung
-dieses Funktionsstands und manuelle iPhone-Abnahme sind noch offen.
+P05a ist abgeschlossen. Commit 6cf9c07 wurde auf main veröffentlicht;
+der Build wurde vom Nutzer als grün bestätigt.
+Am 26.10.2026 hat der Nutzer alle aufgeführten iPhone-Prüfpunkte als
+bestanden bestätigt: manueller Start und natürliche Begegnung, aktive
+Identität, Teamwechsel, Pokéball-Zustände, Levelbonus bis 100,
+Kampfstatistik, Fang, Neuladen, leeres Team und Niederlage.
 
 Implementierter Umfang:
 - Vorhandene individuelle Sammlungs-IDs und Teamreihenfolge weiterverwenden.
@@ -178,15 +182,19 @@ Tatsächlicher Prüfstand am 25.10.2026:
 - Natürlicher Begegnungsstart durch nativen Prompt-Test und Browser-
   Routingtest getrennt geprüft; keine durchgängige automatische Prüfung
   einer natürlich auftauchenden Begegnung behauptet.
-- CI/Veröffentlichung und manuelle P05a-iPhone-Abnahme noch offen.
+- CI/Veröffentlichung von 6cf9c07 laut Nutzerbestätigung erfolgreich; vollständige manuelle P05a-iPhone-Abnahme am 26.10.2026 bestätigt.
 
-Nächster Schritt:
-1. Diesen Prüfstand und die Implementierung committen und pushen.
-2. Bestehenden CI-/Build-/Veröffentlichungsworkflow abwarten.
-3. P05a auf dem iPhone prüfen: beide Starts, aktive Art/Name, Teamwechsel,
-   Pokéball-Zustände, Siegbonus, Kampfstatistik, Fang und Neuladen.
-4. Nur tatsächlich geprüfte Punkte als abgenommen dokumentieren.
-5. Erst nach P05a-Abnahme mit P05b Arena beginnen; danach P05c Liga.
+Nächster Schritt — ausschließlich P05b:
+1. Aktuelle Arena-Steuerung, regionale Gegnerkader, Energie-/Starttransaktion,
+   Gegnerwechsel, Ordenstransaktion und zugehörige Tests lesen.
+2. P05a-Teamunterbau wiederverwenden, ohne Wildkämpfe oder Liga umzubauen.
+3. Arena-Regeln für eigene KP/Heilungen über alle Gegner, Startenergie,
+   Ergebnis und Belohnungen vor der Implementierung konkret festlegen.
+4. Levelbonus für besiegte Arena-Gegner nicht automatisch aus der ausdrücklich
+   für Wildkämpfe beschlossenen Regel ableiten; zunächst entscheiden.
+5. Kleine Umsetzungsschritte, gezielte Tests, zentrale und vollständige
+   Browserprüfung, Veröffentlichung und eigene iPhone-Abnahme.
+6. P05c Liga erst nach P05b-Abnahme beginnen.
 
 ## Ideenspeicher
 

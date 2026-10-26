@@ -9,6 +9,9 @@
 extern Pet &tp_battle_pet();
 extern uint32_t g_millis;
 extern "C" int tp_battle_is_open();
+#if defined(__EMSCRIPTEN__) || defined(TP_ADMISSION_CAPTURE_TEST)
+extern "C" int tp_f4_capture_admission_context();
+#endif
 #if defined(__EMSCRIPTEN__) || defined(TP_LGT_TEST)
 extern "C" int tp_lgt_can_result_begin();
 #endif
@@ -28,12 +31,72 @@ bool utf8(const uint8_t*p,int n){
   if((count==1&&cp<128)||(count==2&&cp<2048)||(count==3&&cp<65536)||cp>1114111||(cp>=55296&&cp<=57343))return false;
  }return true;
 }
+// P06 admission transport. JSON/model validation remains in JS.
+// CRC covers both payload and pending flag; unknown/partial state is refused.
+constexpr int F4_ADMISSION_LIMIT=65536;
+uint32_t f4AdmissionChecksum(const Bytes &bytes,bool pending){
+ uint32_t hash=2166136261u;
+ for(const auto byte:bytes){hash^=byte;hash*=16777619u;}
+ hash^=pending?1u:0u;hash*=16777619u;
+ return hash;
+}
+int f4AdmissionTransport(bool *pending=nullptr){
+ const auto &s=Preferences::store();
+ bool any=false;
+ for(const char *key:{"f4aver","f4admit","f4apend","f4acrc"})
+  any=any||s.count(key);
+ if(!any){if(pending)*pending=false;return 0;}
+ const auto ver=s.find("f4aver"),data=s.find("f4admit"),
+  flag=s.find("f4apend"),crc=s.find("f4acrc");
+ if(ver==s.end()||data==s.end()||flag==s.end()||crc==s.end()||
+    !std::holds_alternative<int64_t>(ver->second)||
+    std::get<int64_t>(ver->second)!=1||
+    !std::holds_alternative<Bytes>(data->second)||
+    !std::holds_alternative<bool>(flag->second)||
+    !std::holds_alternative<int64_t>(crc->second))return -1;
+ const auto &bytes=std::get<Bytes>(data->second);
+ const auto stored=std::get<int64_t>(crc->second);
+ const bool waiting=std::get<bool>(flag->second);
+ if(bytes.empty()||bytes.size()>size_t(F4_ADMISSION_LIMIT)||
+    !utf8(bytes.data(),int(bytes.size()))||
+    stored<0||stored>0xffffffffLL||
+    uint32_t(stored)!=f4AdmissionChecksum(bytes,waiting))return -2;
+ if(pending)*pending=waiting;
+ return int(bytes.size());
+}
 std::string quote(const char*s){std::string out="\"";for(unsigned i=0;i<23&&s[i];i++){const unsigned char c=static_cast<unsigned char>(s[i]);if(c=='"'||c=='\\')out+='\\';if(c<32){char b[7];snprintf(b,sizeof(b),"\\u%04x",c);out+=b;}else out+=char(c);}return out+'"';}
 }
 extern "C" {
 // 0 = absent old save; negative = present but invalid/unreadable. Never erase it.
 EMSCRIPTEN_KEEPALIVE int tp_f4_store_size(){const auto&s=Preferences::store();auto it=s.find(KEY);if(it==s.end())return 0;if(!std::holds_alternative<Bytes>(it->second))return -1;const auto&b=std::get<Bytes>(it->second);if(b.empty()||b.size()>size_t(LIMIT))return -2;if(!utf8(b.data(),int(b.size())))return -3;return int(b.size());}
 EMSCRIPTEN_KEEPALIVE const uint8_t *tp_f4_store_ptr(){if(tp_f4_store_size()<=0)return nullptr;return std::get<Bytes>(Preferences::store().at(KEY)).data();}
+// Read-only transport API. Negative means unreadable, never "empty".
+EMSCRIPTEN_KEEPALIVE int tp_f4_admission_size(){
+ return f4AdmissionTransport();
+}
+EMSCRIPTEN_KEEPALIVE const uint8_t *tp_f4_admission_ptr(){
+ return f4AdmissionTransport()>0?
+  std::get<Bytes>(Preferences::store().at("f4admit")).data():nullptr;
+}
+EMSCRIPTEN_KEEPALIVE int tp_f4_admission_pending(){
+ bool pending=false;
+ const int size=f4AdmissionTransport(&pending);
+ return size<0?-1:pending?1:0;
+}
+// Uses the existing whole-Pet/store checkpoint. No independent transaction.
+EMSCRIPTEN_KEEPALIVE int tp_f4_admission_stage(
+ uint32_t token,const uint8_t *data,int len,int pending){
+ if(!undo||undo->token!=token||!data||len<=0||
+    len>F4_ADMISSION_LIMIT||(pending!=0&&pending!=1)||
+    !utf8(data,len)||f4AdmissionTransport()<0)return 0;
+ Bytes bytes(data,data+len);
+ const auto crc=f4AdmissionChecksum(bytes,pending!=0);
+ Preferences p;
+ p.putUChar("f4aver",1);p.putBool("f4apend",pending!=0);
+ p.putUInt("f4acrc",crc);
+ Preferences::store()["f4admit"]=std::move(bytes);
+ return 1;
+}
 EMSCRIPTEN_KEEPALIVE int tp_f4_store_pending(){return undo?1:0;}
 // Read-only token identity for region-owned callers; does not begin a transaction.
 EMSCRIPTEN_KEEPALIVE uint32_t tp_f4_store_pending_token(){return undo?undo->token:0;}
@@ -42,6 +105,18 @@ static uint32_t beginStore(bool resolvedCatchContext){
  const uint32_t token=++serial;undo=std::make_unique<Undo>(tp_battle_pet(),Preferences::store(),token);return token;
 }
 EMSCRIPTEN_KEEPALIVE uint32_t tp_f4_store_begin(){return beginStore(false);}
+// A pending admission may be completed in quiet care/box context, or
+// immediately after this adapter's confirmed successful capture.
+EMSCRIPTEN_KEEPALIVE uint32_t tp_f4_admission_begin(){
+ bool pending=false;
+ if(f4AdmissionTransport(&pending)<=0||!pending)return 0;
+ if(!tp_battle_is_open())return beginStore(false);
+#if defined(__EMSCRIPTEN__) || defined(TP_ADMISSION_CAPTURE_TEST)
+ return tp_f4_capture_admission_context()?beginStore(true):0;
+#else
+ return 0;
+#endif
+}
 // Internal pairing with tp_f4_capture_begin, which checks capture eligibility.
 EMSCRIPTEN_KEEPALIVE uint32_t tp_f4_store_begin_catch_context(){return tp_battle_is_open()?beginStore(true):0;}
 // Internal pairing only: tp_wt_result_begin checks the resolved team outcome.

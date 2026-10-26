@@ -980,6 +980,7 @@ function draw() {
 }
 
 function handleTap(x, y) {
+  if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return;
   if(window.TPLeague?.busy)return;
   if(window.TPBoxes?.active)return;
   if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen)return;
@@ -1134,6 +1135,7 @@ function handleTap(x, y) {
 // during a tap, which SwiftUI/the DOM can both report as a large jump) must
 // not be read as "swipe out of the game."
 function swipeAllowed() {
+  if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return false;
   if(window.TPBoxes?.active)return false;
   if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen)return false;
   if(window.TPMega?.busy)return false;
@@ -1150,6 +1152,7 @@ function swipeAllowed() {
 // swipe opens the dex; on the dex/card, it turns pages; dir 1 = swiped
 // right, -1 = swiped left (left advances, matching upstream).
 function onSwipe(dir) {
+  if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return;
   if(window.TPBoxes?.active)return;
   if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen)return;
   if (window.TPExpeditions && window.TPExpeditions.busy) return;
@@ -1697,9 +1700,13 @@ createTPCore({
     const reportCollection=(message,error)=>{statusEl.textContent=message;try{if(error)window.TPDiagnostics?.record("manager",error);}catch(_e){}};
     const life=window.TPCollectionLifecycle?.create(mod,window.TPCollectionModel,{
       notify:reportCollection,nameForDex:d=>fns.dexName(d),
-      canSync:()=>Module===mod&&!!window.TPAppMenu?.ready&&!tpSaveReplacing&&!window.TPCollection?.busy&&!window.TPMega?.busy&&!window.TPTraining?.busy&&!window.TPArena?.busy&&!window.TPExpeditions?.busy&&["idle","card","settings"].includes(screen)&&choice==="none"
+      canSync:()=>Module===mod&&!!window.TPAppMenu?.ready&&!tpSaveReplacing&&!window.TPCollection?.busy&&!window.TPAdmissionUI?.active&&!window.TPMega?.busy&&!window.TPTraining?.busy&&!window.TPArena?.busy&&!window.TPExpeditions?.busy&&["idle","card","settings"].includes(screen)&&choice==="none"
     });
-    const capture=window.TPCollectionCapture?.create(mod,window.TPCollectionModel,plainBridge,reportCollection,life?life.reconcile:undefined);
+    const admission=window.TPCollectionAdmission?.create(
+      mod,window.TPCollectionModel,window.TPAdmissionModel,
+      life?life.reconcile:undefined
+    );
+    const capture=window.TPCollectionCapture?.create(mod,window.TPCollectionModel,plainBridge,reportCollection,life?life.reconcile:undefined,admission);
     const wildResult=window.TPCollectionWildResult?.create(
       mod,window.TPCollectionModel,capture?capture.bridge:plainBridge,
       life?life.reconcile:undefined
@@ -1715,17 +1722,23 @@ createTPCore({
         (wildResult?wildResult.bridge:(capture?capture.bridge:plainBridge)),
       life?life.reconcile:undefined
     );
+    const resultBridge=leagueStart?leagueStart.bridge:
+      (arenaResult?arenaResult.bridge:
+       (wildResult?wildResult.bridge:(capture?capture.bridge:plainBridge)));
     window.TPCollection=window.TPCollectionPersistence.create({
       model:window.TPCollectionModel,
-      bridge:leagueStart?leagueStart.bridge:(arenaResult?arenaResult.bridge:(wildResult?wildResult.bridge:(capture?capture.bridge:plainBridge))),
-      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{}),...(wildResult?wildResult.nativeActions:{}),...(arenaResult?arenaResult.nativeActions:{}),...(leagueStart?leagueStart.nativeActions:{})},
+      bridge:admission?admission.wrapBridge(resultBridge):resultBridge,
+      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{}),...(wildResult?wildResult.nativeActions:{}),...(arenaResult?arenaResult.nativeActions:{}),...(leagueStart?leagueStart.nativeActions:{}),...(admission?admission.nativeActions:{})},
       acquire:(context)=>{
+        const admissionContext=context==="admissionComplete";
         const leagueContext=[
           "leaguePrepare","leagueStart","leagueResume","leagueWin"
         ].includes(context);
         const arenaContext=context==="arenaPrepare"||context==="arenaResult";
         const battleContext=["wildCapture","wildResult","arenaResult"].includes(context);
-        const correctScreen=leagueContext?screen==="league":battleContext?screen==="battle":
+        const correctScreen=leagueContext?screen==="league":
+          admissionContext?["idle","card","settings","battle"].includes(screen):
+          battleContext?screen==="battle":
           context==="arenaPrepare"?screen==="arena":
           ["idle","card","settings"].includes(screen);
         if(Module!==mod||!window.TPAppMenu?.ready||tpSaveReplacing||
@@ -1733,6 +1746,7 @@ createTPCore({
            window.TPMega?.busy||window.TPTraining?.busy||
            (window.TPArena?.busy&&!arenaContext)||
            window.TPExpeditions?.busy||!correctScreen||
+           (window.TPAdmissionUI?.active&&!admissionContext)||
            (window.TPCollectionGame?.dialogOpen&&context!=="careEnd")||
            choice!=="none"||
            (context!=="careSync"&&(fns.ceremony()||fns.evolvingNow()))||
@@ -1745,6 +1759,10 @@ createTPCore({
       validateSave:bytes=>window.TPStoreTools.parseLegacy(bytes),
       persist:bytes=>writeSave(bytes,true)
     });
+    if(admission){
+      admission.bind(window.TPCollection);
+      window.TPAdmission=admission;
+    }
     if(capture){capture.bind(window.TPCollection);window.TPCapture=capture;}
     if(life){life.bind(window.TPCollection);window.TPCollectionGame=life;}
     if(wildResult){wildResult.bind(window.TPCollection);window.TPWildResult=wildResult;}
@@ -1768,7 +1786,10 @@ createTPCore({
     const tpPerf=window.TPPerformance;
     const tpMode=(window.TPBoxes?.active||window.TPAppMenu?.active)?"menue":screen==="game"?(gameMode===4?"typenspiel":"minispiel"):screen;
     const tpSample=tpPerf?.frame(tpMode,t);
-    if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen||window.TPLeague?.busy){
+    window.TPAdmissionUI?.poll();
+    if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen||
+       window.TPLeague?.busy||window.TPAdmissionUI?.active||
+       window.TPAdmissionUI?.busy){
       tpPerf?.tick(tpSample,false);tpPerf?.frameEnd(tpSample,false,true);
       requestAnimationFrame(frame);return;
     }

@@ -2,7 +2,7 @@
 (function(root,factory){'use strict';const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else{
  root.TPCollectionBoxes=api;
  root.TPBoxes=api.create({model:root.TPCollectionModel,getController:()=>root.TPCollection,getHost:()=>document.getElementById('tp-game-shell'),
-  canOpen:()=>!!root.TPCollectionGame?.supported&&!!root.TPAppMenu?.ready&&fns.ceremony()===0&&!fns.evolvingNow()&&!root.TPCollection?.busy&&!root.TPCollectionGame?.dialogOpen&&!tpSaveReplacing&&screen==='card'&&cardPage===3&&choice==='none',
+  canOpen:()=>!!root.TPCollectionGame?.supported&&!!root.TPAppMenu?.ready&&fns.ceremony()===0&&!fns.evolvingNow()&&!root.TPCollection?.busy&&!root.TPCollectionGame?.dialogOpen&&!root.TPAdmissionUI?.active&&!tpSaveReplacing&&screen==='card'&&cardPage===3&&choice==='none',
   getWarning:()=>root.TPCollectionGame?.message||'',nameForDex:d=>fns.dexName(d),onOpen:()=>{screen='settings';dragStart=null;dragNow=null;feedMenuUntil=confirmUntil=0;},onClose:()=>{screen='card';cardPage=3;canvas.focus?.();},
   renameActive:()=>{screen='card';cardPage=0;cardTap(233,root.TPMega?.visible()?300:330);},
   drawSprite:(target,mon,t)=>{const c=target.getContext('2d');c.clearRect(0,0,target.width,target.height);const sprite=spriteFor(mon.dex,mon.shiny);if(!sprite){c.font='24px sans-serif';c.fillStyle='#8b9991';c.textAlign='center';c.fillText('?',target.width/2,35);return;}const a=sprite.actions[TPAct.idle];if(!a)return;const image=frameImageData(sprite,TPAct.idle,frameIndexAt(a,t,true));if(!image)return;const off=api.frameCanvas||(api.frameCanvas=document.createElement('canvas'));off.width=a.w;off.height=a.h;off.getContext('2d').putImageData(image,0,0);const s=Math.min((target.width-4)/a.w,(target.height-4)/a.h,3);c.imageSmoothingEnabled=false;c.drawImage(off,(target.width-a.w*s)/2,target.height-a.h*s,a.w*s,a.h*s);}
@@ -51,6 +51,13 @@ function create({model:M,getController,getHost,canOpen=()=>true,getWarning=()=>'
  function render(){if(!active)return;thumbs=[];root.replaceChildren();let s;try{s=read();revision=s.revision;}catch(e){root.append(node('p','Sammlung nicht lesbar. Keine Aenderungen moeglich.'),button('Zurueck',close));return;}
   const disabled=locked(),head=node('header',undefined,'tp-box-head');head.append(node('h2','Boxen & Teamplanung'),button('Zurueck',close,disabled));root.append(head);const tabs=node('div',undefined,'tp-box-tabs');tabs.append(button('Boxen',()=>{tab='boxes';selected=null;modal=null;render();},disabled),button('Teamplanung '+s.team.length+' / 6',()=>{tab='team';selected=null;modal=null;render();},disabled));root.append(tabs);const body=node('div',undefined,'tp-box-scroll');root.append(body);
   body.append(node('p','Nur Planung: Kaempfe verwenden weiterhin dein aktuelles Pflege-Pokemon. Keine erneute Pflege gelagerter Pokemon.','tp-box-note'));const warning=getWarning();if(warning)body.append(node('p',warning,'tp-box-message'));if(message)body.append(node('p',message,'tp-box-message'));if(controller().blocked)body.append(node('p','Bitte neu laden – Speicherbestaetigung pruefen.'));
+  try{
+   if(globalThis.TPAdmission?.supported&&globalThis.TPAdmissionUI&&
+      globalThis.TPAdmission.read().pending)
+    body.append(button(globalThis.TPAdmissionText.t('notice'),()=>{
+     close();globalThis.TPAdmissionUI.open();
+    },disabled));
+  }catch(_){}
   if(modal){editor(s,body,disabled);return;}if(selected!==null){const m=mon(s,selected);if(m){detail(s,m,body,disabled);return;}selected=null;}
   if(tab==='boxes'){const row=node('div',undefined,'tp-box-select');row.append(button('Vorige Box',()=>{box=(box+s.boxes.length-1)%s.boxes.length;render();},disabled));const select=node('select');select.setAttribute('aria-label','Boxauswahl');for(let i=0;i<s.boxes.length;i++){const b=s.boxes[i],option=node('option',b.name+' · '+b.slots.filter(x=>x!==null).length+' / '+b.slots.length);option.value=String(i);select.append(option);}select.value=String(box);select.disabled=disabled;select.addEventListener('change',()=>{box=Number(select.value);render();});row.append(select,button('Naechste Box',()=>{box=(box+1)%s.boxes.length;render();},disabled));body.append(row,button('Box umbenennen',()=>{modal={kind:'boxName',draft:s.boxes[box].name};render();},disabled));
    if(s.active!==null){const current=mon(s,s.active);body.append(button('Pflege-Pokemon: '+title(current)+' · Lv. '+current.level,()=>{selected=current.id;render();},disabled,'tp-box-current'));}

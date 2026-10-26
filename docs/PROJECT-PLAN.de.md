@@ -6,9 +6,15 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
 
 ## Aktueller Arbeitsstand
 
-- Aktives Paket: P05c Team in Liga-Kämpfen — lokal implementiert und
-  vollständig lokal geprüft. CI/Veröffentlichung und iPhone-Abnahme
-  noch offen; P05a und P05b bleiben abgenommen.
+- Aktives Paket: P06 Legendären-Geschichten Kanto — gemeinsame Aufnahmefunktion
+  lokal implementiert und geprüft; Veröffentlichung und iPhone-Abnahme offen.
+- Zapdos bleibt der erste Storypilot: Kraftwerk-Abenteuer und freiwilliger,
+  garantierter Anschluss nach gewonnenem Prüfduell freigegeben. Weitere
+  Story-/Kampfregeln und die konkrete Storyimplementierung bleiben offen.
+- P05c auf Stand 02e3973 veröffentlicht, Build vom Nutzer als grün
+  bestätigt und am 26.10.2026 ausdrücklich abgenommen.
+- Grafische P05c-Optimierungen sind zurückgestellt, aktuell nicht hoch
+  priorisiert und blockieren P06 nicht.
 - P05a bleibt abgenommen: veröffentlichter Funktionsstand 6cf9c07,
   vollständige Nutzerabnahme am 26.10.2026.
 - P05b: Commit fb86920 auf main veröffentlicht; CI/Build vom Nutzer als
@@ -19,7 +25,7 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
 - CI-/Veröffentlichungsworkflow laut Nutzerbestätigung erfolgreich.
 - Keine Spieloberfläche oder Spielmechanik in P01 verändert; keine neue
   eigenständige iPhone-Abnahme dieses Schutzpakets durchgeführt.
-- Letzter abgenommener Funktionsstand: P05b Team in Arena-Kämpfen, fb86920.
+- Letzter abgenommener Funktionsstand: P05c Team in Liga-Kämpfen, 02e3973.
 - Ebenfalls bereits abgenommen: Kanto-/Johto-Teamübersichten,
   26 lokale Trainerporträt-Zuordnungen, TPTR-v1/v2 und Quellenanzeige.
 - Diese früheren Funktionsstände wurden nach grüner CI auf dem iPhone geprüft.
@@ -51,11 +57,11 @@ Eine neue Sitzung darf abgeschlossene Arbeit nicht ungeprüft neu eröffnen.
 | P02 | Dokumentation und Kontinuität | Abgenommen | Niedrig | Plan/Übergabe versioniert; veraltete Format-/Quellentexte geprüft und bereinigt |
 | P03 | Erweiterbare Spracharchitektur | Abgenommen | Mittel–hoch | Sprachregister, Textschlüssel, Rückfallsprache, persistente Sprachwahl und Prüfung fehlender Übersetzungen |
 | P04 | Eigenes Team mit bis zu sechs Pokémon | Abgenommen | Erledigt | Individuelle Auswahl, sechs Plätze, Reihenfolge, Entfernen/Ersetzen und persistente Speicherung automatisiert sowie auf dem iPhone geprüft; Build grün, Nutzerabnahme am 25.10.2026 |
-| P05 | Eigenes Team in Kämpfen | In Arbeit; stufenweise Umsetzung | Sehr hoch | P05a zuerst, danach P05b und P05c jeweils getrennt prüfen und abnehmen |
+| P05 | Eigenes Team in Kämpfen | Abgenommen am 26.10.2026 | Erledigt | P05a, P05b und P05c getrennt implementiert, geprüft und vom Nutzer abgenommen |
 | P05a | Team in Wildkämpfen | Abgenommen am 26.10.2026 | Erledigt | Individuelle Mitglieder, Wechsel, KP, Pokéball-Anzeigen, Levelbonus bis 100 und atomare Ergebnis-/Fangspeicherung |
 | P05b | Team in Arena-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit fb86920; zentrale Prüfung, WASM-Build, Browserprüfungen, CI/Veröffentlichung und manuelle iPhone-Abnahme erfolgreich |
-| P05c | Team in Liga-Kämpfen | Lokal implementiert und geprüft; Veröffentlichung/iPhone-Abnahme offen | Sehr hoch | Gebundene individuelle Teams, fünf Heilungen je Mitglied, atomare Bonus-/Checkpoint-Speicherung und Team-Ruhmeshalle V2; alte Läufe/Einträge erhalten; Veröffentlichung und iPhone-Abnahme ausstehend |
-| P06 | Legendären-Geschichten Kanto | Offen | Hoch | Ein vollständig abgenommener Pilot, danach vereinbarte weitere Geschichten; Voraussetzungen, Fortschritt, Begegnung und Ergebnis persistent |
+| P05c | Team in Liga-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit 02e3973; lokale Prüfungen und WASM-Build erfolgreich, 221 Browserprüfungen bestanden/1 übersprungen, Build grün gemeldet und Nutzerabnahme bestätigt; grafische Folgeoptimierungen zurückgestellt |
+| P06 | Legendären-Geschichten Kanto | Aktiv: gemeinsame Aufnahme lokal geprüft; Zapdos-Pilot offen | Hoch | Gemeinsamen Aufnahmeweg veröffentlichen und auf dem iPhone abnehmen; anschließend vollständig abgenommener Zapdos-Pilot, danach vereinbarte weitere Geschichten; Voraussetzungen, Fortschritt, Begegnung und Ergebnis persistent |
 | P07 | Legendären-Geschichten Johto | Offen | Hoch | Auf Storysystem aufbauen; getrennte regionale Fortschritte und geprüfte Freischaltungen |
 | P08 | Weitere Mega-Entwicklungen | Offen | Hoch | Bestand und Zielarten festlegen; Voraussetzungen, Werte, Darstellung, Rückverwandlung und Speicherung pro Ausbaustufe prüfen |
 | P09 | Ligen aller Generationen erweitern | Offen | Sehr hoch | Umfang nach Region/Edition/Variante festlegen; danach jede Liga mit Gegnerdaten, Freischaltung, Fortschritt, Tests und iPhone-Abnahme |
@@ -271,7 +277,7 @@ Tatsächlicher lokaler Prüfstand am 26.10.2026:
 - P05b damit abgenommen; keine zusätzlichen manuellen Einzelprüfungen
   über die vorliegende Nutzerbestätigung hinaus behauptet.
 
-## Aktuelles Paket P05c — Team in Liga-Kämpfen
+## Paket P05c — Team in Liga-Kämpfen
 
 Bestandsaufnahme vor Beginn der Implementierung:
 - P05b-Abnahme mit Commit 8c31e5c dokumentiert und auf main gepusht.
@@ -378,17 +384,147 @@ Vorliegende lokale Prüfergebnisse:
 - Keine CI-/Deployment-Bestätigung und keine iPhone-Abnahme durch diese
   lokalen Ergebnisse behauptet; diese Schritte separat bestätigen.
 
-## Nächster konkreter Schritt — ausschließlich P05c
+## P05c-Abnahme und Übergang zu P06 — 26.10.2026
 
-1. Vollständiger Browserlauf bestätigt: 221 bestanden, 1 übersprungen.
-2. Dokumentation und gesamten Git-Diff einschließlich neuer Dateien prüfen.
-3. Danach Commit und Push über normale Git-Terminalbefehle.
-4. Bestehenden CI-/Build-/Deployment-Workflow abwarten und Ergebnis dokumentieren.
-5. Sichtbare Team-Liga-Funktionen auf dem iPhone abnehmen.
-6. Erst nach Nutzerbestätigung P05c als abgenommen markieren.
-   P06 und weitere Pakete bleiben außerhalb dieses Abschlusses.
+- Veröffentlichter Funktionscommit: 02e3973 auf main.
+- Nutzer meldete den Build als grün.
+- Nutzerbestätigung: „P05c abgenommen einige Grafische Optimierungen sind
+  nötig aber sind zum jetzigen Zeitpunkt nicht von hoher Priorität,
+  weiter mit P06“.
+- P05c ist damit abgenommen. Keine weiteren manuellen Einzelprüfungen
+  über diese Nutzerbestätigung hinaus behauptet.
+- Grafische Folgeoptimierungen sind kein aktueller P06-Umfang.
+  Betroffene Ansichten und konkrete Änderungen wurden noch nicht benannt.
+- Frühere lokale Zwischenstände mit offener Abnahme sind historisch;
+  diese Abnahmebestätigung ist der aktuelle Status.
+
+## Aktuelles Paket P06 — Legendären-Geschichten Kanto
+
+- Zunächst einen einzelnen Pilotfall festlegen und vollständig abnehmen.
+- Vom Nutzer am 26.10.2026 festgelegte Reihenfolge:
+  Zapdos, Arktos, Lavados, Mewtu, Mew.
+- Erster vollständig umzusetzender und abzunehmender Pilot: Zapdos.
+- Freigegebene Zapdos-Grundlage: Variante 1, das Kraftwerk-Abenteuer,
+  mit freiwilligem, garantiertem Anschluss nach gewonnenem Prüfduell.
+- Weitere Storydetails, Begegnungslevel, Energie sowie Shiny- und
+  Wiederholungsregeln sind noch nicht abschließend beschlossen.
+- Vorhandene Begegnungs-, Kampf-, Sammlungs-, Fortschritts- und
+  Speichermechanismen zuerst anhand des Codes prüfen.
+- Voraussetzungen, Fortschritt, Begegnung und Ergebnis persistent abbilden.
+- Fang-/Belohnungsregel, Wiederholbarkeit und Verhalten bei Niederlage,
+  Abbruch, Reload oder fehlgeschlagener Speicherung ausdrücklich festlegen.
+- Keine Wünsche, Orte, Dialoge oder Belohnungen als bereits vereinbart erfinden.
+- Neue Oberflächentexte über das vorhandene Sprachregister ergänzen.
+- P07 und weitere Geschichten erst nach dem abgenommenen Pilotfall angehen.
+
+## Freigegebene gemeinsame Aufnahmefunktion — 26.10.2026
+
+- Gilt für erfolgreiche Fänge und freiwillige Pokémon-Anschlüsse.
+- Bei freiem Teamplatz wird das neue Individuum zusätzlich ins Team aufgenommen.
+- Bei sechs Teammitgliedern fragt ein Dialog nach Teamaufnahme oder Boxablage.
+- Bei gewünschter Teamaufnahme wählt der Spieler das zu ersetzende Mitglied.
+- Das Pflege-Pokémon darf im Aufnahmedialog nicht ausgetauscht werden.
+- Das ersetzte Individuum bleibt in der Sammlung; keine automatische Freilassung.
+- Ohne Teamaufnahme wird das neue Individuum in einer freien Box gespeichert.
+- Auch eine Teamaufnahme benötigt einen freien Sammlungsplatz:
+  Ein Teamtausch entfernt das bisherige Individuum nicht aus der Sammlung.
+- Bei fehlendem Platz bleibt die bestätigte Aufnahme dauerhaft ausstehend.
+- Höchstens eine ausstehende Aufnahme pro Spielerprofil.
+- Weitere Fang- und Anschlussvorgänge bleiben bis zu deren Abschluss gesperrt.
+- Pflege und Boxverwaltung zum Schaffen eines freien Platzes bleiben möglich.
+- Nach Neustart darf die Aufnahme weder verloren gehen noch überschrieben werden.
+- Kein erneuter Fangwurf für einen bereits bestätigten erfolgreichen Fang.
+- Teamänderung, neues Individuum und Abschluss der ausstehenden Aufnahme
+  gemeinsam speichern; bei Fehler keine halbe oder doppelte Übernahme.
+- Für Zapdos bleibt der gewonnene Prüfkampf bestätigt. Bei voller Sammlung
+  wartet Zapdos auf seine Aufnahme; kein erneuter Kampf erforderlich.
+- Die gemeinsame Aufnahmefunktion ist Voraussetzung des Zapdos-Piloten.
+- Bereits abgenommene Kampf- und Belohnungswege nur gezielt erweitern und
+  mit bestehenden sowie neuen Prüfungen absichern.
+
+## P06-Zwischenstand — gemeinsame Aufnahmefunktion, 26.10.2026
+
+Implementierter Umfang:
+- Gemeinsames Aufnahmemodell für erfolgreiche Fänge und freiwillige Anschlüsse;
+  höchstens ein wartendes Individuum je Profil.
+- Native Speicherung mit Versions-/Prüfsummenmetadaten, strikte Save-Prüfung
+  und Einbindung in die vorhandene Sammlungstransaktion.
+- Erfolgreiche Fänge speichern zunächst die bestätigte Aufnahme. Bei freiem
+  Team- und Sammlungsplatz folgt die automatische Einordnung.
+- Bei sechs Teammitgliedern stehen ausdrückliche Teamaufnahme mit Auswahl
+  des zu ersetzenden Mitglieds oder reine Boxablage zur Verfügung.
+- Das aktuelle Pflege-Pokémon ist in dieser Austauschentscheidung gesperrt;
+  das ersetzte Individuum bleibt in der Sammlung.
+- Volle Boxen erhalten den Wartezustand über Reload hinweg. Die vorhandene
+  Boxverwaltung ist aus der Aufnahmeoberfläche erreichbar; nach Freigabe
+  eines Platzes kann die Aufnahme fortgesetzt werden.
+- Weitere Fangversuche sind bei wartender Aufnahme nativ gesperrt;
+  der gemeinsame Anschlussweg verweigert eine zweite Reservierung.
+- Neues Sammlungsindividuum, Teamänderung und Abschluss der Aufnahme werden
+  gemeinsam dauerhaft gespeichert. Bis zur Bestätigung bleiben die bisherigen
+  veröffentlichten Zustände sichtbar; Fehler erlauben keine halbe Übernahme.
+- Ein Fehler bei der Einordnung eines bereits bestätigten Fangs bewahrt
+  die Aufnahme, statt einen neuen Fangwurf anzufordern.
+- Neue Aufnahmetexte verwenden das vorhandene Sprachregister mit Einträgen
+  für Englisch, Deutsch, Spanisch und Französisch. Keine vollständige
+  Q01-Übersetzungsabnahme daraus ableiten.
+
+Lokal bestätigte Prüfungen:
+- Zentrale Logik-/Oberflächen-Vorprüfungen einschließlich Aufnahmemodell,
+  nativem Speicheradapter und gemeinsamem Persistenzcontroller bestanden.
+- Aktueller WASM-Build erfolgreich.
+- Gezielter Browserlauf für Aufnahme, Fangadapter und Fangdarstellung:
+  16 bestanden.
+- Abschließende vollständige Browserregression über Chromium und WebKit:
+  229 bestanden, 1 übersprungen, keine fehlgeschlagen; Laufzeit 13,3 Minuten.
+  Die übersprungene Prüfung wird nicht als bestanden gezählt.
+- Der Fangdarstellungstest hält Fangbestätigung und automatische Einordnung
+  ausdrücklich getrennt an und prüft die unveröffentlichten Zwischenstände.
+  Erfolgs-/Entkommensprüfungen folgen dem tatsächlichen Fangausgang;
+  kein erzwungener nativer Erfolg und kein Nachweis beider Ausgänge je Lauf.
+- Anschluss-Browserfälle verwenden vorbereitete Aufnahmedaten und echte
+  Speicher-/UI-Wege. Das dortige Zapdos-Level ist ausschließlich ein
+  Fixturewert, kein beschlossener Story- oder Balancingparameter.
+- Bestehende Strukturassertion der Frame-Sperre an die zusätzliche
+  Aufnahme-UI-Sperre angepasst; bisherige Sperren weiterhin verlangt.
+- Fang-UI-Test von einer auf die tatsächlich erforderlichen Speichergrenzen
+  umgestellt: zwei bei erfolgreicher automatischer Aufnahme, eine bei
+  entkommenem Pokémon. Kein Timeout als Fehlerbehebung erhöht.
+
+Abgrenzung / noch offen:
+- Dieser Zwischenstand ist noch nicht als veröffentlicht, CI-bestätigt
+  oder manuell auf dem iPhone abgenommen dokumentiert.
+- P06 insgesamt und der Zapdos-Pilot sind nicht abgeschlossen.
+- Noch kein Kraftwerk-Abenteuer, Prüfduell oder persistenter Zapdos-
+  Storyfortschritt implementiert. Die freigegebene Regel, dass ein
+  bestätigter Zapdos-Sieg bei voller Sammlung keinen Wiederholungskampf
+  erfordert, muss beim Anschluss der Story umgesetzt und geprüft werden.
+- Weitere Storydetails, Begegnungslevel, Energie sowie Shiny- und
+  Wiederholungsregeln bleiben ausdrücklich freizugeben.
+- Arktos, Lavados, Mewtu, Mew und P07 sind nicht Teil dieses Zwischenstands.
+
+## Nächster konkreter Schritt — ausschließlich P06
+
+1. Diff und Umfang der lokal geprüften gemeinsamen Aufnahmefunktion
+   abschließend prüfen; noch keinen abgeschlossenen Zapdos-Piloten behaupten.
+2. Diesen Zwischenstand nach Freigabe veröffentlichen; CI-/Build-Ergebnis
+   und manuelle iPhone-Abnahme der Aufnahmefunktion separat bestätigen.
+3. Für Zapdos die noch offenen Story-/Kampfregeln als begrenzten Vorschlag
+   zur Freigabe vorlegen; beschlossene Kraftwerk-Grundlage beibehalten.
+4. Vorhandene Story-/Fortschrittsansatzpunkte gezielt prüfen und danach den
+   freigegebenen Piloten an den gemeinsamen Aufnahmeweg anschließen.
+5. Voraussetzungen, Prüfduell, bestätigten Sieg, wartenden Anschluss,
+   Wiederaufnahme sowie Niederlage/Abbruch/Reload/Speicherfehler prüfen;
+   anschließend zentrale Regression, Build, Browserprüfungen,
+   Veröffentlichung und iPhone-Abnahme des Piloten.
+6. Weitere Fälle erst nach abgenommenem Zapdos-Piloten in der vereinbarten
+   Reihenfolge Arktos, Lavados, Mewtu, Mew angehen.
 
 ## Ideenspeicher
+
+- 26.10.2026: Grafische Folgeoptimierungen für P05c vom Nutzer benannt.
+  Aktuell nicht hoch priorisiert; konkrete Ansichten und Änderungen
+  noch offen. Nicht automatisch in P06 aufnehmen.
 
 Neue Ideen hier mit Datum, Nutzen, Abhängigkeiten und offenem
 Entscheidungsbedarf ergänzen. Nicht automatisch ins aktive Paket aufnehmen.

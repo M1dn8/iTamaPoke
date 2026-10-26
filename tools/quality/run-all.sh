@@ -84,6 +84,9 @@ python3 tools/quality/test-p05-team-hall.py
 node tests/package-p05-league-collection.test.js
 node tests/package-p05-league-ui.test.js
 node tests/package-p05-league-text.test.js
+node tests/package-p06-admission-model.test.js
+python3 tools/quality/test-p06-admission-store.py
+node tests/package-p06-admission.test.js
 python3 tools/quality/test-battle-energy.py
 python3 tools/quality/test-battle-view.py
 python3 tools/quality/test-asset-packs.py

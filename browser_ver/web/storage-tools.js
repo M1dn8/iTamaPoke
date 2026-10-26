@@ -52,6 +52,30 @@ function parseLegacy(input){
    const genes=m.data.genes;if(!genes||genes.atk!==get("gatk",1,100)||genes.def!==get("gdef",1,100)||genes.spe!==get("gspe",1,100))throw Error("Individuelle Pflege-Gene passen nicht zusammen.");
   }else if(dex>0&&!ceremony)throw Error("Aktuelles Pflege-Pokemon fehlt in der individuellen Sammlung.");
  }else if(collectionModel?.active!==null&&collectionModel?.active!==undefined){const m=collectionModel.mons.find(m=>m.id===collectionModel.active);if(m&&m.data.lifeToken!==undefined)throw Error("Pflege-Identitaetsmetadaten fehlen.");}
+ // P06: a bounded admission is separate from the ordinary collection.
+ if(["f4aver","f4admit","f4apend","f4acrc"].some(k=>values.has(k))){
+  if(!collectionModel||!root.TPAdmissionModel)
+   throw Error("Aufnahmepruefung oder individuelle Sammlung fehlt.");
+  const version=get("f4aver",1,0);
+  const payload=get("f4admit",3,new Uint8Array());
+  const pending=get("f4apend",0,null),stored=get("f4acrc",1,-1);
+  if(version!==1||!payload.length||payload.length>65536||
+     typeof pending!=="boolean"||
+     !Number.isInteger(stored)||stored<0||stored>0xffffffff)
+   throw Error("Aufnahmedaten fehlen oder sind nicht unterstuetzt.");
+  let checksum=2166136261;
+  for(const byte of payload)checksum=Math.imul(checksum^byte,16777619);
+  checksum=Math.imul(checksum^(pending?1:0),16777619)>>>0;
+  if(checksum!==stored)throw Error("Aufnahmedaten-Pruefsumme stimmt nicht.");
+  let admission;
+  try{admission=root.TPAdmissionModel.decode(dec.decode(payload));}
+  catch(_){throw Error("Aufnahmestand ungueltig oder nicht unterstuetzt.");}
+  if((admission.pending!==null)!==pending)
+   throw Error("Aufnahme-Wartestatus widerspruechlich.");
+  if(admission.pending&&collectionModel.mons.some(m=>
+   m.data.admission?.ticket===admission.pending.ticket))
+   throw Error("Wartendes Pokemon ist bereits aufgenommen.");
+ }
  // Only the new LT format is interpreted here. Old single-player blobs
  // retain their existing native validation path without JS migration.
  for(const [region,key,versionKey] of [

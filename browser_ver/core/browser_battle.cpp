@@ -714,8 +714,19 @@ EMSCRIPTEN_KEEPALIVE int tp_e_battle_type2(){return gPlayer.type2;}
 
 #if defined(__EMSCRIPTEN__) || defined(TP_F4_CAPTURE_TEST)
 extern uint32_t tp_f4_store_begin_catch_context();
+extern int tp_f4_admission_pending();
 extern int tp_f4_store_finish(uint32_t,int);
 static bool f4CaptureEligible(){const auto&p=tp_battle_pet();return !gWTResultPending&&!gTrainer&&gArenaId<0&&!gArenaUndo&&gOpen&&gResolved&&gCatchOffered&&!gCatchDone&&!p.isEgg()&&p.ceremony==CER_NONE&&p.speciesId==gF4ActorDex&&p.shiny==gF4ActorShiny&&p.geneAtk==gF4ActorGa&&p.geneDef==gF4ActorGd&&p.geneSpe==gF4ActorGs&&p.ageMinutes>=gF4ActorAge;}
+// Internal pairing only; no generic open-battle collection-write bypass.
+int tp_f4_capture_admission_context(){
+ const auto &p=tp_battle_pet();
+ return gOpen&&!gTrainer&&gArenaId<0&&gResolved&&
+  gCatchDone&&gCatchSuccess&&!gF4CatchUndo.token&&!gWTResultPending&&
+  !p.isEgg()&&p.ceremony==CER_NONE&&
+  p.speciesId==gF4ActorDex&&p.shiny==gF4ActorShiny&&
+  p.geneAtk==gF4ActorGa&&p.geneDef==gF4ActorGd&&
+  p.geneSpe==gF4ActorGs&&p.ageMinutes>=gF4ActorAge;
+}
 EMSCRIPTEN_KEEPALIVE int tp_f4_capture_audio_quiet(){return gF4QuietCatch?1:0;}
 EMSCRIPTEN_KEEPALIVE int tp_f4_capture_battle_id(){return gOpen&&!gTrainer?int(gF4BattleId&0x7fffffffu):0;}
 EMSCRIPTEN_KEEPALIVE const char *tp_f4_capture_snapshot(){
@@ -725,7 +736,8 @@ EMSCRIPTEN_KEEPALIVE const char *tp_f4_capture_snapshot(){
  out+="}}";return out.c_str();
 }
 EMSCRIPTEN_KEEPALIVE uint32_t tp_f4_capture_begin(){
- if(gF4CatchUndo.token||!f4CaptureEligible())return 0;
+ if(gF4CatchUndo.token||!f4CaptureEligible()||
+    tp_f4_admission_pending()!=0)return 0;
  const auto token=tp_f4_store_begin_catch_context();if(!token)return 0;
  gF4CatchUndo={token,gCatchTried,gCatchDone,gCatchSuccess,false};return token;
 }

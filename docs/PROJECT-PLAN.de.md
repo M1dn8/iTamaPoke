@@ -1,13 +1,14 @@
 # Projektplan und Übergabe — iTamaPoke
 
-Stand dieser Planfassung: 26.10.2026.
+Stand dieser Planfassung: 27.10.2026.
 Diese Datei ist die maßgebliche Aufgaben- und Übergabeliste für die
 hier vereinbarten Browser-/iPhone-Erweiterungen.
 
 ## Aktueller Arbeitsstand
 
 - Aktives Paket: P06 Legendären-Geschichten Kanto — gemeinsame Aufnahmefunktion
-  lokal implementiert und geprüft; Veröffentlichung und iPhone-Abnahme offen.
+  mit Commit d5119a4 auf main veröffentlicht; Build vom Nutzer als grün
+  bestätigt und iPhone-Abnahme am 27.10.2026 erfolgreich abgeschlossen.
 - Zapdos bleibt der erste Storypilot: Kraftwerk-Abenteuer und freiwilliger,
   garantierter Anschluss nach gewonnenem Prüfduell freigegeben. Weitere
   Story-/Kampfregeln und die konkrete Storyimplementierung bleiben offen.
@@ -25,7 +26,9 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
 - CI-/Veröffentlichungsworkflow laut Nutzerbestätigung erfolgreich.
 - Keine Spieloberfläche oder Spielmechanik in P01 verändert; keine neue
   eigenständige iPhone-Abnahme dieses Schutzpakets durchgeführt.
-- Letzter abgenommener Funktionsstand: P05c Team in Liga-Kämpfen, 02e3973.
+- Letzter abgenommener Funktionsstand: gemeinsame Aufnahmefunktion als
+  P06-Voraussetzung, d5119a4; iPhone-Abnahme am 27.10.2026.
+- P05c Team in Liga-Kämpfen, 02e3973, bleibt abgenommen.
 - Ebenfalls bereits abgenommen: Kanto-/Johto-Teamübersichten,
   26 lokale Trainerporträt-Zuordnungen, TPTR-v1/v2 und Quellenanzeige.
 - Diese früheren Funktionsstände wurden nach grüner CI auf dem iPhone geprüft.
@@ -61,7 +64,7 @@ Eine neue Sitzung darf abgeschlossene Arbeit nicht ungeprüft neu eröffnen.
 | P05a | Team in Wildkämpfen | Abgenommen am 26.10.2026 | Erledigt | Individuelle Mitglieder, Wechsel, KP, Pokéball-Anzeigen, Levelbonus bis 100 und atomare Ergebnis-/Fangspeicherung |
 | P05b | Team in Arena-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit fb86920; zentrale Prüfung, WASM-Build, Browserprüfungen, CI/Veröffentlichung und manuelle iPhone-Abnahme erfolgreich |
 | P05c | Team in Liga-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit 02e3973; lokale Prüfungen und WASM-Build erfolgreich, 221 Browserprüfungen bestanden/1 übersprungen, Build grün gemeldet und Nutzerabnahme bestätigt; grafische Folgeoptimierungen zurückgestellt |
-| P06 | Legendären-Geschichten Kanto | Aktiv: gemeinsame Aufnahme lokal geprüft; Zapdos-Pilot offen | Hoch | Gemeinsamen Aufnahmeweg veröffentlichen und auf dem iPhone abnehmen; anschließend vollständig abgenommener Zapdos-Pilot, danach vereinbarte weitere Geschichten; Voraussetzungen, Fortschritt, Begegnung und Ergebnis persistent |
+| P06 | Legendären-Geschichten Kanto | Aktiv: gemeinsame Aufnahme abgenommen; Zapdos-Pilot offen | Hoch | Aufnahme-Voraussetzung d5119a4 veröffentlicht, Build grün und iPhone-Abnahme am 27.10.2026 bestätigt; nächstes Ziel vollständig abgenommener Zapdos-Pilot, danach vereinbarte weitere Geschichten; Voraussetzungen, Fortschritt, Begegnung und Ergebnis persistent |
 | P07 | Legendären-Geschichten Johto | Offen | Hoch | Auf Storysystem aufbauen; getrennte regionale Fortschritte und geprüfte Freischaltungen |
 | P08 | Weitere Mega-Entwicklungen | Offen | Hoch | Bestand und Zielarten festlegen; Voraussetzungen, Werte, Darstellung, Rückverwandlung und Speicherung pro Ausbaustufe prüfen |
 | P09 | Ligen aller Generationen erweitern | Offen | Sehr hoch | Umfang nach Region/Edition/Variante festlegen; danach jede Liga mit Gegnerdaten, Freischaltung, Fortschritt, Tests und iPhone-Abnahme |
@@ -492,8 +495,11 @@ Lokal bestätigte Prüfungen:
   entkommenem Pokémon. Kein Timeout als Fehlerbehebung erhöht.
 
 Abgrenzung / noch offen:
-- Dieser Zwischenstand ist noch nicht als veröffentlicht, CI-bestätigt
-  oder manuell auf dem iPhone abgenommen dokumentiert.
+- Der damalige offene Veröffentlichungs-/Abnahmestand ist durch die
+  nachfolgende Nutzerbestätigung vom 27.10.2026 überholt.
+- Push des Funktionscommits d5119a4 auf main erfolgreich; der Nutzer hat
+  den Build als grün bestätigt. Keine zusätzlichen CI-Einzelresultate
+  über diese Bestätigung hinaus behauptet.
 - P06 insgesamt und der Zapdos-Pilot sind nicht abgeschlossen.
 - Noch kein Kraftwerk-Abenteuer, Prüfduell oder persistenter Zapdos-
   Storyfortschritt implementiert. Die freigegebene Regel, dass ein
@@ -503,21 +509,34 @@ Abgrenzung / noch offen:
   Wiederholungsregeln bleiben ausdrücklich freizugeben.
 - Arktos, Lavados, Mewtu, Mew und P07 sind nicht Teil dieses Zwischenstands.
 
+## Abnahme der gemeinsamen Aufnahmefunktion — 27.10.2026
+
+- Veröffentlichter Funktionscommit auf main:
+  d5119a4cf0583db8938cdc8ec60f8a82e2d0b54b.
+- Commit-Titel: feat: add durable shared Pokemon admission.
+- Push erfolgreich; abschließender Arbeitsstand beim Funktionscommit sauber.
+- Build vom Nutzer als grün bestätigt.
+- Nutzerbestätigung am 27.10.2026:
+  „iPhone-Abnahme ist erfolgreich abgeschlossen“.
+- Die gemeinsame Aufnahmefunktion als Voraussetzung des Zapdos-Piloten
+  ist damit abgenommen.
+- Keine zusätzlichen manuellen Einzelprüfungen, insbesondere kein separater
+  manueller Vollbox-Nachweis, über diese Gesamtbestätigung hinaus behauptet.
+- P06 insgesamt sowie Kraftwerk-Abenteuer, Zapdos-Prüfduell und persistenter
+  Zapdos-Storyfortschritt bleiben offen.
+
 ## Nächster konkreter Schritt — ausschließlich P06
 
-1. Diff und Umfang der lokal geprüften gemeinsamen Aufnahmefunktion
-   abschließend prüfen; noch keinen abgeschlossenen Zapdos-Piloten behaupten.
-2. Diesen Zwischenstand nach Freigabe veröffentlichen; CI-/Build-Ergebnis
-   und manuelle iPhone-Abnahme der Aufnahmefunktion separat bestätigen.
-3. Für Zapdos die noch offenen Story-/Kampfregeln als begrenzten Vorschlag
+1. Abnahme der gemeinsamen Aufnahmefunktion dokumentarisch versionieren.
+2. Für Zapdos die noch offenen Story-/Kampfregeln als begrenzten Vorschlag
    zur Freigabe vorlegen; beschlossene Kraftwerk-Grundlage beibehalten.
-4. Vorhandene Story-/Fortschrittsansatzpunkte gezielt prüfen und danach den
-   freigegebenen Piloten an den gemeinsamen Aufnahmeweg anschließen.
-5. Voraussetzungen, Prüfduell, bestätigten Sieg, wartenden Anschluss,
+3. Vorhandene Story-/Fortschrittsansatzpunkte gezielt prüfen und danach den
+   freigegebenen Piloten an den abgenommenen gemeinsamen Aufnahmeweg anschließen.
+4. Voraussetzungen, Prüfduell, bestätigten Sieg, wartenden Anschluss,
    Wiederaufnahme sowie Niederlage/Abbruch/Reload/Speicherfehler prüfen;
    anschließend zentrale Regression, Build, Browserprüfungen,
    Veröffentlichung und iPhone-Abnahme des Piloten.
-6. Weitere Fälle erst nach abgenommenem Zapdos-Piloten in der vereinbarten
+5. Weitere Fälle erst nach abgenommenem Zapdos-Piloten in der vereinbarten
    Reihenfolge Arktos, Lavados, Mewtu, Mew angehen.
 
 ## Ideenspeicher

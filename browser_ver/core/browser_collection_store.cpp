@@ -9,6 +9,9 @@
 extern Pet &tp_battle_pet();
 extern uint32_t g_millis;
 extern "C" int tp_battle_is_open();
+#if defined(__EMSCRIPTEN__) || defined(TP_ZPD_TEST)
+extern "C" int tp_zpd_can_result_begin();
+#endif
 #if defined(__EMSCRIPTEN__) || defined(TP_ADMISSION_CAPTURE_TEST)
 extern "C" int tp_f4_capture_admission_context();
 #endif
@@ -64,6 +67,31 @@ int f4AdmissionTransport(bool *pending=nullptr){
  if(pending)*pending=waiting;
  return int(bytes.size());
 }
+// P06 fixed Zapdos pilot: typed scalar transport, no speculative migration.
+// Absent old profile = step 0. Partial/future data is never treated as absent.
+int zpdState(uint32_t *ticket=nullptr){
+ const auto &s=Preferences::store();
+ bool any=false;
+ for(const char *key:{"zpdver","zpdstep","zpdtick"})any=any||s.count(key);
+ if(!any){if(ticket)*ticket=0;return 0;}
+ const auto ver=s.find("zpdver"),step=s.find("zpdstep"),id=s.find("zpdtick");
+ if(ver==s.end()||step==s.end()||id==s.end()||
+    !std::holds_alternative<int64_t>(ver->second)||
+    !std::holds_alternative<int64_t>(step->second)||
+    !std::holds_alternative<int64_t>(id->second))return -1;
+ const auto v=std::get<int64_t>(ver->second);
+ const auto n=std::get<int64_t>(step->second);
+ const auto t=std::get<int64_t>(id->second);
+ if(v!=1||n<0||n>3||t<0||t>0x7ffffffeLL||
+    (n==3?t==0:t!=0))return -2;
+ if(ticket)*ticket=uint32_t(t);
+ return int(n);
+}
+void zpdWrite(int step,uint32_t ticket){
+ Preferences p;
+ p.putUChar("zpdver",1);p.putUChar("zpdstep",uint8_t(step));
+ p.putUInt("zpdtick",ticket);
+}
 std::string quote(const char*s){std::string out="\"";for(unsigned i=0;i<23&&s[i];i++){const unsigned char c=static_cast<unsigned char>(s[i]);if(c=='"'||c=='\\')out+='\\';if(c<32){char b[7];snprintf(b,sizeof(b),"\\u%04x",c);out+=b;}else out+=char(c);}return out+'"';}
 }
 extern "C" {
@@ -97,6 +125,28 @@ EMSCRIPTEN_KEEPALIVE int tp_f4_admission_stage(
  Preferences::store()["f4admit"]=std::move(bytes);
  return 1;
 }
+// Read-only; a negative value means unreadable, never "new adventure".
+EMSCRIPTEN_KEEPALIVE int tp_zpd_step(){return zpdState();}
+EMSCRIPTEN_KEEPALIVE int tp_zpd_ticket(){
+ uint32_t ticket=0;
+ return zpdState(&ticket)<0?-1:int(ticket);
+}
+// Investigation and securing only. Victory has no public scalar setter.
+EMSCRIPTEN_KEEPALIVE int tp_zpd_advance(uint32_t token,int expectedStep){
+ if(!undo||undo->token!=token||tp_battle_is_open()||
+    expectedStep<0||expectedStep>1||zpdState()!=expectedStep)return 0;
+ zpdWrite(expectedStep+1,0);return 1;
+}
+// Internal pairing for the upcoming verified Zapdos-result adapter.
+// Not EMSCRIPTEN_KEEPALIVE: cannot be called as a JavaScript victory shortcut.
+// JSON/ticket linkage is additionally checked by the strict whole-save parser.
+int tp_zpd_store_victory(uint32_t token,uint32_t ticket){
+ if(!undo||undo->token!=token||!tp_battle_is_open()||
+    zpdState()!=2||ticket<1||ticket>0x7ffffffeu||
+    tp_f4_admission_pending()!=1)return 0;
+ zpdWrite(3,ticket);return 1;
+}
+
 EMSCRIPTEN_KEEPALIVE int tp_f4_store_pending(){return undo?1:0;}
 // Read-only token identity for region-owned callers; does not begin a transaction.
 EMSCRIPTEN_KEEPALIVE uint32_t tp_f4_store_pending_token(){return undo?undo->token:0;}
@@ -123,6 +173,14 @@ EMSCRIPTEN_KEEPALIVE uint32_t tp_f4_store_begin_catch_context(){return tp_battle
 // Not a new general-purpose JavaScript collection-write entry point.
 uint32_t tp_f4_store_begin_wild_result_context(){
  return tp_battle_is_open()?beginStore(true):0;
+}
+// Internal only: the native Zapdos adapter verifies its resolved result.
+uint32_t tp_f4_store_begin_zapdos_result_context(){
+#if defined(__EMSCRIPTEN__) || defined(TP_ZPD_TEST)
+ return tp_zpd_can_result_begin()?beginStore(true):0;
+#else
+ return 0;
+#endif
 }
 // Internal pairing only: the arena result entry point checks ownership
 // and the completed series before opening this whole-state transaction.

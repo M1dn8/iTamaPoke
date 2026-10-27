@@ -224,3 +224,20 @@ a knockout on the final round and advancing after a timeout win.
 Browser tests separately cover timeout loss after an earned level gain
 and complete team knockout. This documents a local adapter correction,
 not a claim that all vendored battle files are unchanged.
+
+## Local P06 story-join extension — 2026-10-27
+
+The browser Zapdos pilot adds `Pet::recordStoryJoin(int16_t)` in
+`pet.h` and `pet.cpp`. This is a local project extension, not an
+unmodified upstream API.
+
+The method records a historical caught-species bit and saves the Pet.
+It does not perform a capture roll, call `registerCaught()`, grant
+daily-goal or Pokédex rewards, add a battle level, or grant personal
+care rewards. The browser's native story-result adapter verifies the
+resolved duel and stages the corresponding admission before using it.
+
+The existing whole-Pet/Preferences transaction includes the marker,
+story victory and pending admission. Dedicated native tests exercise
+rollback, retry and committed history. Combat calculations remain in
+the existing battle engine; this method does not change them.

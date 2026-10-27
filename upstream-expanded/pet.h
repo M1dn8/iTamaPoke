@@ -209,6 +209,8 @@ public:
   bool grantBattleLevel();
   // Profile progress only; no training or personal care reward.
   bool recordWildBattleOutcome(bool won);
+  // Local P06 extension: historical join marker, no catch roll or rewards.
+  bool recordStoryJoin(int16_t dex);
   BattleReward applyBattleWin(int16_t wildDex, bool closeWin);
   void applyBattleLoss();
 

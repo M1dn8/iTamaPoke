@@ -980,6 +980,7 @@ function draw() {
 }
 
 function handleTap(x, y) {
+  if(window.TPZapdosUI?.busy)return;
   if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return;
   if(window.TPLeague?.busy)return;
   if(window.TPBoxes?.active)return;
@@ -1135,6 +1136,7 @@ function handleTap(x, y) {
 // during a tap, which SwiftUI/the DOM can both report as a large jump) must
 // not be read as "swipe out of the game."
 function swipeAllowed() {
+  if(window.TPZapdosUI?.busy)return false;
   if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return false;
   if(window.TPBoxes?.active)return false;
   if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen)return false;
@@ -1152,6 +1154,7 @@ function swipeAllowed() {
 // swipe opens the dex; on the dex/card, it turns pages; dir 1 = swiped
 // right, -1 = swiped left (left advances, matching upstream).
 function onSwipe(dir) {
+  if(window.TPZapdosUI?.busy)return;
   if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return;
   if(window.TPBoxes?.active)return;
   if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen)return;
@@ -1725,17 +1728,23 @@ createTPCore({
     const resultBridge=leagueStart?leagueStart.bridge:
       (arenaResult?arenaResult.bridge:
        (wildResult?wildResult.bridge:(capture?capture.bridge:plainBridge)));
+    const zapdos=window.TPCollectionZapdos?.create(
+      mod,window.TPCollectionModel,window.TPZapdosModel,
+      window.TPAdmissionModel,admission,resultBridge,
+      life?life.reconcile:undefined
+    );
+    const collectionBridge=zapdos?zapdos.bridge:resultBridge;
     window.TPCollection=window.TPCollectionPersistence.create({
       model:window.TPCollectionModel,
-      bridge:admission?admission.wrapBridge(resultBridge):resultBridge,
-      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{}),...(wildResult?wildResult.nativeActions:{}),...(arenaResult?arenaResult.nativeActions:{}),...(leagueStart?leagueStart.nativeActions:{}),...(admission?admission.nativeActions:{})},
+      bridge:admission?admission.wrapBridge(collectionBridge):collectionBridge,
+      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{}),...(wildResult?wildResult.nativeActions:{}),...(arenaResult?arenaResult.nativeActions:{}),...(leagueStart?leagueStart.nativeActions:{}),...(admission?admission.nativeActions:{}),...(zapdos?zapdos.nativeActions:{})},
       acquire:(context)=>{
         const admissionContext=context==="admissionComplete";
         const leagueContext=[
           "leaguePrepare","leagueStart","leagueResume","leagueWin"
         ].includes(context);
         const arenaContext=context==="arenaPrepare"||context==="arenaResult";
-        const battleContext=["wildCapture","wildResult","arenaResult"].includes(context);
+        const battleContext=["wildCapture","wildResult","arenaResult","zapdosResult"].includes(context);
         const correctScreen=leagueContext?screen==="league":
           admissionContext?["idle","card","settings","battle"].includes(screen):
           battleContext?screen==="battle":
@@ -1759,6 +1768,10 @@ createTPCore({
       validateSave:bytes=>window.TPStoreTools.parseLegacy(bytes),
       persist:bytes=>writeSave(bytes,true)
     });
+    if(zapdos){
+      zapdos.bind(window.TPCollection);
+      window.TPZapdos=zapdos;
+    }
     if(admission){
       admission.bind(window.TPCollection);
       window.TPAdmission=admission;

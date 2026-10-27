@@ -23,7 +23,7 @@ const throws=(fn,code)=>assert.throws(fn,e=>e.code===code);
 
 const empty=A.create();
 const pending=A.queue(empty,{
- kind:'join',source:'story:kanto:zapdos',pokemon:pokemon(99)
+ kind:'join',source:'story:test:zapdos',pokemon:pokemon(99)
 });
 assert.equal(empty.pending,null);
 assert.equal(pending.pending.ticket,1);
@@ -55,7 +55,7 @@ assert(placed.collection.boxes.some(b=>b.slots.includes(placed.id)));
 assert.equal(placed.collection.mons.find(m=>m.id===placed.id).dex,145);
 assert.deepEqual(
  placed.collection.mons.find(m=>m.id===placed.id).data.admission,
- {ticket:1,kind:'join',source:'story:kanto:zapdos'}
+ {ticket:1,kind:'join',source:'story:test:zapdos'}
 );
 throws(()=>A.complete(pending,placed.collection,{
  mode:'box'

@@ -28,7 +28,7 @@ function pack(store){
  )]));
 }
 const record={
- kind:'join',source:'story:kanto:zapdos',
+ kind:'join',source:'story:test:zapdos',
  pokemon:{dex:145,level:50,nickname:'Zapdos',shiny:false,origin:'wild',
   data:{stats:{atk:100,def:100,spe:100}}}
 };

@@ -1123,6 +1123,16 @@ bool Pet::recordWildBattleOutcome(bool won) {
   return true;
 }
 
+// Local P06 extension. A native story-result owner verifies entitlement.
+// Do not call registerCaught(): it also grants daily/dex rewards.
+bool Pet::recordStoryJoin(int16_t dex) {
+  if (isEgg() || ceremony != CER_NONE || dex < 1 || dex > DEX_COUNT)
+    return false;
+  dexCaught[(dex - 1) >> 3] |= (1 << ((dex - 1) & 7));
+  save();
+  return true;
+}
+
 bool Pet::grantBattleLevel() {
   if (isEgg() || ceremony != CER_NONE || level() >= 100) return false;
   ++battleLevelBonus;

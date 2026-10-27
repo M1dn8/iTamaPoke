@@ -10,8 +10,10 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
   mit Commit d5119a4 auf main veröffentlicht; Build vom Nutzer als grün
   bestätigt und iPhone-Abnahme am 27.10.2026 erfolgreich abgeschlossen.
 - Zapdos bleibt der erste Storypilot: Kraftwerk-Abenteuer und freiwilliger,
-  garantierter Anschluss nach gewonnenem Prüfduell freigegeben. Weitere
-  Story-/Kampfregeln und die konkrete Storyimplementierung bleiben offen.
+  garantierter Anschluss nach gewonnenem Prüfduell auf Level 50.
+  Regeln am 27.10.2026 freigegeben; Pilot lokal implementiert und geprüft.
+  Veröffentlichung, grüner veröffentlichter Build und iPhone-Abnahme
+  dieses Piloten bleiben offen.
 - P05c auf Stand 02e3973 veröffentlicht, Build vom Nutzer als grün
   bestätigt und am 26.10.2026 ausdrücklich abgenommen.
 - Grafische P05c-Optimierungen sind zurückgestellt, aktuell nicht hoch
@@ -64,7 +66,7 @@ Eine neue Sitzung darf abgeschlossene Arbeit nicht ungeprüft neu eröffnen.
 | P05a | Team in Wildkämpfen | Abgenommen am 26.10.2026 | Erledigt | Individuelle Mitglieder, Wechsel, KP, Pokéball-Anzeigen, Levelbonus bis 100 und atomare Ergebnis-/Fangspeicherung |
 | P05b | Team in Arena-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit fb86920; zentrale Prüfung, WASM-Build, Browserprüfungen, CI/Veröffentlichung und manuelle iPhone-Abnahme erfolgreich |
 | P05c | Team in Liga-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit 02e3973; lokale Prüfungen und WASM-Build erfolgreich, 221 Browserprüfungen bestanden/1 übersprungen, Build grün gemeldet und Nutzerabnahme bestätigt; grafische Folgeoptimierungen zurückgestellt |
-| P06 | Legendären-Geschichten Kanto | Aktiv: gemeinsame Aufnahme abgenommen; Zapdos-Pilot offen | Hoch | Aufnahme-Voraussetzung d5119a4 veröffentlicht, Build grün und iPhone-Abnahme am 27.10.2026 bestätigt; nächstes Ziel vollständig abgenommener Zapdos-Pilot, danach vereinbarte weitere Geschichten; Voraussetzungen, Fortschritt, Begegnung und Ergebnis persistent |
+| P06 | Legendären-Geschichten Kanto | Aktiv: Zapdos-Pilot lokal geprüft; Veröffentlichung/Abnahme offen | Hoch | Gemeinsame Aufnahme d5119a4 abgenommen; Kraftwerk-Pilot mit festem Level-50-Prüfduell und garantiertem Anschluss lokal implementiert und geprüft; Veröffentlichung und iPhone-Abnahme des Piloten stehen aus; weitere Geschichten erst danach |
 | P07 | Legendären-Geschichten Johto | Offen | Hoch | Auf Storysystem aufbauen; getrennte regionale Fortschritte und geprüfte Freischaltungen |
 | P08 | Weitere Mega-Entwicklungen | Offen | Hoch | Bestand und Zielarten festlegen; Voraussetzungen, Werte, Darstellung, Rückverwandlung und Speicherung pro Ausbaustufe prüfen |
 | P09 | Ligen aller Generationen erweitern | Offen | Sehr hoch | Umfang nach Region/Edition/Variante festlegen; danach jede Liga mit Gegnerdaten, Freischaltung, Fortschritt, Tests und iPhone-Abnahme |
@@ -409,8 +411,9 @@ Vorliegende lokale Prüfergebnisse:
 - Erster vollständig umzusetzender und abzunehmender Pilot: Zapdos.
 - Freigegebene Zapdos-Grundlage: Variante 1, das Kraftwerk-Abenteuer,
   mit freiwilligem, garantiertem Anschluss nach gewonnenem Prüfduell.
-- Weitere Storydetails, Begegnungslevel, Energie sowie Shiny- und
-  Wiederholungsregeln sind noch nicht abschließend beschlossen.
+- Die zunächst offenen Story-/Kampfregeln wurden am 27.10.2026 als
+  begrenzter Pilotvorschlag freigegeben; verbindliche Einzelheiten
+  siehe Abschnitt „Freigegebene Zapdos-Pilotregeln — 27.10.2026“.
 - Vorhandene Begegnungs-, Kampf-, Sammlungs-, Fortschritts- und
   Speichermechanismen zuerst anhand des Codes prüfen.
 - Voraussetzungen, Fortschritt, Begegnung und Ergebnis persistent abbilden.
@@ -501,12 +504,13 @@ Abgrenzung / noch offen:
   den Build als grün bestätigt. Keine zusätzlichen CI-Einzelresultate
   über diese Bestätigung hinaus behauptet.
 - P06 insgesamt und der Zapdos-Pilot sind nicht abgeschlossen.
-- Noch kein Kraftwerk-Abenteuer, Prüfduell oder persistenter Zapdos-
-  Storyfortschritt implementiert. Die freigegebene Regel, dass ein
-  bestätigter Zapdos-Sieg bei voller Sammlung keinen Wiederholungskampf
-  erfordert, muss beim Anschluss der Story umgesetzt und geprüft werden.
-- Weitere Storydetails, Begegnungslevel, Energie sowie Shiny- und
-  Wiederholungsregeln bleiben ausdrücklich freizugeben.
+- Zum Aufnahme-Zwischenstand war noch kein Kraftwerk-Abenteuer, Prüfduell
+  oder persistenter Zapdos-Storyfortschritt implementiert.
+  Der spätere lokale Pilotstand einschließlich wartendem Anschluss ohne
+  Wiederholungskampf ist im nachfolgenden Prüfbericht dokumentiert.
+- Die damals offenen Pilotregeln sind inzwischen freigegeben;
+  siehe „Freigegebene Zapdos-Pilotregeln — 27.10.2026“.
+  Daraus folgt noch keine technische Implementierung oder Abnahme.
 - Arktos, Lavados, Mewtu, Mew und P07 sind nicht Teil dieses Zwischenstands.
 
 ## Abnahme der gemeinsamen Aufnahmefunktion — 27.10.2026
@@ -522,20 +526,144 @@ Abgrenzung / noch offen:
   ist damit abgenommen.
 - Keine zusätzlichen manuellen Einzelprüfungen, insbesondere kein separater
   manueller Vollbox-Nachweis, über diese Gesamtbestätigung hinaus behauptet.
-- P06 insgesamt sowie Kraftwerk-Abenteuer, Zapdos-Prüfduell und persistenter
-  Zapdos-Storyfortschritt bleiben offen.
+- Diese Aufnahmeabnahme ist keine Abnahme des Zapdos-Storypiloten.
+  Dessen späteren Implementierungs-/Prüfstand siehe nachfolgenden Bericht;
+  P06 insgesamt bleibt offen.
+
+## Freigegebene Zapdos-Pilotregeln — 27.10.2026
+
+Nutzerfreigabe:
+- „Ich gebe den Vorschlag frei und bestätige Lvl 50“.
+- Die Freigabe betrifft den begrenzten Pilotvorschlag, nicht eine bereits
+  implementierte oder geprüfte Geschichte.
+
+Zugang und Geschichte:
+- Eigener Einstieg „Kraftwerk“; genaue Einbindung nach Prüfung der
+  vorhandenen Navigation.
+- Keine zusätzlichen Orden-, Liga- oder Serienbedingungen im Pilot.
+- Kampfbeginn nur, wenn die bestehenden Kampfregeln ihn erlauben.
+- Drei kurze, persistent gespeicherte Storyabschnitte:
+  Stromstörungen untersuchen, Anlage sichern und Zapdos begegnen,
+  anschließend Zapdos' Prüfduell.
+- Keine neuen Inventargegenstände, Zufallsfunde oder zeitabhängigen Aufgaben.
+
+Prüfduell und Anschluss:
+- Eigenes Team gegen ein einzelnes Zapdos auf festem Level 50.
+- Kein Shiny-Zufall im Pilot.
+- Keine zusätzlichen Story-Energiekosten; vorhandene Kampfkosten und
+  Startbedingungen vor der Anbindung anhand des Codes prüfen.
+- Kein Pokéballwurf und keine zusätzliche Fangwahrscheinlichkeit.
+- Nach dauerhaft bestätigtem Sieg freiwilliger, garantierter Anschluss
+  über die abgenommene gemeinsame Aufnahmefunktion.
+- Prüfsieg und Reservierung der Aufnahme gemeinsam dauerhaft bestätigen:
+  kein gespeicherter Sieg ohne zugehörigen Anschlussanspruch.
+
+Niederlage, Abbruch und Speicherverhalten:
+- Nach Niederlage oder freiwilligem Abbruch bleibt die Geschichte vor
+  dem Prüfduell; späterer neuer Versuch ist möglich.
+- Bei Schließen/Reload während eines unbestätigten Kampfes Rückkehr zur
+  gespeicherten Vorbereitung; kein erfundener Sieg und keine Belohnung.
+- Scheitert die Sieg-Speicherung, keine Erfolgsmeldung und kein
+  Storyabschluss vor dauerhafter Bestätigung.
+- Ein bereits gespeicherter Sieg mit wartendem Anschluss benötigt
+  keinen erneuten Kampf, auch nicht nach Reload oder bei vollen Boxen.
+
+Einmaligkeit und Abschluss:
+- Genau ein Story-Zapdos pro Profil; nach bestätigtem Sieg kein weiterer
+  Belohnungskampf.
+- Wartender Anschluss wird in der Geschichte ausdrücklich angezeigt.
+- Nach abgeschlossener Aufnahme ist das Abenteuer erledigt.
+- Späteres Freilassen erzeugt keinen zweiten Anschlussanspruch.
+- Keine zusätzliche Geld-, Gegenstands- oder sonstige Storybelohnung.
+- P06 insgesamt und der Zapdos-Pilot bleiben bis Implementierung,
+  Prüfungen, Veröffentlichung und Nutzerabnahme offen.
+
+## Zapdos-Pilot — lokaler Implementierungs- und Prüfstand, 27.10.2026
+
+Implementierter Umfang:
+- Einstieg „Geschichten“ im Spielmenü zur Seite „Kanto · Kraftwerk“.
+- Gespeicherte Untersuchung der Stromstörungen und Sicherung der Anlage;
+  anschließende Bereitschaft für das Prüfduell.
+- Eigenes Team gegen ein einzelnes Zapdos auf festem Level 50.
+- Bestehende native Kampfberechnung und individuelle Team-Runtime;
+  eigene Story-Kampfzuordnung und eigene Ergebnisübergabe.
+- Kein Shiny-Zufall, kein Fangknopf und kein Fangwurf im Prüfduell.
+- Bestätigter Sieg reserviert den garantierten freiwilligen Anschluss.
+  Story-Sieg, Aufnahmeticket und historischer Artennachweis werden
+  innerhalb derselben vorhandenen Gesamtspielstand-Transaktion gespeichert.
+- Vor dauerhafter Bestätigung bleiben die bisherigen veröffentlichten
+  Story-, Aufnahme- und Sammlungszustände erhalten.
+- Speicherfehler erlauben die erneute Bestätigung desselben aufgelösten
+  Kampfs; kein neuer Kampf und kein neuer Fangwurf erforderlich.
+- Nach Niederlage oder bestätigtem Abbruch bleibt die Vorbereitung erhalten;
+  kein Zapdos-Anschlussanspruch aus diesen Ausgängen.
+- Nach bestätigtem Sieg Übergabe an die abgenommene Aufnahmefunktion:
+  automatische Teamaufnahme bei freiem Team-/Sammlungsplatz, ausdrückliche
+  Entscheidung bei sechs Mitgliedern oder dauerhafter Wartezustand.
+- Volle Boxen verlieren den bestätigten Sieg auch nach Reload nicht.
+  Nach Platzschaffen kann Zapdos ohne Wiederholungskampf aufgenommen werden.
+- Nach Aufnahme bleibt das Abenteuer abgeschlossen. Späteres Freilassen
+  erzeugt keinen zweiten Anschlussanspruch.
+- Typisierte native Storyfelder zpdver/zpdstep/zpdtick und strikte
+  gegenseitige Prüfung von Story, Aufnahmeticket und Sammlungsherkunft.
+  Unvollständige, unbekannte oder widersprüchliche Zustände werden verweigert.
+- Bestehende Kampfbilanz wird fortgeführt; kein zusätzlicher Story-Levelbonus
+  und keine zusätzlichen Trainings-, Freude-, Bindungs- oder Energiegaben.
+- Historischer Artennachweis über die lokale Erweiterung
+  Pet::recordStoryJoin, ohne Zufallsfang oder zusätzliche Tagesziel-/
+  Pokédex-Belohnung bei diesem Aufruf.
+- Neue Storytexte über das Sprachregister für Englisch, Deutsch, Spanisch
+  und Französisch. Keine vollständige Q01-Abnahme daraus ableiten.
+
+Lokal bestätigte Prüfungen:
+- Zentrale Logik-/Oberflächen-Vorprüfungen bestanden.
+- Reines Storymodell mit echten Aufnahme-/Sammlungsmodellen geprüft.
+- Native Speicherung mit echter Pet-/Preferences-Rücknahme und striktem
+  Save-Parser geprüft; alte Spielstände ohne Storyzustand bleiben lesbar.
+- Eigene native Duellprüfung mit echter Kampfberechnung: Sieg, Niederlage,
+  Wechsel, Abbruch, Akteurs-/Tokensperren, Ergebnis-Rollback, Wiederholung
+  desselben Ergebnisses und einmaliger Anschlussanspruch.
+- Browser-Transaktionscontroller mit echten Modellen, bestehendem
+  Persistenzcontroller und echtem Save-Parser geprüft. Native Aufrufe
+  werden dort simuliert; der echte Kampf wird separat geprüft.
+- Aktueller WASM-Build erfolgreich.
+- Gezielter Browserlauf: 30 bestanden über Chromium und WebKit.
+- Abschließende vollständige Browserregression:
+  243 bestanden, 1 übersprungen, keine fehlgeschlagen; Laufzeit 15,1 Minuten.
+  Die übersprungene Prüfung wird nicht als bestanden gezählt.
+- Neue Browserfälle prüfen gespeicherte Vorbereitung, vier Sprachvarianten,
+  abgewiesene Vorbereitungsspeicherung, tatsächlichen Sieg und Niederlage,
+  Abbruch, automatische Aufnahme, gesperrtes Pflege-Pokémon beim Austausch,
+  volle Boxen mit Reload/Platzschaffen sowie Ergebnis-Speicherfehler mit
+  Wiederholung derselben Begegnung ohne zweite Siegeszählung.
+- Starke/schwache Teamwerte und volle Sammlungen sind Testfixtures;
+  kein Balancing-Nachweis und keine behauptete manuelle Vollboxprüfung.
+- Zwei Fehler im neuen Browsertest korrigiert: fehlenden JavaScript-
+  Levelwrapper durch vorhandenen nativen RPC ersetzt und doppelte
+  Abbruchdialog-Behandlung entfernt. Keine Testbedingung abgeschwächt.
+- Bekannte separate Build-Warnung weiterhin vorhanden:
+  TPNamedPrompt mit C-Linkage und std::string in browser_glue.cpp.
+  Build erfolgreich; Warnung weder behoben noch unterdrückt.
+
+Noch offen:
+- Pilot-Diff abschließend prüfen und Veröffentlichung ausdrücklich freigeben.
+- Funktionscommit und erfolgreicher Push des Zapdos-Piloten.
+- Grünes CI-/Build-Ergebnis des veröffentlichten Pilotstands bestätigen.
+- Eigene manuelle iPhone-Abnahme des Kraftwerk-/Zapdos-Piloten.
+  Die frühere Aufnahme-Abnahme ersetzt diese nicht.
+- P06 insgesamt bleibt offen. Arktos, Lavados, Mewtu, Mew und P07
+  wurden mit diesem Pilotstand nicht implementiert oder abgenommen.
 
 ## Nächster konkreter Schritt — ausschließlich P06
 
-1. Abnahme der gemeinsamen Aufnahmefunktion dokumentarisch versionieren.
-2. Für Zapdos die noch offenen Story-/Kampfregeln als begrenzten Vorschlag
-   zur Freigabe vorlegen; beschlossene Kraftwerk-Grundlage beibehalten.
-3. Vorhandene Story-/Fortschrittsansatzpunkte gezielt prüfen und danach den
-   freigegebenen Piloten an den abgenommenen gemeinsamen Aufnahmeweg anschließen.
-4. Voraussetzungen, Prüfduell, bestätigten Sieg, wartenden Anschluss,
-   Wiederaufnahme sowie Niederlage/Abbruch/Reload/Speicherfehler prüfen;
-   anschließend zentrale Regression, Build, Browserprüfungen,
-   Veröffentlichung und iPhone-Abnahme des Piloten.
+1. Gemeinsame Aufnahmefunktion abgenommen und dokumentiert:
+   Funktionscommit d5119a4, Abnahmenachtrag de47e87 auf main veröffentlicht.
+2. Zapdos-Pilotregeln einschließlich Level 50 am 27.10.2026 freigegeben.
+3. Zapdos-Pilot lokal implementiert und geprüft; Pilot-Diff abschließend
+   prüfen und die Veröffentlichung ausdrücklich freigeben.
+4. Pilot nach Freigabe versionieren und veröffentlichen; grünen
+   CI-/Build-Stand bestätigen und eigene iPhone-Abnahme durchführen.
+   Danach tatsächlichen Abnahmeumfang und Funktionscommit dokumentieren.
 5. Weitere Fälle erst nach abgenommenem Zapdos-Piloten in der vereinbarten
    Reihenfolge Arktos, Lavados, Mewtu, Mew angehen.
 

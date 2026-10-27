@@ -3,7 +3,7 @@
 "use strict";
 
 // Translate display text only; keep legacy routing labels unchanged.
-const menuKeys=Object.freeze({"Menü":"menu.title","Tagebuch":"menu.journal","Entwicklung":"menu.evolution","Pokédex":"menu.dex","Eier":"menu.eggs","Sicherungen":"menu.backups","Einstellungen":"menu.settings","Dateien":"menu.files","Diagnose":"menu.diagnostics","Quellen & Nutzungsrechte":"menu.rights","Zurück zum Pokémon":"menu.home","Dateien verwalten":"menu.manage","Grafiken laden (Pokemon und Leiter)":"menu.graphics","Rufe laden":"menu.cries","Pokédex-Texte laden":"menu.dextext","Dateibestand prüfen":"menu.inventory","Neues Spiel":"menu.reset","Startet mit einem neuen Spielstand. Vorherige Sicherheitsabfragen bleiben erhalten.":"menu.resetNotice","Diagnose nicht verfügbar. Bitte aktuellen Build öffnen.":"menu.diagnosticsUnavailable","Tagebuch nicht verfügbar. Bitte den aktuellen Test-Build öffnen.":"menu.journalUnavailable","Diese Funktion ist gerade nicht verfügbar.":"menu.unavailable","Funktion gerade nicht eindeutig verfügbar.":"menu.ambiguous","Pokémon-Spiel. Nach unten wischen oder Pfeil nach unten: Menü.":"menu.ariaCanvas","Spielmenü":"menu.aria","Tagebucheinträge":"menu.journalEntries","Zurück":"common.back"});
+const menuKeys=Object.freeze({"Geschichten":"zapdos.menu","Menü":"menu.title","Tagebuch":"menu.journal","Entwicklung":"menu.evolution","Pokédex":"menu.dex","Eier":"menu.eggs","Sicherungen":"menu.backups","Einstellungen":"menu.settings","Dateien":"menu.files","Diagnose":"menu.diagnostics","Quellen & Nutzungsrechte":"menu.rights","Zurück zum Pokémon":"menu.home","Dateien verwalten":"menu.manage","Grafiken laden (Pokemon und Leiter)":"menu.graphics","Rufe laden":"menu.cries","Pokédex-Texte laden":"menu.dextext","Dateibestand prüfen":"menu.inventory","Neues Spiel":"menu.reset","Startet mit einem neuen Spielstand. Vorherige Sicherheitsabfragen bleiben erhalten.":"menu.resetNotice","Diagnose nicht verfügbar. Bitte aktuellen Build öffnen.":"menu.diagnosticsUnavailable","Tagebuch nicht verfügbar. Bitte den aktuellen Test-Build öffnen.":"menu.journalUnavailable","Diese Funktion ist gerade nicht verfügbar.":"menu.unavailable","Funktion gerade nicht eindeutig verfügbar.":"menu.ambiguous","Pokémon-Spiel. Nach unten wischen oder Pfeil nach unten: Menü.":"menu.ariaCanvas","Spielmenü":"menu.aria","Tagebucheinträge":"menu.journalEntries","Zurück":"common.back"});
 function menuText(value){
  return typeof value==='string'&&Object.prototype.hasOwnProperty.call(menuKeys,value)
   ?TPText.t(menuKeys[value]):value;
@@ -15,7 +15,7 @@ const root=document.createElement("section");root.id="tp-app-page";root.hidden=t
 const overlays=new Set(),watched=new WeakSet();
 function visible(n){if(n.hidden||n.style.display==="none")return false;const c=typeof getComputedStyle==="function"?getComputedStyle(n):null;return !c||(c.display!=="none"&&c.visibility!=="hidden");}
 function ready(){return coreReady&&!!Module&&!!fns;}
-function quiet(){return ready()&&!window.TPBoxes?.active&&!window.TPCollectionGame?.dialogOpen&&!tpSaveReplacing&&!(window.TPExpeditions&&window.TPExpeditions.busy)&&!["game","gamemenu","battle","trainer","keyboard","arena","league"].includes(screen)&&!fns.ceremony()&&!fns.evolvingNow()&&!fns.wildPromptActive()&&choice==="none";}
+function quiet(){return ready()&&!window.TPCollection?.busy&&!window.TPZapdosUI?.busy&&!window.TPBoxes?.active&&!window.TPCollectionGame?.dialogOpen&&!tpSaveReplacing&&!(window.TPExpeditions&&window.TPExpeditions.busy)&&!["game","gamemenu","battle","trainer","keyboard","arena","league"].includes(screen)&&!fns.ceremony()&&!fns.evolvingNow()&&!fns.wildPromptActive()&&choice==="none";}
 function el(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=menuText(text);if(cls)n.className=cls;return n;}
 function button(text,fn,cls){const b=el("button",text,cls);b.type="button";b.addEventListener("click",e=>{if(Date.now()<suppressClickUntil){e.preventDefault();return;}try{fn();}catch(err){notice(err.message||String(err));}});return b;}
 function notice(text){let n=root.querySelector(".tp-app-notice");if(!n){n=el("p",undefined,"tp-app-notice");n.setAttribute("role","status");root.appendChild(n);}n.textContent=menuText(text);}
@@ -23,12 +23,12 @@ function remember(value){try{if(value)sessionStorage.setItem("tp-app-return",val
 function show(which="main"){
  if(!quiet())return;const tpPage=window.TPPerformance?.begin();active=true;page=which;screen="settings";root.hidden=false;TPText.refresh();root.setAttribute("lang",TPText.language());root.setAttribute("aria-label",TPText.t("menu.aria"));canvas.setAttribute("aria-label",TPText.t("menu.ariaCanvas"));root.replaceChildren();root.className=which==="main"?"tp-app-main":"";
  dragStart=null;dragNow=null;choice="none";feedMenuUntil=0;confirmUntil=0;
- const head=el("header",undefined,"tp-app-head");head.appendChild(el("h2",{main:"Menü",journal:"Tagebuch",settings:"Einstellungen",files:"Dateien",diagnostics:"Diagnose",rights:"Quellen & Nutzungsrechte"}[which]||"Menü"));
+ const head=el("header",undefined,"tp-app-head");head.appendChild(el("h2",{main:"Menü",journal:"Tagebuch",settings:"Einstellungen",files:"Dateien",diagnostics:"Diagnose",rights:"Quellen & Nutzungsrechte",zapdos:TPText.t("zapdos.title")}[which]||"Menü"));
  if(which!=="main")head.appendChild(button("Zurück",()=>show(["files","diagnostics","rights"].includes(which)?"settings":"main")));
  root.appendChild(head);
  if(which==="main"){
   const grid=el("div",undefined,"tp-app-grid");
-  for(const[text,fn]of [["Tagebuch",()=>show("journal")],["Entwicklung",()=>legacy(["Entwicklung"],"main")],["Pokédex",()=>legacy(["Dex-Suche","Pokédex-Suche"],"main")],["Eier",()=>legacy(["Eier"],"main",true)],["Sicherungen",()=>legacy(["Sicherungen","Sicherung prüfen","Sicherung pruefen"],"main",true)],["Einstellungen",()=>show("settings")]])grid.appendChild(button(text,fn));
+  for(const[text,fn]of [["Tagebuch",()=>show("journal")],["Geschichten",()=>show("zapdos")],["Entwicklung",()=>legacy(["Entwicklung"],"main")],["Pokédex",()=>legacy(["Dex-Suche","Pokédex-Suche"],"main")],["Eier",()=>legacy(["Eier"],"main",true)],["Sicherungen",()=>legacy(["Sicherungen","Sicherung prüfen","Sicherung pruefen"],"main",true)],["Einstellungen",()=>show("settings")]])grid.appendChild(button(text,fn));
   root.append(grid,button("Zurück zum Pokémon",close,"tp-app-home"));
  }else if(which==="settings"){
   const rights=button("Quellen & Nutzungsrechte",()=>show("rights"),"tp-app-rights-link");rights.style.flex="0 0 auto";rights.style.marginBottom="10px";root.appendChild(rights);
@@ -44,6 +44,8 @@ function show(which="main"){
   if(window.TPDiagnostics)window.TPDiagnostics.mount(body,()=>active&&!proxy&&page==="diagnostics");else body.appendChild(el("p","Diagnose nicht verfügbar. Bitte aktuellen Build öffnen."));
  }else if(which==="rights"){
   const body=el("div",undefined,"tp-rights-scroll");root.appendChild(body);window.TPRights.mount(body).catch(e=>notice(e.message));
+ }else if(which==="zapdos"){
+  const body=el("div");root.appendChild(body);window.TPZapdosUI.mount(body);
  }else if(which==="journal"){
   const list=el("div",undefined,"tp-app-list");list.tabIndex=0;list.setAttribute("aria-label",TPText.t("menu.journalEntries"));root.appendChild(list);
   try{const snapshot=Module.ccall("tp_journal_json","string",[],[]);renderJournal(list,JSON.parse(snapshot));setTimeout(()=>{if(!active||proxy||page!=="journal"||!ready())return;try{const next=Module.ccall("tp_journal_json","string",[],[]);if(next!==snapshot){const top=list.scrollTop;list.replaceChildren();renderJournal(list,JSON.parse(next));list.scrollTop=top;}}catch(_e){}},1100);}catch(_e){list.appendChild(el("p","Tagebuch nicht verfügbar. Bitte den aktuellen Test-Build öffnen."));}

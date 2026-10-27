@@ -87,6 +87,10 @@ node tests/package-p05-league-text.test.js
 node tests/package-p06-admission-model.test.js
 python3 tools/quality/test-p06-admission-store.py
 node tests/package-p06-admission.test.js
+node tests/package-p06-zapdos-model.test.js
+python3 tools/quality/test-p06-zapdos-store.py
+python3 tools/quality/test-p06-zapdos-duel.py
+node tests/package-p06-zapdos-controller.test.js
 python3 tools/quality/test-battle-energy.py
 python3 tools/quality/test-battle-view.py
 python3 tools/quality/test-asset-packs.py

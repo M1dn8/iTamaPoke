@@ -35,7 +35,7 @@ function parseLegacy(input){
  if(!Number.isInteger(dex)||(dex!==-1&&(dex<1||dex>1025))||age<0||age>0xffffffff||target<1||target>1025)throw Error("Art, Ei oder Alter ausserhalb des unterstuetzten Bereichs.");
  for(const k of ["full","joy","ene","hyg","bond"]){const n=get(k,1,0);if(n<0||n>100)throw Error("Ungueltiger Wert: "+k);}
  for(const k of ["dexreg","dexcgt","dexsh"]){const v=get(k,3,new Uint8Array());if(v.length>129)throw Error("Sammlung stammt aus einem nicht unterstuetzten Datenumfang.");}
- let collectionModel=null;
+ let collectionModel=null,admissionModel=null;
  if(values.has("f4col")){
   const collection=values.get("f4col");
   if(collection.type!==3)throw Error("Falscher Typ fuer individuelle Sammlung.");
@@ -70,11 +70,36 @@ function parseLegacy(input){
   let admission;
   try{admission=root.TPAdmissionModel.decode(dec.decode(payload));}
   catch(_){throw Error("Aufnahmestand ungueltig oder nicht unterstuetzt.");}
+  admissionModel=admission;
   if((admission.pending!==null)!==pending)
    throw Error("Aufnahme-Wartestatus widerspruechlich.");
   if(admission.pending&&collectionModel.mons.some(m=>
    m.data.admission?.ticket===admission.pending.ticket))
    throw Error("Wartendes Pokemon ist bereits aufgenommen.");
+ }
+ // P06 Zapdos: validate both story->admission and reserved provenance->story.
+ const zapdosKeys=["zpdver","zpdstep","zpdtick"];
+ const hasZapdos=zapdosKeys.some(k=>values.has(k));
+ const zapdosSource="story:kanto:zapdos";
+ const hasZapdosIndividual=collectionModel?.mons.some(
+  m=>m.data.admission?.source===zapdosSource
+ );
+ if(hasZapdos||admissionModel?.pending?.source===zapdosSource||
+    hasZapdosIndividual){
+  if(!collectionModel||!root.TPAdmissionModel||!root.TPZapdosModel)
+   throw Error("Zapdos-Storypruefung oder individuelle Sammlung fehlt.");
+  if(hasZapdos&&!zapdosKeys.every(k=>values.has(k)))
+   throw Error("Zapdos-Storydaten sind unvollstaendig.");
+  try{
+   const story=hasZapdos?root.TPZapdosModel.fromNative(
+    get("zpdver",1,-1),get("zpdstep",1,-1),get("zpdtick",1,-1)
+   ):root.TPZapdosModel.create();
+   root.TPZapdosModel.validateProfile(
+    story,admissionModel||root.TPAdmissionModel.create(),collectionModel
+   );
+  }catch(_){
+   throw Error("Zapdos-Story, Aufnahme und Sammlung sind widerspruechlich oder nicht unterstuetzt.");
+  }
  }
  // Only the new LT format is interpreted here. Old single-player blobs
  // retain their existing native validation path without JS migration.

@@ -14,6 +14,10 @@ Pet &tp_battle_pet(){return hero;}
 extern "C" int tp_battle_is_open(){return battleOpen?1:0;}
 extern "C" {
 int tp_zpd_step();
+int tp_zpd_kanto_badges();
+int tp_zpd_access();
+int tp_zpd_notice_read();
+int tp_zpd_notice_mark(uint32_t);
 int tp_zpd_ticket();
 int tp_zpd_advance(uint32_t,int);
 int tp_zpd_store_victory(uint32_t,uint32_t);
@@ -26,12 +30,17 @@ std::vector<uint8_t> read(const char *path){
  std::ifstream in(path,std::ios::binary);assert(in);
  return {std::istreambuf_iterator<char>(in),std::istreambuf_iterator<char>()};
 }
+#include "p06-story-access-checks.h"
+
 int main(int argc,char **argv){
  assert(argc==3);
  const auto pending=read(argv[1]),completedAdmission=read(argv[2]);
  Preferences::store().clear();Preferences p;
  p.putBool("init",true);p.putShort("dexn",1);p.putUInt("age",540);
  p.putUChar("ene",80);hero=Pet();hero.begin();
+ p06CheckStoryAccess();
+ p.putUChar(std::string(TP_KANTO_KEYS.arenaVersion).c_str(),1);
+ p.putUChar(std::string(TP_KANTO_KEYS.arenaMask).c_str(),63);
  const auto initial=Preferences::store();
  const auto energy=hero.energy;
  assert(tp_zpd_step()==0&&tp_zpd_ticket()==0);

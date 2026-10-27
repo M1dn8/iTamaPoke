@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include "pet.h"
+#include "region-progress-keys.h"
 extern Pet &tp_battle_pet();
 extern uint32_t g_millis;
 extern "C" int tp_battle_is_open();
@@ -92,6 +93,51 @@ void zpdWrite(int step,uint32_t ticket){
  p.putUChar("zpdver",1);p.putUChar("zpdstep",uint8_t(step));
  p.putUInt("zpdtick",ticket);
 }
+
+// P06 story notice metadata. Reads never initialize or repair old saves.
+int zpdNoticeState(){
+ const auto &s=Preferences::store();
+ const auto ver=s.find("stynver"),read=s.find("stynread");
+ if(ver==s.end()&&read==s.end())return 0;
+ if(ver==s.end()||read==s.end()||
+    !std::holds_alternative<int64_t>(ver->second)||
+    !std::holds_alternative<int64_t>(read->second))return -1;
+ const auto v=std::get<int64_t>(ver->second);
+ const auto r=std::get<int64_t>(read->second);
+ return v==1&&r>=0&&r<=1?int(r):-1;
+}
+int zpdKantoMask(){
+ const auto &s=Preferences::store();
+ const auto &keys=TP_KANTO_KEYS;
+ const auto ver=s.find(keys.arenaVersion);
+ if(ver==s.end()){
+  if(s.count(keys.arenaMask))return -1;
+  for(unsigned i=0;i<8;i++)
+   if(s.count(keys.arenaDatePrefix+std::to_string(i)))return -1;
+  return 0;
+ }
+ if(!std::holds_alternative<int64_t>(ver->second)||
+    std::get<int64_t>(ver->second)!=1)return -1;
+ const auto mask=s.find(keys.arenaMask);
+ if(mask==s.end()||!std::holds_alternative<int64_t>(mask->second))return -1;
+ const auto value=std::get<int64_t>(mask->second);
+ return value>=0&&value<=255?int(value):-1;
+}
+int zpdKantoBadges(){
+ const int mask=zpdKantoMask();
+ if(mask<0)return -1;
+ int count=0;
+ for(unsigned bit=0;bit<8;bit++)if(mask&(1<<bit))count++;
+ return count;
+}
+int zpdAccess(){
+ const int step=zpdState();
+ if(step<0||zpdNoticeState()<0)return -1;
+ if(step>0)return 1;
+ const int badges=zpdKantoBadges();
+ return badges<0?-1:badges>=6?1:0;
+}
+
 std::string quote(const char*s){std::string out="\"";for(unsigned i=0;i<23&&s[i];i++){const unsigned char c=static_cast<unsigned char>(s[i]);if(c=='"'||c=='\\')out+='\\';if(c<32){char b[7];snprintf(b,sizeof(b),"\\u%04x",c);out+=b;}else out+=char(c);}return out+'"';}
 }
 extern "C" {
@@ -125,16 +171,48 @@ EMSCRIPTEN_KEEPALIVE int tp_f4_admission_stage(
  Preferences::store()["f4admit"]=std::move(bytes);
  return 1;
 }
+// Story-specific admission staging, not a general journal-event API.
+// The JS admission model validates the decoded pending record and binds
+// its ticket to the native story ticket. Native storage remains opaque.
+// Consuming the pending flag prevents repeated application.
+// Pet, journal and unread metadata share the existing whole-state undo.
+EMSCRIPTEN_KEEPALIVE int tp_zpd_admission_stage(
+ uint32_t token,const uint8_t *data,int len,uint32_t ticket){
+ uint32_t expected=0;
+ bool waiting=false;
+ if(!undo||undo->token!=token||!ticket||tp_battle_is_open()||
+    zpdState(&expected)!=3||expected!=ticket||
+    f4AdmissionTransport(&waiting)<=0||!waiting)return 0;
+ if(!tp_f4_admission_stage(token,data,len,0))return 0;
+ auto &pet=tp_battle_pet();
+ // JR_CAPTURE flag 2 distinguishes voluntary story admission.
+ pet.journalStoryAdmission(145);
+ return 1;
+}
 // Read-only; a negative value means unreadable, never "new adventure".
 EMSCRIPTEN_KEEPALIVE int tp_zpd_step(){return zpdState();}
 EMSCRIPTEN_KEEPALIVE int tp_zpd_ticket(){
  uint32_t ticket=0;
  return zpdState(&ticket)<0?-1:int(ticket);
 }
+
+EMSCRIPTEN_KEEPALIVE int tp_zpd_kanto_badges(){return zpdKantoBadges();}
+EMSCRIPTEN_KEEPALIVE int tp_zpd_access(){return zpdAccess();}
+EMSCRIPTEN_KEEPALIVE int tp_zpd_notice_read(){return zpdNoticeState();}
+EMSCRIPTEN_KEEPALIVE int tp_zpd_notice_mark(uint32_t token){
+ if(!undo||undo->token!=token||tp_battle_is_open()||
+    zpdAccess()!=1||zpdNoticeState()<0)return 0;
+ if(zpdNoticeState()==1)return 1;
+ Preferences p;
+ p.putUChar("stynver",1);p.putUChar("stynread",1);
+ return 1;
+}
+
 // Investigation and securing only. Victory has no public scalar setter.
 EMSCRIPTEN_KEEPALIVE int tp_zpd_advance(uint32_t token,int expectedStep){
  if(!undo||undo->token!=token||tp_battle_is_open()||
-    expectedStep<0||expectedStep>1||zpdState()!=expectedStep)return 0;
+    expectedStep<0||expectedStep>1||zpdState()!=expectedStep||
+    zpdNoticeState()<0||(expectedStep==0&&zpdAccess()!=1))return 0;
  zpdWrite(expectedStep+1,0);return 1;
 }
 // Internal pairing for the upcoming verified Zapdos-result adapter.

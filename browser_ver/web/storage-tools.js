@@ -29,6 +29,16 @@ function parseLegacy(input){
  if(get("init",0,false)!==true)throw Error("Kein initialisierter iTamaPoke-Spielstand.");
  if(!values.has("dexn")||!values.has("age"))throw Error("Pflichtfelder fehlen.");
  const dex=get("dexn",1,-1),age=get("age",1,0),target=get("eggT2",1,1);
+ if(["jruver","jrutot","jruseen"].some(k=>values.has(k))){
+  if(!["jruver","jrutot","jruseen"].every(k=>values.has(k)))
+   throw Error("Tagebuch-Lesestand unvollstaendig.");
+  const version=get("jruver",1,-1),total=get("jrutot",1,-1);
+  const seen=get("jruseen",1,-1),count=get("jrcount",1,0);
+  if(version!==1||!Number.isInteger(total)||total<0||total>0x7ffffffe||
+     !Number.isInteger(seen)||seen<0||seen>total||
+     !Number.isInteger(count)||count<0||count>200||total<count)
+   throw Error("Tagebuch-Lesestand ungueltig oder nicht unterstuetzt.");
+ }
  const battleLevelBonus=get("blvl",1,0);
  if(!Number.isInteger(battleLevelBonus)||battleLevelBonus<0||battleLevelBonus>99)throw Error("Ungueltiger Kampf-Levelbonus.");
  if(dex===-1&&battleLevelBonus!==0)throw Error("Ein Ei darf keinen Kampf-Levelbonus besitzen.");
@@ -78,6 +88,12 @@ function parseLegacy(input){
    throw Error("Wartendes Pokemon ist bereits aufgenommen.");
  }
  // P06 Zapdos: validate both story->admission and reserved provenance->story.
+ if(values.has("stynver")||values.has("stynread")){
+  if(!values.has("stynver")||!values.has("stynread")||
+     get("stynver",1,-1)!==1||
+     ![0,1].includes(get("stynread",1,-1)))
+   throw Error("Geschichten-Hinweisstatus ungueltig oder nicht unterstuetzt.");
+ }
  const zapdosKeys=["zpdver","zpdstep","zpdtick"];
  const hasZapdos=zapdosKeys.some(k=>values.has(k));
  const zapdosSource="story:kanto:zapdos";

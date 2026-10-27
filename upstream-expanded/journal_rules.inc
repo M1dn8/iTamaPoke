@@ -1,3 +1,7 @@
+#if defined(__EMSCRIPTEN__) || defined(TP_JOURNAL_UNREAD_TEST)
+#include <cstdint>
+extern "C" void tp_journal_unread_added(uint32_t previousCount);
+#endif
 #include <ctime>
 #include <cstring>
 namespace {
@@ -34,8 +38,19 @@ void Pet::journalAdd(uint8_t kind,uint16_t a,uint16_t b,uint16_t species,uint8_t
  journalEnsure();journalFinalize();TPJournalEntry entry;std::memset(&entry,0,sizeof(entry));entry.epoch=epoch?epoch:tpJournalNow();entry.kind=kind;entry.a=a;entry.b=b;entry.flags=flags;
  entry.species=species==0xffff?(isEgg()?0:uint16_t(speciesId)):species;if(entry.species>DEX_COUNT)entry.species=0;
  if(entry.species&&kind!=JR_CAPTURE&&kind!=JR_EGG&&kind!=JR_COLLECTION){const char *n=name?name:nick;std::strncpy(entry.nickname,n,sizeof(entry.nickname)-1);}
+ #if defined(__EMSCRIPTEN__) || defined(TP_JOURNAL_UNREAD_TEST)
+ const uint32_t journalUnreadPrevious=journalCount;
+#endif
  if(journalCount==200){std::memmove(journalEntries,journalEntries+1,199*sizeof(TPJournalEntry));journalCount=199;}
  journalEntries[journalCount++]=entry;pendingSave=true;
+#if defined(__EMSCRIPTEN__) || defined(TP_JOURNAL_UNREAD_TEST)
+ tp_journal_unread_added(journalUnreadPrevious);
+#endif
+}
+// Called by the verified admission transaction, not by presentation.
+void Pet::journalStoryAdmission(uint16_t species){
+ journalAdd(JR_CAPTURE,0,0,species,2);
+ save();
 }
 void Pet::journalNewCreature(){journalEnsure();journalLevels=0;journalLastFrom=journalLastTo=0;journalAdd(JR_EGG,0,0,0);}
 void Pet::journalMilestones(){

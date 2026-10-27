@@ -69,6 +69,7 @@ function open(){
  if(fns.awaitingStarter())note("Die erste Starterauswahl bleibt unveraendert.");
  note("Der Plan wird im Spielstand gespeichert und von den Sicherungen aus Paket B mitgenommen. Beim Erzeugen des naechsten Eis wird er verbraucht. Neuladen desselben Eis erzeugt keine neue Art und keinen neuen Schillernd-Wurf.");
 }
+window.TPEggPlanning=Object.freeze({open,get busy(){return busy;}});
 const launch=button("Eier",open);document.querySelector(".tp-tools").appendChild(launch);
 launch.disabled=true;setInterval(()=>{launch.disabled=busy||!quiet();},700);
 })();

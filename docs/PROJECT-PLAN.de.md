@@ -9,11 +9,15 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
 - Aktives Paket: P06 Legendären-Geschichten Kanto — gemeinsame Aufnahmefunktion
   mit Commit d5119a4 auf main veröffentlicht; Build vom Nutzer als grün
   bestätigt und iPhone-Abnahme am 27.10.2026 erfolgreich abgeschlossen.
-- Zapdos bleibt der erste Storypilot: Kraftwerk-Abenteuer und freiwilliger,
-  garantierter Anschluss nach gewonnenem Prüfduell auf Level 50.
-  Regeln am 27.10.2026 freigegeben; Pilot lokal implementiert und geprüft.
-  Veröffentlichung, grüner veröffentlichter Build und iPhone-Abnahme
-  dieses Piloten bleiben offen.
+- Zapdos ist als erster Storypilot abgenommen: Kraftwerk-Abenteuer und
+  freiwilliger, garantierter Anschluss nach gewonnenem Prüfduell auf Level 50.
+  Funktionscommit 22e6ab8 auf main veröffentlicht, Build vom Nutzer als grün
+  bestätigt und iPhone-Abnahme am 27.10.2026 ausdrücklich bestätigt.
+- Vor Arktos folgt die freigegebene Reviewnacharbeit: Kampfbedienung,
+  Pokédex-/Geschichtennavigation, Sechs-Orden-Freischaltung und Hinweis,
+  Kraftwerk-Gestaltung sowie Sicherungsaufgabe und Abschlussanimation.
+- Funktionale Zapdos-Abnahme bleibt bestehen; Gestaltung ist noch nicht final.
+- Arktos folgt erst danach; P06 insgesamt bleibt offen.
 - P05c auf Stand 02e3973 veröffentlicht, Build vom Nutzer als grün
   bestätigt und am 26.10.2026 ausdrücklich abgenommen.
 - Grafische P05c-Optimierungen sind zurückgestellt, aktuell nicht hoch
@@ -28,8 +32,9 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
 - CI-/Veröffentlichungsworkflow laut Nutzerbestätigung erfolgreich.
 - Keine Spieloberfläche oder Spielmechanik in P01 verändert; keine neue
   eigenständige iPhone-Abnahme dieses Schutzpakets durchgeführt.
-- Letzter abgenommener Funktionsstand: gemeinsame Aufnahmefunktion als
-  P06-Voraussetzung, d5119a4; iPhone-Abnahme am 27.10.2026.
+- Letzter abgenommener Funktionsstand: Zapdos-Kraftwerk-Pilot,
+  22e6ab8; iPhone-Abnahme am 27.10.2026.
+- Gemeinsame Aufnahmefunktion d5119a4 bleibt als P06-Voraussetzung abgenommen.
 - P05c Team in Liga-Kämpfen, 02e3973, bleibt abgenommen.
 - Ebenfalls bereits abgenommen: Kanto-/Johto-Teamübersichten,
   26 lokale Trainerporträt-Zuordnungen, TPTR-v1/v2 und Quellenanzeige.
@@ -66,7 +71,7 @@ Eine neue Sitzung darf abgeschlossene Arbeit nicht ungeprüft neu eröffnen.
 | P05a | Team in Wildkämpfen | Abgenommen am 26.10.2026 | Erledigt | Individuelle Mitglieder, Wechsel, KP, Pokéball-Anzeigen, Levelbonus bis 100 und atomare Ergebnis-/Fangspeicherung |
 | P05b | Team in Arena-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit fb86920; zentrale Prüfung, WASM-Build, Browserprüfungen, CI/Veröffentlichung und manuelle iPhone-Abnahme erfolgreich |
 | P05c | Team in Liga-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit 02e3973; lokale Prüfungen und WASM-Build erfolgreich, 221 Browserprüfungen bestanden/1 übersprungen, Build grün gemeldet und Nutzerabnahme bestätigt; grafische Folgeoptimierungen zurückgestellt |
-| P06 | Legendären-Geschichten Kanto | Aktiv: Zapdos-Pilot lokal geprüft; Veröffentlichung/Abnahme offen | Hoch | Gemeinsame Aufnahme d5119a4 abgenommen; Kraftwerk-Pilot mit festem Level-50-Prüfduell und garantiertem Anschluss lokal implementiert und geprüft; Veröffentlichung und iPhone-Abnahme des Piloten stehen aus; weitere Geschichten erst danach |
+| P06 | Legendären-Geschichten Kanto | Aktiv: freigegebene Reviewnacharbeit vor Arktos | Hoch | Gemeinsame Aufnahme d5119a4 und Zapdos-Kraftwerk-Pilot 22e6ab8 veröffentlicht, Build grün und iPhone-Abnahme bestätigt; weitere Fälle in der vereinbarten Reihenfolge Arktos, Lavados, Mewtu, Mew getrennt festlegen, umsetzen und abnehmen |
 | P07 | Legendären-Geschichten Johto | Offen | Hoch | Auf Storysystem aufbauen; getrennte regionale Fortschritte und geprüfte Freischaltungen |
 | P08 | Weitere Mega-Entwicklungen | Offen | Hoch | Bestand und Zielarten festlegen; Voraussetzungen, Werte, Darstellung, Rückverwandlung und Speicherung pro Ausbaustufe prüfen |
 | P09 | Ligen aller Generationen erweitern | Offen | Sehr hoch | Umfang nach Region/Edition/Variante festlegen; danach jede Liga mit Gegnerdaten, Freischaltung, Fortschritt, Tests und iPhone-Abnahme |
@@ -503,7 +508,9 @@ Abgrenzung / noch offen:
 - Push des Funktionscommits d5119a4 auf main erfolgreich; der Nutzer hat
   den Build als grün bestätigt. Keine zusätzlichen CI-Einzelresultate
   über diese Bestätigung hinaus behauptet.
-- P06 insgesamt und der Zapdos-Pilot sind nicht abgeschlossen.
+- Zum damaligen Aufnahme-Zwischenstand war der Zapdos-Pilot noch offen.
+  Sein späterer Abschluss ist nachfolgend dokumentiert; P06 insgesamt
+  bleibt wegen der weiteren vereinbarten Geschichten offen.
 - Zum Aufnahme-Zwischenstand war noch kein Kraftwerk-Abenteuer, Prüfduell
   oder persistenter Zapdos-Storyfortschritt implementiert.
   Der spätere lokale Pilotstand einschließlich wartendem Anschluss ohne
@@ -575,8 +582,9 @@ Einmaligkeit und Abschluss:
 - Nach abgeschlossener Aufnahme ist das Abenteuer erledigt.
 - Späteres Freilassen erzeugt keinen zweiten Anschlussanspruch.
 - Keine zusätzliche Geld-, Gegenstands- oder sonstige Storybelohnung.
-- P06 insgesamt und der Zapdos-Pilot bleiben bis Implementierung,
-  Prüfungen, Veröffentlichung und Nutzerabnahme offen.
+- Diese Regelfreigabe war noch keine Implementierungs- oder
+  Abnahmebestätigung. Der spätere Abschluss des Zapdos-Piloten ist
+  nachfolgend dokumentiert; P06 insgesamt bleibt offen.
 
 ## Zapdos-Pilot — lokaler Implementierungs- und Prüfstand, 27.10.2026
 
@@ -645,27 +653,112 @@ Lokal bestätigte Prüfungen:
   TPNamedPrompt mit C-Linkage und std::string in browser_glue.cpp.
   Build erfolgreich; Warnung weder behoben noch unterdrückt.
 
-Noch offen:
-- Pilot-Diff abschließend prüfen und Veröffentlichung ausdrücklich freigeben.
-- Funktionscommit und erfolgreicher Push des Zapdos-Piloten.
-- Grünes CI-/Build-Ergebnis des veröffentlichten Pilotstands bestätigen.
-- Eigene manuelle iPhone-Abnahme des Kraftwerk-/Zapdos-Piloten.
-  Die frühere Aufnahme-Abnahme ersetzt diese nicht.
+Zum Zeitpunkt dieses lokalen Prüfberichts noch offene Folgeschritte:
+- Veröffentlichung und eigene iPhone-Abnahme waren zunächst offen.
+  Diese Punkte sind inzwischen durch den nachfolgend dokumentierten
+  Push, die grüne Build-Meldung und die ausdrückliche Pilotabnahme bestätigt.
 - P06 insgesamt bleibt offen. Arktos, Lavados, Mewtu, Mew und P07
   wurden mit diesem Pilotstand nicht implementiert oder abgenommen.
 
+## Zapdos-Pilot — Veröffentlichung und Abnahme, 27.10.2026
+
+- Veröffentlichter Funktionscommit auf main:
+  22e6ab85f26da1464dab91fafe510759c3fdf940.
+- Commit-Titel: feat: implement Kanto Zapdos story pilot.
+- Push von de47e87 auf 22e6ab8 erfolgreich; abschließender Arbeitsstand
+  beim Funktionscommit sauber.
+- Build vom Nutzer als grün bestätigt. Keine zusätzlichen CI-Einzelresultate
+  über diese Bestätigung hinaus behauptet.
+- Nutzerbestätigung am 27.10.2026:
+  „Zapdos-Pilot auf dem iPhone abgenommen“.
+- Der Kraftwerk-/Zapdos-Pilot ist damit ausdrücklich abgenommen.
+- Keine zusätzlichen manuellen Einzelprüfungen, insbesondere kein separater
+  manueller Vollbox-Nachweis, über diese Gesamtbestätigung hinaus behauptet.
+- Die gemeinsame Aufnahmefunktion d5119a4 bleibt ebenfalls abgenommen.
+- P06 insgesamt bleibt offen. Als Nächstes folgt Arktos, anschließend
+  Lavados, Mewtu und Mew. Aus der Reihenfolge folgt noch keine Freigabe
+  konkreter Geschichten, Begegnungslevel oder Anschlussregeln dieser Fälle.
+
+## Verbindliche Reviewentscheidungen — 27.10.2026
+
+Grundlage:
+- Neun Reviewaufnahmen mit zugehörigen Textdateien und Änderungsnotizen.
+- PNG-Dateien wurden aufgelistet, ihre Bildinhalte im Chat aber nicht gesehen.
+- Die konkrete Reviewliste ersetzt frühere allgemeine Menü-/Textentwürfe.
+- Zusätzliche Bestätigung des Nutzers: „1. ja 2. ja“ für Angriffsanordnung
+  und zehn Tipps innerhalb von fünf Sekunden.
+
+Gemeinsame Kampfbedienung:
+- Hauptmenü als 2x2-Anordnung:
+  links oben Kampf, links unten Pokémon,
+  rechts oben Heilung, rechts unten Aufgeben.
+- Angriffsmenü als 2x2-Anordnung:
+  links oben Kräftig, rechts oben Ausweichen,
+  links unten Schnell, rechts unten Zurück.
+- Reihenfolge von Kräftig und Schnell auf Nutzerwunsch während der
+  manuellen Reviewphase am 27.10.2026 gegenüber der ersten Freigabe getauscht.
+- Heilung entfällt im Angriffsmenü; kleiner Mini-Zurück-Knopf entfällt.
+- Aktionswirkungen, Heilungsbudgets und native Kampfberechnung unverändert.
+
+Arena und Navigation:
+- Ordensübergabe mit passendem Arena-/Typenhintergrund.
+- Zusätzlicher fünfter Zugang mit Pokédex-Symbol auf der Pflegeansicht.
+- Pokédex-Zentrale bündelt Tagebuch, Geschichten und Arten-Pokédex.
+- Wischmenü entsprechend aufräumen und auf Einstellungen ausrichten;
+  bestehende Funktionen wie Eier, Entwicklung, Sicherungen und Dateiimporte
+  nicht entfernen oder ohne erreichbaren Zugang zurücklassen.
+- Freischalthinweis nach sechs unterschiedlichen Kanto-Orden mit
+  Pokédex-Kennzeichnung; persistenter Gelesenstatus.
+- Bestehende begonnene, wartende oder abgeschlossene Zapdos-Geschichten erhalten.
+
+Geschichten und Kraftwerk:
+- Vorgeschaltete Übersicht mit schmalen Geschichtenkacheln und eigenen Symbolen.
+- Neue Freischaltungen zuerst, neueste oben; danach weitere offene Geschichten,
+  abgeschlossene am Ende. Kraftwerk mit eigenem Kraftwerk-Symbol.
+- Kraftwerk-Einstieg: Außenansicht mit flackernden Lichtern;
+  Überschrift und Text zentrieren, Fortsetzen-Schaltfläche erhalten.
+- Sicherungsseite: Hintergrund im Kraftwerk, Texte zentrieren.
+- „Sichere den Weg“ durch „Sichere die Anlage“ ersetzen.
+- Zehn Tipps auf eine Stromsicherung innerhalb von fünf Sekunden,
+  Zeitbeginn beim ersten Tipp. Bei Ablauf nur den Versuch zurücksetzen.
+- Erst nach erfolgreicher Aufgabe „Anlage sichern“ verfügbar machen;
+  bestätigten Storyabschluss dauerhaft speichern und nicht erneut verlangen.
+
+Begegnung und Abschluss:
+- Überschrift: „Wow ein wildes Zapdos“.
+- Haupttext: „Zapdos fordert dich zum Kampf heraus. Wirst du seinen
+  gewaltigen Stromschlägen stand halten können?“.
+- Große Zapdos-Grafik zwischen Text und Schaltfläche;
+  Name und Level darunter möglich. „Ohne Fangwurf“ als sichtbaren Text entfernen.
+- Schaltfläche: „Herausforderung beginnen“.
+- Sichtbare Bezeichnung „Prüfduell“ durch „Herausforderung“ ersetzen.
+- Erfolgstext: „Herausforderung bestanden. Du bist würdig.
+  Zapdos möchte sich dir anschließen.“.
+- Abschluss zentriert: „Zapdos gefangen. Kraftwerk-Abenteuer abgeschlossen.“.
+  Bisherige zusätzliche Abschlusserklärungen entfernen.
+- Gewünschte Pokéball-Flug-/Fanganimation ist rein visuell:
+  kein neuer Fangwurf, keine neue Fangchance, kein zweites Individuum.
+- Erfolgreichen Aufnahmeabschluss erst nach dauerhafter Bestätigung zeigen;
+  volle Sammlung weiterhin als wartende Aufnahme darstellen.
+
+Umsetzungsstand:
+- Reviewentscheidungen freigegeben; nicht pauschal als bereits implementiert
+  oder gestalterisch abgenommen behandeln.
+- Funktionale Zapdos-Pilotabnahme 22e6ab8 bleibt bestehen.
+- Nacharbeit vor Arktos in getrennten, prüfbaren Schritten abschließen.
+
 ## Nächster konkreter Schritt — ausschließlich P06
 
-1. Gemeinsame Aufnahmefunktion abgenommen und dokumentiert:
-   Funktionscommit d5119a4, Abnahmenachtrag de47e87 auf main veröffentlicht.
-2. Zapdos-Pilotregeln einschließlich Level 50 am 27.10.2026 freigegeben.
-3. Zapdos-Pilot lokal implementiert und geprüft; Pilot-Diff abschließend
-   prüfen und die Veröffentlichung ausdrücklich freigeben.
-4. Pilot nach Freigabe versionieren und veröffentlichen; grünen
-   CI-/Build-Stand bestätigen und eigene iPhone-Abnahme durchführen.
-   Danach tatsächlichen Abnahmeumfang und Funktionscommit dokumentieren.
-5. Weitere Fälle erst nach abgenommenem Zapdos-Piloten in der vereinbarten
-   Reihenfolge Arktos, Lavados, Mewtu, Mew angehen.
+1. Funktionale Zapdos-Abnahme und konkrete Reviewentscheidungen erhalten.
+2. Gemeinsame Kampfbedienung umstellen und einschließlich Heilungsrouting prüfen.
+3. Pokédex-Zentrale, Geschichtenübersicht, Sechs-Orden-Freischaltung und
+   persistenten Freischalthinweis mit Erhalt bestehender Storyfortschritte umsetzen.
+4. Kraftwerk-Gestaltung, konkrete Texte, Sicherungsaufgabe und rein visuelle
+   Abschlussanimation ergänzen; keine Fang-/Belohnungsregeln unbemerkt ändern.
+5. Nacharbeit gezielt und zentral prüfen; Build, Browserregression,
+   Veröffentlichung und passende iPhone-Abnahme separat bestätigen.
+6. Erst danach Arktos-Geschichte und Regeln vorschlagen.
+
 
 ## Ideenspeicher
 
@@ -687,3 +780,254 @@ Entscheidungsbedarf ergänzen. Nicht automatisch ins aktive Paket aufnehmen.
 - iPhone-Abnahme, sofern betroffen:
 - Offene Fehler / Entscheidungen:
 - Nächster konkreter Schritt:
+
+## Reviewnacharbeit — bestätigter Zwischenstand, 27.10.2026
+
+Manuelle Bestätigung:
+- Nutzerbestätigung im Revisionsbrowser am 27.10.2026:
+  „jetzt passt alles“.
+- Bestätigt sind die nachfolgend beschriebenen gemeinsamen Bedienungs-,
+  Navigations- und Hinweisänderungen.
+- Keine Veröffentlichung, kein veröffentlichter grüner Build und keine
+  gesonderte iPhone-Abnahme dieses Änderungsstands damit behauptet.
+
+Lokaler Umfang:
+- Kampfhauptmenü: Kampf / Heilung sowie Pokémon / Aufgeben.
+- Angriffsmenü: Kräftig / Ausweichen sowie Schnell / Zurück.
+  Heilung nur auf der Hauptebene; Aktionswirkungen unverändert.
+- Fünfter Pflegezugang zur Pokédex-Zentrale.
+- Zentrale mit Tagebuch, Geschichten, Arten-Pokédex, Eier und Entwicklung.
+- Oberes Wischmenü auf Sicherungen und Einstellungen reduziert;
+  bestehende Rückwege und Datei-/Verwaltungszugänge erhalten.
+- Geschichtenübersicht mit Kraftwerk-Kachel.
+- Neuer Zapdos-Beginn nach sechs unterschiedlichen Kanto-Orden;
+  Johto zählt nicht mit, vorhandener Storyfortschritt bleibt erreichbar.
+- Blau-weißes Informationssymbol und vollbreiter hellblauer Hinweisbutton:
+  „In deinem Pokédex ist eine neue Geschichte verfügbar.“
+  Bestätigung dauerhaft speichern und direkt Geschichten öffnen.
+- Rote Zahlenplaketten für offene Geschichten und neue Tagebucheinträge.
+- Roter Geschichtenpunkt bleibt bis zum vollständigen Abschluss bestehen.
+- Neue Tagebucheinträge beim ersten Anzeigen markieren; nach gespeicherter
+  Lesebestätigung beim erneuten Aufruf ohne Markierung.
+- Fortlaufende native Tagebuchzählung berücksichtigt den 200-Einträge-Ring;
+  vorhandener Altbestand wird nicht pauschal als neue Meldung behandelt.
+- Schreibfehler behalten Hinweis-/Lesestatus und erlauben Wiederholung.
+- Weitere Form-/Farboptimierung der Zentrale und Neuordnung der unteren
+  Karten-/Statusseiten ausdrücklich zurückgestellt.
+
+Prüfstand und Grenzen:
+- Native Freischalt-, Hinweis- und Tagebuchprüfungen erfolgreich.
+- WASM-Build erfolgreich; bekannte TPNamedPrompt-C-Linkage-Warnung bleibt.
+- Letzter gezielter Browserlauf: 40/40 bestanden in Chromium und WebKit,
+  ohne automatische Fehler-Retries.
+- Frühere größere gezielte Läufe einschließlich Navigation und Offlinezugang
+  ebenfalls erfolgreich; daraus keine vollständige aktuelle Gesamtregression
+  ableiten.
+- Abschließende zentrale Gesamtprüfung, vollständige Browserregression,
+  Diff-Prüfung und Dokumentationsabgleich vor Veröffentlichung noch offen.
+
+Jetzt folgende Zapdos-Nacharbeit:
+1. Kraftwerk-Außenansicht mit flackernden Lichtern, zentrierter Einstieg
+   und Sicherungsseite mit Innenansicht.
+2. Sicherungsaufgabe mit zehn Tipps innerhalb von fünf Sekunden;
+   Beginn beim ersten Tipp, bei Ablauf nur Versuch zurücksetzen.
+3. Vereinbarte Begegnungs-/Erfolgstexte und große Zapdos-Darstellung.
+4. Rein visuelle Aufnahmeanimation und bestätigter Abschluss ohne neue
+   Fangchance oder zweites Individuum.
+- Bestehende Story-, Aufnahme- und Speicherabsicherung erhalten.
+- Weitere freigegebene, noch nicht umgesetzte Reviewpunkte bleiben offen.
+- Arktos erst nach Abschluss der vereinbarten Reviewnacharbeit.
+
+### Zapdos-Sicherungsaufgabe — Implementierung zur Prüfung
+
+- Außenbeleuchtung nach Nutzerreview heller und doppelt so schnell;
+  sechs Ansichtsprüfungen erfolgreich, Flackern manuell bestätigt.
+- Innenansicht manuell bestätigt.
+- Sicherungsaufgabe zur Prüfung ergänzt: zehn Tipps innerhalb von fünf
+  Sekunden, Zeitbeginn beim ersten Tipp.
+- Versuchszähler und Zeit sind flüchtig; kein Speichern einzelner Tipps.
+- Zeitablauf oder Verlassen verwirft nur den unvollständigen Versuch.
+- Erfolg nutzt den bestehenden dauerhaften Storyübergang.
+- Bei fehlgeschlagener Speicherung bleibt der geschaffte Versuch auf
+  der geöffneten Seite für eine Schreibwiederholung erhalten.
+- Browser-UI verhindert den direkten secure-Übergang ohne geschaffte
+  Aufgabe; kein neues natives Minispiel-Speicherfeld eingeführt.
+- Texte in Deutsch, Englisch, Spanisch und Französisch.
+- Gezielter kombinierter Browserlauf: 33 bestanden, eine
+  Chromium-spezifische Offlineprüfung unter WebKit übersprungen;
+  keine automatischen Fehler-Retries.
+- Zusätzliche gezielte WebKit-Prüfungen für Zeitablauf und stabile
+  Eingabe erfolgreich.
+- Minispiel am 27.10.2026 manuell bestätigt: „das passt sehr gut“.
+- Keine vollständige Projekt-Gesamtregression oder Veröffentlichung
+  damit behauptet.
+- Begegnungsseite vor dem Kampf und Aufnahme-/Abschlussdarstellung
+  weiterhin als folgende Reviewnacharbeit offen.
+
+### Zapdos-Begegnungsseite — Implementierung zur Prüfung
+
+- Große zentrierte Darstellung aus lokalem p145.bin über den vorhandenen
+  gemeinsamen TPK2-Lader und dessen Frame-Decoder.
+- Statischer erster Idle-Frame; eigene Canvas-Zeichenfläche, kein Wechsel
+  des aktiven Pflege-Pokémon und kein Zugriff auf den Hauptcanvas.
+- Transparente Ränder beim Darstellen ausgespart.
+- Fehlende/unlesbare Grafik verständlich anzeigen, Kampfzugang nicht
+  zusätzlich sperren; keine externen Grafikdownloads.
+- Begegnungsbeschreibung knüpft in vier Sprachen an die gesicherte Anlage an.
+- Level, Kampfregeln, Aufnahmebedingungen und Storyzustand unverändert.
+- Neue Grafikprüfungen verwenden synthetische TPK2-Testdaten, keine
+  mitgelieferte Pokémon-Grafik.
+- Prüfungen und manuelle Abnahme der Begegnungsseite noch ausstehend.
+- Aufnahmeanimation und Abschlussdarstellung bleiben folgende Nacharbeit.
+
+### Begegnungsseite — Nutzerkorrektur, 27.10.2026
+
+- Überschrift: „Ein wildes Zapdos“.
+- Beschreibung nach Nutzerwortlaut: „Beweise Zapdos, dass du würdig bist!“
+- Name und Level bleiben; Zusatz „Ohne Fangwurf“ entfernt.
+- Sichtbaren Startbutton entfernt. Der Grafikbereich ist selbst der
+  Kampfzugang, einschließlich Tastaturbedienung und zugänglicher
+  Aktionsbeschriftung.
+- Vorhandene Sperren und derselbe start-Aufruf bleiben erhalten.
+- Entsprechende Texte in allen vier Sprachen aktualisiert.
+- Prüfungen und manuelle Abnahme dieser Korrektur noch ausstehend.
+
+### Begegnungsseite — manuelle Abnahme und offenes Finale
+
+- Begegnungsseite am 27.10.2026 manuell im Browser bestätigt.
+- Deutscher Begegnungstext korrigiert:
+  „Beweise Zapdos, dass du würdig bist!“
+- Kombinierter gezielter Lauf vor dieser Satzkorrektur:
+  45 bestanden, eine Chromium-spezifische Offlineprüfung unter WebKit
+  übersprungen. Danach zwölf Begegnungsprüfungen bestanden.
+- Neuer Nutzerwunsch: deutscher Siegtext „Du bist würdig!“;
+  „Zapdos möchte sich dir anschließen.“ bleibt unverändert.
+- Finale Aufnahme-/Fangdarstellung und Abschluss noch umzusetzen.
+- Animation ausschließlich visuell; bestehende dauerhafte Aufnahme,
+  Kapazitätsprüfung und Schutz vor zweitem Individuum erhalten.
+- Keine Gesamtregression oder Veröffentlichung damit behauptet.
+
+### Zapdos-Aufnahmeszene — Implementierung zur Prüfung
+
+- Finale Abschlussseite um visuelle Pokéball-Aufnahmeszene ergänzt.
+- Szene ausschließlich im bestehenden Abschlusszweig nach erfolgreicher
+  dauerhafter Aufnahme; wartende Aufnahme und Kapazitätsverwaltung
+  unverändert.
+- Animation hat keine Speicher-, Zufalls- oder Aufnahmeautorität.
+- Bereits abgeschlossene Abenteuer können die rein kosmetische Szene
+  beim erneuten Öffnen wieder zeigen; kein zweites Individuum entsteht.
+- Eigene Darstellungsfläche mit vorhandenem lokalem Zapdos-Porträt.
+- Reduzierte Bewegung zeigt unmittelbar den statischen Erfolgszustand.
+- Fehlende Grafik verhindert weder den gespeicherten Abschluss noch
+  dessen Bestätigung; statischer Ball und verständlicher Hinweis.
+- „Abschließen“ führt zurück zur Geschichtenübersicht.
+- Deutscher Siegtext „Du bist würdig!“; bestehender Anschlusswunsch
+  unverändert. Siegtext sinngemäß auch in den anderen drei Sprachen.
+- Prüfungen und manuelle Abnahme der finalen Szene noch ausstehend.
+
+### Zapdos-Abschlusskachel und Anschluss-Tagebuch
+
+- Finale auf 7,2 Sekunden verlängert, drei getrennte Wackelbewegungen,
+  einzelner goldener Blinkeffekt.
+- Flexible Bildhöhe, kein Scrollen; zusätzlicher Abschlussbutton entfernt.
+- Vier gezielte Finale-/Layoutprüfungen erfolgreich.
+- Abgeschlossene Kraftwerk-Kachel ausgegraut und deaktiviert;
+  18 Zapdos-Browserprüfungen danach erfolgreich.
+- recordStoryJoin setzt weiterhin ausschließlich die bestehende historische
+  Markierung; keine zusätzliche Belohnung oder Tagebuchmeldung am Sieg.
+- Anschluss-Tagebuch zur Prüfung an die tatsächliche Aufnahme gekoppelt:
+  spezieller nativer Staging-Aufruf mit Storyticket und Pending-Prüfung,
+  eingebunden in den bestehenden vollständigen Pet-/Preferences-Undo.
+- Der dekodierte Aufnahme-Datensatz wird weiterhin im JS-Modell validiert;
+  der native Aufnahmetransport bleibt ein opaker Transport.
+- JR_CAPTURE mit Flag 2 kennzeichnet freiwilligen Story-Anschluss.
+  Bestehende Datensatzgröße und Ereignistypnummern unverändert.
+- Tagebuchtext in vier Sprachen, vorhandener Ungelesen-Hook weiterverwendet.
+- Neue native Wirkung wird durch echte WASM-Browserintegration geprüft;
+  der Controller-Test mockt weiterhin nur den Transport.
+- WASM-Build erfolgreich; bekannte TPNamedPrompt-C-Linkage-Warnung
+  unverändert vorhanden.
+- Vier Modell-/Controllerprüfungen erfolgreich; native Transportschicht
+  in den betreffenden Controllerprüfungen weiterhin gemockt.
+- Echter WASM-Browserlauf: 20 Zapdos-Prüfungen in Chromium und WebKit
+  bestanden, ohne automatische Fehler-Retries.
+- Aufnahme einschließlich Tagebucheintrag, Ungelesen-Zähler,
+  fehlgeschlagener Speicherung, Wiederholung und Duplikatschutz geprüft.
+- Revisionsbrowser am 27.10.2026 um 22:41 Uhr manuell abgenommen.
+- Vollständige Browserregression nach dem neuen WASM-Build, zentraler
+  nativer Gesamtcheck und abschließender Diff-/Planabgleich noch offen.
+- Noch kein Commit, Push oder veröffentlichter grüner Build.
+
+### Testworkflow — gebuendelter Abgleich nach dem Review
+
+- Audit der bereitgestellten 330 Dateien und 41 Browser-Spec-Dateien.
+- Veralteten Dex-Menueinstieg und veraltete C5-Menueerwartung korrigiert.
+- Gemeinsame Navigationshelfer fuer die aktuellen fuenf Zentralenzugaenge;
+  Menue-, Zentralen- und Rueckwege sprachabhaengig statt fest deutsch.
+- Neuen kurzen Navigationstest fuer vier Sprachen und beide Browser ergaenzt.
+- Automatische Ganztest-Retries auch in CI auf null; Standard-Fehlerbudget
+  fuenf, vorgeschaltete Navigation weiterhin Fail-fast.
+- Gestufter Runner mit eigenen Artefakten und Quell-/WASM-Fingerabdruck;
+  Details in docs/TEST-WORKFLOW.de.md.
+- Auf dem exportierten Stand lokal in der Auditumgebung: 57 eigenstaendig
+  auswertbare vorhandene Node-Pruefungen nach Korrektur bestanden;
+  sieben weitere benoetigen native Referenzen oder nicht exportierte Dateien.
+- 50 JS-/CJS-Syntaxpruefungen bestanden. Keine Browser-, WASM- oder native
+  Gesamtpruefung in der Auditumgebung behauptet.
+- Neuer gestufter Lauf auf dem Zielrechner und Gesamtfreigabe noch offen.
+
+### Paketworkflow und Parallelversuch — 27.10.2026
+
+- Vollstaendige Browserregression nach Testaudit erfolgreich:
+  315 bestanden, eine vorgesehene Offlinepruefung unter WebKit
+  uebersprungen; vollstaendige Browserphase 20,0 Minuten mit einem Worker.
+- Vorgeschaltete Navigation und betroffene Testgruppen zuvor bestanden.
+- Vereinbarter Ablauf: erarbeiten, umsetzen, direkt im Revisionsbrowser
+  pruefen/korrigieren, manuell abnehmen, erst am Paketende vollstaendig
+  pruefen und nach Freigabe auf GitHub abschliessen.
+- Expliziten quick-Modus und einstellbare Browser-Workerzahl ergaenzt.
+- Zwei Worker werden erprobt, noch nicht als Standard freigegeben.
+- Keine Aenderung an Spielcode oder Spielstaenden.
+- Zentraler nativer Gesamtcheck, abschliessender Plan-/Diffabgleich
+  und Veroeffentlichungsfreigabe weiterhin offen.
+
+### Worker-Vergleich — zwei erfolgreich, vier zur Erprobung
+
+- Vollstaendige Browserregression mit zwei Workern bestanden:
+  315 erfolgreich, eine vorgesehene Offlinepruefung unter WebKit
+  uebersprungen; Browserphase 11,4 Minuten.
+- Gleicher Testumfang mit einem Worker zuvor: 20,0 Minuten.
+- Vier Worker als zusaetzlicher Vergleich freigeschaltet,
+  noch nicht als Standard bestaetigt.
+- Keine Aenderung an Spielcode, Testumfang, Timeouts oder Retries.
+- Zentraler nativer Gesamtcheck und abschliessende Freigabe weiterhin offen.
+
+### Abschlussvorbereitung nach Workerentscheidung — 28.10.2026
+
+- Vollstaendige Browserregression mit zwei Workern erfolgreich:
+  315 bestanden, ein vorgesehener Test uebersprungen, 11,4 Minuten.
+- Vier-Worker-Vergleich ohne beobachteten Zeitvorteil:
+  affected 107 bestanden, ein Test uebersprungen, 3,7 Minuten.
+- Nutzerentscheidung: lokal zwei Worker beibehalten.
+- Iterativer Revisionsbrowser-/Paketabschluss-Workflow dokumentiert.
+- Keine weiteren Benchmark-Runden vorgesehen.
+- Zentraler nativer Gesamtcheck und abschliessende Git-Bestandsaufnahme
+  werden vor Commit und Push ausgefuehrt.
+- Noch keine erfolgreiche Veroeffentlichung behauptet.
+
+### Geprüfter Abschluss des Reviewpakets — 28.10.2026
+
+- Revisionsbrowser-Abnahme des Navigation-/Zapdos-Reviewstands erfolgt.
+- Vollständige Browserregression mit zwei Workern bestanden:
+  315 erfolgreich, eine vorgesehene Offlineprüfung unter WebKit
+  übersprungen; Browserphase 11,4 Minuten.
+- Zentraler nativer Logik-/Oberflächen-Gesamtcheck erfolgreich.
+- Abschließendes git diff --check ohne Beanstandung.
+- Lokaler Runner standardmäßig zwei Worker, CI ohne ausdrückliche
+  Vorgabe weiterhin ein Worker; ein Worker als Rückfalloption.
+- Iterativer Revisionsbrowser-/Paketabschluss-Workflow dokumentiert.
+- Commit und Push dieses geprüften Reviewpakets nach main vorbereitet.
+- Erfolgreicher GitHub-Build und Veröffentlichung sind erst nach dem
+  Push gesondert zu kontrollieren; hier noch nicht als grün behauptet.
+- Weitere Projektpakete und außerhalb dieses Reviewpakets verbleibende
+  Aufgaben richten sich weiterhin nach dem Projektplan.

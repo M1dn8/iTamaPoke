@@ -5,6 +5,16 @@
 const leagueText=(key,params={})=>window.TPLeagueText?
  window.TPLeagueText.t(key,params):TPText.t('leagueTeam.'+key,params);
 const call=(n,...a)=>Module.ccall(n,'number',a.map(()=> 'number'),a);
+// The application loads the registered labels. Isolated legacy renderer
+// fixtures may intentionally provide neither that module nor TPText.
+const controlText=key=>{
+ if(window.TPBattleControlsText)return window.TPBattleControlsText.t(key);
+ if(typeof TPText!=='undefined')return TPText.t('battleControls.'+key);
+ return ({
+  fight:'Kampf',pokemon:'Pokémon',heal:'Heilung',giveUp:'Aufgeben',
+  quick:'Schnell',dodge:'Ausweichen',heavy:'Kräftig',back:'Zurück'
+ })[key]||key;
+};
 const themes=['ice','rock','ghost','dragon','champ'];
 
 let teamIndicators=null;
@@ -156,8 +166,18 @@ function draw(m){prepare(m);const capture=captureState(m);if(capture&&ownsCaptur
  else if(capture?.busy){/* No actionable targets during flight, shaking or save. */}
  else if(menu==='info'&&!m.resolved){panel(26,126,414,159);text(name(m.player)+' · Lv. '+m.player.level,233,151,18);text(m.player.nick||'Kampfwerte beim Start erfasst',233,176,12);text('KP '+m.player.hp+' / '+m.player.maxHp,233,201,15);text('ANG '+m.player.atk+' · VER '+m.player.def+' · INI '+m.player.spe,233,227,12);text('Kein Teamwechsel in diesem Kampfsystem.',233,254,11);button('back','Zurück',50,350,366);}
  else if(m.resolved){if(m.next)button('next','Nächster Gegner',50,350,366);else if(m.mode==='league'&&m.won){if(m.retry)button('retry','Speichern erneut versuchen',50,350,366);button('abort','Lauf verlassen',50,408,366,36);}else if(m.catchOffered&&!m.catchDone){button('catch',m.catchAllowed===false?'Fangen gesperrt':'Fangen',50,350,174,42,m.catchAllowed!==false);button('leave','Weiter ohne Fang',242,350,174);}else button(m.mode==='league'?'abort':'ok',m.mode==='league'?'Zur Ligaübersicht':'Weiter',50,350,366);}
- else if(menu==='moves'){button('quick','Schnell',50,350,174);button('heavy','Kräftig',242,350,174);button('dodge','Ausweichen',50,404,174);button('rest','Heilen ('+m.rests+')',242,404,174,42,m.rests>0);button('back','‹',202,448,62,17);}
- else{button('fight','Kampf',50,350,366);button('info','Pokémon',50,404,174);button('abort',m.mode==='zapdos'?window.TPZapdosUI.text('abort'):m.mode==='wild'?'Fliehen':'Aufgeben',242,404,174);}
+ else if(menu==='moves'){
+  button('heavy',controlText('heavy'),50,350,174);
+  button('dodge',controlText('dodge'),242,350,174);
+  button('quick',controlText('quick'),50,404,174);
+  button('back',controlText('back'),242,404,174);
+ }
+ else{
+  button('fight',controlText('fight'),50,350,174);
+  button('rest',controlText('heal')+' ('+m.rests+')',242,350,174,42,m.rests>0);
+  button('info',controlText('pokemon'),50,404,174);
+  button('abort',controlText('giveUp'),242,404,174);
+ }
  statusEl.textContent=capture?capture.headline+' '+capture.detail:m.title+' · '+m.player.hp+'/'+m.player.maxHp+' KP';}
 function actionAt(x,y){for(const [a,r]of Object.entries(targets))if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h)return a;return null;}
 function handle(x,y,m){const k=m.mode+':'+m.id;if(k!==key){key=k;menu='main';targets={};return null;}const a=actionAt(x,y);if(a==='fight'){menu='moves';return null;}if(a==='info'){menu=m.wildTeam?'team':'info';return null;}if(a==='back'){menu='main';return null;}if(m.resolved&&!['next','catch','leave','ok','retry','abort','resultRetry'].includes(a))return null;if(a&&/^member[0-5]$/.test(a))menu='main';return a;}

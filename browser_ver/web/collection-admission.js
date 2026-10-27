@@ -36,15 +36,25 @@
     fail('ADMISSION_PENDING_MISMATCH');
    return state;
   }
-  function stage(token,state){
+  function stage(token,state,completed=null){
    const bytes=enc.encode(A.encode(state));
    const ptr=mod._malloc(bytes.length);
    if(!ptr)fail('ALLOCATION_FAILED');
    try{
     mod.HEAPU8.set(bytes,ptr);
-    if(call('tp_f4_admission_stage',[
-     token,ptr,bytes.length,state.pending===null?0:1
-    ])!==1)fail('ADMISSION_STAGE_REFUSED');
+    let name='tp_f4_admission_stage';
+     let argument=state.pending===null?0:1;
+     if(state.pending===null&&completed?.kind==='join'&&
+        completed.pokemon.dex===145&&
+        typeof mod._tp_zpd_ticket==='function'&&
+        call('tp_zpd_ticket')===completed.ticket){
+      if(typeof mod._tp_zpd_admission_stage!=='function')
+       fail('ADMISSION_JOURNAL_CORE_UNAVAILABLE');
+      name='tp_zpd_admission_stage';
+      argument=completed.ticket;
+     }
+     if(call(name,[token,ptr,bytes.length,argument])!==1)
+      fail('ADMISSION_STAGE_REFUSED');
    }finally{mod._free(ptr);}
   }
   function read(){
@@ -71,7 +81,7 @@
     const current=load();
     if(published===null)published=current;
     const result=A.complete(current,before,choice);
-    stage(token,result.admission);
+    stage(token,result.admission,current.pending);
     return result.collection;
    }
   });

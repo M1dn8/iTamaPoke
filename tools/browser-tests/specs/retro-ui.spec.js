@@ -6,7 +6,7 @@ async function matches(locator,palette,background){const s=await look(locator);e
 async function fits(locator){expect(await locator.evaluate(n=>n.scrollWidth<=n.clientWidth+1)).toBe(true);}
 test('Retro: Menue, Fokus, gesperrter und gedrueckter Button folgen dem Spiel',async({page})=>{
  await H.openMenu(page);const palette=await original(page),root=page.locator('#tp-app-page');await matches(root,palette,palette.bg);
- const button=root.getByRole('button',{name:'Entwicklung',exact:true});const s=await look(button);expect(s.border).toBe(palette.ink);const stroke=await button.evaluate(()=>{
+ const button=root.getByRole('button',{name:'Sicherungen',exact:true});const s=await look(button);expect(s.border).toBe(palette.ink);const stroke=await button.evaluate(()=>{
  const shell=document.getElementById('tp-game-shell'),canvas=document.getElementById('tp');
  const expected=2*canvas.getBoundingClientRect().width/466;
  const declared=parseFloat(getComputedStyle(shell).getPropertyValue('--tp-canvas-stroke'));
@@ -18,7 +18,7 @@ test('Retro: Menue, Fokus, gesperrter und gedrueckter Button folgen dem Spiel',a
  expect(Math.abs(stroke.declared-stroke.expected)).toBeLessThan(.01);
  expect(s.width).toBe(stroke.snapped);expect(parseFloat(s.width)).toBeGreaterThan(0);expect(s.height).toBeGreaterThanOrEqual(44);
  // Test the app's explicit focus wrapping, not mobile WebKit's native Tab order.
- const first=root.getByRole('button',{name:'Tagebuch',exact:true});
+ const first=root.getByRole('button',{name:'Sicherungen',exact:true});
  const last=root.getByRole('button',{name:'Zurück zum Pokémon',exact:true});
  await first.focus();await first.press('Shift+Tab');await expect(last).toBeFocused();
  await last.press('Tab');await expect(first).toBeFocused();
@@ -30,7 +30,7 @@ test('Retro: Menue, Fokus, gesperrter und gedrueckter Button folgen dem Spiel',a
  const probe=root.locator('button[data-retro-press]');
  await probe.hover();await page.mouse.down();
  try{await expect(probe).toHaveCSS('background-color',palette.track);}finally{await page.mouse.up();await probe.evaluate(n=>n.remove());}
- await page.waitForFunction(()=>Array.from(document.querySelectorAll('.tp-tools button')).some(b=>b.textContent.trim()==='Entwicklung'&&!b.disabled));
+ await page.waitForFunction(()=>Array.from(document.querySelectorAll('.tp-tools button')).some(b=>b.textContent.trim()==='Sicherungen'&&!b.disabled));
  await button.click();
  const panel=H.modal(page).locator('.tp-panel');await expect(panel).toBeVisible();await matches(panel,palette,palette.bg);await fits(panel);
 });

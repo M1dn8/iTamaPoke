@@ -1,5 +1,5 @@
 const {test,expect}=require('@playwright/test');const H=require('./helpers');
-async function search(page){await H.openMenu(page);await page.waitForFunction(()=>Array.from(document.querySelectorAll('.tp-tools button')).some(b=>['Dex-Suche','Pokédex-Suche'].includes(b.textContent.trim())&&!b.disabled));await page.getByRole('button',{name:'Pokédex',exact:true}).click();await expect(H.modal(page)).toBeVisible();}
+async function search(page){await H.openSpeciesSearch(page);}
 async function grid(page){await expect.poll(()=>page.evaluate(()=>screen==='dex'&&dexScreen==='grid')).toBe(true);}
 async function back(page){await H.tap(page,408,25);await expect(page.locator('#tp-app-page')).toBeVisible();}
 test.beforeEach(async({page})=>{await H.prepare(page);});

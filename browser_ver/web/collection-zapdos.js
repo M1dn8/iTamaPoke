@@ -20,6 +20,10 @@
    name,'number',args.map(()=>'number'),args
   );
   const json=name=>JSON.parse(mod.ccall(name,'string',[],[]));
+  const noticeSupported=[
+   'tp_zpd_access','tp_zpd_kanto_badges',
+   'tp_zpd_notice_read','tp_zpd_notice_mark'
+  ].every(name=>typeof mod['_'+name]==='function');
   let controller=null,published=null,resultToken=0;
   function load(){
    if(!supported)fail('ZAPDOS_CORE_UNAVAILABLE');
@@ -37,6 +41,33 @@
    if(controller.blocked)fail('RELOAD_REQUIRED');
    if(controller.busy)fail('BUSY');
    if(!supported)fail('ZAPDOS_CORE_UNAVAILABLE');
+  }
+  function access(){
+   guard();
+   if(!noticeSupported)fail('ZAPDOS_ACCESS_CORE_UNAVAILABLE');
+   const story=read(),waiting=admission.read();
+   Z.validateProfile(story,waiting,controller.read());
+   const unlocked=call('tp_zpd_access');
+   const badges=call('tp_zpd_kanto_badges');
+   const notice=call('tp_zpd_notice_read');
+   if(![0,1].includes(unlocked)||![0,1].includes(notice)||
+      !Number.isInteger(badges)||badges< -1||badges>8||
+      (story.step>0&&unlocked!==1))
+    fail('INVALID_ZAPDOS_ACCESS');
+   return Object.freeze({
+    ...Z.view(story,waiting),
+    unlocked:unlocked===1,badges,noticeRead:notice===1,
+    newlyUnlocked:unlocked===1&&story.step===0&&notice===0
+   });
+  }
+  async function acknowledgeNotice(){
+   guard();
+   const state=access();
+   if(!state.unlocked)fail('ZAPDOS_LOCKED');
+   if(!state.noticeRead)await controller.act('zapdosNotice');
+   const confirmed=access();
+   if(!confirmed.noticeRead)fail('ZAPDOS_NOTICE_NOT_CONFIRMED');
+   return confirmed;
   }
   function snapshotBefore(before){
    const story=load(),waiting=admission.read();
@@ -64,6 +95,13 @@
    }
   });
   const nativeActions=Object.freeze({
+   zapdosNotice(before,token){
+    M.validate(before);snapshotBefore(before);
+    if(!noticeSupported||call('tp_zpd_notice_mark',[token])!==1||
+       call('tp_zpd_notice_read')!==1)
+     fail('NATIVE_ZAPDOS_NOTICE_REFUSED');
+    return before;
+   },
    zapdosAdvance(before,token,action){
     before=reconcile(before,token);M.validate(before);
     const {story}=snapshotBefore(before);
@@ -126,7 +164,7 @@
    }
   });
   return Object.freeze({
-   supported,bridge,nativeActions,read,
+   supported,noticeSupported,bridge,nativeActions,read,access,acknowledgeNotice,
    bind(c){if(controller)fail('ALREADY_BOUND');controller=c;},
    view(){
     guard();

@@ -5,6 +5,7 @@
 #include <iterator>
 #include <vector>
 #include "pet.h"
+#include "../browser_ver/core/region-progress-keys.h"
 
 uint32_t g_millis=1000;
 TPSerialShim Serial;
@@ -66,6 +67,8 @@ int main(int argc,char **argv){
  Preferences::store().clear();Preferences p;
  p.putBool("init",true);p.putShort("dexn",1);p.putUInt("age",540);
  p.putUChar("ene",80);p.putUChar("joy",70);p.putUChar("bond",50);
+ p.putUChar(std::string(TP_KANTO_KEYS.arenaVersion).c_str(),1);
+ p.putUChar(std::string(TP_KANTO_KEYS.arenaMask).c_str(),63);
  hero=Pet();hero.begin();
 
  stage(true);assert(!tp_zpd_start());

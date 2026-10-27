@@ -9,6 +9,8 @@ import tempfile
 ROOT=Path(__file__).resolve().parents[2]
 
 def main():
+    subprocess.run(["node","tests/package-p06-story-notice.test.js"],cwd=ROOT,check=True)
+    subprocess.run(["node","tests/package-p06-story-access-adapter.test.js"],cwd=ROOT,check=True)
     compiler=shlex.split(
         os.environ.get("CXX") or shutil.which("clang++")
         or shutil.which("g++") or ""

@@ -6,7 +6,8 @@
  const call=(name,args=[])=>Module.ccall(
   name,'number',args.map(v=>typeof v==='string'?'string':'number'),args
  );
- let body=null,cached=null,message='',starting=false,saving=false,claiming=false;
+ let body=null,cached=null,accessCache=null,message='',starting=false,saving=false,claiming=false;
+ let securityGame=null,encounterArt=null;
  let ownedBattle=0,ownedMod=null,attempted=false,resultError='',historicalCaught=false;
  const busy=()=>starting||saving||claiming;
  function owns(){
@@ -34,9 +35,28 @@
  function visible(){
   return !!body?.isConnected&&!body.closest('#tp-app-page')?.hidden;
  }
+ function preparation(kind,titleKey,textKey,labelKey,action,disabled){
+  body.className='tp-app-list tp-power-prep';
+  const scenery=root.TPPowerPlantScene?.create(kind)||node('div');
+  const copy=node('div');copy.className='tp-power-copy';
+  copy.append(node('h3',tr(titleKey)),node('p',tr(textKey)));
+  if(kind==='inside'){
+   if(!securityGame)securityGame=root.TPPowerPlantGame.create({
+    text:tr,
+    available:()=>visible()&&cached?.phase==='secure'&&
+     !busy()&&!blocked()&&document.visibilityState==='visible',
+    complete:()=>advance('secure')
+   });
+   securityGame.attach(copy,disabled);
+  }else copy.append(
+   button(tr(labelKey),()=>advance(action),disabled)
+  );
+  body.append(scenery,copy);
+ }
  function render(){
   if(!visible())return;
-  body.replaceChildren();
+  encounterArt?.dispose();encounterArt=null;
+  body.replaceChildren();body.className='tp-app-list';
   if(!svc()?.supported){body.append(node('p',tr('unavailable')));return;}
   if(collection().blocked){
    body.append(node('p',tr('reload')),
@@ -44,27 +64,46 @@
    return;
   }
   try{
-   if(!busy()&&!collection().busy)cached=svc().view();
+   if(!busy()&&!collection().busy){
+    cached=svc().view();
+    accessCache=svc().noticeSupported?svc().access():null;
+   }
    if(!cached)throw Error('No published story view');
   }catch(_){
    body.append(node('p',tr('invalid')),
     button(tr('reloadButton'),()=>root.location.reload(),false,true));
    return;
   }
+  if(!accessCache?.unlocked){
+   body.append(node('p',root.TPStoriesUI.text(
+    svc().noticeSupported?'locked':'unavailable',
+    {count:Math.max(0,accessCache?.badges||0)}
+   )));
+   return;
+  }
+  if(cached.phase!=='secure'&&securityGame){
+   securityGame.dispose();securityGame=null;
+  }
   const disabled=busy()||collection().busy;
-  if(message)body.append(node('p',message));
+  if(message&&!(cached.phase==='complete'&&message===tr('taken')))
+   body.append(node('p',message));
   if(disabled)body.append(node('p',tr('saving')));
   if(cached.phase==='investigate'){
-   body.append(node('h3',tr('introTitle')),node('p',tr('intro')),
-    button(tr('investigate'),()=>advance('investigate'),disabled));
+   preparation('outside','introTitle','intro','investigate',
+    'investigate',disabled);
   }else if(cached.phase==='secure'){
-   body.append(node('h3',tr('secureTitle')),node('p',tr('secureText')),
-    button(tr('secure'),()=>advance('secure'),disabled));
+   preparation('inside','secureTitle','secureText','secure',
+    'secure',disabled);
   }else if(cached.phase==='duel'){
    const canStart=cached.canBattle&&!!call('tp_battle_can_start');
-   body.append(node('h3',tr('duelTitle')),node('p',tr('duelText')),
-    node('p',tr('level')),
-    button(tr('start'),start,disabled||!canStart));
+   body.className='tp-app-list tp-zapdos-encounter';
+   encounterArt=root.TPZapdosPortrait.create(tr);
+   const challenge=button('',start,disabled||!canStart);
+   challenge.className='tp-zapdos-challenge';
+   challenge.setAttribute('aria-label',tr('start'));
+   encounterArt.element.append(challenge);
+   body.append(node('h3',tr('duelTitle')),encounterArt.element,
+    node('p',tr('duelText')),node('p',tr('level')));
    if(!cached.canBattle){
     body.append(node('p',tr('blocked')),
      button(tr('admission'),openAdmission,disabled));
@@ -73,18 +112,25 @@
    body.append(node('h3',tr('waitingTitle')),node('p',tr('waitingText')),
     button(tr('admission'),openAdmission,disabled));
   }else{
-   body.append(node('h3',tr('completeTitle')),node('p',tr('completeText')));
+   body.className='tp-app-list tp-zapdos-encounter tp-zapdos-finale';
+   encounterArt=root.TPZapdosFinale.create(tr);
+   body.append(node('h3',tr('completeTitle')),encounterArt.element,
+    node('p',tr('completeText')),node('p',tr('level')));
   }
  }
  function mount(host){
+  securityGame?.dispose();securityGame=null;
+  encounterArt?.dispose();encounterArt=null;
   body=host;body.id='tp-zapdos-page';body.tabIndex=0;
   body.className='tp-app-list';
   body.style.cssText='overflow:auto;min-height:0;display:flex;'+
    'flex-direction:column;gap:12px;padding-bottom:16px;';
-  cached=null;render();
+  cached=null;accessCache=null;render();
  }
  async function advance(action){
   if(busy())return false;
+  if(action==='secure'&&(!securityGame?.solved||!visible()||blocked()||
+     document.visibilityState!=='visible'))return false;
   starting=true;message='';render();
   try{await svc().advance(action);return true;}
   catch(error){
@@ -154,6 +200,9 @@
   }finally{saving=false;}
  }
  function poll(){
+  if(securityGame&&!visible()){
+   securityGame.dispose();securityGame=null;
+  }
   if(owns()&&!busy()&&!attempted&&call('tp_zpd_get',[1])===1)
    void saveResult();
  }

@@ -67,7 +67,17 @@ function setup({step=2,won=true}={}){
    if(name==='tp_f4_admission_pending')return store.get('f4apend')?.value?1:0;
    if(name==='tp_f4_admission_begin')
     return !combat.open&&store.get('f4apend')?.value?base.begin():0;
-   if(name==='tp_f4_admission_stage'){
+   if(name==='tp_zpd_admission_stage'){
+     const [token,ptr,size,ticket]=args;
+     if(combat.open||currentStep()!==3||
+        store.get('zpdtick')?.value!==ticket||
+        !store.get('f4apend')?.value)return 0;
+     // Transport mock only. Actual native journal effects are checked
+     // by the WASM browser integration tests, not simulated here.
+     return mod.ccall('tp_f4_admission_stage','number',
+      ['number','number','number','number'],[token,ptr,size,0]);
+    }
+    if(name==='tp_f4_admission_stage'){
     const [token,ptr,size,pending]=args;
     if(!undo||undo.token!==token)return 0;
     const payload=heap.slice(ptr,ptr+size);
@@ -125,7 +135,7 @@ function setup({step=2,won=true}={}){
  };
  for(const name of [
   'tp_f4_admission_size','tp_f4_admission_ptr','tp_f4_admission_pending',
-  'tp_f4_admission_stage','tp_f4_admission_begin','tp_zpd_step',
+  'tp_f4_admission_stage','tp_zpd_admission_stage','tp_f4_admission_begin','tp_zpd_step',
   'tp_zpd_ticket','tp_zpd_advance','tp_zpd_start','tp_zpd_get',
   'tp_zpd_snapshot','tp_zpd_result_begin','tp_zpd_result_apply',
   'tp_zpd_result_finish','tp_wt_view','tp_wt_stage_begin','tp_wt_stage_entry'

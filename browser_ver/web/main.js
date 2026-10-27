@@ -28,12 +28,14 @@ const UI = {
 // short-circuited to feedBerry(0)). CLEAN starts the bath, which washes the
 // creature only once the suds finish -- see behaviour.js's stepBath.
 const BUTTONS = [
-  { x: 140, y: 390, label: "FEED",  icon: () => TPIcon.food,  action: (now) => { feedMenuUntil = now + 6000; } },
-  { x: 202, y: 404, label: "PLAY",  icon: () => TPIcon.play,  action: () => { screen = "gamemenu"; } },
-  { x: 264, y: 404, label: "LIGHT", icon: () => TPIcon.light, action: () => Module._tp_toggle_light() },
-  { x: 326, y: 390, label: "CLEAN", icon: () => TPIcon.clean, action: (now) => {
+  { x: 81, y: 404, label: "FEED",  icon: () => TPIcon.food,  action: (now) => { feedMenuUntil = now + 6000; } },
+  { x: 157, y: 404, label: "PLAY",  icon: () => TPIcon.play,  action: () => { screen = "gamemenu"; } },
+  { x: 233, y: 404, label: "LIGHT", icon: () => TPIcon.light, action: () => Module._tp_toggle_light() },
+  { x: 309, y: 404, label: "CLEAN", icon: () => TPIcon.clean, action: (now) => {
     startBath(now, fns.isEgg() !== 0, fns.sleeping() !== 0, fns.ceremony());
   } },
+  { x: 385, y: 404, label: "POKEDEX", icon: () => TPIcon.pokedex,
+    action: () => window.TPAppMenu?.show("pokedex") },
 ];
 
 // Mirrors PetScreen.swift's `feedMenuUntil` / `confirmUntil`: deadlines in
@@ -946,6 +948,7 @@ function draw() {
     // 16x16 at scale 2, drawn from its top-left corner: the firmware's
     // `cx - 16, cy - 16` centres a 32px icon on the button.
     if (!off) drawIcon(b.icon(), b.x - 16, b.y - 16, 2);
+    if (!off && b.label === "POKEDEX")window.TPStoriesUI?.drawNotice(b.x,b.y);
   }
 
   drawCelebration();
@@ -1111,14 +1114,14 @@ function handleTap(x, y) {
     return;
   }
 
-  // The four action buttons: round hit area (BTN_HIT 36), and while asleep
+  // The five action buttons: round hit area (BTN_HIT 36), and while asleep
   // only the light button answers -- same as iOS.
   const sleeping = fns.sleeping() !== 0;
   for (let i = 0; i < BUTTONS.length; i++) {
     const b = BUTTONS[i];
     const dx = x - b.x, dy = y - b.y;
     if (dx * dx + dy * dy > 36 * 36) continue;
-    if (sleeping && i !== 2) return;
+    if (sleeping && b.label !== "LIGHT") return;
     playSfx(0); // tap
     b.action(now);
     return;
@@ -1734,10 +1737,11 @@ createTPCore({
       life?life.reconcile:undefined
     );
     const collectionBridge=zapdos?zapdos.bridge:resultBridge;
+    const journal=window.TPCollectionJournal?.create(mod,window.TPCollectionModel);
     window.TPCollection=window.TPCollectionPersistence.create({
       model:window.TPCollectionModel,
       bridge:admission?admission.wrapBridge(collectionBridge):collectionBridge,
-      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{}),...(wildResult?wildResult.nativeActions:{}),...(arenaResult?arenaResult.nativeActions:{}),...(leagueStart?leagueStart.nativeActions:{}),...(admission?admission.nativeActions:{}),...(zapdos?zapdos.nativeActions:{})},
+      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{}),...(wildResult?wildResult.nativeActions:{}),...(arenaResult?arenaResult.nativeActions:{}),...(leagueStart?leagueStart.nativeActions:{}),...(admission?admission.nativeActions:{}),...(zapdos?zapdos.nativeActions:{}),...(journal?journal.nativeActions:{})},
       acquire:(context)=>{
         const admissionContext=context==="admissionComplete";
         const leagueContext=[
@@ -1768,6 +1772,10 @@ createTPCore({
       validateSave:bytes=>window.TPStoreTools.parseLegacy(bytes),
       persist:bytes=>writeSave(bytes,true)
     });
+    if(journal){
+      journal.bind(window.TPCollection);
+      window.TPJournalUnread=journal;
+    }
     if(zapdos){
       zapdos.bind(window.TPCollection);
       window.TPZapdos=zapdos;

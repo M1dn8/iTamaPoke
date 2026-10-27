@@ -11,11 +11,52 @@ function fixture(entries=120){
 async function waitReady(page){await page.waitForFunction(()=>typeof TPAppMenu!=='undefined'&&TPAppMenu.ready===true&&(!window.TPCollectionGame||TPCollectionGame.ready));}
 async function point(page,x,y){const r=await page.locator('#tp').boundingBox();return {x:r.x+x*r.width/466,y:r.y+y*r.height/466};}
 async function tap(page,x,y){const p=await point(page,x,y);await page.mouse.click(p.x,p.y);}
-async function openMenu(page){
- const root=page.locator('#tp-app-page');if(await root.isVisible())return;
- const a=await point(page,233,110),b=await point(page,233,300);await page.mouse.move(a.x,a.y);await page.mouse.down();await page.mouse.move(b.x,b.y,{steps:8});await page.mouse.up();await expect(root).toBeVisible();
+async function uiText(page,key){
+ const value=await page.evaluate(key=>TPText.t(key),key);
+ expect(value,'Missing UI translation: '+key).not.toBe(key);
+ return value;
 }
-async function game(page){const root=page.locator('#tp-app-page');if(await root.isVisible())await root.getByRole('button',{name:'Zurück zum Pokémon',exact:true}).click();}
+async function openMenu(page){
+ const root=page.locator('#tp-app-page');
+ const title=await uiText(page,'menu.title');
+ if(await root.getByRole('heading',{name:title,exact:true}).isVisible())return;
+ await game(page);
+ const a=await point(page,233,110),b=await point(page,233,300);
+ await page.mouse.move(a.x,a.y);await page.mouse.down();
+ await page.mouse.move(b.x,b.y,{steps:8});await page.mouse.up();
+ await expect(root).toBeVisible();
+ await expect(root.getByRole('heading',{name:title,exact:true})).toBeVisible();
+ await expect(root.getByRole('button',{
+  name:await uiText(page,'menu.backups'),exact:true
+ })).toBeVisible();
+}
+async function openHub(page){
+ const root=page.locator('#tp-app-page');
+ const name=await uiText(page,'navigation.hub');
+ const heading=root.getByRole('heading',{name,exact:true});
+ if(await heading.isVisible())return;
+ await game(page);
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('idle');
+ await tap(page,385,404);
+ await expect(heading).toBeVisible();
+}
+async function game(page){
+ const root=page.locator('#tp-app-page');
+ for(let step=0;step<6&&await root.isVisible();step++){
+  const home=root.getByRole('button',{
+   name:await uiText(page,'menu.home'),exact:true
+  });
+  if(await home.isVisible())await home.click();
+  else await root.locator('.tp-app-head').getByRole('button',{
+   name:await uiText(page,'common.back'),exact:true
+  }).click();
+ }
+ await expect(root).toBeHidden();
+ if(await page.evaluate(()=>screen==='card')){
+  await tap(page,233,406);
+  await expect.poll(()=>page.evaluate(()=>screen)).toBe('idle');
+ }
+}
 const modal=page=>page.locator('#tp-game-shell > .tp-modal:visible');
 async function importSave(page,buffer,expectedSpecies=1){
  await openMenu(page);await page.waitForFunction(()=>Array.from(document.querySelectorAll('.tp-tools button')).some(b=>b.textContent.trim()==='Sicherungen'&&!b.disabled));await page.getByRole('button',{name:'Sicherungen',exact:true}).click();
@@ -26,17 +67,78 @@ async function importSave(page,buffer,expectedSpecies=1){
  await Promise.all([page.waitForEvent('load'),apply.click()]);await waitReady(page);
  await expect.poll(()=>page.evaluate(()=>fns.speciesId())).toBe(expectedSpecies);
 }
-async function prepare(page){
+async function prepare(page,initial=fixture()){
  await page.addInitScript(()=>{try{Object.defineProperty(navigator,'canShare',{configurable:true,value:()=>false});}catch(_e){}});
  await page.route('**/favicon.ico',r=>r.fulfill({status:204,body:''}));
- await page.goto('/');await waitReady(page);await importSave(page,fixture());
+ await page.goto('/');await waitReady(page);await importSave(page,initial);
 }
-async function diary(page){await openMenu(page);await page.getByRole('button',{name:'Tagebuch',exact:true}).click();return page.locator('.tp-app-list');}
+async function openHubSection(page,key){
+ await openHub(page);
+ await page.locator('#tp-app-page').getByRole('button',{
+  name:await uiText(page,key),exact:true
+ }).click();
+}
+async function openSpeciesSearch(page){
+ await openHubSection(page,'navigation.species');
+ await expect(modal(page)).toBeVisible();
+ return modal(page);
+}
+async function openStories(page){
+ await openHubSection(page,'zapdos.menu');
+ const list=page.locator('#tp-stories-page');
+ await expect(list).toBeVisible();return list;
+}
+async function openJournal(page){
+ await openHubSection(page,'menu.journal');
+ const root=page.locator('#tp-app-page');
+ await expect(root.getByRole('heading',{
+  name:await uiText(page,'menu.journal'),exact:true
+ })).toBeVisible();
+ return root.locator('.tp-app-list');
+}
+async function openEggPlanning(page){
+ await openHubSection(page,'menu.eggs');
+ await expect(modal(page)).toBeVisible();return modal(page);
+}
+async function openEvolution(page){
+ await openHubSection(page,'menu.evolution');
+ await expect(modal(page)).toBeVisible();return modal(page);
+}
+async function backToHub(page){
+ await page.locator('#tp-app-page .tp-app-head').getByRole('button',{
+  name:await uiText(page,'common.back'),exact:true
+ }).click();
+ await expect(page.locator('#tp-app-page').getByRole('heading',{
+  name:await uiText(page,'navigation.hub'),exact:true
+ })).toBeVisible();
+}
+async function closeHubModal(page){
+ await expect(modal(page)).toBeVisible();
+ await modal(page).locator('.tp-modal-head').getByRole('button',{
+  name:await uiText(page,'common.back'),exact:true
+ }).click();
+ await expect(page.locator('#tp-app-page').getByRole('heading',{
+  name:await uiText(page,'navigation.hub'),exact:true
+ })).toBeVisible();
+}
+async function diary(page){return openJournal(page);}
 async function battleAction(page,action){
  const target=a=>page.evaluate(a=>{const ui=window.TPBattleView,m=ui?.current;if(!m||tpSaveReplacing)return null;if(screen==='league'){if(!TPLeague.state.live||TPLeague.busy||m.id!==TPLeague.state.battleId)return null;}else if(screen!=='battle'||!Module.ccall('tp_battle_is_open','number',[],[])||m.id!==Module.ccall('tp_bv_get','number',['number'],[0]))return null;return ui.target(a)||null;},a);
  if(['quick','heavy','dodge','rest'].includes(action)&&!(await target(action))){
-  const back=await target('back');if(back)await tap(page,back.x,back.y);
-  await expect.poll(()=>target('fight')).not.toBe(null);const p=await target('fight');await tap(page,p.x,p.y);
+  const back=await target('back');
+  if(back){
+   await tap(page,back.x,back.y);
+   // Menu state changes during the tap; targets update on the next draw.
+   // Wait for the requested main action or the main fight button before
+   // deciding whether another navigation step is required.
+   await expect.poll(async()=>(
+    !!(await target(action))||!!(await target('fight'))
+   )).toBe(true);
+  }
+  if(!(await target(action))){
+   await expect.poll(()=>target('fight')).not.toBe(null);
+   const p=await target('fight');await tap(page,p.x,p.y);
+  }
  }else if(action==='abort'&&!(await target('abort'))){const back=await target('back');if(back)await tap(page,back.x,back.y);}
  await expect.poll(()=>target(action)).not.toBe(null);const p=await target(action);
  if(action==='abort'&&await page.evaluate(()=>TPBattleView.current?.mode!=='wild'&&!TPBattleView.current?.resolved))page.once('dialog',d=>d.accept());
@@ -60,4 +162,4 @@ async function waitForWildCatchReady(page){
  });
 }
 
-module.exports={waitForWildCatchReady,battleAction,fixture,waitReady,point,tap,openMenu,game,modal,importSave,prepare,diary};
+module.exports={uiText,openSpeciesSearch,openStories,openJournal,openEggPlanning,openEvolution,backToHub,closeHubModal,openHub,waitForWildCatchReady,battleAction,fixture,waitReady,point,tap,openMenu,game,modal,importSave,prepare,diary};

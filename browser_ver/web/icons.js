@@ -36,6 +36,24 @@ function iconPalette() {
 }
 
 const TPIcon = {
+  pokedex: [
+    "................",
+    "...kkkkkkkkkk...",
+    "..krrrrrrrrrrk..",
+    "..krkkrrrrrrrk..",
+    "..krkkrrrrrrrk..",
+    "..krrrrrrrrrrk..",
+    "..krkkkkkkkrrk..",
+    "..krk.....krrk..",
+    "..krk.....krrk..",
+    "..krkkkkkkkrrk..",
+    "..krrrrrrrrrrk..",
+    "..krkkkrrkkrrk..",
+    "..krrrrrrrrrrk..",
+    "...kkkkkkkkkk...",
+    "................",
+    "................"
+  ],
   food: [
     "................",
     "................",

@@ -195,6 +195,7 @@ public:
   void journalFinalize(uint32_t epoch=0);
   std::string journalJSON();
   uint16_t journalSize() const { return journalCount; }
+  void journalStoryAdmission(uint16_t species);
 
   // C4: per-individual personality; scores exposed read-only for tests.
   uint8_t personalityScore(uint8_t axis) const { return axis < 4 ? personalityScores[axis] : 0; }

@@ -1079,3 +1079,15 @@ Jetzt folgende Zapdos-Nacharbeit:
 - Keine Änderungen an Spielcode, nativen Regeln, Timeouts oder Fangchancen.
 - Folgecommit wird gepusht; erfolgreicher GitHub-Gesamtlauf und
   Veröffentlichung bleiben bis zur CI-Bestätigung offen.
+
+### Veröffentlichter Reviewstand — iPhone-Abnahme, 28.10.2026
+
+- Review-Hauptcommit: 27565e838d4d02115908335e4286b78725637179.
+- CI-Folgefix: f8907530c4618a7820a09971f1b2011c03229c1e.
+- Folgefix auf main gepusht; GitHub-Build vom Nutzer als grün bestätigt.
+- Veröffentlichte Änderungen am 28.10.2026 auf dem iPhone vom Nutzer
+  abgenommen.
+- Navigation-/Zapdos-Reviewpaket einschließlich CI-Nacharbeit und
+  manueller iPhone-Abnahme abgeschlossen.
+- Vereinbarter iterativer Revisionsbrowser-/Paketabschluss-Workflow
+  bleibt für folgende Pakete verbindlich.

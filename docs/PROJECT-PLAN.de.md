@@ -7,19 +7,19 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
 ## Aktueller Arbeitsstand
 
 - Aktives Gesamtpaket bleibt P06: Legendären-Geschichten Kanto.
-- Arktos-Grundstand 24a3105 veröffentlicht; GitHub-Build grün bestätigt.
-- Gemeinsame Nacharbeit für Zapdos und Arktos:
-  Begegnungs-Tippsperre und Finale nach manueller/späterer Aufnahme.
-- Nacharbeit im lokalen Revisionsbrowser positiv bestätigt.
-- Gezielte Zapdos-Browserregression: 34 Prüfungen bestanden.
-- affected, full und zentraler nativer Check auf identischem
-  Quell-/WASM-Stand bestanden.
-- Dieser Folgefix ist zur Veröffentlichung bereit.
-- GitHub-Ergebnis und erneute iPhone-Prüfung des Fixstands stehen aus.
-- Danach folgt innerhalb von P06 Lavados mit acht Kanto-Orden,
-  anschließend Mewtu und Mew.
-- Gemeinsame Übergangs-/Finaleregeln für alle späteren Geschichten verbindlich.
+- Zapdos und Arktos einschließlich gemeinsamer UX-Nacharbeit abgenommen.
+- Arktos-Funktionspaket: 24a3105.
+- Gemeinsame Begegnungs-Tippsperre und Aufnahme-Finale-Korrektur: 3478b05.
+- Veröffentlichter Abnahmestand einschließlich Johto-CI-Testfix:
+  c58a67cc00e7574a5dad9af1882f2c41ddcdf284.
+- GitHub-Build dieses Standes vom Nutzer als grün bestätigt.
+- iPhone-Abnahme vom Nutzer bestätigt; Nacharbeit abgeschlossen.
+- Nächster Inhaltsbaustein: Lavados, Freischaltung mit acht Kanto-Orden.
+- Lavados-Geschichte und Minispiel vor Umsetzung gemeinsam festlegen.
+- Gemeinsame Tippsperre, Aufnahmewege und Finale-Regeln weiterverwenden.
+- Danach innerhalb von P06 Mewtu und Mew.
 - UI01 bleibt nach dem gesamten P06 und vor P07.
+- Interaktiven Revisionsbrowser unverändert als Arbeitsweg weiterverwenden.
 
 ### Historischer Ausgangsstand vor dem Arktos-Abschluss
 
@@ -88,7 +88,7 @@ Eine neue Sitzung darf abgeschlossene Arbeit nicht ungeprüft neu eröffnen.
 | P05a | Team in Wildkämpfen | Abgenommen am 26.10.2026 | Erledigt | Individuelle Mitglieder, Wechsel, KP, Pokéball-Anzeigen, Levelbonus bis 100 und atomare Ergebnis-/Fangspeicherung |
 | P05b | Team in Arena-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit fb86920; zentrale Prüfung, WASM-Build, Browserprüfungen, CI/Veröffentlichung und manuelle iPhone-Abnahme erfolgreich |
 | P05c | Team in Liga-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit 02e3973; lokale Prüfungen und WASM-Build erfolgreich, 221 Browserprüfungen bestanden/1 übersprungen, Build grün gemeldet und Nutzerabnahme bestätigt; grafische Folgeoptimierungen zurückgestellt |
-| P06 | Legendären-Geschichten Kanto | Aktiv; Arktos lokal abgenommen und Abschlussprüfungen bestanden | Hoch | Arktos zur Veröffentlichung bereit; GitHub-/iPhone-Abnahme offen. Danach Lavados, Mewtu und Mew getrennt festlegen, umsetzen und abnehmen |
+| P06 | Legendären-Geschichten Kanto | Aktiv; Zapdos und Arktos abgenommen, Lavados als Nächstes | Hoch | Arktos einschließlich gemeinsamer Nacharbeit veröffentlicht; Build grün und iPhone-Abnahme bestätigt. Lavados, Mewtu und Mew weiterhin getrennt festlegen, umsetzen und abnehmen |
 | UI01 | Interface der Pokédex-Zentrale überarbeiten; Canvas aufräumen und optimieren | Offen; nach P06, vor P07 | Nach Umfangsfestlegung bewerten | Konkrete Ansichten und Änderungen gemeinsam festlegen; Revisionsbrowser-Prüfung, passende Tests und iPhone-Abnahme |
 | P07 | Legendären-Geschichten Johto | Offen | Hoch | Auf Storysystem aufbauen; getrennte regionale Fortschritte und geprüfte Freischaltungen |
 | P08 | Weitere Mega-Entwicklungen | Offen | Hoch | Bestand und Zielarten festlegen; Voraussetzungen, Werte, Darstellung, Rückverwandlung und Speicherung pro Ausbaustufe prüfen |
@@ -1526,3 +1526,29 @@ Quellfingerabdruck des Wiederholungslaufs:
 
 WASM SHA-256:
 1e4651e1a92f3bfd7622e291d83f014a0170c4154bf7c42ea161bc9cea95ecee
+
+## Arktos und gemeinsame Nacharbeit — Veröffentlichung und iPhone-Abnahme, 28.10.2026
+
+Veröffentlichte Stände:
+- 24a31057f321a97362d5007798efc6a8110ef9dc:
+  Arktos-Eishöhlengeschichte und wiederverwendbarer Reviewbrowser.
+- 3478b056ceb7b061def5f8d3bc78dc582c7a9646:
+  gemeinsame Begegnungs-Tippsperre und Finale nach manueller Aufnahme.
+- c58a67cc00e7574a5dad9af1882f2c41ddcdf284:
+  synchronisierter Johto-Rückweg im Browsertest.
+
+Nutzerbestätigung:
+„build grün -> iphone abnahme erfolgt“
+
+- GitHub-Build des letzten veröffentlichten Standes grün bestätigt.
+- iPhone-Abnahme bestätigt.
+- Arktos und gemeinsame Nacharbeit damit abgeschlossen und abgenommen.
+- Keine weiteren manuellen Einzelprüfungen über die vorliegende
+  Nutzerbestätigung hinaus behaupten.
+- Keine erneuten lokalen Gesamtprüfungen allein für diese
+  Dokumentationsänderung erforderlich.
+- P06 insgesamt bleibt offen; als Nächstes Lavados.
+- Noch keine konkrete Lavados-Geschichte, Minispielregel oder
+  Begegnungslevel als freigegeben behandeln.
+- Gemeinsame Übergangs-/Aufnahmeregeln und den dokumentierten
+  interaktiven Revisionsbrowser verbindlich weiterverwenden.

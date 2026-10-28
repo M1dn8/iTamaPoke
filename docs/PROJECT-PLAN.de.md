@@ -1492,3 +1492,37 @@ Umfang:
 Veröffentlichung:
 - Zur Veröffentlichung bereit.
 - GitHub-Ergebnis und iPhone-Abnahme dieses Fixstands separat dokumentieren.
+
+## CI-Nacharbeit nach 3478b05 — Johto-Rücknavigation
+
+- Commit 3478b056ceb7b061def5f8d3bc78dc582c7a9646 erfolgreich gepusht.
+- GitHub-Browserprüfung nicht bestanden:
+  324 bestanden, einer fehlgeschlagen, einer übersprungen.
+- Fehler im Chromium-Johto-Liga-/Ehrenei-Test:
+  Rückkehr zur Karte erfolgt, abschließende Rückkehr zu idle bleibt aus.
+- Test verwendet dort bislang eine separate, nicht vollständig
+  synchronisierte Tippfolge.
+- Bestehenden synchronisierten exitToIdle-Helfer wiederverwenden.
+- Schließen von Ehrenei und Ruhmeshalle jeweils ausdrücklich abwarten.
+- Bei erneutem Fehler Zustandsdaten anhängen und Originalfehler weiterwerfen.
+- Spielcode, Sollzustand idle, Timeouts und Retryregeln unverändert.
+- Gezielte Wiederholung zur Prüfung; keine grüne CI behaupten.
+
+### Johto-CI-Testfix — gezielte Wiederholungsprüfung bestanden
+
+- Gezielter Wiederholungslauf bestanden: sechs Ausführungen.
+- Je drei Ausführungen in Chromium und WebKit, ein Worker.
+- Keine Fehler, instabilen oder übersprungenen Prüfungen.
+- Wiederholungen ausdrücklich ausgewählt; automatische Retries bleiben null.
+- Bericht: itamapoke-review-FEkcMu.
+- Vorhandenen synchronisierten Rückweg wiederverwendet.
+- Erwartung idle und alle nachfolgenden Ehrenei-/Sammlungsprüfungen erhalten.
+- Zusätzliche Zustandsdiagnose bei erneutem Fehler ergänzt.
+- Keine Änderung an Spielcode, Speicherregeln oder Timeouts.
+- Gesamte GitHub-CI nach diesem Testfix erneut bestätigen.
+
+Quellfingerabdruck des Wiederholungslaufs:
+49914491bcb1f1d900a1a8e36c5bc7adcc2975152bf0f3251691b5dfd6056a72
+
+WASM SHA-256:
+1e4651e1a92f3bfd7622e291d83f014a0170c4154bf7c42ea161bc9cea95ecee

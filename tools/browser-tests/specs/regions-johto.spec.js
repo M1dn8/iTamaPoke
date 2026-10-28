@@ -55,7 +55,60 @@ test('Johto UI: echte Liga, regionale Ehrung und bewusstes Shiny-Ei ohne Kanto-A
  await expect.poll(()=>page.evaluate(()=>TPHall.active)).toBe(true);expect(await page.evaluate(()=>TPHall.region)).toBe(1);const hall=await page.evaluate(()=>TPHall.view);expect(hall.wins).toBe(1);expect(hall.records[0].dex).toBe(376);expect(hall.records[0].nick).toBe('Johto-Test');expect(await page.evaluate(()=>JSON.parse(Module.ccall('tp_hall_view','string',[],[])).wins)).toBe(0);expect(await mask(page,0)).toBe(0);
  await H.tap(page,320,440);await expect.poll(()=>page.evaluate(()=>!TPHall.busy&&!tpSaveReplacing&&TPHall.view.seen===TPHall.view.wins)).toBe(true);await H.tap(page,127,160);await expect.poll(()=>page.evaluate(()=>TPRewardEgg.active)).toBe(true);expect(await page.evaluate(()=>TPRewardEgg.region)).toBe(1);await H.tap(page,233,100);expect(await page.evaluate(()=>TPRewardEgg.diagnostics.chosen)).toBe(152);page.once('dialog',d=>d.accept());await H.tap(page,320,440);
  await expect.poll(()=>page.evaluate(()=>!TPRewardEgg.busy&&!tpSaveReplacing&&TPRewardEgg.view.state===1)).toBe(true);await H.tap(page,233,386);await expect.poll(()=>page.evaluate(()=>!TPRewardEgg.busy&&!tpSaveReplacing&&TPRewardEgg.view.state===2)).toBe(true);expect(await page.evaluate(()=>fns.speciesId())).toBe(376);
- await H.tap(page,233,445);await H.tap(page,233,445);await H.tap(page,315,440);await expect.poll(()=>page.evaluate(()=>screen)).toBe('arena');await H.tap(page,300,435);await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');await H.tap(page,233,406);await expect.poll(()=>page.evaluate(()=>screen)).toBe('idle');
+ // Close each overlay explicitly before using the synchronized exit helper.
+ await H.tap(page,233,445);
+ await expect.poll(()=>page.evaluate(()=>({
+  rewardActive:TPRewardEgg.active,
+  rewardBusy:TPRewardEgg.busy,
+  hallActive:TPHall.active,
+  replacing:tpSaveReplacing
+ }))).toEqual({
+  rewardActive:false,rewardBusy:false,hallActive:true,replacing:false
+ });
+
+ await H.tap(page,233,445);
+ await expect.poll(()=>page.evaluate(()=>({
+  screen,
+  hallActive:TPHall.active,
+  hallBusy:TPHall.busy,
+  rewardActive:TPRewardEgg.active,
+  leagueBusy:TPLeague.busy,
+  replacing:tpSaveReplacing
+ }))).toEqual({
+  screen:'league',hallActive:false,hallBusy:false,
+  rewardActive:false,leagueBusy:false,replacing:false
+ });
+
+ try{
+  await exitToIdle(page);
+ }catch(error){
+  const state=await page.evaluate(()=>({
+   screen,cardPage,choice,
+   replacing:tpSaveReplacing,
+   collectionBusy:window.TPCollection?.busy,
+   collectionBlocked:window.TPCollection?.blocked,
+   careDialog:window.TPCollectionGame?.dialogOpen,
+   arenaBusy:window.TPArena?.busy,
+   leagueBusy:window.TPLeague?.busy,
+   trainingBusy:window.TPTraining?.busy,
+   megaBusy:window.TPMega?.busy,
+   expeditionsBusy:window.TPExpeditions?.busy,
+   menuActive:window.TPAppMenu?.active,
+   admissionActive:window.TPAdmissionUI?.active,
+   admissionBusy:window.TPAdmissionUI?.busy,
+   zapdosBusy:window.TPZapdosUI?.busy,
+   arktosBusy:window.TPArktosUI?.busy,
+   nativePending:Module.ccall('tp_f4_store_pending','number',[],[]),
+   status:document.getElementById('status')?.textContent
+  })).catch(diagnosticError=>({
+   diagnosticError:diagnosticError.message
+  }));
+  await test.info().attach('johto-return-state',{
+   body:Buffer.from(JSON.stringify(state,null,2)),
+   contentType:'application/json'
+  });
+  throw error;
+ }
  const oldID=await page.evaluate(()=>TPCollection.read().active);await page.evaluate(()=>TPCollectionGame.openEnd('release'));const dialog=page.getByRole('dialog',{name:'Pflege beenden',exact:true});await expect(dialog).toBeVisible();await dialog.getByRole('button',{name:'Pflege beenden und behalten',exact:true}).click();await expect(dialog).not.toBeVisible();await expect.poll(()=>page.evaluate(()=>fns.isEgg())).toBe(1);await H.tap(page,233,200);await H.tap(page,233,200);await H.tap(page,233,200);await expect.poll(()=>page.evaluate(()=>fns.speciesId())).toBe(152);await expect.poll(()=>page.evaluate(()=>TPCollection.read().mons.length)).toBe(2);
  const born=await page.evaluate(()=>JSON.parse(Module.ccall('tp_f4_current_snapshot','string',[],[])));expect(born.shiny).toBe(true);for(const gene of Object.values(born.data.genes)){expect(gene).toBeGreaterThanOrEqual(90);expect(gene).toBeLessThanOrEqual(110);}expect(await page.evaluate(id=>TPCollection.read().boxes.flatMap(b=>b.slots).filter(x=>x===id).length,oldID)).toBe(1);expect((await reward(page)).state).toBe(3);expect(await page.evaluate(()=>JSON.parse(Module.ccall('tp_rg_view','string',[],[])).eligible)).toBe(0);
  await page.reload();await H.waitReady(page);expect(await page.evaluate(()=>fns.speciesId())).toBe(152);expect((await reward(page)).state).toBe(3);expect(await page.evaluate(()=>TPCollection.read().mons.length)).toBe(2);const kept=await page.evaluate(()=>JSON.parse(Module.ccall('tp_region_hall_view','string',['number'],[1])).records[0]);expect(kept.dex).toBe(376);expect(kept.level).toBe(100);expect(kept.nick).toBe('Johto-Test');

@@ -14,3 +14,26 @@ ihre Aufgaben ausdrücklich gegen den aktuellen Stand abgeglichen wurden.
 - CI-Erfolg nicht mit manueller iPhone-Abnahme gleichsetzen.
 - Keine privaten PNG-/BIN-Medien oder ungeklärten Bildrechte als frei behandeln.
 - Keine Zusicherung dauerhafter Chat-Erinnerung: versionierte Übergabe nutzen.
+
+## Verbindlicher manueller Revisionsbrowser
+
+Vor Arbeiten an sichtbaren Änderungen zuerst diese Datei,
+docs/PROJECT-PLAN.de.md und docs/TEST-WORKFLOW.de.md lesen.
+
+- Bestehenden interaktiven Runner verwenden:
+  tools/review/manual-review.cjs.
+- Ein Terminal startet lokalen Server und sichtbaren Browser gemeinsam.
+- Vorhandenen Playwright-Chromium und sein eigenes Reviewprofil verwenden.
+- Testbadge, direkte Testspielstandwahl und Screenshot/Notiz-Funktion erhalten.
+- Nicht durch normalen Chrome, einen einfachen Webserver mit manuellem
+  Spielstandimport oder täglich neue Startverfahren ersetzen.
+- Keine neue Browserinstallation oder Änderung des normalen Chrome-Profils.
+- Vor dem ersten manuellen Review benötigte Testspielstände vorbereiten
+  und die konkreten Startbefehle vorab ausgeben.
+- Bei reinen JS-/CSS-/Textänderungen im bestehenden Review neu laden;
+  bei nativen Änderungen vorher den aktuellen WASM-Kern bauen.
+- Erst gemeinsam ansehen und korrigieren; vollständige Abschlussprüfungen
+  erst nach manueller Paketabnahme auf unverändertem Stand.
+- Automatische Tests und deren Browserkontexte bleiben davon getrennt.
+- Keine dauerhafte Chat-Erinnerung zusichern: diese versionierten
+  Anweisungen sind die maßgebliche Grundlage für Folgesitzungen.

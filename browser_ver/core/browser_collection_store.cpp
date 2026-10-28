@@ -70,12 +70,25 @@ int f4AdmissionTransport(bool *pending=nullptr){
 }
 // P06 fixed Zapdos pilot: typed scalar transport, no speculative migration.
 // Absent old profile = step 0. Partial/future data is never treated as absent.
-int zpdState(uint32_t *ticket=nullptr){
+struct StoryProfile {
+ const char *versionKey,*stepKey,*ticketKey,*noticeVersion,*noticeRead;
+ int badges;
+};
+constexpr StoryProfile ZAPDOS_PROFILE{
+ "zpdver","zpdstep","zpdtick","stynver","stynread",4
+};
+constexpr StoryProfile ARKTOS_PROFILE{
+ "arcver","arcstep","arctick","arcnver","arcnread",6
+};
+const StoryProfile *storyProfile(int dex){
+ return dex==145?&ZAPDOS_PROFILE:dex==144?&ARKTOS_PROFILE:nullptr;
+}
+int storyState(const StoryProfile &profile,uint32_t *ticket=nullptr){
  const auto &s=Preferences::store();
  bool any=false;
- for(const char *key:{"zpdver","zpdstep","zpdtick"})any=any||s.count(key);
+ for(const char *key:{profile.versionKey,profile.stepKey,profile.ticketKey})any=any||s.count(key);
  if(!any){if(ticket)*ticket=0;return 0;}
- const auto ver=s.find("zpdver"),step=s.find("zpdstep"),id=s.find("zpdtick");
+ const auto ver=s.find(profile.versionKey),step=s.find(profile.stepKey),id=s.find(profile.ticketKey);
  if(ver==s.end()||step==s.end()||id==s.end()||
     !std::holds_alternative<int64_t>(ver->second)||
     !std::holds_alternative<int64_t>(step->second)||
@@ -88,16 +101,22 @@ int zpdState(uint32_t *ticket=nullptr){
  if(ticket)*ticket=uint32_t(t);
  return int(n);
 }
-void zpdWrite(int step,uint32_t ticket){
+int zpdState(uint32_t *ticket=nullptr){
+ return storyState(ZAPDOS_PROFILE,ticket);
+}
+void storyWrite(const StoryProfile &profile,int step,uint32_t ticket){
  Preferences p;
- p.putUChar("zpdver",1);p.putUChar("zpdstep",uint8_t(step));
- p.putUInt("zpdtick",ticket);
+ p.putUChar(profile.versionKey,1);p.putUChar(profile.stepKey,uint8_t(step));
+ p.putUInt(profile.ticketKey,ticket);
+}
+void zpdWrite(int step,uint32_t ticket){
+ storyWrite(ZAPDOS_PROFILE,step,ticket);
 }
 
 // P06 story notice metadata. Reads never initialize or repair old saves.
-int zpdNoticeState(){
+int storyNoticeState(const StoryProfile &profile){
  const auto &s=Preferences::store();
- const auto ver=s.find("stynver"),read=s.find("stynread");
+ const auto ver=s.find(profile.noticeVersion),read=s.find(profile.noticeRead);
  if(ver==s.end()&&read==s.end())return 0;
  if(ver==s.end()||read==s.end()||
     !std::holds_alternative<int64_t>(ver->second)||
@@ -106,6 +125,7 @@ int zpdNoticeState(){
  const auto r=std::get<int64_t>(read->second);
  return v==1&&r>=0&&r<=1?int(r):-1;
 }
+int zpdNoticeState(){return storyNoticeState(ZAPDOS_PROFILE);}
 int zpdKantoMask(){
  const auto &s=Preferences::store();
  const auto &keys=TP_KANTO_KEYS;
@@ -130,12 +150,27 @@ int zpdKantoBadges(){
  for(unsigned bit=0;bit<8;bit++)if(mask&(1<<bit))count++;
  return count;
 }
-int zpdAccess(){
- const int step=zpdState();
- if(step<0||zpdNoticeState()<0)return -1;
+int storyAccess(const StoryProfile &profile){
+ const int step=storyState(profile);
+ if(step<0||storyNoticeState(profile)<0)return -1;
  if(step>0)return 1;
  const int badges=zpdKantoBadges();
- return badges<0?-1:badges>=6?1:0;
+ return badges<0?-1:badges>=profile.badges?1:0;
+}
+int zpdAccess(){return storyAccess(ZAPDOS_PROFILE);}
+int storyNoticeMark(const StoryProfile &profile,uint32_t token){
+ if(!undo||undo->token!=token||tp_battle_is_open()||
+    storyAccess(profile)!=1||storyNoticeState(profile)<0)return 0;
+ if(storyNoticeState(profile)==1)return 1;
+ Preferences p;
+ p.putUChar(profile.noticeVersion,1);p.putUChar(profile.noticeRead,1);
+ return 1;
+}
+int storyAdvance(const StoryProfile &profile,uint32_t token,int expectedStep){
+ if(!undo||undo->token!=token||tp_battle_is_open()||
+    expectedStep<0||expectedStep>1||storyState(profile)!=expectedStep||
+    storyNoticeState(profile)<0||(expectedStep==0&&storyAccess(profile)!=1))return 0;
+ storyWrite(profile,expectedStep+1,0);return 1;
 }
 
 std::string quote(const char*s){std::string out="\"";for(unsigned i=0;i<23&&s[i];i++){const unsigned char c=static_cast<unsigned char>(s[i]);if(c=='"'||c=='\\')out+='\\';if(c<32){char b[7];snprintf(b,sizeof(b),"\\u%04x",c);out+=b;}else out+=char(c);}return out+'"';}
@@ -176,18 +211,21 @@ EMSCRIPTEN_KEEPALIVE int tp_f4_admission_stage(
 // its ticket to the native story ticket. Native storage remains opaque.
 // Consuming the pending flag prevents repeated application.
 // Pet, journal and unread metadata share the existing whole-state undo.
-EMSCRIPTEN_KEEPALIVE int tp_zpd_admission_stage(
- uint32_t token,const uint8_t *data,int len,uint32_t ticket){
+EMSCRIPTEN_KEEPALIVE int tp_story_admission_stage(
+ uint32_t token,int dex,const uint8_t *data,int len,uint32_t ticket){
+ const auto *profile=storyProfile(dex);
  uint32_t expected=0;
  bool waiting=false;
- if(!undo||undo->token!=token||!ticket||tp_battle_is_open()||
-    zpdState(&expected)!=3||expected!=ticket||
+ if(!profile||!undo||undo->token!=token||!ticket||tp_battle_is_open()||
+    storyState(*profile,&expected)!=3||expected!=ticket||
     f4AdmissionTransport(&waiting)<=0||!waiting)return 0;
  if(!tp_f4_admission_stage(token,data,len,0))return 0;
- auto &pet=tp_battle_pet();
- // JR_CAPTURE flag 2 distinguishes voluntary story admission.
- pet.journalStoryAdmission(145);
+ tp_battle_pet().journalStoryAdmission(uint16_t(dex));
  return 1;
+}
+EMSCRIPTEN_KEEPALIVE int tp_zpd_admission_stage(
+ uint32_t token,const uint8_t *data,int len,uint32_t ticket){
+ return tp_story_admission_stage(token,145,data,len,ticket);
 }
 // Read-only; a negative value means unreadable, never "new adventure".
 EMSCRIPTEN_KEEPALIVE int tp_zpd_step(){return zpdState();}
@@ -200,29 +238,58 @@ EMSCRIPTEN_KEEPALIVE int tp_zpd_kanto_badges(){return zpdKantoBadges();}
 EMSCRIPTEN_KEEPALIVE int tp_zpd_access(){return zpdAccess();}
 EMSCRIPTEN_KEEPALIVE int tp_zpd_notice_read(){return zpdNoticeState();}
 EMSCRIPTEN_KEEPALIVE int tp_zpd_notice_mark(uint32_t token){
- if(!undo||undo->token!=token||tp_battle_is_open()||
-    zpdAccess()!=1||zpdNoticeState()<0)return 0;
- if(zpdNoticeState()==1)return 1;
- Preferences p;
- p.putUChar("stynver",1);p.putUChar("stynread",1);
- return 1;
+ return storyNoticeMark(ZAPDOS_PROFILE,token);
 }
 
 // Investigation and securing only. Victory has no public scalar setter.
-EMSCRIPTEN_KEEPALIVE int tp_zpd_advance(uint32_t token,int expectedStep){
- if(!undo||undo->token!=token||tp_battle_is_open()||
-    expectedStep<0||expectedStep>1||zpdState()!=expectedStep||
-    zpdNoticeState()<0||(expectedStep==0&&zpdAccess()!=1))return 0;
- zpdWrite(expectedStep+1,0);return 1;
+EMSCRIPTEN_KEEPALIVE int tp_zpd_advance(
+ uint32_t token,int expectedStep){
+ return storyAdvance(ZAPDOS_PROFILE,token,expectedStep);
 }
+
+// Shared preparation only; no public victory/completion setter.
+EMSCRIPTEN_KEEPALIVE int tp_story_step(int dex){
+ const auto *p=storyProfile(dex);
+ return p?storyState(*p):-1;
+}
+EMSCRIPTEN_KEEPALIVE int tp_story_ticket(int dex){
+ const auto *p=storyProfile(dex);uint32_t ticket=0;
+ return !p||storyState(*p,&ticket)<0?-1:int(ticket);
+}
+EMSCRIPTEN_KEEPALIVE int tp_story_kanto_badges(int dex){
+ return storyProfile(dex)?zpdKantoBadges():-1;
+}
+EMSCRIPTEN_KEEPALIVE int tp_story_access(int dex){
+ const auto *p=storyProfile(dex);
+ return p?storyAccess(*p):-1;
+}
+EMSCRIPTEN_KEEPALIVE int tp_story_notice_read(int dex){
+ const auto *p=storyProfile(dex);
+ return p?storyNoticeState(*p):-1;
+}
+EMSCRIPTEN_KEEPALIVE int tp_story_notice_mark(uint32_t token,int dex){
+ const auto *p=storyProfile(dex);
+ return p?storyNoticeMark(*p,token):0;
+}
+EMSCRIPTEN_KEEPALIVE int tp_story_advance(
+ uint32_t token,int dex,int expectedStep){
+ const auto *p=storyProfile(dex);
+ return p?storyAdvance(*p,token,expectedStep):0;
+}
+
 // Internal pairing for the upcoming verified Zapdos-result adapter.
 // Not EMSCRIPTEN_KEEPALIVE: cannot be called as a JavaScript victory shortcut.
 // JSON/ticket linkage is additionally checked by the strict whole-save parser.
-int tp_zpd_store_victory(uint32_t token,uint32_t ticket){
- if(!undo||undo->token!=token||!tp_battle_is_open()||
-    zpdState()!=2||ticket<1||ticket>0x7ffffffeu||
+// Internal only: the battle owner verifies the resolved outcome.
+int tp_story_store_victory(uint32_t token,int dex,uint32_t ticket){
+ const auto *profile=storyProfile(dex);
+ if(!profile||!undo||undo->token!=token||!tp_battle_is_open()||
+    storyState(*profile)!=2||ticket<1||ticket>0x7ffffffeu||
     tp_f4_admission_pending()!=1)return 0;
- zpdWrite(3,ticket);return 1;
+ storyWrite(*profile,3,ticket);return 1;
+}
+int tp_zpd_store_victory(uint32_t token,uint32_t ticket){
+ return tp_story_store_victory(token,145,ticket);
 }
 
 EMSCRIPTEN_KEEPALIVE int tp_f4_store_pending(){return undo?1:0;}

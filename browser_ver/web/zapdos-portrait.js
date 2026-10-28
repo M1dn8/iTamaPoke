@@ -3,7 +3,7 @@
  'use strict';
  const style=document.createElement('style');
  style.textContent=`
- #tp-app-page #tp-zapdos-page.tp-zapdos-encounter{
+ #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page).tp-zapdos-encounter{
   gap:8px;
  }
  #tp-app-page .tp-zapdos-encounter>h3,
@@ -27,7 +27,7 @@
   display:block;width:100%;height:100%;
   image-rendering:pixelated;
  }
- #tp-app-page #tp-zapdos-page .tp-zapdos-challenge{
+ #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page) .tp-zapdos-challenge{
   position:absolute;inset:0;z-index:3;
   display:block;width:100%;height:100%;
   min-height:0!important;margin:0!important;padding:0!important;
@@ -35,10 +35,10 @@
   background:transparent!important;box-shadow:none!important;
   transform:none!important;cursor:pointer;
  }
- #tp-app-page #tp-zapdos-page .tp-zapdos-challenge:focus-visible{
+ #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page) .tp-zapdos-challenge:focus-visible{
   outline:3px solid #ffe784!important;outline-offset:-4px;
  }
- #tp-app-page #tp-zapdos-page .tp-zapdos-challenge:disabled{
+ #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page) .tp-zapdos-challenge:disabled{
   cursor:default;
  }
  #tp-app-page .tp-zapdos-art-status{
@@ -51,16 +51,17 @@
  `;
  document.head.appendChild(style);
 
- function create(text){
+ function create(text,options={}){
+  const dex=options.dex===144?144:145;
   let disposed=false;
   const element=document.createElement('div');
   element.className='tp-zapdos-portrait';
-  const scenery=root.TPPowerPlantScene?.create('inside');
+  const scenery=options.scene?options.scene():root.TPPowerPlantScene?.create('inside');
   if(scenery)element.append(scenery);
 
   const canvas=document.createElement('canvas');
   canvas.width=384;canvas.height=180;
-  canvas.dataset.dex='145';canvas.dataset.ready='loading';
+  canvas.dataset.dex=String(dex);canvas.dataset.ready='loading';
   canvas.setAttribute('role','img');
   canvas.setAttribute('aria-label',text('artName'));
 
@@ -72,7 +73,7 @@
 
   async function paint(){
    try{
-    const sprite=await loadSprite(145,false);
+    const sprite=await loadSprite(dex,false);
     if(disposed||!element.isConnected)return;
     const action=sprite?.actions[TPAct.idle];
     const image=action?frameImageData(sprite,TPAct.idle,0):null;
@@ -93,7 +94,7 @@
     off.width=image.width;off.height=image.height;
     off.getContext('2d').putImageData(image,0,0);
     const width=right-left+1,height=bottom-top+1;
-    const scale=Math.min(6,352/width,164/height);
+    const scale=Math.min(6,352/width,164/height)*(dex===144?0.8:1);
     const context=canvas.getContext('2d');
     context.clearRect(0,0,384,180);
     context.imageSmoothingEnabled=false;

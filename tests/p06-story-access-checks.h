@@ -22,7 +22,7 @@ static void p06CheckStoryAccess(){
   badges(mask);
   int count=0;
   for(int bit=0;bit<8;bit++)if(mask&(1<<bit))count++;
-  const bool allowed=count>=6;
+  const bool allowed=count>=4;
   const auto before=Preferences::store();
   assert(tp_zpd_kanto_badges()==count);
   assert(tp_zpd_access()==int(allowed));

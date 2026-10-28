@@ -7,14 +7,33 @@
  if(typeof module==='object'&&module.exports)
   module.exports=factory(require('./collection-admission-model.js'),require('./collection-model.js'));
  else root.TPZapdosModel=factory(root.TPAdmissionModel,root.TPCollectionModel);
-})(typeof globalThis!=='undefined'?globalThis:this,function(A,M){
+})(typeof globalThis!=='undefined'?globalThis:this,function storyFactory(A,M,profile){
  'use strict';
- const VERSION=1,MAX_BYTES=4096,SOURCE='story:kanto:zapdos';
+ if(profile===undefined)profile='zapdos';
+ const profiles=Object.freeze({
+  zapdos:Object.freeze({
+   dex:145,source:'story:kanto:zapdos',
+   schema:'itamapoke.story.zapdos',format:'ITZ1',code:'ZAPDOS'
+  }),
+  articuno:Object.freeze({
+   dex:144,source:'story:kanto:articuno',
+   schema:'itamapoke.story.articuno',format:'ITA1',code:'ARTICUNO'
+  })
+ });
+ if(!Object.prototype.hasOwnProperty.call(profiles,profile))
+  throw Object.assign(Error('UNSUPPORTED_STORY_PROFILE'),{
+   code:'UNSUPPORTED_STORY_PROFILE'
+  });
+ const config=profiles[profile];
+ const VERSION=1,MAX_BYTES=4096,SOURCE=config.source;
+ const SCHEMA=config.schema,FORMAT=config.format,DEX=config.dex;
  const encoder=new TextEncoder();
  class StoryError extends Error{
   constructor(code){super(code);this.name='StoryError';this.code=code;}
  }
- const fail=code=>{throw new StoryError(code);};
+ const fail=code=>{
+  throw new StoryError(code.replace(/ZAPDOS/g,config.code));
+ };
  const integer=(v,min,max)=>Number.isSafeInteger(v)&&v>=min&&v<=max;
  const plain=v=>!!v&&typeof v==='object'&&!Array.isArray(v)&&
   Object.getPrototypeOf(v)===Object.prototype;
@@ -33,7 +52,7 @@
  }
  function validate(state){
   keys(state,['schema','version','revision','step','ticket']);
-  if(state.schema!=='itamapoke.story.zapdos'||state.version!==VERSION)
+  if(state.schema!==SCHEMA||state.version!==VERSION)
    fail('UNSUPPORTED_ZAPDOS_VERSION');
   if(!integer(state.step,0,3)||state.revision!==state.step||
      !integer(state.ticket,0,0x7ffffffe)||
@@ -43,7 +62,7 @@
  }
  function create(){
   return freeze({
-   schema:'itamapoke.story.zapdos',version:VERSION,
+   schema:SCHEMA,version:VERSION,
    revision:0,step:0,ticket:0
   });
  }
@@ -57,7 +76,7 @@
   validate(state);
   const payload=JSON.stringify(state);
   const result=JSON.stringify({
-   format:'ITZ1',payload,checksum:checksum(payload)
+   format:FORMAT,payload,checksum:checksum(payload)
   });
   if(encoder.encode(result).length>MAX_BYTES)fail('ZAPDOS_STATE_TOO_LARGE');
   return result;
@@ -68,7 +87,7 @@
   let envelope,state;
   try{envelope=JSON.parse(raw);}catch(_){fail('INVALID_ZAPDOS_CONTAINER');}
   keys(envelope,['format','payload','checksum']);
-  if(envelope.format!=='ITZ1'||typeof envelope.payload!=='string'||
+  if(envelope.format!==FORMAT||typeof envelope.payload!=='string'||
      typeof envelope.checksum!=='string'||
      envelope.checksum!==checksum(envelope.payload))
    fail('INVALID_ZAPDOS_CHECKSUM');
@@ -84,7 +103,7 @@
   return freeze({...state,step:state.step+1,revision:state.revision+1});
  }
  function pokemonValid(pokemon){
-  if(!plain(pokemon)||pokemon.dex!==145||pokemon.level!==50||
+  if(!plain(pokemon)||pokemon.dex!==DEX||pokemon.level!==50||
      pokemon.shiny!==false||pokemon.origin!=='wild')
    fail('INVALID_ZAPDOS_INDIVIDUAL');
  }
@@ -111,7 +130,7 @@
  }
  function fromNative(version,step,ticket){
   return freeze(validate({
-   schema:'itamapoke.story.zapdos',version,
+   schema:SCHEMA,version,
    revision:step,step,ticket
   }));
  }
@@ -123,7 +142,7 @@
   if(joined.length>1)fail('DUPLICATE_ZAPDOS_INDIVIDUAL');
   for(const m of joined){
    if(state.step!==3||m.data.admission.ticket!==state.ticket||
-      m.data.admission.kind!=='join'||m.dex!==145||m.level<50||
+      m.data.admission.kind!=='join'||m.dex!==DEX||m.level<50||
       m.shiny!==false||m.origin!=='wild')
     fail('ZAPDOS_COLLECTION_MISMATCH');
   }
@@ -154,6 +173,7 @@
   });
  }
  return Object.freeze({
+  forStory:name=>storyFactory(A,M,name),
   VERSION,MAX_BYTES,SOURCE,StoryError,create,validate,encode,decode,
   advance,validateLink,validateProfile,fromNative,confirmVictory,view
  });

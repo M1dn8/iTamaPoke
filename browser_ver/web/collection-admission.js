@@ -53,6 +53,19 @@
       name='tp_zpd_admission_stage';
       argument=completed.ticket;
      }
+     if(state.pending===null&&completed?.kind==='join'&&
+        completed.source==='story:kanto:articuno'){
+      if(completed.pokemon.dex!==144||
+         typeof mod._tp_story_ticket!=='function'||
+         typeof mod._tp_story_admission_stage!=='function')
+       fail('ADMISSION_JOURNAL_CORE_UNAVAILABLE');
+      if(call('tp_story_ticket',[144])!==completed.ticket)
+       fail('ADMISSION_STORY_TICKET_MISMATCH');
+      if(call('tp_story_admission_stage',[
+       token,144,ptr,bytes.length,completed.ticket
+      ])!==1)fail('ADMISSION_STAGE_REFUSED');
+      return;
+     }
      if(call(name,[token,ptr,bytes.length,argument])!==1)
       fail('ADMISSION_STAGE_REFUSED');
    }finally{mod._free(ptr);}

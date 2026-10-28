@@ -6,8 +6,8 @@ const J=require('./journal-fixtures');
 const root=page=>page.locator('#tp-app-page');
 const tile=page=>page.locator('#tp-stories-page button[data-story="zapdos"]');
 
-test('Geschichten: fuenf Kanto-Orden bleiben trotz acht Johto-Orden gesperrt',async({page})=>{
- await H.prepare(page,F.withProgress(H.fixture(),{kanto:31,johto:255}));
+test('Geschichten: drei Kanto-Orden bleiben trotz acht Johto-Orden gesperrt',async({page})=>{
+ await H.prepare(page,F.withProgress(H.fixture(),{kanto:7,johto:255}));
  await H.openHub(page);
  await expect(page.locator('#tp-story-unlock')).toBeEmpty();
  await expect(root(page).locator(
@@ -16,7 +16,7 @@ test('Geschichten: fuenf Kanto-Orden bleiben trotz acht Johto-Orden gesperrt',as
  await root(page).getByRole('button',{name:'Geschichten',exact:true}).click();
  await expect(tile(page)).toBeDisabled();
  await expect(tile(page).locator('.tp-story-open-dot')).toHaveCount(0);
- await expect(tile(page)).toContainText('5/6');
+ await expect(tile(page)).toContainText('3/4');
  const result=await page.evaluate(async()=>{
   try{await TPZapdos.advance('investigate');return 'unexpected-success';}
   catch(error){return error.code||error.message;}
@@ -26,8 +26,8 @@ test('Geschichten: fuenf Kanto-Orden bleiben trotz acht Johto-Orden gesperrt',as
  expect(await page.evaluate(()=>TPCollection.blocked)).toBe(false);
 });
 
-test('Geschichten: sechster Orden zeigt Hinweis; Schreibfehler bleibt wiederholbar',async({page})=>{
- await H.prepare(page,F.withProgress(H.fixture(),{kanto:63}));
+test('Geschichten: vierter Orden zeigt Hinweis; Schreibfehler bleibt wiederholbar',async({page})=>{
+ await H.prepare(page,F.withProgress(H.fixture(),{kanto:15}));
  await H.openHub(page);
  const hint=page.locator('#tp-story-unlock');
  await expect(hint.getByRole('button',{
@@ -121,7 +121,11 @@ for(const width of [320,390])
   await expect(info.locator('.tp-story-info-symbol'))
    .toHaveCSS('color','rgb(255, 255, 255)');
   const count=panel.locator('button[data-hub="stories"] .tp-hub-count');
-  await expect(count).toHaveText('1');
+  await expect(count).toHaveText('2');
+  expect(await page.evaluate(()=>({
+   zapdos:TPZapdos.access().unlocked,
+   arktos:TPArktos.access().unlocked
+  }))).toEqual({zapdos:true,arktos:true});
   await expect(count).toHaveCSS('background-color','rgb(179, 38, 30)');
   await expect(count).toHaveCSS('color','rgb(255, 255, 255)');
   await expect(panel.locator(
@@ -150,9 +154,59 @@ for(const width of [320,390])
   await info.click();
   await expect(page.locator('#tp-stories-page')).toBeVisible();
   expect(await page.evaluate(()=>TPZapdos.access().noticeRead)).toBe(true);
+  expect(await page.evaluate(()=>TPArktos.access().noticeRead)).toBe(true);
   await page.reload();await H.waitReady(page);await H.openHub(page);
   await expect(page.locator('#tp-story-unlock')).toBeEmpty();
   await expect(root(page).locator(
    'button[data-hub="stories"] .tp-hub-count'
-  )).toHaveText('1');
+  )).toHaveText('2');
  });
+
+
+// Explicit fixed expectations, including eight irrelevant Johto badges.
+for(const [badges,expectedCount,zapdosOpen,arktosOpen] of [
+ [3,0,false,false],
+ [4,1,true,false],
+ [5,1,true,false],
+ [6,2,true,true]
+]){
+ test(
+  'Geschichten: feste Freischaltungen und Zaehler bei '+
+   badges+' Kanto-Orden',
+  async({page})=>{
+   await H.prepare(page,F.withProgress(H.fixture(),{
+    kanto:(1<<badges)-1,johto:255
+   }));
+   await H.openHub(page);
+
+   const counter=root(page).locator(
+    'button[data-hub="stories"] .tp-hub-count'
+   );
+   if(expectedCount===0)await expect(counter).toHaveCount(0);
+   else await expect(counter).toHaveText(String(expectedCount));
+
+   expect(await page.evaluate(()=>({
+    zapdos:TPZapdos.access().unlocked,
+    arktos:TPArktos.access().unlocked
+   }))).toEqual({
+    zapdos:zapdosOpen,arktos:arktosOpen
+   });
+
+   await root(page).getByRole('button',{
+    name:'Geschichten',exact:true
+   }).click();
+
+   const zapdos=page.locator(
+    '#tp-stories-page button[data-story="zapdos"]'
+   );
+   const arktos=page.locator(
+    '#tp-stories-page button[data-story="articuno"]'
+   );
+   if(zapdosOpen)await expect(zapdos).toBeEnabled();
+   else await expect(zapdos).toBeDisabled();
+
+   if(arktosOpen)await expect(arktos).toBeEnabled();
+   else await expect(arktos).toBeDisabled();
+  }
+ );
+}

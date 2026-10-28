@@ -9,21 +9,52 @@
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
  'use strict';
  function fail(code){throw Object.assign(Error(code),{code});}
- function create(mod,M,Z,A,admission,base,reconcile=s=>s){
+ function create(
+  mod,M,Z,A,admission,base,reconcile=s=>s,profile='zapdos'){
+  const fail=raw=>{
+   const code=profile==='articuno'?
+    raw.replace(/ZAPDOS/g,'ARTICUNO'):raw;
+   throw Object.assign(Error(code),{code});
+  };
+  if(!['zapdos','articuno'].includes(profile))
+   fail('UNSUPPORTED_STORY_PROFILE');
+  const actionName=suffix=>profile+suffix;
+  const routes=profile==='articuno'?{
+   'tp_zpd_step':['tp_story_step',0],
+   'tp_zpd_ticket':['tp_story_ticket',0],
+   'tp_zpd_access':['tp_story_access',0],
+   'tp_zpd_kanto_badges':['tp_story_kanto_badges',0],
+   'tp_zpd_notice_read':['tp_story_notice_read',0],
+   'tp_zpd_notice_mark':['tp_story_notice_mark',1],
+   'tp_zpd_advance':['tp_story_advance',1],
+   'tp_zpd_start':['tp_story_duel_start',0],
+   'tp_zpd_get':['tp_story_duel_get',0],
+   'tp_zpd_snapshot':['tp_story_duel_snapshot',0],
+   'tp_zpd_result_begin':['tp_story_duel_result_begin',0],
+   'tp_zpd_result_apply':['tp_story_duel_result_apply',0],
+   'tp_zpd_result_finish':['tp_story_duel_result_finish',0]
+  }:{};
+  const nativeName=name=>routes[name]?.[0]||name;
+
   const supported=!!Z&&!!A&&!!admission?.supported&&[
    'tp_zpd_step','tp_zpd_ticket','tp_zpd_advance','tp_zpd_start',
    'tp_zpd_get','tp_zpd_snapshot','tp_zpd_result_begin',
    'tp_zpd_result_apply','tp_zpd_result_finish','tp_wt_view',
    'tp_wt_stage_begin','tp_wt_stage_entry'
-  ].every(name=>typeof mod['_'+name]==='function');
-  const call=(name,args=[])=>mod.ccall(
-   name,'number',args.map(()=>'number'),args
-  );
-  const json=name=>JSON.parse(mod.ccall(name,'string',[],[]));
+  ].every(name=>typeof mod['_'+nativeName(name)]==='function');
+  function call(name,args=[],type='number'){
+   const route=routes[name];
+   const actual=args.slice();
+   if(route)actual.splice(route[1],0,144);
+   return mod.ccall(
+    nativeName(name),type,actual.map(()=>'number'),actual
+   );
+  }
+  const json=name=>JSON.parse(call(name,[],'string'));
   const noticeSupported=[
    'tp_zpd_access','tp_zpd_kanto_badges',
    'tp_zpd_notice_read','tp_zpd_notice_mark'
-  ].every(name=>typeof mod['_'+name]==='function');
+  ].every(name=>typeof mod['_'+nativeName(name)]==='function');
   let controller=null,published=null,resultToken=0;
   function load(){
    if(!supported)fail('ZAPDOS_CORE_UNAVAILABLE');
@@ -64,7 +95,7 @@
    guard();
    const state=access();
    if(!state.unlocked)fail('ZAPDOS_LOCKED');
-   if(!state.noticeRead)await controller.act('zapdosNotice');
+   if(!state.noticeRead)await controller.act(actionName('Notice'));
    const confirmed=access();
    if(!confirmed.noticeRead)fail('ZAPDOS_NOTICE_NOT_CONFIRMED');
    return confirmed;
@@ -78,7 +109,7 @@
   const bridge=Object.freeze({
    read:()=>base.read(),
    begin(context){
-    if(context!=='zapdosResult')return base.begin(context);
+    if(context!==actionName('Result'))return base.begin(context);
     if(!supported)return 0;
     const token=call('tp_zpd_result_begin');
     if(token)resultToken=token;
@@ -95,14 +126,14 @@
    }
   });
   const nativeActions=Object.freeze({
-   zapdosNotice(before,token){
+   [actionName('Notice')](before,token){
     M.validate(before);snapshotBefore(before);
     if(!noticeSupported||call('tp_zpd_notice_mark',[token])!==1||
        call('tp_zpd_notice_read')!==1)
      fail('NATIVE_ZAPDOS_NOTICE_REFUSED');
     return before;
    },
-   zapdosAdvance(before,token,action){
+   [actionName('Advance')](before,token,action){
     before=reconcile(before,token);M.validate(before);
     const {story}=snapshotBefore(before);
     const next=Z.advance(story,action);
@@ -112,13 +143,13 @@
      fail('ZAPDOS_ADVANCE_MISMATCH');
     return before;
    },
-   zapdosPrepare(before,token){
+   [actionName('Prepare')](before,token){
     before=reconcile(before,token);M.validate(before);
     const {story,waiting}=snapshotBefore(before);
     if(!Z.view(story,waiting).canBattle)fail('ZAPDOS_NOT_READY');
     return before;
    },
-   zapdosResult(before,token){
+   [actionName('Result')](before,token){
     before=reconcile(before,token);M.validate(before);
     const {story,waiting}=snapshotBefore(before);
     if(call('tp_zpd_get',[0])!==1||call('tp_zpd_get',[1])!==1)
@@ -174,18 +205,18 @@
    },
    advance(action){
     guard();Z.advance(read(),action);admission.read();
-    return controller.act('zapdosAdvance',action);
+    return controller.act(actionName('Advance'),action);
    },
    prepare(){
     guard();
     if(!Z.view(read(),admission.read()).canBattle)fail('ZAPDOS_NOT_READY');
-    return controller.act('zapdosPrepare');
+    return controller.act(actionName('Prepare'));
    },
    complete(){
     guard();read();admission.read();
     if(call('tp_zpd_get',[0])!==1||call('tp_zpd_get',[1])!==1)
      fail('ZAPDOS_RESULT_NOT_PENDING');
-    return controller.act('zapdosResult');
+    return controller.act(actionName('Result'));
    }
   });
  }

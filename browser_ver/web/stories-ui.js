@@ -9,7 +9,7 @@
   en:[
    'Please load the current game core.',
    'Story progress cannot be read. No changes were made.',
-   'Requires six different Kanto badges ({count}/6).',
+   'Requires four different Kanto badges ({count}/4).',
    'New','Open','Admission pending','Completed','Power Plant',
    'Pokédex · New story',
    'A new story is available in your Pokédex.',
@@ -19,7 +19,7 @@
   de:[
    'Bitte den aktuellen Spielkern laden.',
    'Geschichtenfortschritt nicht lesbar. Es wurde nichts geändert.',
-   'Freischaltung nach sechs unterschiedlichen Kanto-Orden ({count}/6).',
+   'Freischaltung nach vier unterschiedlichen Kanto-Orden ({count}/4).',
    'Neu','Offen','Aufnahme wartet','Abgeschlossen','Kraftwerk',
    'Pokédex · Neue Geschichte',
    'In deinem Pokédex ist eine neue Geschichte verfügbar.',
@@ -29,7 +29,7 @@
   es:[
    'Carga el núcleo actual del juego.',
    'No se puede leer el progreso. No se ha cambiado nada.',
-   'Requiere seis medallas diferentes de Kanto ({count}/6).',
+   'Requiere cuatro medallas diferentes de Kanto ({count}/4).',
    'Nuevo','Disponible','Incorporación pendiente','Completado','Central de Energía',
    'Pokédex · Nueva historia',
    'Hay una nueva historia disponible en tu Pokédex.',
@@ -39,7 +39,7 @@
   fr:[
    'Chargez le moteur actuel du jeu.',
    'La progression est illisible. Aucune modification effectuée.',
-   'Nécessite six badges différents de Kanto ({count}/6).',
+   'Nécessite quatre badges différents de Kanto ({count}/4).',
    'Nouveau','Disponible','Admission en attente','Terminé','Centrale',
    'Pokédex · Nouvelle histoire',
    'Une nouvelle histoire est disponible dans votre Pokédex.',
@@ -209,7 +209,7 @@
   if(!target)return;
   target.querySelector('.tp-hub-count')?.remove();
   target.removeAttribute('aria-description');
-  const count=state.unlocked&&state.phase!=='complete'?1:0;
+  const count=state.filter(entry=>entry.unlocked&&entry.phase!=='complete').length;
   if(!count)return;
   const badge=node('span',String(count));
   badge.className='tp-hub-count';
@@ -217,22 +217,29 @@
   target.appendChild(badge);
   target.setAttribute('aria-description',tr('openCount',{count}));
  }
+ function readCatalogue(){
+  const entries=[];
+  for(const [id,order,service] of [
+   ['zapdos',1,root.TPZapdos],['articuno',2,root.TPArktos]
+  ]){
+   if(!service?.noticeSupported)continue;
+   entries.push({id,order,service,...service.access()});
+  }
+  return entries;
+ }
  function render(){
   if(!visible())return;
   host.replaceChildren();
-  if(!svc()?.noticeSupported){
-   if(kind==='list')host.append(node('p',tr('unavailable')));
-   return;
-  }
   try{
-   if(!saving&&!root.TPCollection?.busy)cached=svc().access();
-   if(!cached)throw Error('No story access snapshot');
-  }catch(_){
-   host.append(node('p',tr('invalid')));return;
-  }
+   if(!saving&&!root.TPCollection?.busy)cached=readCatalogue();
+   if(!cached?.length){
+    if(kind==='list')host.append(node('p',tr('unavailable')));
+    return;
+   }
+  }catch(_){host.append(node('p',tr('invalid')));return;}
   updateStoryCount(cached);updateJournalCount();
   if(kind==='hint'){
-   if(!cached.newlyUnlocked)return;
+   if(!cached.some(entry=>entry.newlyUnlocked))return;
    const info=button('',()=>acknowledge(true),saving);
    info.className='tp-story-info';
    info.setAttribute('aria-busy',String(saving));
@@ -248,33 +255,42 @@
    }
    return;
   }
-  const entries=[{
-   id:'zapdos',order:1,available:cached.unlocked,
-   fresh:cached.newlyUnlocked,done:cached.phase==='complete'
-  }];
+  const entries=cached.map(entry=>({...entry,
+   available:entry.unlocked,fresh:entry.newlyUnlocked,
+   done:entry.phase==='complete'
+  }));
   const rank=e=>e.done?3:e.fresh?0:e.available?1:2;
   entries.sort((a,b)=>rank(a)-rank(b)||b.order-a.order);
   for(const entry of entries){
-   const status=!entry.available?tr('locked',{count:Math.max(0,cached.badges)}):
-    entry.done?tr('done'):cached.phase==='waiting'?tr('waiting'):
+   const art=entry.id==='articuno';
+   const status=!entry.available?
+    (art?root.TPArktosText.t('locked',{count:Math.max(0,entry.badges)}):
+     tr('locked',{count:Math.max(0,entry.badges)})):
+    entry.done?tr('done'):entry.phase==='waiting'?tr('waiting'):
     entry.fresh?tr('new'):tr('open');
    const tile=button('',()=>{
     try{
-     const current=svc().access();
-      if(!current.unlocked||current.phase==='complete')return;
-     root.TPAppMenu.show('zapdos');
+     const current=entry.service.access();
+     if(!current.unlocked||current.phase==='complete')return;
+     root.TPAppMenu.show(entry.id);
     }catch(_){message=tr('invalid');render();}
    },!entry.available||entry.done);
    tile.dataset.story=entry.id;
-    tile.dataset.complete=String(entry.done);
+   tile.dataset.complete=String(entry.done);
    tile.style.cssText='display:flex;align-items:center;gap:12px;'+
     'width:100%;min-height:68px;text-align:left;padding:10px;';
-   tile.append(icon(),node('span',tr('plant')+' · '+status));
+   const symbol=art?node('span','❄'):icon();
+   if(art){
+    symbol.setAttribute('aria-hidden','true');
+    symbol.style.cssText=
+     'width:38px;flex:0 0 38px;font-size:30px;text-align:center';
+   }
+   tile.append(symbol,node('span',
+    (art?root.TPArktosText.t('place'):tr('plant'))+' · '+status));
    if(entry.available&&!entry.done){
     const dot=node('span');
     dot.className='tp-unread-dot tp-story-open-dot';
-    dot.setAttribute('aria-hidden','true');
-    tile.appendChild(dot);
+    dot.setAttribute('aria-hidden','true');tile.appendChild(dot);
     tile.setAttribute('aria-description',tr('openCount',{count:1}));
    }
    host.append(tile);
@@ -287,7 +303,9 @@
   saving=true;message='';render();
   let confirmed=false;
   try{
-   await svc().acknowledgeNotice();confirmed=true;
+   for(const entry of cached.filter(entry=>entry.newlyUnlocked))
+    await entry.service.acknowledgeNotice();
+   confirmed=true;
   }catch(error){
    message=tr('saveFailed');
    try{root.TPDiagnostics?.record('write',error);}catch(_){}
@@ -307,8 +325,13 @@
   if(!svc()?.noticeSupported||root.TPCollection?.busy||tpSaveReplacing)return;
   try{
    const call=name=>Module.ccall(name,'number',[],[]);
-   if(call('tp_zpd_step')!==0||call('tp_zpd_access')!==1||
-      call('tp_zpd_notice_read')!==0)return;
+   const zapdosNew=call('tp_zpd_step')===0&&
+    call('tp_zpd_access')===1&&call('tp_zpd_notice_read')===0;
+   const artCall=name=>Module.ccall(name,'number',['number'],[144]);
+   const arktosNew=typeof Module._tp_story_step==='function'&&
+    artCall('tp_story_step')===0&&artCall('tp_story_access')===1&&
+    artCall('tp_story_notice_read')===0;
+   if(!zapdosNew&&!arktosNew)return;
    ctx.save();
    ctx.fillStyle='#17375e';ctx.strokeStyle='#fff7eb';ctx.lineWidth=1.5;
    ctx.beginPath();ctx.arc(x+18,y-18,8,0,Math.PI*2);

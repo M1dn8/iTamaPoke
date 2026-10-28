@@ -87,34 +87,56 @@ function parseLegacy(input){
    m.data.admission?.ticket===admission.pending.ticket))
    throw Error("Wartendes Pokemon ist bereits aufgenommen.");
  }
- // P06 Zapdos: validate both story->admission and reserved provenance->story.
- if(values.has("stynver")||values.has("stynread")){
-  if(!values.has("stynver")||!values.has("stynread")||
-     get("stynver",1,-1)!==1||
-     ![0,1].includes(get("stynread",1,-1)))
-   throw Error("Geschichten-Hinweisstatus ungueltig oder nicht unterstuetzt.");
- }
- const zapdosKeys=["zpdver","zpdstep","zpdtick"];
- const hasZapdos=zapdosKeys.some(k=>values.has(k));
- const zapdosSource="story:kanto:zapdos";
- const hasZapdosIndividual=collectionModel?.mons.some(
-  m=>m.data.admission?.source===zapdosSource
- );
- if(hasZapdos||admissionModel?.pending?.source===zapdosSource||
-    hasZapdosIndividual){
-  if(!collectionModel||!root.TPAdmissionModel||!root.TPZapdosModel)
-   throw Error("Zapdos-Storypruefung oder individuelle Sammlung fehlt.");
-  if(hasZapdos&&!zapdosKeys.every(k=>values.has(k)))
-   throw Error("Zapdos-Storydaten sind unvollstaendig.");
+ // P06: validate both profiles against shared admission/collection.
+ const storyTickets=new Set();
+ for(const config of [
+  {
+   name:'Zapdos',keys:['zpdver','zpdstep','zpdtick'],
+   notice:['stynver','stynread'],
+   source:'story:kanto:zapdos',model:root.TPZapdosModel
+  },
+  {
+   name:'Arktos',keys:['arcver','arcstep','arctick'],
+   notice:['arcnver','arcnread'],
+   source:'story:kanto:articuno',model:root.TPArktosModel
+  }
+ ]){
+  const [noticeVersion,noticeRead]=config.notice;
+  if(config.notice.some(k=>values.has(k))){
+   if(!config.notice.every(k=>values.has(k))||
+      get(noticeVersion,1,-1)!==1||
+      ![0,1].includes(get(noticeRead,1,-1)))
+    throw Error(config.name+
+     '-Hinweisstatus ungueltig oder nicht unterstuetzt.');
+  }
+  const hasStory=config.keys.some(k=>values.has(k));
+  const hasIndividual=collectionModel?.mons.some(
+   m=>m.data.admission?.source===config.source
+  );
+  if(!hasStory&&admissionModel?.pending?.source!==config.source&&
+     !hasIndividual)continue;
+  if(!collectionModel||!root.TPAdmissionModel||!config.model)
+   throw Error(config.name+
+    '-Storypruefung oder individuelle Sammlung fehlt.');
+  if(hasStory&&!config.keys.every(k=>values.has(k)))
+   throw Error(config.name+'-Storydaten sind unvollstaendig.');
+  let story;
   try{
-   const story=hasZapdos?root.TPZapdosModel.fromNative(
-    get("zpdver",1,-1),get("zpdstep",1,-1),get("zpdtick",1,-1)
-   ):root.TPZapdosModel.create();
-   root.TPZapdosModel.validateProfile(
+   story=hasStory?config.model.fromNative(
+    ...config.keys.map(k=>get(k,1,-1))
+   ):config.model.create();
+   config.model.validateProfile(
     story,admissionModel||root.TPAdmissionModel.create(),collectionModel
    );
   }catch(_){
-   throw Error("Zapdos-Story, Aufnahme und Sammlung sind widerspruechlich oder nicht unterstuetzt.");
+   throw Error(config.name+
+    '-Story, Aufnahme und Sammlung sind widerspruechlich '+
+    'oder nicht unterstuetzt.');
+  }
+  if(story.step===3){
+   if(storyTickets.has(story.ticket))
+    throw Error('Aufnahme-Ticket wird von mehreren Geschichten verwendet.');
+   storyTickets.add(story.ticket);
   }
  }
  // Only the new LT format is interpreted here. Old single-player blobs

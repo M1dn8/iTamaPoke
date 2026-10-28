@@ -1,10 +1,24 @@
 # Projektplan und Übergabe — iTamaPoke
 
-Stand dieser Planfassung: 27.10.2026.
+Stand dieser Planfassung: 28.10.2026.
 Diese Datei ist die maßgebliche Aufgaben- und Übergabeliste für die
 hier vereinbarten Browser-/iPhone-Erweiterungen.
 
 ## Aktueller Arbeitsstand
+
+- Aktives Gesamtpaket bleibt P06: Legendären-Geschichten Kanto.
+- Arktos ist manuell im Revisionsbrowser abgenommen.
+- Betroffene Browsergruppen, vollständige Browserregression und zentraler
+  nativer Check sind auf identischem Quell-/WASM-Stand bestanden.
+- Arktos ist zur Veröffentlichung bereit; GitHub-Ergebnis und
+  iPhone-Abnahme des veröffentlichten Standes stehen noch aus.
+- Nach diesem Veröffentlichungsabschluss folgt innerhalb von P06 Lavados
+  mit acht Kanto-Orden, anschließend Mewtu und Mew.
+- UI01 bleibt als eigenständiges Paket nach dem gesamten P06 und vor P07.
+- Der interaktive Revisionsbrowser ist verbindlicher Arbeitsweg;
+  Start und Bedienung stehen in docs/TEST-WORKFLOW.de.md.
+
+### Historischer Ausgangsstand vor dem Arktos-Abschluss
 
 - Aktives Paket: P06 Legendären-Geschichten Kanto — gemeinsame Aufnahmefunktion
   mit Commit d5119a4 auf main veröffentlicht; Build vom Nutzer als grün
@@ -71,7 +85,8 @@ Eine neue Sitzung darf abgeschlossene Arbeit nicht ungeprüft neu eröffnen.
 | P05a | Team in Wildkämpfen | Abgenommen am 26.10.2026 | Erledigt | Individuelle Mitglieder, Wechsel, KP, Pokéball-Anzeigen, Levelbonus bis 100 und atomare Ergebnis-/Fangspeicherung |
 | P05b | Team in Arena-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit fb86920; zentrale Prüfung, WASM-Build, Browserprüfungen, CI/Veröffentlichung und manuelle iPhone-Abnahme erfolgreich |
 | P05c | Team in Liga-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit 02e3973; lokale Prüfungen und WASM-Build erfolgreich, 221 Browserprüfungen bestanden/1 übersprungen, Build grün gemeldet und Nutzerabnahme bestätigt; grafische Folgeoptimierungen zurückgestellt |
-| P06 | Legendären-Geschichten Kanto | Aktiv: freigegebene Reviewnacharbeit vor Arktos | Hoch | Gemeinsame Aufnahme d5119a4 und Zapdos-Kraftwerk-Pilot 22e6ab8 veröffentlicht, Build grün und iPhone-Abnahme bestätigt; weitere Fälle in der vereinbarten Reihenfolge Arktos, Lavados, Mewtu, Mew getrennt festlegen, umsetzen und abnehmen |
+| P06 | Legendären-Geschichten Kanto | Aktiv; Arktos lokal abgenommen und Abschlussprüfungen bestanden | Hoch | Arktos zur Veröffentlichung bereit; GitHub-/iPhone-Abnahme offen. Danach Lavados, Mewtu und Mew getrennt festlegen, umsetzen und abnehmen |
+| UI01 | Interface der Pokédex-Zentrale überarbeiten; Canvas aufräumen und optimieren | Offen; nach P06, vor P07 | Nach Umfangsfestlegung bewerten | Konkrete Ansichten und Änderungen gemeinsam festlegen; Revisionsbrowser-Prüfung, passende Tests und iPhone-Abnahme |
 | P07 | Legendären-Geschichten Johto | Offen | Hoch | Auf Storysystem aufbauen; getrennte regionale Fortschritte und geprüfte Freischaltungen |
 | P08 | Weitere Mega-Entwicklungen | Offen | Hoch | Bestand und Zielarten festlegen; Voraussetzungen, Werte, Darstellung, Rückverwandlung und Speicherung pro Ausbaustufe prüfen |
 | P09 | Ligen aller Generationen erweitern | Offen | Sehr hoch | Umfang nach Region/Edition/Variante festlegen; danach jede Liga mit Gegnerdaten, Freischaltung, Fortschritt, Tests und iPhone-Abnahme |
@@ -1091,3 +1106,310 @@ Jetzt folgende Zapdos-Nacharbeit:
   manueller iPhone-Abnahme abgeschlossen.
 - Vereinbarter iterativer Revisionsbrowser-/Paketabschluss-Workflow
   bleibt für folgende Pakete verbindlich.
+
+## Freigegebener Arktos-Umfang — 28.10.2026
+
+Aktives Teilpaket: P06 — Arktos.
+Status: Inhalt vom Nutzer freigegeben; Umsetzung beginnt.
+Dieser Abschnitt ersetzt für die nachstehenden Punkte ältere
+Planungsangaben, nicht die historischen Abnahmeprotokolle.
+
+### Freischaltung
+
+- Zapdos künftig mit mindestens vier Kanto-Orden statt sechs.
+- Arktos mit mindestens sechs Kanto-Orden.
+- Lavados später mit mindestens acht Kanto-Orden.
+- Keine zusätzliche Voraussetzung einer vorherigen Zapdos-Aufnahme
+  als beschlossen behandeln.
+- Bestehende gespeicherte Storyfortschritte und Aufnahmen erhalten.
+- Zugehörige Anzeigen und Freischalthinweise an die neuen Schwellen
+  anpassen; historische Dokumentation nicht pauschal umschreiben.
+
+### Geschichte und Darstellung
+
+- Mischung aus den freigegebenen Vorschlägen 1 und 3.
+- Eisformationen versperren den Zugang zur inneren Höhlenkammer.
+- Grafischer Schwerpunkt: Schneewirbel, blockierter Luftstrom und
+  eingeschränkte Sicht vor dem vereisten Durchgang.
+- Nach bestandenem Minispiel wird der Durchgang frei; der Schneewirbel
+  legt sich und gibt die Sicht in die innere Höhlenkammer frei.
+- Dort erscheint ein wildes Arktos auf Level 50.
+
+### Minispiel
+
+- Innerhalb von zehn Sekunden zehn fallende Eiszapfen treffen.
+- Ein Eiszapfen darf nur einmal als Treffer zählen.
+- Zehn Treffer innerhalb des Zeitlimits bedeuten Erfolg.
+- Weniger als zehn Treffer beim Ablauf bedeuten Nichtbestehen.
+- Bei Nichtbestehen erscheint:
+  „Der Schneesturm ist zu stark, ich muss es noch einmal versuchen.“
+- Anschließend ist ein neuer Versuch möglich.
+- Jeder Versuch startet mit zehn Sekunden und Trefferzähler null.
+- Keine Strafen oder Energiekosten für Nichtbestehen oder Wiederholen.
+- Kein Verlust bereits gespeicherter Fortschritte.
+- Arktos-Begegnung erst nach bestandenem Minispiel.
+- Keine zusätzlichen Strafregeln für Fehlklicks oder verpasste
+  Eiszapfen als beschlossen behandeln.
+- Schwierigkeit zunächst mit zehn Treffern in zehn Sekunden umsetzen.
+  Falls im manuellen Review zu schwer, nach Nutzerfeedback anpassen.
+
+### Pilot wiederverwenden
+
+- Bestehende Zapdos-Kampf- und Anschlussregeln übernehmen.
+- Freiwilliger, garantierter Anschluss nach gewonnenem Prüfduell.
+- Vorhandene Begegnungs-, Aufnahme- und Abschlussanimationen übernehmen
+  und inhaltlich/grafisch auf Arktos anpassen.
+- Bestehende Speicher-, Wiederholungs- und Abschlussabsicherung nutzen;
+  kein zweites unabhängiges Kampf- oder Aufnahmesystem aufbauen.
+- Neue Inhalte über die vorhandene Spracharchitektur integrieren.
+- Änderungen im Wesentlichen auf Inhalt, Grafik, Minispiel und die
+  ausdrücklich geänderten Freischaltbedingungen begrenzen.
+
+### Arbeitsablauf und Abnahme
+
+- Zuerst betroffene Implementierung, Projektanweisungen und Tests lesen.
+- Kleine Umsetzungsschritte mit passenden kurzen Prüfungen.
+- Früh im Revisionsbrowser ansehen und Nutzerkorrekturen einarbeiten.
+- Keine vollständige Testsuite nach jeder Darstellungsänderung.
+- Abschließende Gesamtprüfung erst nach manueller Paketabnahme,
+  auf unverändertem Stand; lokal grundsätzlich zwei Worker.
+- Commit, Push, GitHub-Ergebnis und iPhone-Abnahme anschließend
+  getrennt durchführen und dokumentieren.
+- Keine bereits bestandenen Prüfungen oder erfolgte Implementierung
+  allein aus dieser Freigabe ableiten.
+
+### Arktos — gemeinsames Modell und Reviewvorbereitung
+
+- Gemeinsames P06-Modell um ein fest definiertes Arktos-Profil erweitert.
+- Zapdos bleibt Standardprofil mit unverändertem Schema und Container.
+- Arktos erhält getrenntes Schema, Aufnahmeherkunft und Modellcontainer.
+- Vorhandene Modellprüfungen für Arktos übernommen; zusätzliche
+  Profiltrennung und Ablehnung unbekannter Profile geprüft werden sollen.
+- Neue Modellprüfung im zentralen Prüflauf registriert.
+- Noch keine native Arktos-Speicherung, Kampfanbindung oder sichtbare
+  Arktos-Oberfläche durch diesen Modellschritt behaupten.
+- Tatsächliche lokale Prüfergebnisse nach Ausführung separat ergänzen.
+- Vor dem ersten manuellen Review zuerst Testspielstände vorbereiten,
+  dann aktuellen Browser-/WASM-Stand bauen und Revisionsbrowser starten.
+- Befehle für diese Vorbereitung vor den manuellen Prüfschritten ausgeben.
+- Benötigte Ordensstände: drei/vier für Zapdos und fünf/sechs für Arktos.
+- Zusätzliche Fortschrittsstände für Minispiel, Begegnung und Abschluss
+  vorbereiten; echten Spielstand nicht durch Testdaten überschreiben.
+
+### Arktos — native Vorbereitung auf gemeinsamem Speicherweg
+
+- Gemeinsame native Funktionen fuer Vorbereitung und Hinweise erweitert.
+- Bestehende Zapdos-Schluessel und Schnittstellen bleiben erhalten.
+- Arktos-Fortschritt: arcver, arcstep, arctick.
+- Getrennter Arktos-Hinweis: arcnver, arcnread.
+- Freischaltung: Zapdos vier, Arktos sechs Kanto-Orden.
+- Neue Arktos- und Trennungspruefungen im vorhandenen gezielten
+  nativen Speichertest eingebunden.
+- Implementierung zur Pruefung; Testerfolg separat dokumentieren.
+- Noch keine Arktos-Kampfanbindung, Gesamtspeicherparser-Erweiterung
+  oder sichtbare Oberflaeche durch diesen Schritt behaupten.
+- Arbeitsweg bleibt: kopierbare Terminalbloecke ohne separate Patchdatei.
+
+### Arktos — Gesamtspielstandprüfung für beide Storyprofile
+
+- Native Vorbereitung lokal erfolgreich geprüft:
+  je 256 Kanto-Ordenskombinationen für Zapdos und Arktos.
+- Getrennte Fortschritte/Hinweise, Rollback, Reload und unveränderte
+  Energie durch die übermittelte Prüfausgabe bestätigt.
+- Gesamtspielstandprüfung auf beide Storyprofile erweitert.
+- Arktos-Hinweise auf Vollständigkeit, Typ und Version prüfen.
+- Aufnahmeherkunft, individuelle Sammlung und Storyticket verknüpfen.
+- Doppelte Storytickets zwischen beiden Profilen auch nach Freilassung
+  der aufgenommenen Individuen ablehnen.
+- Arktos-Modell in Browser-Ladereihenfolge und Offline-Dateiliste ergänzt.
+- Neue Parserprüfung im zentralen Ablauf registriert.
+- Parser-Schritt zur Prüfung; Ergebnisse nach Ausführung ergänzen.
+- Noch keine Arktos-Kampfanbindung oder Browser-/iPhone-Abnahme behaupten.
+
+### Arktos — gemeinsamer nativer Prüfduellkanal
+
+- Modell-, Profiltrennungs- und Gesamtspielstandprüfungen lokal bestanden.
+- Zapdos und Arktos je 88 Modell-Assertions; Zapdos 30 Speicherprüfungen,
+  erweiterte Arktos-Spielstandprüfung insgesamt 44 Prüfungen bestätigt.
+- Nativen Pilot-Kampfkanal auf die beiden Storyprofile erweitert.
+- Arktos auf Level 50; gleiche Kampf- und Ergebnisregeln.
+- Bestehende Zapdos-Schnittstellen bleiben als profilgebundene Aufrufe.
+- Ergebnisoperationen an das tatsächlich laufende Storyprofil binden.
+- Zusätzliche native Arktos-Duellprüfung im zentralen Ablauf registriert.
+- Duellimplementierung zur Prüfung; Ergebnisse separat dokumentieren.
+- Noch keine vollständige JS-Kampfanbindung, Höhlendarstellung,
+  Eiszapfen-Aufgabe oder Browser-/iPhone-Abnahme behaupten.
+
+### Arktos — gemeinsamer JS-Adapter und Aufnahme-Tagebuch
+
+- Native Zapdos- und Arktos-Duellprüfungen laut übermittelter Ausgabe bestanden.
+- Gemeinsamen JS-Adapter um explizites Arktos-Profil erweitert.
+- Arktos verwendet gemeinsame native Funktionen und getrennte Aktionsnamen.
+- Vorhandene Zapdos-Aufrufe bleiben unverändert nutzbar.
+- Arktos-Aufnahmeabschluss an die native Story-Tagebuchübergabe angebunden.
+- Controllerprüfung mit tatsächlichen Modellen, Speichercontroller und
+  Gesamtspielstandparser für Arktos ergänzt; nativer Transport simuliert.
+- Native Arktos-Duellprüfung um Aufnahme-Tagebuch und Wiederholungssperre
+  erweitert; Ergebnisse dieses Schritts separat dokumentieren.
+- Noch keine Initialisierung des Arktos-Dienstes in main.js, sichtbare
+  Höhlenseite, Minispiel- oder Browser-/iPhone-Abnahme behaupten.
+
+### Arktos — App-Initialisierung und Dienstbindung
+
+- Namenskollision im Adapter korrigiert: actionName statt action.
+- Zapdos- und Arktos-Controller jeweils mit 42 Assertions plus
+  Ablehnungsprüfungen laut übermittelter Ausgabe bestanden.
+- Native Arktos-Duellprüfung mit Aufnahmeübergabe erneut bestanden.
+- Arktos-Dienst an gemeinsame Adapterkette und Speichercontroller gebunden.
+- Getrennte Arktos-Aktionen registriert; articunoResult nur im Kampfkontext.
+- Isolierte Prüfung des tatsächlichen Initialisierungsabschnitts ergänzt.
+- Initialisierung zur Prüfung; Ergebnisse separat dokumentieren.
+- Noch keine sichtbare Höhlenseite, Minispiel- oder Browserabnahme behaupten.
+
+### Arktos — Eiszapfen-Minispiel zur Einbindung
+
+- App-Verdrahtungsprüfung laut Nutzer-Ausgabe bestanden.
+- Eigenständige vorübergehende Minispielkomponente mit zehn Treffern
+  innerhalb von zehn Sekunden ergänzt.
+- Keine Speicher-, Energie- oder Kampfoperationen im Rundenmodell.
+- Unterschiedliche Eiszapfen; Doppelwertung, abgelaufene Ziele und
+  Ziele früherer Versuche zählen nicht.
+- Nichtbestehen zeigt die vereinbarte Meldung und erlaubt neuen Versuch.
+- Bestandene Aufgabe bleibt bei einer Schreibwiederholung erhalten.
+- Anfangswerte für manuelles Balancing: neue Ziele alle 550 ms,
+  Fallzeit 1800 ms und Tippflächen von 48 mal 64 CSS-Pixeln.
+- Neue Texte über vorhandene Spracharchitektur in de/en/es/fr.
+- Komponente in Browser- und Offline-Dateiliste aufgenommen.
+- Rundenlogikprüfung registriert; tatsächliche lokale Ausgabe nachführen.
+- Noch keine sichtbare Storyseite oder Touch-/Schwierigkeitsabnahme behaupten.
+
+### Arktos — sichtbarer Ablauf über gemeinsame Storyoberfläche
+
+- Minispiel-Rundenlogik und genaue Fehlermeldung lokal bestätigt.
+- Gemeinsame Storyoberfläche für Zapdos und Arktos konfigurierbar gemacht.
+- Arktos-Kachel, Sechs-Orden-Sperre und eigener Freischalthinweis ergänzt.
+- Höhle mit versperrtem Eisgang und Schneewirbel als eigene SVG/CSS-Szene.
+- Eiszapfen-Aufgabe an den gespeicherten Vorbereitungsschritt angeschlossen.
+- Danach innere Kammer, Arktos-Begegnung und vorhandener Prüfduellweg.
+- Bestehenden Porträtdecoder und vorhandene Aufnahmeanimation wiederverwendet.
+- Texte in de/en/es/fr über vorhandene Spracharchitektur.
+- Gemeinsame UI-Prüfung registriert; lokale Ausgabe separat dokumentieren.
+- Noch keine Browser-/iPhone-Abnahme oder endgültiges Balancing behaupten.
+- Vor manuellem Review Testspielstände vorbereiten, Browserstand bauen
+  und Revisionsbrowser über vorher ausgegebene Befehle starten.
+
+### Interaktiven Revisionsbrowser wieder bereitstellen
+
+- Nutzer verlangt den bewährten Ein-Terminal-Reviewablauf mit Testbadge,
+  Screenshot/Notiz-Taste und direktem Testspielstandwechsel.
+- Wiederverwendbaren Runner unter tools/review/manual-review.cjs ergänzt.
+- Start und Bedienung in docs/TEST-WORKFLOW.de.md festgehalten.
+- Vorbereitete acht Arktos-Testspielstände weiterverwenden.
+- Kein erneuter Build allein durch den Runnerstart.
+- Erste tatsächliche Ausführung und manuelle Abnahme separat bestätigen.
+
+### Arktos — Reviewkorrekturen aus fünf Textnotizen
+
+- Grundlage: fünf übermittelte Textnotizen; Bildinhalte nicht gesehen.
+- Kein Scrollen in den Arktos-Ansichten.
+- Einstiegssatz: „Der Schneewirbel versperrt die Sicht in die Höhle.“
+- Button: „Näher herangehen“; nächste Ansicht mit näherer Perspektive.
+- Bild antippen öffnet und startet die eigene Minispielansicht.
+- Zufällige horizontale Eiszapfenpositionen statt fester Reihenfolge.
+- Zehn Treffer in zehn Sekunden und kostenlose Wiederholung unverändert.
+- Arktos bei Begegnung und Finale zunächst 20 Prozent kleiner.
+- Zur erneuten manuellen Prüfung; keine Abnahme behaupten.
+
+## Verbindliche Reviewentscheidung — 28.10.2026
+
+Der Nutzer bestätigt zum aktuellen sichtbaren Stand:
+„genau so soll es aussehen! sehr gut“
+
+Der interaktive Revisionsbrowser und seine Bedienung werden als
+verbindlicher Arbeitsweg für weitere Pakete übernommen.
+
+- Einstiegspunkt für Folgesitzungen: AGENTS.md.
+- Detaillierter Ablauf und Startbefehl: docs/TEST-WORKFLOW.de.md.
+- Werkzeug: tools/review/manual-review.cjs.
+- Ein Terminal, sichtbarer Browser mit Testbadge, direkte
+  Testspielstandwahl, Screenshots und zugehörige Textnotizen.
+- Bestehenden Arbeitsweg wiederverwenden statt neue Startverfahren
+  oder zusätzliche manuelle Importschritte einzuführen.
+- Die positive Bestätigung betrifft den aktuellen sichtbaren Reviewstand
+  und den Review-Arbeitsweg. Keine vollständige P06-, Browsergesamt-,
+  Veröffentlichungs- oder iPhone-Abnahme daraus ableiten.
+
+## Arktos — manuelle Browserabnahme, 28.10.2026
+
+Nutzerbestätigung:
+„minispiel bestanden -> begegnung erfolgreich -> Kampf gewonnen,
+arktos schließt sich an, tagebuch eintrag vorhanden, nach einem
+neu laden ist arktos noch da...“
+
+- Sichtbare Darstellung zuvor ausdrücklich positiv bestätigt.
+- Minispiel bestanden und Begegnung erfolgreich.
+- Prüfduell gewonnen; Arktos hat sich angeschlossen.
+- Zugehöriger Tagebucheintrag vorhanden.
+- Arktos nach erneutem Laden weiterhin vorhanden.
+- Manuelle Browserabnahme des Arktos-Pakets damit bestätigt.
+- Keine darüber hinausgehenden manuellen Einzelprüfungen behaupten.
+- Vollständige Abschlussprüfungen stehen noch aus.
+- Noch keine GitHub-Veröffentlichung oder iPhone-Abnahme behaupten.
+
+### Abschlussprüfung — Zählererwartungen für zwei Geschichten
+
+- Betroffene Browsergruppe fehlgeschlagen:
+  94 bestanden, fünf fehlgeschlagen, einer unterbrochen,
+  einer übersprungen und sieben nicht ausgeführt.
+- Ausgewiesene Zählerfehler betreffen alte Ein-Geschichten-Erwartungen:
+  sechs Kanto-Orden ergeben zwei offene Geschichten;
+  nach Zapdos-Abschluss bleibt Arktos als eine offene Geschichte.
+- Konkrete Sollwerte korrigiert, ohne Spielcode zu ändern.
+- Zusätzlich feste Browserfälle für drei, vier, fünf und sechs
+  Kanto-Orden mit acht Johto-Orden ergänzt.
+- Zapdos-Abschlusstest prüft ausdrücklich die weiterhin offene
+  Arktos-Geschichte und ihren unveränderten Fortschritt.
+- Keine Assertions entfernt, keine Timeouts erhöht, keine Tests übersprungen.
+- Gezielt neu prüfen; vollständige Abschlussprüfungen weiterhin offen.
+
+## Arktos — bestandene Abschlussprüfungen, 28.10.2026
+
+Manuelle Browserabnahme:
+- Darstellung ausdrücklich positiv bestätigt.
+- Minispiel bestanden, Begegnung erfolgreich, Prüfduell gewonnen.
+- Arktos angeschlossen, Tagebucheintrag vorhanden.
+- Arktos nach erneutem Laden weiterhin vorhanden.
+
+Automatische Abschlussprüfungen:
+- affected: 115 bestanden, 1 übersprungen, 0 unerwartete Fehler,
+  0 instabile Tests; zwei Browser-Worker.
+- full: 323 bestanden, 1 übersprungen, 0 unerwartete Fehler,
+  0 instabile Tests; zwei Browser-Worker.
+- Zentraler nativer Check bestanden.
+- Abschließendes git diff --check ohne Befund.
+- Übersprungene Prüfungen werden nicht als bestanden gezählt.
+- Keine parallele native Ausführung aus der Workerangabe ableiten.
+
+Zusammengehörige Berichte:
+- affected: itamapoke-review-vqHaSq
+- full: itamapoke-review-m4owC1
+- native: itamapoke-review-pzRuIq
+
+Identischer Quellfingerabdruck:
+6d5fd2e367df12ca3d1dd39c1eb68e9b0214f09c6f23c90966daf6d1dca6e07b
+
+Identischer WASM-SHA-256:
+1e4651e1a92f3bfd7622e291d83f014a0170c4154bf7c42ea161bc9cea95ecee
+
+Veröffentlichungsumfang:
+- Arktos-Eishöhlengeschichte mit vorhandenem Pilot-Kampf-/Aufnahmeweg.
+- Zapdos-Freischaltung mit vier, Arktos mit sechs Kanto-Orden.
+- Eiszapfen-Minispiel und bestätigte Darstellungskorrekturen.
+- Gemeinsame Storykomponenten und profilgetrennte Speicherabsicherung.
+- Erweiterte Tests sowie wiederverwendbarer interaktiver Reviewrunner.
+- Keine privaten Medien, Reviewaufnahmen oder Testspielstände enthalten.
+
+Status:
+- Lokal abgenommen und Abschlussprüfungen bestanden.
+- GitHub-Build/Deployment und iPhone-Abnahme separat bestätigen.
+- P06 insgesamt bleibt offen; keine Freigabe von P07 oder UI01 ableiten.

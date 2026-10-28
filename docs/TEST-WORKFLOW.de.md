@@ -139,3 +139,115 @@ Diese Entscheidung ersetzt die vorherigen experimentellen Workerangaben.
 - fullyParallel, Timeouts, Retry- und Fehlerbudgetregeln unveraendert.
 - Direkte Playwright-/npm-Aufrufe verwenden weiterhin ihre eigene
   Konfiguration; der lokale Zwei-Worker-Standard gilt fuer den Runner.
+
+## Verbindlicher interaktiver Revisionsbrowser
+
+Nutzerbestätigung vom 28.10.2026:
+„genau so soll es aussehen! sehr gut“
+
+Diese Entscheidung ersetzt frühere vereinfachte Vorschläge mit
+separatem Webserver, normalem Chrome und manuellem Testspielstandimport.
+
+### Werkzeug und Start
+
+Runner:
+tools/review/manual-review.cjs
+
+Ein Startbefehl in einem separaten interaktiven Terminal startet
+lokalen HTTP-Server und sichtbaren Reviewbrowser gemeinsam.
+
+Allgemeiner Aufruf aus dem Repository:
+
+node tools/review/manual-review.cjs --saves PFAD_ZUM_REVIEWORDNER
+
+Auf dem aktuell eingerichteten Mac lautet der vollständige Aufruf:
+
+"$HOME/.nvm/versions/node/v24.22.1/bin/node" \
+  "$HOME/Projects/iTamaPoke-1025/tools/review/manual-review.cjs" \
+  --saves "$HOME/Downloads/iTamaPoke-Arktos-Review-qR4me2"
+
+Der konkrete Spielstandordner ist paketabhängig. Vorhandene Ordner
+prüfen und den tatsächlichen Pfad nennen, keinen Pfad erfinden.
+Eine Änderung der lokal installierten Node-Version gesondert prüfen;
+nicht ungefragt neu installieren oder die Shell-Konfiguration ändern.
+
+### Browser und Isolation
+
+- Bereits vorhandenen Playwright-Chromium verwenden.
+- Keine automatische Auswahl des normalen Google Chrome.
+- Fester Profilordner:
+  ~/Library/Application Support/iTamaPoke-Revisionsbrowser-Playwright
+- Lokaler Reviewserver: 127.0.0.1, Port 8766.
+- Normales Browserprofil und echte Spielstände bleiben unberührt.
+- Nur die ausgewählten synthetischen Testspielstände laden.
+- Vorhandene relevante Grafiken aus Resources/mons lokal übernehmen.
+- Keine Mediendownloads, Veröffentlichung oder Aufnahme privater Medien
+  in das Repository.
+- Service Worker sind im Reviewkontext blockiert. Dies ist daher kein
+  Nachweis einer bestandenen Offlineprüfung.
+
+### Bedienung im Reviewterminal
+
+- 1 bis 8: ausgewählten vorbereiteten Testspielstand neu laden.
+- 4: aktueller Arktos-Höhleneinstieg.
+- 5: nähere Höhlenansicht mit Eiszapfen-Minispielzugang.
+- 6: Arktos-Begegnung.
+- 7: wartende Arktos-Aufnahme.
+- 8: direkte Finale-Sichtprüfung; kein Nachweis eines echten Sieges.
+- s: Screenshot sofort aufnehmen, anschließend Textnotiz eingeben.
+- r: Seite neu laden, aktuellen Testfortschritt behalten.
+- w: Ansichtsbreite zwischen 320, 390 und 430 Pixeln wechseln.
+- h: Hilfe anzeigen.
+- q oder Ctrl+C: Runner und seinen Browser/Server beenden.
+
+Ziffern und Funktionstasten benötigen kein Enter.
+Nur die Screenshot-Notiz wird mit Enter abgeschlossen.
+Befehlsblöcke für Quellcodeänderungen in einem normalen Terminal ausführen,
+nicht in das interaktive Reviewterminal einfügen.
+
+### Aufnahmen und Rückmeldungen
+
+Pro Lauf entsteht ein eigener Ordner:
+~/Downloads/iTamaPoke-Review-Aufnahmen-*
+
+- PNG: Screenshot.
+- TXT mit gleichem Basisnamen: zugehörige Notiz.
+- JSON mit gleichem Basisnamen: Testfall, Ansichtsgröße und Diagnosekontext.
+- session.json: Laufkontext einschließlich WASM-Prüfsumme.
+- events.jsonl: begrenzte Fehlermeldungen des Reviewlaufs.
+
+Wenn Uploads nicht möglich sind, Notizdateien per Terminal ausgeben und
+die Ausgabe in den Chat kopieren. Fehlgeschlagene Startordner ohne
+Screenshot-/Notiz-Paare überspringen.
+Aus Textnotizen keine angeblich gesehenen Bildinhalte ableiten.
+
+### Verbindliche Iterationsschleife
+
+1. Paketinhalt und Abnahmepunkte gemeinsam festlegen.
+2. Kleine Änderung umsetzen und betroffene Tests/Helfer mitpflegen.
+3. Passende kurze Prüfungen ausführen.
+4. Aktuellen Stand direkt im interaktiven Revisionsbrowser ansehen.
+5. Rückmeldungen mit Screenshot/Notiz erfassen und gezielt korrigieren.
+6. Wiederholen, bis die manuelle Paketabnahme ausdrücklich vorliegt.
+7. Stand einfrieren und vollständige Abschlussprüfungen durchführen.
+8. Erst nach erfolgreichen Prüfungen und Nutzerfreigabe committen/pushen.
+9. GitHub-Ergebnis und passende iPhone-Abnahme separat dokumentieren.
+
+Nicht bei jeder Darstellungsänderung die vollständige Suite starten.
+Lokaler review-check-Runner verwendet gemäß bestehender Entscheidung
+standardmäßig zwei Worker; für GitHub/CI gelten die gesonderten Regeln.
+
+Ein Screenshot, ein synthetischer Abschluss-Spielstand oder eine
+bestandene Teilprüfung ist keine vollständige Funktionsabnahme.
+
+## Browserbindung des interaktiven Reviewrunners
+
+- Den vorhandenen Playwright-Chromium verwenden.
+- Keine automatische Auswahl des installierten Google Chrome.
+- Festes Profil:
+  ~/Library/Application Support/iTamaPoke-Revisionsbrowser-Playwright
+- Normales Chrome und andere Profile nicht beenden oder verändern.
+- Vorhandenen Browserpfad vor dem Start auf Ausführbarkeit prüfen.
+- Keine automatischen Browserinstallationen.
+- Bedienung mit Testbadge, Screenshot/Notiz und Spielstandtasten bleibt.
+- Den bisherigen Review-Profilordner nicht löschen oder überschreiben.

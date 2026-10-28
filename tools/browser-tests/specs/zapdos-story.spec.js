@@ -186,18 +186,26 @@ test('P06 Zapdos: actual victory, automatic admission and completion survive rel
  await H.openHub(page);
  await expect(page.locator(
   '#tp-app-page button[data-hub="stories"] .tp-hub-count'
- )).toHaveCount(0);
+ )).toHaveText('1');
+ expect(await page.evaluate(()=>TPArktos.read().step)).toBe(0);
  await page.locator('#tp-app-page').getByRole('button',{
   name:'Geschichten',exact:true
  }).click();
  await expect(page.locator('#tp-stories-page')).toBeVisible();
+ const arktosTile=page.locator(
+  '#tp-stories-page button[data-story="articuno"]'
+ );
+ await expect(arktosTile).toBeEnabled();
+ await expect(arktosTile).toHaveAttribute('data-complete','false');
+ await expect(arktosTile.locator('.tp-story-open-dot')).toHaveCount(1);
  await expect(page.locator(
   '#tp-stories-page button[data-story="zapdos"] .tp-story-open-dot'
  )).toHaveCount(0);
  await page.reload();await H.waitReady(page);await H.openHub(page);
  await expect(page.locator(
   '#tp-app-page button[data-hub="stories"] .tp-hub-count'
- )).toHaveCount(0);
+ )).toHaveText('1');
+ expect(await page.evaluate(()=>TPArktos.read().step)).toBe(0);
  await completedCatalogue(page);
 });
 test('P06 Zapdos: full team uses pinned-care replacement and retains outgoing individual',async({page})=>{

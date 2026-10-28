@@ -12,7 +12,7 @@ const T=require('../browser_ver/web/storage-tools.js');
 
 const encoder=new TextEncoder();
 let collection=encoder.encode(M.encode(M.create()));
-let notice=0,allowed=1,badges=6,checkpoint=null,serial=0;
+let notice=0,allowed=1,badges=4,checkpoint=null,serial=0;
 let rejectWrite=false,writeCount=0,durable=null,held=null;
 
 const mod={
@@ -100,14 +100,14 @@ adapter.bind(controller);
  assert.equal(adapter.noticeSupported,true);
  assert.deepEqual(adapter.access(),{
   phase:'investigate',canBattle:false,ticket:0,
-  unlocked:true,badges:6,noticeRead:false,newlyUnlocked:true
+  unlocked:true,badges:4,noticeRead:false,newlyUnlocked:true
  });
  assert.equal(writeCount,0);
 
- allowed=0;badges=5;
+ allowed=0;badges=3;
  await assert.rejects(()=>adapter.acknowledgeNotice(),/ZAPDOS_LOCKED/);
  assert.equal(writeCount,0);assert.equal(notice,0);
- allowed=1;badges=6;
+ allowed=1;badges=4;
 
  notice=-1;
  assert.throws(()=>adapter.access(),/INVALID_ZAPDOS_ACCESS/);

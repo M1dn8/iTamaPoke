@@ -2,6 +2,7 @@
  * Native snapshots own stats/damage; this module only renders and routes taps.
  */
 (function(){'use strict';let key='',menu='main',last=null,targets={},feedbackAt=0,feedbackKey='',captureFx=null,captureView=null;
+const activeStoryUI=()=>window.TPArktosUI?.owns()?window.TPArktosUI:window.TPZapdosUI;
 const leagueText=(key,params={})=>window.TPLeagueText?
  window.TPLeagueText.t(key,params):TPText.t('leagueTeam.'+key,params);
 const call=(n,...a)=>Module.ccall(n,'number',a.map(()=> 'number'),a);
@@ -69,7 +70,7 @@ function drawTeamMenu(m){
    (condition?' · '+condition:''),x+97.5,y+37,9,'#5d5960',183);
  });
  if(state.needsSwitch){
-  button('abort',m.mode==='league'?leagueText('giveUp'):m.mode==='zapdos'?window.TPZapdosUI.text('abort'):teamText('flee'),50,350,366);
+  button('abort',m.mode==='league'?leagueText('giveUp'):m.mode==='zapdos'?activeStoryUI().text('abort'):teamText('flee'),50,350,366);
  }else{
   button('back',TPText.t('common.back'),50,350,366);
  }
@@ -154,7 +155,7 @@ function draw(m){prepare(m);const capture=captureState(m);if(capture&&ownsCaptur
  text(capture?.detail||m.reward||('Runde '+(m.round||0)+' · Heilungen '+m.rests+(m.note?' · '+m.note:'')),233,335,10,'#5d5960',438);
  if(m.resultPending){
   if(!m.resultSaving&&m.error){
-   button('resultRetry',m.mode==='zapdos'?window.TPZapdosUI.text('retry'):teamText('retry'),50,350,366);
+   button('resultRetry',m.mode==='zapdos'?activeStoryUI().text('retry'):teamText('retry'),50,350,366);
   }else{
    text(teamText('saving'),233,378,14);
   }
@@ -205,7 +206,7 @@ function leagueModel(v,error='',retry=false){const trainer=Math.min(4,Math.floor
 
 function standard(){
  const b=k=>call('tp_bv_get',k),trainer=!!window.TPTrainer.active();
- const story=!!window.TPZapdosUI?.owns();
+ const story=!!activeStoryUI()?.owns();
  const arena=b(10),form=b(5);
  const arenaRegion=trainer&&arena>=0&&
   typeof Module._tp_region_arena_session_region==='function'?
@@ -222,20 +223,20 @@ function standard(){
  })):null;
  return {
   wildTeam:teamActive?team:null,enemyTeam,
-  resultPending:story?window.TPZapdosUI.resultPending:
+  resultPending:story?activeStoryUI().resultPending:
    teamActive&&(arenaTeam?team.seriesDone&&!team.resultDone:team.resultPending),
-  resultSaving:story?window.TPZapdosUI.saving:
+  resultSaving:story?activeStoryUI().saving:
    teamActive&&(arenaTeam?!!window.TPArena?.busy:!!window.TPWildTeam?.saving),
-  reward:story?window.TPZapdosUI.reward:
+  reward:story?activeStoryUI().reward:
    teamActive&&!arenaTeam?window.TPWildTeam?.reward||'':'',
-  headline:story?window.TPZapdosUI.headline:'',
+  headline:story?activeStoryUI().headline:'',
   region:arena>=0?arenaRegion:0,
   mode:story?'zapdos':trainer?(arena>=0?'arena':'trainer'):'wild',
   id:b(0),
   theme:arena>=0?(arenaRegion===1?
    ['field','field','field','ghost','rock','rock','ice','dragon']:
    ['rock','ice','field','field','ghost','ghost','champ','rock'])[arena]:'field',
-  title:story?window.TPZapdosUI.text('battleTitle'):
+  title:story?activeStoryUI().text('battleTitle'):
    trainer?(arena>=0?arenaCatalog?.leaders?.[arena]?.name||'Arena':'Trainerkampf')+
    ' · '+(enemyIndex+1)+'/'+window.TPTrainer.get(1):'Wilder Kampf',
   round:fns.battleRound(),note:fns.battleMessage(),
@@ -247,7 +248,7 @@ function standard(){
   catchTried:!trainer&&!story&&!!call('tp_battle_catch_tried'),
   catchSuccess:!trainer&&!story&&!!call('tp_battle_catch_success'),
   catchAllowed:!story&&(capture?capture.allowed:true),
-  error:story?window.TPZapdosUI.error:
+  error:story?activeStoryUI().error:
    (arenaTeam?window.TPArena?.snapshot?.error:
     teamActive?window.TPWildTeam?.error:'')||capture?.message||'',
   dealt:b(7),taken:b(8),heal:b(9),
@@ -259,7 +260,7 @@ function standard(){
    atk:b(2),def:b(3),spe:b(4)
   },
   enemy:{
-   caught:story?window.TPZapdosUI.caught:
+   caught:story?activeStoryUI().caught:
     !trainer&&(captureFx&&captureFx.id===b(0)&&captureFx.mod===Module?
      (captureFx.previouslyCaught||(captureFx.committed&&captureFx.success)):
      !!call('tp_battle_wild_already_caught')),
@@ -269,7 +270,7 @@ function standard(){
  };
 }
 function supported(){try{return !!Module&&typeof Module._tp_bv_get==='function';}catch(_){return false;}}
-function drawStandard(){if(!supported())return false;if(!call('tp_battle_is_open')){captureFx=null;captureView=null;targets={};screen=battleReturn;return true;}if(window.TPTrainer.active()&&(!call('tp_f2_can_actor')||document.visibilityState!=='visible')){window.TPTrainer.abort();return true;}window.TPZapdosUI?.poll();window.TPWildTeam?.poll();draw(standard());return true;}
+function drawStandard(){if(!supported())return false;if(!call('tp_battle_is_open')){captureFx=null;captureView=null;targets={};screen=battleReturn;return true;}if(window.TPTrainer.active()&&(!call('tp_f2_can_actor')||document.visibilityState!=='visible')){window.TPTrainer.abort();return true;}window.TPZapdosUI?.poll();window.TPArktosUI?.poll();window.TPWildTeam?.poll();draw(standard());return true;}
 function abort(m){if(m.mode!=='wild'&&!m.resolved&&!confirm('Kampf aufgeben? Bereits bezahlte Energie wird nicht erstattet.'))return false;if(m.mode==='trainer'||m.mode==='arena')window.TPTrainer.abort();else{Module._tp_battle_close();screen=battleReturn;}return true;}
 function tapStandard(x,y){
  if(!supported())return false;
@@ -277,12 +278,12 @@ function tapStandard(x,y){
  if(ownsCapture(m)&&!captureFx.settled)return true;
  const a=handle(x,y,m);if(!a)return true;
  if(m.mode==='zapdos'){
-  if(a==='resultRetry'){window.TPZapdosUI.retry();return true;}
+  if(a==='resultRetry'){activeStoryUI().retry();return true;}
   if(/^member[0-5]$/.test(a)){
-   window.TPZapdosUI.switchTo(Number(a.slice(6)));return true;
+   activeStoryUI().switchTo(Number(a.slice(6)));return true;
   }
-  if(a==='ok'){window.TPZapdosUI.finish();return true;}
-  if(a==='abort'){window.TPZapdosUI.abort();return true;}
+  if(a==='ok'){activeStoryUI().finish();return true;}
+  if(a==='abort'){activeStoryUI().abort();return true;}
  }else{
   if(a==='resultRetry'){
    if(m.mode==='arena')window.TPArena?.complete();

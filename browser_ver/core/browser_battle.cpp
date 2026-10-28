@@ -139,6 +139,7 @@ struct WTResultUndo {uint32_t token=0;bool applied=false;};
 WTResultUndo gWTResultUndo;
 // P06 owns a distinct result channel, never the normal wild reward/catch path.
 bool gZpdOwned=false,gZpdResultPending=false,gZpdResultDone=false;
+int gStoryDex=0;
 WTResultUndo gZpdResultUndo;
 struct WTArenaResultUndo {
   uint32_t token=0;
@@ -199,7 +200,7 @@ void startBattle(int16_t forcedDex, uint8_t forcedLevel) {
   gTrainer=false;gTrainerNext=false;gTrainerCount=gTrainerIndex=0;
   gTrainerRounds=gTrainerDealt=gTrainerTaken=0;
   gWildTeam.clear();gWTResultPending=false;
-  gZpdOwned=gZpdResultPending=gZpdResultDone=false;
+  gZpdOwned=gZpdResultPending=gZpdResultDone=false;gStoryDex=0;
   gWTArenaLevelGains={};
   gWTArenaResultDone=false;
   gRewardLine.clear();
@@ -394,7 +395,7 @@ void tp_battle_close() {
   gArenaId=-1;gArenaToken=0;gArenaPhase=0;gArenaRegion=0;
   gTrainer=false;gTrainerNext=false;gTrainerCount=gTrainerIndex=0;
   gWildTeam.clear();gWTResultPending=false;
-  gZpdOwned=gZpdResultPending=gZpdResultDone=false;
+  gZpdOwned=gZpdResultPending=gZpdResultDone=false;gStoryDex=0;
   gWTArenaLevelGains={};
   gWTArenaResultDone=false;
   gWTStageCount=gWTStageMask=0;
@@ -976,21 +977,22 @@ static bool wtResultActorValid(){
 // P06 fixed Zapdos duel. Existing legacy native suites retain their scope;
 // browser builds and the dedicated duel suite enable this result channel.
 #if defined(__EMSCRIPTEN__) || defined(TP_ZPD_TEST)
-extern int tp_zpd_step();
+extern int tp_story_step(int);
+extern int tp_story_access(int);
 extern int tp_f4_admission_pending();
-extern int tp_zpd_store_victory(uint32_t,uint32_t);
+extern int tp_story_store_victory(uint32_t,int,uint32_t);
 extern uint32_t tp_f4_store_begin_zapdos_result_context();
 
 static bool zpdResultEligible(){
  return gZpdOwned&&gOpen&&!gTrainer&&gArenaId<0&&gResolved&&
   gWildTeam.count()&&gZpdResultPending&&!gZpdResultDone&&
   !gWTResultUndo.token&&!gWTArenaResultUndo.token&&!gArenaUndo&&
-  wtResultActorValid()&&tp_zpd_step()==2;
+  wtResultActorValid()&&tp_story_step(gStoryDex)==2;
 }
 #endif
 
-EMSCRIPTEN_KEEPALIVE int tp_zpd_get(int key){
- if(!gZpdOwned||!gOpen)return 0;
+EMSCRIPTEN_KEEPALIVE int tp_story_duel_get(int dex,int key){
+ if(!gZpdOwned||!gOpen||dex!=gStoryDex)return 0;
  switch(key){
   case 0:return 1;
   case 1:return gZpdResultPending?1:0;
@@ -1001,24 +1003,25 @@ EMSCRIPTEN_KEEPALIVE int tp_zpd_get(int key){
  return 0;
 }
 
-EMSCRIPTEN_KEEPALIVE int tp_zpd_start(){
+EMSCRIPTEN_KEEPALIVE int tp_story_duel_start(int dex){
+ if(dex!=144&&dex!=145)return 0;
 #if defined(__EMSCRIPTEN__) || defined(TP_ZPD_TEST)
  if(gOpen||leagueOwned()||gArenaUndo||!wtStoreFree()||
     !tp_battle_can_start()||tp_battle_pet().evolving()||
-    gWildPromptActive||tp_zpd_step()!=2||
+    gWildPromptActive||tp_story_step(dex)!=2||tp_story_access(dex)!=1||
     tp_f4_admission_pending()!=0||!gWTStageCount||gWTStageCount>6||
     gWTStageMask!=((1u<<gWTStageCount)-1u))return 0;
  const unsigned count=gWTStageCount;
  TPWildTeamEntry entries[6]{};
  for(unsigned i=0;i<count;i++)entries[i]=gWTMembers[i].entry;
- startBattle(145,50);
+ startBattle(dex,50);
  if(!gOpen||!gWildTeam.begin(gRun,entries,count,gEnemy)){
   if(gOpen)tp_battle_close();
   return 0;
  }
  gWTStageCount=gWTStageMask=0;
  gPlayer=gRun.player;gPlayerMegaForm=gWTMembers[0].form;
- gZpdOwned=true;gZpdResultPending=gZpdResultDone=false;
+ gZpdOwned=true;gStoryDex=dex;gZpdResultPending=gZpdResultDone=false;
  return 1;
 #else
  return 0;
@@ -1035,11 +1038,11 @@ int tp_zpd_can_result_begin(){
 #endif
 }
 
-EMSCRIPTEN_KEEPALIVE const char *tp_zpd_snapshot(){
+EMSCRIPTEN_KEEPALIVE const char *tp_story_duel_snapshot(int dex){
  static std::string out;
 #if defined(__EMSCRIPTEN__) || defined(TP_ZPD_TEST)
- if(gZpdOwned&&gOpen&&gResolved&&gTurn.playerWon){
-  out="{\"dex\":145,\"level\":50,\"nickname\":\"\",\"shiny\":false,"
+ if(gZpdOwned&&gOpen&&dex==gStoryDex&&gResolved&&gTurn.playerWon){
+  out="{\"dex\":"+std::to_string(dex)+",\"level\":50,\"nickname\":\"\",\"shiny\":false,"
    "\"origin\":\"wild\",\"data\":{\"stats\":{\"atk\":"+
    std::to_string(gEnemy.atk)+",\"def\":"+std::to_string(gEnemy.def)+
    ",\"spe\":"+std::to_string(gEnemy.spe)+
@@ -1050,9 +1053,9 @@ EMSCRIPTEN_KEEPALIVE const char *tp_zpd_snapshot(){
  out="null";return out.c_str();
 }
 
-EMSCRIPTEN_KEEPALIVE uint32_t tp_zpd_result_begin(){
+EMSCRIPTEN_KEEPALIVE uint32_t tp_story_duel_result_begin(int dex){
 #if defined(__EMSCRIPTEN__) || defined(TP_ZPD_TEST)
- if(!tp_zpd_can_result_begin())return 0;
+ if(dex!=gStoryDex||!tp_zpd_can_result_begin())return 0;
  const auto token=tp_f4_store_begin_zapdos_result_context();
  if(!token)return 0;
  gZpdResultUndo={token,false};
@@ -1062,19 +1065,19 @@ EMSCRIPTEN_KEEPALIVE uint32_t tp_zpd_result_begin(){
 #endif
 }
 
-EMSCRIPTEN_KEEPALIVE int tp_zpd_result_apply(uint32_t token,uint32_t ticket){
+EMSCRIPTEN_KEEPALIVE int tp_story_duel_result_apply(int dex,uint32_t token,uint32_t ticket){
 #if defined(__EMSCRIPTEN__) || defined(TP_ZPD_TEST)
- if(!token||token!=gZpdResultUndo.token||gZpdResultUndo.applied||
+ if(dex!=gStoryDex||!token||token!=gZpdResultUndo.token||gZpdResultUndo.applied||
     !zpdResultEligible())return 0;
  if(gTurn.playerWon){
   // JS has staged the matching immutable admission candidate first.
-  if(!tp_zpd_store_victory(token,ticket))return 0;
+  if(!tp_story_store_victory(token,dex,ticket))return 0;
  }else if(ticket!=0||tp_f4_admission_pending()!=0){
   return 0;
  }
  auto &p=tp_battle_pet();
  if(!p.recordWildBattleOutcome(gTurn.playerWon))return 0;
- if(gTurn.playerWon&&!p.recordStoryJoin(145))return 0;
+ if(gTurn.playerWon&&!p.recordStoryJoin(dex))return 0;
  gZpdResultUndo.applied=true;
  return 1;
 #else
@@ -1082,9 +1085,9 @@ EMSCRIPTEN_KEEPALIVE int tp_zpd_result_apply(uint32_t token,uint32_t ticket){
 #endif
 }
 
-EMSCRIPTEN_KEEPALIVE int tp_zpd_result_finish(uint32_t token,int commit){
+EMSCRIPTEN_KEEPALIVE int tp_story_duel_result_finish(int dex,uint32_t token,int commit){
 #if defined(__EMSCRIPTEN__) || defined(TP_ZPD_TEST)
- if(!token||token!=gZpdResultUndo.token||(commit!=0&&commit!=1)||
+ if(dex!=gStoryDex||!token||token!=gZpdResultUndo.token||(commit!=0&&commit!=1)||
     (commit&&!gZpdResultUndo.applied))return 0;
  if(!tp_f4_store_finish(token,commit))return 0;
  if(commit){gZpdResultPending=false;gZpdResultDone=true;}
@@ -1093,6 +1096,27 @@ EMSCRIPTEN_KEEPALIVE int tp_zpd_result_finish(uint32_t token,int commit){
 #else
  (void)token;(void)commit;return 0;
 #endif
+}
+
+
+// Backward-compatible Zapdos entry points use the shared channel.
+EMSCRIPTEN_KEEPALIVE int tp_zpd_get(int key){
+ return tp_story_duel_get(145,key);
+}
+EMSCRIPTEN_KEEPALIVE int tp_zpd_start(){
+ return tp_story_duel_start(145);
+}
+EMSCRIPTEN_KEEPALIVE const char *tp_zpd_snapshot(){
+ return tp_story_duel_snapshot(145);
+}
+EMSCRIPTEN_KEEPALIVE uint32_t tp_zpd_result_begin(){
+ return tp_story_duel_result_begin(145);
+}
+EMSCRIPTEN_KEEPALIVE int tp_zpd_result_apply(uint32_t token,uint32_t ticket){
+ return tp_story_duel_result_apply(145,token,ticket);
+}
+EMSCRIPTEN_KEEPALIVE int tp_zpd_result_finish(uint32_t token,int commit){
+ return tp_story_duel_result_finish(145,token,commit);
 }
 
 EMSCRIPTEN_KEEPALIVE uint32_t tp_wt_result_begin(){

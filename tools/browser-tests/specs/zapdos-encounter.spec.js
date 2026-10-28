@@ -176,3 +176,51 @@ for(const input of ['Antippen','Tastatur'])
    .toBe('zapdos');
   expect(await page.evaluate(()=>fns.battleWildDex())).toBe(145);
  });
+
+test('Begegnung: gehaltene und alte Eingabe startet kein Duell',async({page})=>{
+ await seedSprite(page);
+ await openStory(page);
+ await body(page).getByRole('button',{
+  name:'Fortsetzen',exact:true
+ }).click();
+
+ for(let i=0;i<10;i++)
+  await body(page).locator('button[data-security-tap]').click();
+
+ await expect.poll(()=>page.evaluate(()=>TPZapdos.read().step)).toBe(2);
+
+ const immediate=await page.evaluate(async()=>{
+  TPAppMenu.show('zapdos');
+  document.dispatchEvent(new PointerEvent('pointerdown',{
+   pointerId:777,bubbles:true
+  }));
+  window.__tapGuardHeldAt=performance.now();
+  return TPZapdosUI.start();
+ });
+ expect(immediate).toBe(false);
+ expect(await page.evaluate(()=>screen)).toBe('settings');
+
+ // The finger remains down beyond the initial protection period.
+ await page.waitForFunction(
+  ()=>performance.now()-window.__tapGuardHeldAt>=700
+ );
+ const target=body(page).getByRole('button',{
+  name:'Prüfduell beginnen',exact:true
+ });
+ await expect(target).toBeDisabled();
+ expect(await page.evaluate(()=>TPZapdosUI.start())).toBe(false);
+
+ const released=await page.evaluate(async()=>{
+  document.dispatchEvent(new PointerEvent('pointerup',{
+   pointerId:777,bubbles:true
+  }));
+  return TPZapdosUI.start();
+ });
+ expect(released).toBe(false);
+ expect(await page.evaluate(()=>screen)).toBe('settings');
+
+ await expect(target).toBeEnabled();
+ await target.click();
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('battle');
+ expect(await page.evaluate(()=>fns.battleWildDex())).toBe(145);
+});

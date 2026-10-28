@@ -251,3 +251,25 @@ bestandene Teilprüfung ist keine vollständige Funktionsabnahme.
 - Keine automatischen Browserinstallationen.
 - Bedienung mit Testbadge, Screenshot/Notiz und Spielstandtasten bleibt.
 - Den bisherigen Review-Profilordner nicht löschen oder überschreiben.
+
+## Verbindliche Legendären-Regression
+
+Für jede neue Legendären-Geschichte gemeinsam absichern:
+
+1. Abschluss der vorgeschalteten Aufgabe mit schnellem Weitertippen.
+2. Alte, gehaltene oder fortgesetzte Berührungen starten kein Prüfduell.
+3. Nach Berührungsruhe startet ein neuer bewusster Tipp das Duell normal.
+4. Erfolgreiche automatische Aufnahme zeigt die Aufnahmesequenz.
+5. Volles Sechserteam: Austausch eines nicht gesperrten Mitglieds zeigt
+   nach erfolgreichem Speichern dieselbe Aufnahmesequenz.
+6. Boxentscheidung zeigt die Sequenz bei unverändertem Sechserteam.
+7. Fehlender Platz: spätere erfolgreiche Aufnahme führt ebenfalls zurück.
+8. Speicherfehler: noch kein Finale; nach erfolgreichem Retry genau eine
+   Aufnahme und korrekte Rückleitung.
+9. „Später“ oder Abbruch gewährt keinen vorzeitigen Abschluss.
+10. Individuum, Teamplanung, Tagebucheintrag und Storyfortschritt bleiben
+    nach erneutem Laden konsistent; keine doppelten Belohnungen.
+
+Gemeinsame Implementierung für Zapdos und Arktos beibehalten und bei
+Lavados, Mewtu, Mew sowie späteren Legendären-Geschichten wiederverwenden.
+Diese Vorgabe ist keine Vorab-Abnahme noch nicht implementierter Geschichten.

@@ -17,6 +17,35 @@ async function zapdosJournal(page){
   };
  });
 }
+async function expectSavedStoryFinale(page){
+ const finale=pageRoot(page).locator('.tp-zapdos-finale-art');
+ await expect(finale).toBeVisible();
+ await expect(pageRoot(page).getByRole('heading',{
+  name:'Kraftwerk-Abenteuer abgeschlossen',exact:true
+ })).toBeVisible();
+
+ const before=await page.evaluate(()=>{
+  const s=TPCollection.read();
+  return {
+   ids:s.mons.map(mon=>mon.id),team:s.team,active:s.active,
+   pending:TPAdmission.read().pending
+  };
+ });
+ expect(before.pending).toBeNull();
+ await expect(finale).toHaveAttribute('data-capture','playing');
+ await expect(finale).toHaveAttribute('data-capture','done',{
+  timeout:11000
+ });
+ await expect(finale.locator('.tp-zapdos-finale-caption'))
+  .toHaveText('Zapdos wurde aufgenommen!');
+ expect(await page.evaluate(()=>{
+  const s=TPCollection.read();
+  return {
+   ids:s.mons.map(mon=>mon.id),team:s.team,active:s.active,
+   pending:TPAdmission.read().pending
+  };
+ })).toEqual(before);
+}
 async function completedCatalogue(page){
  await H.openStories(page);
  await expect(page.locator('#tp-stories-page')).toBeVisible();
@@ -209,7 +238,8 @@ test('P06 Zapdos: actual victory, automatic admission and completion survive rel
  await completedCatalogue(page);
 });
 test('P06 Zapdos: full team uses pinned-care replacement and retains outgoing individual',async({page})=>{
- await strong(page);const before=await fill(page,5);await prepare(page);
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ await strong(page);await seedFinaleSprite(page);const before=await fill(page,5);await prepare(page);
  await begin(page);await fight(page);await saved(page);
  expect(await page.evaluate(()=>!!fns.battlePlayerWon())).toBe(true);
  await H.battleAction(page,'ok');await expect(admission(page)).toBeVisible();
@@ -217,6 +247,7 @@ test('P06 Zapdos: full team uses pinned-care replacement and retains outgoing in
  await expect(admission(page).getByRole('button',{name:/Pflege-Pokémon — fest/})).toBeDisabled();
  await admission(page).getByRole('button',{name:/^Fixture 0 ·/}).click();
  await expect.poll(()=>page.evaluate(()=>TPCollection.busy?'busy':TPZapdos.view().phase)).toBe('complete');
+ await expectSavedStoryFinale(page);
   expect((await zapdosJournal(page)).joins).toHaveLength(1);
  const after=await page.evaluate(()=>TPCollection.read());
  expect(after.active).toBe(before.active);
@@ -225,7 +256,8 @@ test('P06 Zapdos: full team uses pinned-care replacement and retains outgoing in
 });
 test('P06 Zapdos: full boxes retain won trial across reload and release permits box admission',async({page})=>{
  test.setTimeout(120000);
- await strong(page);await fill(page,200);await prepare(page);
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ await strong(page);await seedFinaleSprite(page);await fill(page,200);await prepare(page);
  await begin(page);await fight(page);await saved(page);
  expect(await page.evaluate(()=>!!fns.battlePlayerWon())).toBe(true);
  await H.battleAction(page,'ok');
@@ -243,6 +275,7 @@ test('P06 Zapdos: full boxes retain won trial across reload and release permits 
  await boxes.getByRole('button',{name:'Wartendes Pokémon aufnehmen',exact:true}).click();
  await admission(page).getByRole('button',{name:'In einer Box ablegen',exact:true}).click();
  await expect.poll(()=>page.evaluate(()=>TPCollection.busy?'busy':TPZapdos.view().phase)).toBe('complete');
+ await expectSavedStoryFinale(page);
   expect((await zapdosJournal(page)).joins).toHaveLength(1);
  expect(await page.evaluate(()=>TPCollectionModel.summary(TPCollection.read()).stored)).toBe(200);
 });

@@ -1,6 +1,7 @@
 /* P06 story page and combat orchestration. No independent save store. */
 (function(root){
  'use strict';
+ const storyUIs=new Set();
  function create(config){
  const tr=(key,params={})=>config.text(key,params);
  const svc=config.service,collection=()=>root.TPCollection;
@@ -17,6 +18,23 @@
  let securityGame=null,encounterArt=null,iceOpen=false;
  let ownedBattle=0,ownedMod=null,attempted=false,resultError='',historicalCaught=false;
  const busy=()=>starting||saving||claiming;
+ let challengeButton=null,challengeBlocker=null,challengeAllowed=false;
+ let lastRenderedPhase=null,lastFinaleTicket=0;
+ function updateEncounter(ready){
+  if(challengeButton){
+   challengeButton.disabled=!ready||!challengeAllowed||
+    busy()||!!collection()?.busy;
+   challengeButton.dataset.tapReady=String(ready);
+  }
+  if(challengeBlocker)challengeBlocker.hidden=ready;
+ }
+ const encounterGuard=root.TPStoryTapGuard.create({
+  now:()=>root.performance?.now?.()??Date.now(),
+  onChange:updateEncounter
+ });
+ encounterGuard.bind(document,
+  ()=>visible()&&cached?.phase==='duel');
+
  function owns(){
   try{return !!ownedBattle&&Module===ownedMod&&
    call('tp_zpd_get',[0])===1&&call('tp_zpd_get',[4])===ownedBattle;}
@@ -123,6 +141,11 @@
   if(cached.phase!=='secure'&&securityGame){
    securityGame.dispose();securityGame=null;
   }
+  const enteringDuel=cached.phase==='duel'&&lastRenderedPhase!=='duel';
+  lastRenderedPhase=cached.phase;
+  if(cached.phase!=='duel'){
+   challengeButton=null;challengeBlocker=null;encounterGuard.reset();
+  }
   const disabled=busy()||collection().busy;
   if(message&&!(cached.phase==='complete'&&message===tr('taken')))
    body.append(node('p',message));
@@ -140,7 +163,16 @@
    const challenge=button('',start,disabled||!canStart);
    challenge.className='tp-zapdos-challenge';
    challenge.setAttribute('aria-label',tr('start'));
-   encounterArt.element.append(challenge);
+   const blocker=node('div');
+   blocker.setAttribute('aria-hidden','true');
+   blocker.style.cssText=
+    'position:absolute;inset:0;z-index:4;background:transparent;touch-action:none;';
+   challengeButton=challenge;challengeBlocker=blocker;
+   challengeAllowed=!disabled&&canStart;
+   if(enteringDuel)encounterGuard.arm();
+   updateEncounter(encounterGuard.ready());
+
+   encounterArt.element.append(challenge,blocker);
    body.append(node('h3',tr('duelTitle')),encounterArt.element,
     node('p',tr('duelText')),node('p',tr('level')));
    if(!cached.canBattle){
@@ -152,12 +184,16 @@
     button(tr('admission'),openAdmission,disabled));
   }else{
    body.className='tp-app-list tp-zapdos-encounter tp-zapdos-finale';
+   if(Number.isSafeInteger(cached.ticket))lastFinaleTicket=cached.ticket;
    encounterArt=config.finale(tr);
    body.append(node('h3',tr('completeTitle')),encounterArt.element,
     node('p',tr('completeText')),node('p',tr('level')));
   }
  }
  function mount(host){
+  challengeButton=null;challengeBlocker=null;
+  encounterGuard.reset();lastRenderedPhase=null;
+
   securityGame?.dispose();securityGame=null;iceOpen=false;
   encounterArt?.dispose();encounterArt=null;
   body=host;body.id=config.pageId;body.tabIndex=0;
@@ -185,6 +221,7 @@
    root.TPBoxes?.active;
  }
  async function start(){
+  if(!encounterGuard.ready())return false;
   if(busy()||blocked()||!svc()?.supported||
      !root.TPAppMenu?.active||screen!=='settings'||choice!=='none'||
      document.visibilityState!=='visible')return false;
@@ -239,6 +276,9 @@
   }finally{saving=false;}
  }
  function poll(){
+  if(!visible()&&challengeButton){
+   challengeButton=null;challengeBlocker=null;encounterGuard.reset();
+  }
   if(securityGame&&!visible()){
    securityGame.dispose();securityGame=null;
   }
@@ -253,6 +293,21 @@
  function openAdmission(){
   if(busy()||blocked())return false;
   root.TPAppMenu.close();return root.TPAdmissionUI.open();
+ }
+ function admissionCompleted(pending){
+  if(!pending||pending.kind!=='join'||pending.source!==config.source||
+     pending.pokemon?.dex!==config.dex||!Number.isSafeInteger(pending.ticket)||
+     pending.ticket<1||pending.ticket===lastFinaleTicket)return false;
+  try{
+   const state=svc().view();
+   if(state.phase!=='complete'||state.ticket!==pending.ticket)return false;
+   const joined=collection().read().mons.some(mon=>
+    mon.dex===config.dex&&mon.data.admission?.kind==='join'&&
+    mon.data.admission.source===config.source&&
+    mon.data.admission.ticket===pending.ticket);
+   if(!joined)return false;
+   showStory();return true;
+  }catch(error){report(error);return false;}
  }
  function showStory(){root.TPAppMenu.show(config.route);}
  async function finish(){
@@ -290,8 +345,8 @@
   ownedBattle=0;ownedMod=null;resultError='';message='';
   screen='idle';showStory();return true;
  }
- return Object.freeze({
-  mount,start,advance,openChallenge,poll,switchTo,retry:saveResult,finish,abort,owns,text:tr,
+ const api=Object.freeze({
+  mount,start,advance,openChallenge,admissionCompleted,poll,switchTo,retry:saveResult,finish,abort,owns,text:tr,
   get busy(){return busy();},
   get saving(){return owns()&&saving;},
   get resultPending(){return owns()&&call('tp_zpd_get',[1])===1;},
@@ -311,9 +366,17 @@
     !!call('tp_zpd_get',[2])&&!!call('tp_zpd_get',[3]));
   }
  });
+ storyUIs.add(api);return api;
  }
+ root.TPStoryFinales=Object.freeze({
+  show(pending){
+   for(const api of storyUIs)
+    if(api.admissionCompleted(pending))return true;
+   return false;
+  }
+ });
  root.TPZapdosUI=create({
-  dex:145,route:'zapdos',pageId:'tp-zapdos-page',
+  dex:145,source:'story:kanto:zapdos',route:'zapdos',pageId:'tp-zapdos-page',
   text:(...a)=>root.TPZapdosText.t(...a),service:()=>root.TPZapdos,
   accessText:(...a)=>root.TPStoriesUI.text(...a),
   scene:kind=>root.TPPowerPlantScene?.create(kind),
@@ -326,7 +389,7 @@
    'inner',root.TPArktosText.t('sceneLabel'))
  });
  root.TPArktosUI=create({
-  dex:144,route:'articuno',pageId:'tp-articuno-page',
+  dex:144,source:'story:kanto:articuno',route:'articuno',pageId:'tp-articuno-page',
   text:(...a)=>root.TPArktosText.t(...a),service:()=>root.TPArktos,
   accessText:(...a)=>root.TPArktosText.t(...a),
   scene:kind=>root.TPIceCaveScene.create(

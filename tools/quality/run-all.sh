@@ -103,6 +103,7 @@ node tests/package-p06-articuno-wiring.test.js
 node tests/package-p06-ice-cave-game.test.js
 node tests/package-p06-ice-cave-i18n.test.js
 node tests/package-p06-shared-story-ui.test.js
+node tests/package-p06-story-followups.test.js
 python3 tools/quality/test-battle-energy.py
 python3 tools/quality/test-battle-view.py
 python3 tools/quality/test-asset-packs.py

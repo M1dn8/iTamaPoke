@@ -36,8 +36,9 @@ function gameFactory(kind){
  }};
 }
 const context={
+ TPStoryTapGuard:require('../browser_ver/web/story-tap-guard.js'),
  console,
- document:{visibilityState:'visible',createElement:tag=>new Element(tag)},
+ document:{visibilityState:'visible',addEventListener(){},removeEventListener(){},createElement:tag=>new Element(tag)},
  Module:{ccall(name){
   if(name==='tp_battle_can_start')return 1;
   throw Error('Unexpected native call: '+name);

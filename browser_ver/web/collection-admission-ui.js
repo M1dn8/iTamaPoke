@@ -43,18 +43,28 @@
   screen='card';cardPage=3;dragStart=dragNow=null;
   root.TPBoxes.open();
  }
+ function completeFinale(pending){
+  if(pending?.kind!=='join')return;
+  try{root.TPStoryFinales?.show(pending);}
+  catch(error){
+   try{root.TPDiagnostics?.record('manager',error);}catch(_){}
+  }
+ }
  async function complete(choice){
   if(busy)return;
   busy=true;message=tr('saving');render();
+  let completed=null;
   try{
+   const pending=service().read().pending;
    await service().complete(choice);
-   busy=false;message='';close();
+   busy=false;message='';close();completed=pending;
   }catch(error){
    message=error.code==='RELOAD_REQUIRED'?tr('reload'):
     error.code==='BOXES_FULL'?tr('waiting'):tr('failed');
    try{root.TPDiagnostics?.record('write',error);}catch(_){}
    busy=false;active=true;render();
   }
+  if(completed)completeFinale(completed);
  }
  function render(){
   if(!active||!page)return;

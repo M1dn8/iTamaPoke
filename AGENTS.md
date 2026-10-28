@@ -37,3 +37,24 @@ docs/PROJECT-PLAN.de.md und docs/TEST-WORKFLOW.de.md lesen.
 - Automatische Tests und deren Browserkontexte bleiben davon getrennt.
 - Keine dauerhafte Chat-Erinnerung zusichern: diese versionierten
   Anweisungen sind die maßgebliche Grundlage für Folgesitzungen.
+
+## Gemeinsame Übergänge aller Legendären-Geschichten
+
+- Begegnungs-Tippsperre und Aufnahmesequenz sind gemeinsame Funktionen.
+- Gilt für Zapdos und Arktos sowie künftig Lavados, Mewtu, Mew und
+  alle weiteren Legendären-Geschichten einschließlich späterer Regionen.
+- Vorhandene gemeinsame Storyoberfläche und story-tap-guard.js verwenden.
+- Keine separaten abweichenden Kopien dieser Abläufe je Pokémon anlegen.
+- Neue Storyprofile mit eindeutiger Quelle, Pokémon-ID und Route anlegen.
+- Die gemeinsame Finale-Registrierung und den gemeinsamen Aufnahmedialog
+  verwenden, damit auch manuelle und verspätete Aufnahmen zurückführen.
+- Finale erst nach dauerhaft bestätigter Aufnahme zeigen: automatisch,
+  nach Teamtausch, nach Boxentscheidung oder nach später freiem Platz.
+- Kein Finale bei Speicherfehler, wartender Aufnahme oder „Später“.
+- Wiederholte Rückmeldungen dürfen keine doppelte Aufnahme, Belohnung,
+  Tagebuchbuchung oder automatische Finale-Rückleitung auslösen.
+- Berührungen aus der vorherigen Ansicht dürfen kein Prüfduell starten.
+- Halten und schnelles Weitertippen prüfen, nicht nur eine feste Wartezeit.
+- Bewegungsreduktion und vorhandene Speicher-/Retryregeln erhalten.
+- Bei neuen Geschichten diese Übergänge im Browser und auf dem iPhone
+  mitprüfen; reine Modell-/Nativeprüfungen ersetzen dies nicht.

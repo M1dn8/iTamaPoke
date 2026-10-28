@@ -7,16 +7,19 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
 ## Aktueller Arbeitsstand
 
 - Aktives Gesamtpaket bleibt P06: Legendären-Geschichten Kanto.
-- Arktos ist manuell im Revisionsbrowser abgenommen.
-- Betroffene Browsergruppen, vollständige Browserregression und zentraler
-  nativer Check sind auf identischem Quell-/WASM-Stand bestanden.
-- Arktos ist zur Veröffentlichung bereit; GitHub-Ergebnis und
-  iPhone-Abnahme des veröffentlichten Standes stehen noch aus.
-- Nach diesem Veröffentlichungsabschluss folgt innerhalb von P06 Lavados
-  mit acht Kanto-Orden, anschließend Mewtu und Mew.
-- UI01 bleibt als eigenständiges Paket nach dem gesamten P06 und vor P07.
-- Der interaktive Revisionsbrowser ist verbindlicher Arbeitsweg;
-  Start und Bedienung stehen in docs/TEST-WORKFLOW.de.md.
+- Arktos-Grundstand 24a3105 veröffentlicht; GitHub-Build grün bestätigt.
+- Gemeinsame Nacharbeit für Zapdos und Arktos:
+  Begegnungs-Tippsperre und Finale nach manueller/späterer Aufnahme.
+- Nacharbeit im lokalen Revisionsbrowser positiv bestätigt.
+- Gezielte Zapdos-Browserregression: 34 Prüfungen bestanden.
+- affected, full und zentraler nativer Check auf identischem
+  Quell-/WASM-Stand bestanden.
+- Dieser Folgefix ist zur Veröffentlichung bereit.
+- GitHub-Ergebnis und erneute iPhone-Prüfung des Fixstands stehen aus.
+- Danach folgt innerhalb von P06 Lavados mit acht Kanto-Orden,
+  anschließend Mewtu und Mew.
+- Gemeinsame Übergangs-/Finaleregeln für alle späteren Geschichten verbindlich.
+- UI01 bleibt nach dem gesamten P06 und vor P07.
 
 ### Historischer Ausgangsstand vor dem Arktos-Abschluss
 
@@ -1413,3 +1416,79 @@ Status:
 - Lokal abgenommen und Abschlussprüfungen bestanden.
 - GitHub-Build/Deployment und iPhone-Abnahme separat bestätigen.
 - P06 insgesamt bleibt offen; keine Freigabe von P07 oder UI01 ableiten.
+
+## iPhone-Nacharbeit — Eingabeschutz und Aufnahmesequenz
+
+Nutzerbestätigung vom 28.10.2026:
+- GitHub-Build von 24a3105 grün.
+- Grundlegender iPhone-Ablauf funktioniert.
+- Zwei offene Befunde verhindern den endgültigen Abschluss:
+  schnelles Weiter-Tippen überspringt die Begegnung;
+  Aufnahmesequenz fehlt nach manueller Team-/Boxentscheidung.
+
+Gemeinsame Nacharbeit für die Storyprofile:
+- Begegnung mit 650 ms Anfangsschutz und 350 ms Berührungsruhe.
+- Gedrückte und aus vorheriger Ansicht stammende Zeiger abfangen.
+- Transparente Eingabefläche während der Sperre; kein Layoutumbau.
+- Nach erfolgreich gespeicherter manueller Aufnahme zur passenden
+  Story-Aufnahmesequenz zurückkehren.
+- Kein Finale bei Speicherfehler, wartender Aufnahme oder „Später“.
+- Quellen-/Ticketprüfung und Schutz vor doppelter automatischer Rückleitung.
+- Neue Storykonfigurationen über dieselbe gemeinsame Registrierung anbinden.
+- Noch keine bestandene Nacharbeits-/iPhone-Abnahme behaupten.
+- Vor Lavados diese beiden Punkte prüfen, veröffentlichen und abnehmen.
+
+## Gemeinsame Legendären-Korrekturen — Review bestätigt
+
+Nutzerbestätigung vom 28.10.2026:
+„alles funktioniert nun wie es soll auch die Tippsperre funktioniert sehr gut“
+
+- Lokale Review-Nacharbeit zu Tippsperre und Aufnahmesequenz positiv bestätigt.
+- Die Implementierung gilt gemeinsam für Zapdos und Arktos.
+- Automatische Prüfungen für beide Profile lagen bereits vor.
+- Zapdos-Browserprüfungen um tatsächliches Finale nach Teamtausch und
+  verspäteter Boxaufnahme sowie um den Begegnungsschutz erweitern.
+- Dieselben Funktionen künftig für Lavados, Mewtu, Mew und alle weiteren
+  Legendären-Geschichten verwenden; keine abweichenden Kopien.
+- Keine separate manuelle Zapdos-iPhone-Abnahme aus der Rückmeldung ableiten.
+- Abschlussprüfungen, Veröffentlichung dieser Nacharbeit und erneute
+  iPhone-Prüfung des veröffentlichten Fixstands stehen noch aus.
+
+## Gemeinsame Legendären-Nacharbeit — Abschlussprüfungen bestanden
+
+Nutzer hat die Nacharbeit im Revisionsbrowser positiv bestätigt.
+Gemeinsame Implementierung für Zapdos und Arktos; keine getrennten Kopien.
+
+Abschlussprüfungen:
+- affected: 117 bestanden,
+  1 übersprungen, 0 unerwartete Fehler,
+  0 instabile Tests; 2 Browser-Worker.
+- full: 325 bestanden,
+  1 übersprungen, 0 unerwartete Fehler,
+  0 instabile Tests; 2 Browser-Worker.
+- Zentraler nativer Gesamtcheck bestanden.
+- Keine parallele native Ausführung aus der Workerangabe ableiten.
+- Übersprungene Prüfungen nicht als bestanden zählen.
+
+Zusammengehörige Berichte:
+- affected: itamapoke-review-iXfY27
+- full: itamapoke-review-S76Y1G
+- native: itamapoke-review-1NiBjM
+
+Quellfingerabdruck:
+e6664759ab096065e1e71aeacbdee0bd4b5eee9252fc4d03d3742bef0826adf7
+
+WASM SHA-256:
+1e4651e1a92f3bfd7622e291d83f014a0170c4154bf7c42ea161bc9cea95ecee
+
+Umfang:
+- Begegnungsschutz mit Anfangssperre, Berührungsruhe und Loslassprüfung.
+- Finale nach dauerhaft gespeicherter manueller, Box- oder späterer Aufnahme.
+- Keine Sequenz bei Speicherfehler oder „Später“.
+- Quellen-/Ticketprüfung und Schutz vor doppelter automatischer Rückleitung.
+- Gemeinsame Vorgaben für Lavados, Mewtu, Mew und spätere Geschichten.
+- Zusätzliche Node- und echte Zapdos-Browserregressionen.
+
+Veröffentlichung:
+- Zur Veröffentlichung bereit.
+- GitHub-Ergebnis und iPhone-Abnahme dieses Fixstands separat dokumentieren.

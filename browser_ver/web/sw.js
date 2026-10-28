@@ -83,6 +83,7 @@ const FILES = [
     "./ice-cave-game.js",
 "./articuno-story-text.js",
   "./ice-cave-scene.js",
+  "./story-tap-guard.js",
   "./zapdos-story-ui.js",
   "./collection-boxes.css",
   "./asset-packs.js",

@@ -1031,3 +1031,51 @@ Jetzt folgende Zapdos-Nacharbeit:
   Push gesondert zu kontrollieren; hier noch nicht als grün behauptet.
 - Weitere Projektpakete und außerhalb dieses Reviewpakets verbleibende
   Aufgaben richten sich weiterhin nach dem Projektplan.
+
+### CI-Nacharbeit — Trainer-Kampfhelfer, 28.10.2026
+
+- Berichteter GitHub-Browserlauf fuer 27565e8 fehlgeschlagen:
+  313 bestanden, zwei Trainerpruefungen fehlgeschlagen, ein Test uebersprungen.
+- Bestaetigter Helferfehler: erneuter Zielabruf nach erfolgreichem Polling
+  kann null liefern; Klickziel wird jetzt aus dem bestaetigten Snapshot benutzt.
+- Nur frische Renderer-Snapshots passend zu Kampf-ID, Runde, Erholungen und
+  Ergebniszustand akzeptieren. Canvas-Koordinaten im selben Snapshot erfassen.
+- Heilung oeffnet nicht ersatzweise das Angriffsmenue. Menuewechsel und
+  echte Zugwirkung werden bestaetigt, keine automatische Klickwiederholung.
+- Trainerpruefung verlangt unveraendert genau eine verbrauchte Erholung.
+- Fuenf simulierte Helfer-Protokollfaelle vorab bestanden; keine echten
+  Browser-/Kampfergebnisse daraus abgeleitet.
+- Protokollpruefung in lokale Vorpruefung und zentrales Gate aufgenommen.
+- Spiel-/Native-Code, Timeouts und Ganztest-Retries unveraendert.
+- Gezielte Browserpruefungen, Folgecommit und erfolgreicher GitHub-Lauf offen.
+
+### CI-Nacharbeit — Liga-Checkpoint im Kampfhelfer
+
+- Erster korrigierter Trainerlauf: sechs Browserprüfungen bestanden.
+- Breiter Kampfgruppenlauf deckte eine zu enge neue Wirkungskontrolle auf:
+  automatischer Liga-Siegcheckpoint wurde nicht als Zugwirkung erkannt.
+- Helfer akzeptiert jetzt den bestätigten Fortschritt um einen Gegner
+  beziehungsweise den abgeschlossenen finalen Sieg in derselben Region.
+- Laufende/fehlgeschlagene Speicherung, Abbruch ohne Fortschritt,
+  fremde Region und unabhängige neue Kampf-ID werden nicht als
+  erfolgreicher Checkpoint gewertet.
+- Zusätzliche Protokollprüfung mit 14 simulierten Fällen integriert.
+- Spielcode, Timeouts, Ganztest-Retries und Klickanzahl unverändert.
+- Erneuter echter Kampfgruppenlauf und erfolgreicher GitHub-Lauf offen.
+
+### Geprüfter Folgefix — Kampf-Testhelfer, 28.10.2026
+
+- GitHub-Lauf von 27565e8 mit zwei Trainerfehlern nicht erfolgreich.
+- Kampfhelfer verwendet einen gemeinsam bestätigten Ziel-/Koordinatensnapshot
+  statt eines erneuten möglicherweise leeren Zielabrufs.
+- Menüwechsel und tatsächliche Zugwirkung werden ohne Nachklicken geprüft.
+- Automatisch gespeicherter Liga-Siegcheckpoint und finaler Abschluss werden
+  als gültige Übergänge berücksichtigt; Abbruch, fremde Region und
+  unbestätigte Speicherung zählen nicht als erfolgreicher Checkpoint.
+- Trainerprüfungen zunächst 6/6 erfolgreich.
+- Danach alle 114 Prüfungen der 13 betroffenen Kampf-Testdateien in
+  Chromium und WebKit bestanden; Laufzeit 5,1 Minuten, keine Test-Retries.
+- Helfer-Protokollprüfungen in Vorprüfung und zentrales Gate aufgenommen.
+- Keine Änderungen an Spielcode, nativen Regeln, Timeouts oder Fangchancen.
+- Folgecommit wird gepusht; erfolgreicher GitHub-Gesamtlauf und
+  Veröffentlichung bleiben bis zur CI-Bestätigung offen.

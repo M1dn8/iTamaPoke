@@ -123,26 +123,88 @@ async function closeHubModal(page){
 }
 async function diary(page){return openJournal(page);}
 async function battleAction(page,action){
- const target=a=>page.evaluate(a=>{const ui=window.TPBattleView,m=ui?.current;if(!m||tpSaveReplacing)return null;if(screen==='league'){if(!TPLeague.state.live||TPLeague.busy||m.id!==TPLeague.state.battleId)return null;}else if(screen!=='battle'||!Module.ccall('tp_battle_is_open','number',[],[])||m.id!==Module.ccall('tp_bv_get','number',['number'],[0]))return null;return ui.target(a)||null;},a);
- if(['quick','heavy','dodge','rest'].includes(action)&&!(await target(action))){
-  const back=await target('back');
-  if(back){
-   await tap(page,back.x,back.y);
-   // Menu state changes during the tap; targets update on the next draw.
-   // Wait for the requested main action or the main fight button before
-   // deciding whether another navigation step is required.
-   await expect.poll(async()=>(
-    !!(await target(action))||!!(await target('fight'))
-   )).toBe(true);
+ const capture=()=>page.evaluate(a=>{
+  const ui=window.TPBattleView,m=ui?.current;
+  if(!m||tpSaveReplacing)return null;
+  let id,round,rests,resolved,league=null;
+  if(screen==='league'){
+   const s=TPLeague.state;
+   if(!s.live||TPLeague.busy)return null;
+   id=s.battleId;round=s.round;rests=s.rests;resolved=!!s.resolved;
+   league={region:s.region,index:s.index};
+  }else{
+   if(screen!=='battle'||!Module.ccall('tp_battle_is_open','number',[],[]))return null;
+   id=Module.ccall('tp_bv_get','number',['number'],[0]);
+   round=fns.battleRound();
+   rests=Module.ccall('tp_battle_rest_uses_left','number',[],[]);
+   resolved=!!fns.battleResolved();
   }
-  if(!(await target(action))){
-   await expect.poll(()=>target('fight')).not.toBe(null);
-   const p=await target('fight');await tap(page,p.x,p.y);
-  }
- }else if(action==='abort'&&!(await target('abort'))){const back=await target('back');if(back)await tap(page,back.x,back.y);}
- await expect.poll(()=>target(action)).not.toBe(null);const p=await target(action);
- if(action==='abort'&&await page.evaluate(()=>TPBattleView.current?.mode!=='wild'&&!TPBattleView.current?.resolved))page.once('dialog',d=>d.accept());
- await tap(page,p.x,p.y);
+  if(m.id!==id||m.round!==round||m.rests!==rests||!!m.resolved!==resolved)return null;
+  const menu=ui.menu,fight=ui.target('fight'),back=ui.target('back');
+  // A menu switch can precede publication of its next drawn target map.
+  if((menu==='moves'&&fight)||(menu==='main'&&back))return null;
+  const rect=document.getElementById('tp').getBoundingClientRect();
+  if(!rect.width||!rect.height)return null;
+  const point=p=>p?{
+   x:rect.left+p.x*rect.width/466,
+   y:rect.top+p.y*rect.height/466
+  }:null;
+  return {
+   id,round,rests,resolved,menu,mode:m.mode,league,
+   confirmAbort:m.mode!=='wild'&&!resolved,
+   desired:point(ui.target(a)),fight:point(fight),back:point(back)
+  };
+ },action);
+ const waitChoice=async()=>{
+  let selected=null;
+  const attack=['quick','heavy','dodge'].includes(action);
+  const canBack=attack||action==='rest'||action==='abort';
+  await expect.poll(async()=>{
+   selected=await capture();
+   return !!selected&&(!!selected.desired||
+    (canBack&&!!selected.back)||(attack&&!!selected.fight));
+  },{message:'Current drawn battle target for '+action}).toBe(true);
+  return selected;
+ };
+ let before=null;
+ for(let navigation=0;navigation<3;navigation++){
+  const selected=await waitChoice();
+  if(selected.desired){before=selected;break;}
+  const point=selected.back||selected.fight;
+  if(!point)throw Error('No visible navigation route for '+action);
+  await page.mouse.click(point.x,point.y);
+ }
+ if(!before?.desired)throw Error('Battle navigation did not expose '+action);
+ if(action==='abort'&&before.confirmAbort)
+  page.once('dialog',dialog=>dialog.accept());
+ // Use the captured, validated coordinate; never read the target again.
+ await page.mouse.click(before.desired.x,before.desired.y);
+ if(['quick','heavy','dodge','rest'].includes(action)){
+  await expect.poll(()=>page.evaluate(previous=>{
+   if(previous.league){
+    const s=TPLeague.state;
+    if(!s||s.region!==previous.league.region)return false;
+    if(s.battleId===previous.id&&
+       (s.round>previous.round||!!s.resolved||!!s.needsSwitch))return true;
+    if(s.live||TPLeague.busy||tpSaveReplacing||s.pending||
+       window.TPCollection?.busy||window.TPCollection?.blocked)return false;
+    if(TPLeague.diagnostics?.phase!=='checkpoint')return false;
+    return s.index===previous.league.index+1||
+     (previous.league.index===25&&s.index===0&&!!s.done&&!s.state);
+   }
+   if(screen!=='battle'||!Module.ccall('tp_battle_is_open','number',[],[]))return false;
+   return Module.ccall('tp_bv_get','number',['number'],[0])===previous.id&&
+    (fns.battleRound()>previous.round||!!fns.battleResolved());
+  },{id:before.id,round:before.round,league:before.league}),{
+   message:'One real battle action must take effect: '+action
+  }).toBe(true);
+ }else if(['fight','back','info'].includes(action)){
+  const expected=action==='fight'?'moves':action==='back'?'main':null;
+  await expect.poll(()=>page.evaluate(expected=>{
+   const menu=TPBattleView.menu;
+   return expected?menu===expected:['team','info'].includes(menu);
+  },expected)).toBe(true);
+ }
 }
 
 

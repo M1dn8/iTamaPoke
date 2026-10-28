@@ -6,6 +6,8 @@ trap 'rm -rf "$TMP"' EXIT
 CXX=${CXX:-g++}
 for tool in node python3 "$CXX"; do command -v "$tool" >/dev/null || { echo "Fehlendes Testwerkzeug: $tool" >&2; exit 1; }; done
 node tools/quality/test-review-contracts.cjs
+node tests/package-battle-helper.test.js
+node tests/package-battle-league-transition.test.js
 for test in tests/package-f4-boxes.test.js tests/package-f4-lifecycle-ui.test.js tests/package-f4-lifecycle.test.js tests/package-f4-capture.test.js tests/package-f4-persistence.test.js tests/package-f4-collection.test.js tests/package-f3-browser-fix.test.js tests/package-f3.test.js tests/package-f2.test.js tests/package-f1.test.js tests/package-ci-perf.test.js tests/package-e3.test.js tests/package-e2-name.test.js tests/package-e2-size.test.js tests/package-e2.test.js tests/package-e.test.js tests/package-d3b.test.js tests/package-d3.test.js tests/package-d2.test.js tests/package-d1.test.js tests/package-a.test.js tests/package-b.test.js tests/package-c1-ui.test.js tests/package-c2-ui.test.js tests/package-c4-ui.test.js tests/package-c5-ui.test.js tests/package-c5-theme.test.js; do
   echo "Pruefe $test"; node "$test"
 done

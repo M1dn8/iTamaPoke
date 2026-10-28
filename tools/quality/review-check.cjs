@@ -73,6 +73,8 @@ async function preflight(){
  await run('diff-check','git',['diff','--check']);
  await run('test-contracts',process.execPath,['tools/quality/test-review-contracts.cjs']);
  await run('menu-renderer',process.execPath,['tests/package-c5-ui.test.js']);
+ await run('battle-helper-protocol',process.execPath,['tests/package-battle-helper.test.js']);
+ await run('league-transition-protocol',process.execPath,['tests/package-battle-league-transition.test.js']);
  for(const file of fs.readdirSync(path.join(root,'tools/browser-tests/specs')).filter(x=>x.endsWith('.js')))
   await run('syntax-'+file,process.execPath,['--check','tools/browser-tests/specs/'+file]);
  await run('config-syntax',process.execPath,['--check','tools/browser-tests/playwright.config.js']);

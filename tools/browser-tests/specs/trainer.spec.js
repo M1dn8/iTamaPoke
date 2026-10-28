@@ -11,7 +11,10 @@ test.beforeEach(async({page})=>{await H.prepare(page);await H.importSave(page,tr
 for(const team of [0,1])test('Trainer '+(team+1)+': echter Kampf, Rest-KP/Erholungen, keine Fangoption oder Belohnung',async({page})=>{
  await H.tap(page,233,308);await expect.poll(()=>page.evaluate(()=>screen)).toBe('trainer');await H.tap(page,233,team===0?190:260);
  await expect.poll(()=>page.evaluate(()=>screen)).toBe('battle');let s=await state(page);expect(s.count).toBe(team+1);const original=s.stats;
- await H.battleAction(page,'rest');s=await state(page);expect(s.rests).toBe(1);
+ expect(s.rests).toBe(2);
+ await H.battleAction(page,'rest');
+ await expect.poll(async()=>(await state(page)).rests).toBe(1);
+ s=await state(page);expect(s.rests).toBe(1);
  s=await fight(page);expect(s.won).toBe(true);expect(s.catch).toBe(false);expect(s.reward).toBe('');
  if(team===1){
   expect(s.next).toBe(true);expect(s.hp).toBeLessThan(s.max);const hp=s.hp,rests=s.rests;

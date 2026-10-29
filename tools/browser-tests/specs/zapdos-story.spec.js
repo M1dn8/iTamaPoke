@@ -72,8 +72,30 @@ async function prepare(page){
   await pageRoot(page).getByRole('button',{
    name:'Anlage sichern',exact:true
   }).click();
- await expect(pageRoot(page).getByRole('button',{name:'Prüfduell beginnen',exact:true}))
-  .toBeEnabled();
+ try{
+  await expect(pageRoot(page).getByRole('button',{
+   name:'Prüfduell beginnen',exact:true
+  })).toBeEnabled();
+ }catch(error){
+  const diagnostic=await page.evaluate(()=>({
+   screen,visibility:document.visibilityState,
+   focused:document.hasFocus(),
+   guard:TPZapdosUI.encounterGuardState,
+   step:TPZapdos.read().step,
+   collectionBusy:TPCollection.busy,
+   collectionBlocked:TPCollection.blocked,
+   storyBusy:TPZapdosUI.busy,
+   gate:tpSaveReplacing,
+   tapReady:document.querySelector(
+    '#tp-zapdos-page .tp-zapdos-challenge'
+   )?.dataset.tapReady
+  })).catch(cause=>({diagnosticError:cause.message}));
+  await test.info().attach('zapdos-encounter-guard-state',{
+   body:Buffer.from(JSON.stringify(diagnostic,null,2)),
+   contentType:'application/json'
+  });
+  throw error;
+ }
 }
 async function begin(page){
  await pageRoot(page).getByRole('button',{name:'Prüfduell beginnen',exact:true}).click();

@@ -27,6 +27,7 @@ static bool leagueOwned(){return false;}
 
 #include "pet.h"
 #include "region-progress-keys.h"
+#include "region-access.h"
 #include "dex.h"
 #include "i18n.h"
 #include "battle.h"
@@ -679,6 +680,7 @@ EMSCRIPTEN_KEEPALIVE int tp_f3_get(int key){
  return 0;
 }
 static int arenaStartFor(int region,int id){
+ if(tpRegionAccessState(region)!=1)return 0;
  const auto *leader=arenaLeaderFor(region,id);
  const auto *keys=region>=0&&region<=255?tpRegionProgressKeys(uint8_t(region)):nullptr;
  if(!leader||!keys||!tp_f2_can()||arenaMask(*keys)<0||gArenaUndo||gArenaSerial>=0x7ffffffe)return 0;
@@ -689,6 +691,7 @@ static int arenaStartFor(int region,int id){
  return int(gArenaToken);
 }
 EMSCRIPTEN_KEEPALIVE int tp_f3_start(int id){return arenaStartFor(0,id);}
+EMSCRIPTEN_KEEPALIVE int tp_region_access(int region){return tpRegionAccessState(region);}
 EMSCRIPTEN_KEEPALIVE int tp_region_arena_start(int region,int id){return arenaStartFor(region,id);}
 EMSCRIPTEN_KEEPALIVE int tp_region_arena_session_region(){return gOpen&&gArenaId>=0?gArenaRegion:-1;}
 static int arenaApplyFor(int region,int token){
@@ -1004,7 +1007,7 @@ EMSCRIPTEN_KEEPALIVE int tp_story_duel_get(int dex,int key){
 }
 
 EMSCRIPTEN_KEEPALIVE int tp_story_duel_start(int dex){
- if(dex!=144&&dex!=145)return 0;
+ if(dex!=144&&dex!=145&&dex!=146&&dex!=150&&dex!=151)return 0;
 #if defined(__EMSCRIPTEN__) || defined(TP_ZPD_TEST)
  if(gOpen||leagueOwned()||gArenaUndo||!wtStoreFree()||
     !tp_battle_can_start()||tp_battle_pet().evolving()||

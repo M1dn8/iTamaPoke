@@ -2,7 +2,7 @@
 const {test,expect}=require('@playwright/test');
 const H=require('./helpers');
 
-function fixture(){
+function fixture(region=0){
  const base=H.fixture(0),fields=new Map();
  let at=4;
  for(let i=0;i<base.readUInt32LE(0);i++){
@@ -13,11 +13,13 @@ function fixture(){
  }
  for(const [key,value] of Object.entries({
   agver:1,agmask:255,jagver:1,jagmask:255,
+  lgver:1,lgkdate:region===1?1700000000:0,
   ene:100,full:100,joy:100,hyg:100
  })){
   const bytes=Buffer.alloc(8);bytes.writeBigInt64LE(BigInt(value));
   fields.set(key,[1,bytes]);
  }
+ fields.set('lgkdone',[0,Buffer.from([region===1?1:0])]);
  const count=Buffer.alloc(4);count.writeUInt32LE(fields.size);
  return Buffer.concat([count,...Array.from(fields,([key,[type,value]])=>{
   const name=Buffer.from(key),length=Buffer.alloc(4);
@@ -56,6 +58,7 @@ async function openLeague(page,region){
  await expect.poll(()=>page.evaluate(()=>TPLeague.state?.teamMode)).toBe(true);
 }
 async function setup(page,{region=0,weakFirst=false,allWeak=false}={}){
+ if(region===1)await H.importSave(page,fixture(1),1);
  await H.game(page);
  const seed=await page.evaluate(async({weakFirst,allWeak})=>{
   await TPCollectionGame.ensureCurrent();
@@ -310,7 +313,7 @@ for(const region of [0,1]){
   expect(finalProfile.hallVersion).toBe(2);
   expect(finalProfile.hasRun).toBe(false);
   expect(finalProfile.careBattleBonus).toBe(0);
-  expect((await profile(page,1-region)).done).toBe(false);
+  expect((await profile(page,1-region)).done).toBe(region===1);
 
   await H.tap(page,333,440);
   await expect.poll(()=>page.evaluate(()=>TPHall.view.seen)).toBe(1);

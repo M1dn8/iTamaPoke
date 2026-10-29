@@ -14,8 +14,18 @@ hier vereinbarten Browser-/iPhone-Erweiterungen.
   c58a67cc00e7574a5dad9af1882f2c41ddcdf284.
 - GitHub-Build dieses Standes vom Nutzer als grün bestätigt.
 - iPhone-Abnahme vom Nutzer bestätigt; Nacharbeit abgeschlossen.
-- Nächster Inhaltsbaustein: Lavados, Freischaltung mit acht Kanto-Orden.
-- Lavados-Geschichte und Minispiel vor Umsetzung gemeinsam festlegen.
+- Gemeinsames lokales Restpaket P06: Lavados, Mewtu und Mew.
+- Konzepte für alle drei vom Nutzer freigegeben; Einzelheiten siehe
+  Abschnitt „Konzeptfreigabe Restpaket P06 — 28.10.2026“.
+- Lavados lokal implementiert; gezielte Prüfungen bestanden und vom Nutzer
+  nach Reviewkorrekturen am 28.10.2026 im Revisionsbrowser abgenommen.
+- Lavados und Mewtu lokal im Revisionsbrowser vom Nutzer abgenommen.
+- Geschichtenbuttons auf Ortsnamen ohne Pokémon-Spoiler korrigiert.
+- Johto-Sperre gezielt im Browser geprüft und vom Nutzer bestätigt.
+- Lavados, Mewtu und Mew lokal im Revisionsbrowser abgenommen.
+- Letzte Mew-Brückenkorrektur vom Nutzer am 29.10.2026 bestätigt.
+- Stand für vollständige Abschlussprüfungen eingefroren; Ergebnisse offen.
+- Noch keine neue iPhone-Abnahme oder Abschlussfreigabe des Restpakets.
 - Gemeinsame Tippsperre, Aufnahmewege und Finale-Regeln weiterverwenden.
 - Danach innerhalb von P06 Mewtu und Mew.
 - UI01 bleibt nach dem gesamten P06 und vor P07.
@@ -88,7 +98,7 @@ Eine neue Sitzung darf abgeschlossene Arbeit nicht ungeprüft neu eröffnen.
 | P05a | Team in Wildkämpfen | Abgenommen am 26.10.2026 | Erledigt | Individuelle Mitglieder, Wechsel, KP, Pokéball-Anzeigen, Levelbonus bis 100 und atomare Ergebnis-/Fangspeicherung |
 | P05b | Team in Arena-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit fb86920; zentrale Prüfung, WASM-Build, Browserprüfungen, CI/Veröffentlichung und manuelle iPhone-Abnahme erfolgreich |
 | P05c | Team in Liga-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit 02e3973; lokale Prüfungen und WASM-Build erfolgreich, 221 Browserprüfungen bestanden/1 übersprungen, Build grün gemeldet und Nutzerabnahme bestätigt; grafische Folgeoptimierungen zurückgestellt |
-| P06 | Legendären-Geschichten Kanto | Aktiv; Zapdos und Arktos abgenommen, Lavados als Nächstes | Hoch | Arktos einschließlich gemeinsamer Nacharbeit veröffentlicht; Build grün und iPhone-Abnahme bestätigt. Lavados, Mewtu und Mew weiterhin getrennt festlegen, umsetzen und abnehmen |
+| P06 | Legendären-Geschichten Kanto | Aktiv; Restpaket lokal abgenommen, vollständige Abschlussprüfungen offen | Hoch | Arktos einschließlich gemeinsamer Nacharbeit veröffentlicht; Build grün und iPhone-Abnahme bestätigt. Lavados, Mewtu und Mew weiterhin getrennt festlegen, umsetzen und abnehmen |
 | UI01 | Interface der Pokédex-Zentrale überarbeiten; Canvas aufräumen und optimieren | Offen; nach P06, vor P07 | Nach Umfangsfestlegung bewerten | Konkrete Ansichten und Änderungen gemeinsam festlegen; Revisionsbrowser-Prüfung, passende Tests und iPhone-Abnahme |
 | P07 | Legendären-Geschichten Johto | Offen | Hoch | Auf Storysystem aufbauen; getrennte regionale Fortschritte und geprüfte Freischaltungen |
 | P08 | Weitere Mega-Entwicklungen | Offen | Hoch | Bestand und Zielarten festlegen; Voraussetzungen, Werte, Darstellung, Rückverwandlung und Speicherung pro Ausbaustufe prüfen |
@@ -1552,3 +1562,588 @@ Nutzerbestätigung:
   Begegnungslevel als freigegeben behandeln.
 - Gemeinsame Übergangs-/Aufnahmeregeln und den dokumentierten
   interaktiven Revisionsbrowser verbindlich weiterverwenden.
+
+## Konzeptfreigabe Restpaket P06 — 28.10.2026
+
+Vom Nutzer ausdrücklich freigegeben:
+- Alle drei Begegnungen auf Level 50.
+- Kostenlose Minispielwiederholungen ohne Energieverlust bei allen drei.
+- Lavados: acht unterschiedliche Kanto-Orden; Siegesstraße;
+  Geschichte „Der versperrte Seitenpfad“; Felsenschieber-Minispiel.
+  Felsen antippen, angrenzendes freies Feld wählen; Bodenplatten belegen.
+  Blockierte Bewegungen nicht ausführen; Zurücksetzen; zunächst ohne Timer.
+  Feldaufteilung und endgültige Felsenanzahl noch auszuarbeiten.
+- Mewtu: erster vollständiger Ligasieg; Azuria-Höhle;
+  Geschichte „Die unsichtbare Barriere“; schrumpfender Psi-Ring.
+  Drei erfolgreiche Impulse im Zielbereich lösen die Barriere.
+  Fehleingaben zählen nicht; zunächst kein zusätzlicher Gesamttimer.
+- Mew: erst nach erfolgreichem Abschluss aller drei Liga-Durchläufe;
+  keine zusätzliche Aufnahme von Mewtu als Voraussetzung beschlossen.
+  Versteckte Lichtung nördlich der Nuggetbrücke;
+  Geschichte „Das Versteck hinter der Nuggetbrücke“; Versteckspiel.
+  Drei feste große Verstecke, drei richtige Entdeckungen, kein Gesamttimer.
+  Falsche Wahl wiederholt dieselbe Runde mit neuem Hinweis.
+- Hinweiszeiten, Ringgeschwindigkeit und Trefferbereich im Review abstimmen.
+- Gemeinsame Tippsperre, Aufnahmewege und Finale-Registrierung verwenden.
+- Finale erst nach dauerhaft bestätigter Aufnahme; auch nach Teamtausch,
+  Boxentscheidung oder später freiem Platz; keine doppelten Abschlüsse.
+- Nicht scrollende Storyansichten; Minispielstart über das Bild.
+- Lokal in der Reihenfolge Lavados, Mewtu, Mew umsetzen und einzeln prüfen.
+- Betroffene Tests/Helfer mitpflegen; bestehenden Revisionsbrowser nutzen.
+- Vollständige Abschlussprüfungen erst nach manueller Paketabnahme.
+- Kein zwischenzeitlicher Commit/Push; gemeinsame Veröffentlichung erst
+  nach Fertigstellung, erfolgreichen Abschlussprüfungen und Nutzerfreigabe.
+
+Erster lokaler Teilschritt:
+- Lavados-Profil im gemeinsamen JS-Storymodell ergänzen.
+- Dünnes Lavados-Modul und Modelltests ergänzen.
+- Native Freischaltung, Persistenz, Kampf, Menü, Grafik und Minispiel
+  sind damit noch nicht angebunden.
+- Prüfergebnisse erst nach tatsächlicher Ausführung nachtragen.
+
+### Lavados-Zwischenstand — Modell und JS-Anbindung
+
+- Nutzer meldet erfolgreiche Modellprüfungen für Zapdos, Arktos und
+  Lavados: jeweils 88 Assertions sowie vorhandene Profiltrennungsprüfungen.
+- Lavados im gemeinsamen Controller, strikten Spielstandprüfer und
+  gemeinsamen Aufnahmeweg ergänzt; Prüfungen dieses Schritts noch offen.
+- Neue Modell-, Speicher- und Controllerprüfungen zentral registriert.
+- Speicherprüfung um einen gemeinsamen Drei-Vogel-Spielstand erweitert.
+- Native Lavados-Profile, Duellfreigabe, App-Initialisierung, Storytexte,
+  Grafiken, Felsenschieber und Reviewspielstände weiterhin ausstehend.
+- Keine Browser-/iPhone-Abnahme, kein neuer Build und keine Veröffentlichung.
+
+### Lavados-Zwischenstand — native Anbindung vorbereitet
+
+- Nutzer meldet erfolgreiche JS-Aufnahme-, Controller- und Speicherprüfungen.
+- Lavados-Speicherprüfung: 50 akkumulierte Prüfungen einschließlich
+  Drei-Vogel-Spielstand; Controller: 42 Assertions plus Ablehnungsprüfungen.
+- Natives Lavados-Profil mit acht Kanto-Orden und eigenen mlt-Schlüsseln
+  ergänzt; vorhandenen gemeinsamen Storyduell-Einstieg für ID 146 geöffnet.
+- Native Freischaltprüfung für alle 256 Kanto-Ordensmasken ergänzt;
+  Johto-Abgrenzung, Rollback, Reload und Profilisolation mitprüfen.
+- Native Lavados-Duellprüfung und zentralen Testeintrag vorbereitet.
+- Native Ergebnisse dieses Schritts noch offen; kein neuer WASM-Build.
+- App-Anbindung, Storytexte, Grafik, Felsenschieber und Review weiterhin offen.
+- Keine Veröffentlichung und keine Browser-/iPhone-Abnahme behauptet.
+
+### Lavados-Zwischenstand — Felsenschieber als Reviewentwurf
+
+- Nutzer meldet erfolgreiche native Zugriffs-/Speicherprüfungen und
+  Zapdos-, Arktos- sowie Lavados-Duellprüfungen.
+- Felsenschieber als erster Reviewentwurf: zwei Felsen auf einem 5x5-Feld,
+  zwei Bodenplatten, Auswahl und orthogonaler Einzelfeldzug ohne Spielfigur.
+- Eigene CSS-Formen; keine neuen Bilddateien oder Mediendownloads.
+- Kostenloses Zurücksetzen, kein Timer, keine eigene Energie-/Speicherlogik.
+- Gemeinsamer Minispielvertrag: create, attach, start, solved, dispose.
+- Gelöste Aufgabe bleibt bei Speicherfehler erhalten; nach bestätigtem
+  Erfolg keine zweite Erfolgsmeldung.
+- Logik-/DOM-Double-Prüfung zentral registriert; lokales Ergebnis noch offen.
+- Minispiel noch nicht in App-/Storyoberfläche eingebunden.
+- App-Anbindung, Storygrafik, aktueller WASM-Build und Revisionsbrowser folgen.
+- Verbindlicher Arbeitsweg: direkt kopierbare Terminalbefehle; keine
+  herunterzuladenden Einbauskripte oder Dateiauswahl-Installationsschritte.
+- Bestehenden interaktiven Revisionsbrowser unverändert weiterverwenden.
+- Kein Commit/Push und keine Browser-/iPhone-Abnahme dieses Entwurfs.
+
+### Lavados-Zwischenstand — App- und Storyanbindung
+
+- Nutzer bestätigt erfolgreiche Lavados-Minispielprüfungen und weiterhin
+  erfolgreiche Arktos-Minispielprüfungen nach Korrektur des Test-Syntaxfehlers.
+- Lavados-Controller in die vorhandene Bridge-/Speicherkette eingebunden.
+- Storyroute, Katalog, Hinweis, Eingabesicherungen und Kampfsteuerung ergänzt.
+- Storytexte für de/en/es/fr und eigene Siegesstraßen-SVG-Szenerie ergänzt.
+- Minispiel startet über das Bild in eigener Storyansicht.
+- Gemeinsame Tippsperre, Portrait- und Aufnahmesequenz weiterverwendet.
+- Gemeinsame UI-/Finale-Prüfungen um Lavados erweitert;
+  separater App-Initialisierungstest zentral registriert.
+- Neue Dateien in Ladereihenfolge und Offline-Dateiliste aufgenommen.
+- Kompaktes Minispiel-Layout für den bestehenden quadratischen Spielrahmen
+  vorbereitet; tatsächliche Darstellung noch im Revisionsbrowser prüfen.
+- JS-Prüfergebnisse dieses Schritts, aktueller WASM-Build, Reviewspielstände
+  und manuelle Sicht-/Funktionsprüfung noch offen.
+- Kein Commit/Push und keine Browser-/iPhone-Abnahme behauptet.
+
+### Lavados — WASM-Build und Reviewvorbereitung
+
+- Nutzer meldet erfolgreichen Emscripten-6.0.13-Build.
+- Bestehende SDK-Umgebung: ~/Developer/emsdk/emsdk_env.sh.
+- Bekannte TPNamedPrompt-C-Linkage-Warnung weiterhin offen.
+- Bestätigter WASM-SHA-256: ca6fa9a961210591142e1777968c4157e157388c05f30e83e87a162cd576ab41.
+- Bestehenden Reviewrunner um optionale Paketkonfiguration erweitert.
+- Ohne review.json bleibt die bisherige Arktos-Auswahl erhalten.
+- Profil, Playwright-Chromium, Port, Bedienung und Aufnahmefunktionen erhalten.
+- Acht synthetische Lavados-Fälle erstellt und mit dem strikten Parser geprüft.
+- Originalvorlagen unverändert; keine neuen Medien veröffentlicht.
+- Reviewspielstände: /Users/M1dn8/Downloads/iTamaPoke-Lavados-Review-SiUqSs
+- Manuelle Browserprüfung und iPhone-Abnahme noch offen.
+- Vollständige Abschlussprüfungen und Commit/Push weiterhin ausgesetzt.
+
+### Lavados — erste manuelle Reviewkorrekturen
+
+- Nutzer bestätigt sichtbare Lavados-Grafik nach lokalem Paketimport.
+- Fünf TXT-Notizen ausgewertet; keine eigene Screenshot-Sicht behauptet.
+- Lavados im gemeinsamen Portrait und dadurch auch im Finale um 20 Prozent
+  verkleinert; Zapdos-/Arktos-Skalierung unverändert.
+- Einstieg und nähere Seitenpfadansicht grafisch gemeinsam überarbeitet.
+- Leuchtende Feder räumlich zwischen den Vordergrundfelsen verankert;
+  Schimmeranimation mit statischer Reduced-Motion-Alternative ergänzt.
+- Sichtbare seitliche Minispielerklärung entfernt; zugängliche Beschreibung
+  für assistive Technik erhalten.
+- Rätsel zentriert, Zurücksetzen darunter; Größe an verfügbaren Platz angepasst.
+- Schwierigerer Entwurf mit drei Felsen und gemeinsamem Engpass:
+  mindestens 18 Verschiebungen statt acht; weiterhin ohne Timer/Energieverlust.
+- Betroffene Logik-/DOM-Double-/Darstellungsverträge aktualisiert.
+- Lokale Ergebnisse und erneute manuelle Sichtprüfung dieses Schritts offen.
+- Nur JS-/Darstellungsänderungen; keine nativen Änderungen dieses Schritts.
+- Kein Commit/Push und keine vollständige Paketabnahme behauptet.
+
+### Mewtu — erster gemeinsamer Modell-/Controllerbaustein
+
+- Lavados-Browserabnahme durch Nutzerbestätigung „jetzt passt alles“ erteilt.
+- Dies ist keine iPhone-Abnahme oder vollständige P06-Abschlussfreigabe.
+- Mewtu-Konzept bleibt: Azuria-Höhle, unsichtbare Barriere, Level 50,
+  Freischaltung nach erstem vollständigem Kanto-Ligasieg.
+- Psi-Ring: drei erfolgreiche Impulse; zunächst kein Gesamttimer.
+- Kostenlose Wiederholungen ohne Energieverlust.
+- Eigenes mewtwo-Profil im gemeinsamen Modell/Controller/Parser ergänzt.
+- Gemeinsamen Aufnahmeweg erweitert, keine getrennte Speicherverwaltung.
+- Mewtu-Modell-, Speicher- und Controllerprüfungen zentral registriert.
+- Gemischten Vier-Profil-Spielstand samt Tickettrennung mitprüfen.
+- Prüfungen dieses Schritts noch offen.
+- Native Freischaltung/Anbindung, Minispiel, Texte, Grafik, App-Anbindung,
+  WASM-Build und Revisionsbrowser für Mewtu weiterhin ausstehend.
+- Lavados-Grafik, Rätsel und Browserprofil dieses Schritts unverändert.
+- Kein Commit/Push; Abschlussprüfungen erst nach dem gemeinsamen Restpaket.
+
+### Mewtu — native Freischaltung und Prüfduell
+
+- Nutzer meldet bestandene Mewtu-Modell-, Controller- und Speicherprüfungen:
+  88 Modell-Assertions, 42 Controller-Assertions plus Ablehnungen sowie
+  56 akkumulierte Speicherprüfungen einschließlich Vier-Profil-Verknüpfung.
+- Natives Mewtu-Profil und gemeinsamer Level-50-Duelleinstieg ergänzt.
+- Erstfreischaltung über versionierte, typgeprüfte historische
+  Kanto-Ligaabschlussmetadaten; acht Orden oder Johto-Abschluss reichen nicht.
+- Aktuelle Ordensmaske ersetzt den historischen Ligasieg nicht.
+- Bereits etablierter Storyfortschritt bleibt wie bei den anderen Profilen
+  erhalten; es wird kein erneuter Ligasieg für Wiederholungen verlangt.
+- Neue native Zugriffsprüfung in bestehenden Speichertest eingebunden;
+  Mewtu-Duellprüfung zentral registriert.
+- Native Prüfergebnisse dieses Schritts noch offen.
+- Psi-Ring, Texte, Grafik, App-Anbindung, aktueller WASM-Build und Mewtu-Review
+  weiterhin ausstehend.
+- Lavados-Browserabnahme bleibt bestehen; kein Commit/Push.
+
+### Mewtu — Psi-Ring-Minispiel vorbereitet
+
+- Nutzer meldet erfolgreiche native Mewtu-Zugriffs-/Duellprüfungen und
+  weiterhin erfolgreiche Zapdos-/Arktos-/Lavados-Regressionen.
+- Psi-Barriere als eigener flüchtiger Minispielbaustein ergänzt.
+- Drei erfolgreiche Impulse, kein Gesamttimer und keine Energiebuchung.
+- Erster Abstimmungswert: 2,4 Sekunden je Ringdurchlauf; großzügiger Zielbereich.
+- Höchstens eine gewertete Eingabe pro Durchlauf; gehaltene Zeiger/Tasten
+  und Tastaturwiederholung erzeugen keine zusätzlichen Impulse.
+- Fehleingaben zählen nicht; erfolgreiche Impulse bleiben innerhalb
+  des laufenden Versuchs erhalten.
+- Nach Speicherfehler bleibt die gelöste Aufgabe für Speichern-Retry erhalten.
+- Sichtbarer Hintergrundwechsel beendet nur einen ungelösten flüchtigen
+  Versuch; erneuter Start bleibt kostenlos.
+- Gemeinsamer Minispielvertrag create/attach/start/solved/dispose erhalten.
+- Nicht notwendige Umgebungsanimation berücksichtigt Bewegungsreduktion;
+  die für die Timing-Aufgabe wesentliche Ringbewegung bleibt sichtbar.
+- Isolierte Node-Logik-/DOM-Double-Prüfung im Assistenzwerkzeug bestanden.
+- Lokale Ergebnisse dieses Schritts und echte Touch-/Layoutprüfung noch offen.
+- Storytexte, Azuria-Höhlen-Grafik, App-Anbindung, WASM-Build und Review folgen.
+- Lavados-Darstellung und Rätsel unverändert; kein Commit/Push.
+
+### Mewtu — App-Anbindung und Höhlenansichten
+
+- Nutzer meldet bestandene Psi-Ring-Logik-/DOM-Double-Prüfungen;
+  Lavados-Minispiel weiterhin unverändert erfolgreich geprüft.
+- Mewtu in Controllerkette, Menü, Katalog, Hinweise, Eingabesicherungen
+  und gemeinsame Kampfsteuerung eingebunden.
+- Eigene Azuria-Höhlenansichten mit Wasser, schwebenden Steinen und
+  Psi-Barriere sowie freier innerer Kammer ergänzt.
+- Storytexte für de/en/es/fr und Offline-Dateiliste erweitert.
+- Gemeinsame Tippsperre, Minispielübergänge, Portrait und Finale verwendet.
+- Mewtu zunächst ebenfalls mit 80 Prozent Portraitskalierung darstellen;
+  abgenommene Zapdos-/Arktos-/Lavados-Skalierungen bleiben gleich.
+- Gemeinsame UI-/Finale-Prüfungen auf vier Profile erweitert.
+- Bestehenden Reviewrunner um Mewtu-Modell, Fallauswahl und p150 ergänzt;
+  Profil, Bedienung und Startverfahren unverändert.
+- Lokale Ergebnisse dieses Schritts, neuer WASM-Build, Mewtu-Testspielstände
+  und manuelle Mewtu-Abnahme noch offen.
+- Lavados-Browserabnahme bleibt bestehen; kein Commit/Push.
+
+### Mewtu — aktueller Build und Reviewspielstände
+
+- Nutzer meldet erfolgreiche App-/UI-/Finale-/Minispiel-Teilprüfungen.
+- Neuer WASM-Build mit Emscripten erfolgreich; bekannte
+  TPNamedPrompt-C-Linkage-Warnung bleibt offen.
+- Bestätigter WASM-SHA-256: d9361e22786c9f62ec5e6c1405cfc6aa92fde671548633f8fee48e45d9d53b35.
+- Acht synthetische Mewtu-Fälle aus unveränderten Lavados-Vorlagen erstellt.
+- Alle Fälle besitzen acht Kanto-Orden; Fälle 1/2 ohne Kanto-Ligaabschluss,
+  Fall 2 zusätzlich mit Johto-Abschluss; ab Fall 3 Kanto-Abschluss gesetzt.
+- Story-/Aufnahme-/Sammlungsverknüpfung und gespeicherte Dateien mit
+  tatsächlichen Modellen und strengem Parser geprüft.
+- Keine native Browser-Freischaltprüfung durch diese Dateierzeugung behauptet.
+- Reviewspielstände: /Users/M1dn8/Downloads/iTamaPoke-Mewtu-Review-LnWXHs
+- Bestehender Reviewrunner und gespeichertes Profil weiterverwenden.
+- Manuelle Mewtu-Abnahme und iPhone-Abnahme noch offen.
+- Kein Commit/Push; vollständiger Abschlusslauf weiterhin ausgesetzt.
+
+### Mewtu-Review — Ortsnamen und bestätigte Johto-Freischaltlücke
+
+- Nutzer bewertet Mewtus Darstellung, Minispiel, Animationen und Anschluss positiv.
+- Verbleibende Screenshotnotiz: Geschichtenbuttons dürfen das versteckte
+  Pokémon nicht vorwegnehmen.
+- Katalog-Ortsnamen in de/en/es/fr ohne Pokémonzusatz; sichtbare
+  Symbolhinweise entfernt; wartende Aufnahme in der Liste als Offen führen.
+- Dialoge, Begegnung und Aufnahmesequenz behalten ihre Pokémonbezeichnung.
+- Lokale Datenprüfung: ältere Lavados-Fälle enthalten acht Johto-Orden,
+  aber keinen gespeicherten Johto-Ligasieg; Mewtu-Fall 2 ist ein absichtlicher
+  synthetischer Johto-Liga-Negativtest.
+- Lokaler Regionaltest bestätigt fehlende native Johto-Eintrittssperre:
+  Johto-Arenen sind ohne ersten Kanto-Ligasieg startbar.
+- Verbindliche Korrektur offen: Johto-Arenen erst nach dauerhaft bestätigtem
+  ersten vollständigen Kanto-Ligasieg; UI und native Starts vor Energieabzug.
+- Vorhandene Fortschritte nicht löschen; positive Testfixtures anpassen
+  und gezielte Sperrtests ergänzen.
+- Katalogkorrektur-Prüfungen dieses Schritts noch offen.
+- Johto-Sperre durch diesen Text-/Katalogschritt noch nicht behoben.
+- Kein Commit/Push; vollständiger Abschlusslauf weiterhin ausgesetzt.
+
+### Johto — Kanto-Liga-Voraussetzung abgesichert
+
+- Nutzer meldet bestandene Ortsnamen-/Katalogprüfungen.
+- Gemeinsamen lesenden Kanto-Ligaabschlussprüfer für Mewtu und Johto eingeführt.
+- Johto-Auswahl verlangt bestätigten historischen Kanto-Ligasieg.
+- Direkte und bezahlte native Johto-Arenastarts vor Energieabzug gesperrt.
+- Fehlende/falsche/future Abschlussmetadaten schalten Johto nicht frei.
+- Vorhandene Johto-Fortschritte bleiben unverändert; keine automatische
+  Kanto-Siegvergabe und keine Migration zum Umgehen der Voraussetzung.
+- Positive Regional-/Arena-Team-/Browser-Fixtures um Kanto-Abschluss ergänzt.
+- Kanto-Teamliga-Fälle behalten ihren anfänglich fehlenden Kanto-Titel;
+  Johto-Teamliga-Fälle bewahren den vorausgesetzten historischen Kanto-Titel.
+- Native Sperrprüfungen für alle 256 Ordensmasken und ungültige Metadaten,
+  UI-Sperrprüfungen sowie gezielten echten Browser-Negativtest ergänzt.
+- Lokale Prüfungen, neuer WASM-Build und manuelle Johto-Nachprüfung noch offen.
+- Keine vollständige Paketfreigabe, kein Commit/Push.
+
+### Johto — erwartete Art im Browser-Teststart korrigiert
+
+- Gezielter Browserlauf scheiterte vor der Sperrprüfung im beforeEach:
+  importierte Johto-Fixture enthält Art 376, prepare erwartete standardmäßig 1.
+- Dieser fehlgeschlagene Lauf ist keine Browserfreigabe der Johto-Sperre.
+- prepare um optionale expectedSpecies mit unverändertem Standard 1 erweitert.
+- Johto-beforeEach übergibt ausdrücklich 376.
+- Tatsächliche Artenprüfung im Importhelfer bleibt erhalten.
+- Keine Änderung an Zeitlimits, Retries oder Spielmechanik.
+- Regressionstest für Standard-/explizite Artenweitergabe ergänzt.
+- Erneuter gezielter Browserlauf noch offen; kein neuer WASM-Build nötig.
+- Kein Commit/Push.
+
+### Mew — gemeinsamer Modell-/Controllerbaustein
+
+- Nutzer bestätigt Mewtus Funktion, Animationen und erfolgreichen Anschluss
+  sowie nachträglich Johto-Sperre und korrigierte Geschichtenbuttons.
+- Gezielter Johto-Browsertest bestanden; fehlgeschlagener vorheriger
+  Teststart bleibt als Fehler dokumentiert und wird nicht als Erfolg gezählt.
+- Keine iPhone-Abnahme oder vollständige P06-Abschlussfreigabe behauptet.
+- Mew-Konzept: versteckte Lichtung nördlich der Nuggetbrücke, Versteckspiel
+  mit Busch, Baum und Felsen; drei richtige Entdeckungen; Level 50.
+- Nach richtigem Fund neues Versteck; bei falscher Wahl gleiche Runde
+  mit neuem Hinweis; kein Gesamttimer.
+- Kostenlose Wiederholungen ohne Energieverlust.
+- Freischaltung erst nach allen drei vorhandenen Kanto-Ligavarianten;
+  vorhandene validierte Ruhmeshallen-Variantenmaske verwenden, nicht
+  bloß eine Anzahl von drei Wiederholungssiegen.
+- Eigenes mew-Profil im gemeinsamen Modell/Controller/Parser ergänzt.
+- Gemeinsamen Aufnahmeweg erweitert; keine separate Speicherverwaltung.
+- Modell-/Controller-/Speicherprüfungen einschließlich Fünf-Profil-
+  Spielstand zentral registriert; Ergebnisse dieses Schritts noch offen.
+- Native Variantenfreischaltung, Versteckspiel, Texte, Grafik, App-Anbindung,
+  aktueller Build und manueller Mew-Review weiterhin ausstehend.
+- Geschichtenbutton später nur mit Ortsnamen, ohne Mew vorwegzunehmen.
+- Bestehenden gespeicherten Revisionsbrowser weiterverwenden.
+- Kein Commit/Push; vollständiger Abschlusslauf erst nach Mew-Abnahme.
+
+### Mew — native Drei-Varianten-Freischaltung und Prüfduell
+
+- Nutzer meldet erfolgreiche Mew-Modell-, Controller- und Speicherprüfungen:
+  88 Modell-Assertions, 42 Controller-Assertions plus Ablehnungen sowie
+  62 akkumulierte Speicherprüfungen einschließlich fünf Storyprofilen.
+- Native Mew-Freischaltung verlangt gültigen Kanto-Abschluss und alle
+  drei Bits der validierten Kanto-Ruhmeshallen-Variantenmaske.
+- Vorhandenen Hall-Decoder für Version, CRC, Region und Datensätze nutzen;
+  keine zweite vereinfachte Hall-Interpretation oder bloße Siegzahlprüfung.
+- Drei Siege derselben Variante und Johto-Erfolge reichen nicht.
+- Historischer Variantenfortschritt bleibt trotz begrenzter sichtbarer
+  Eintragshistorie maßgeblich; keine alten Siege nachträglich erfinden.
+- Interne lesende Variantenabfrage ergänzt; ohne echte Hall-Anbindung
+  verweigern isolierte Testbuilds die Erstfreischaltung.
+- Gemeinsamen Level-50-Duell-/Aufnahmeweg für Mew ergänzt.
+- Neue Zugriffsprüfung nutzt echte Hall-Serialisierung/-Validierung;
+  ihre eingetragenen Hall-Siege bleiben ausdrücklich synthetische Fixtures.
+- Native Tests dieses Schritts noch offen.
+- Versteckspiel, Texte, Lichtungsgrafik, App-Anbindung, aktueller Build
+  und manueller Mew-Review folgen.
+- Kein Commit/Push; vollständiger Abschlusslauf weiterhin ausgesetzt.
+
+### Mew — Versteckspiel vorbereitet
+
+- Nutzer meldet erfolgreiche native Mew-Freischalt-/Duellprüfungen,
+  Hall-Regression, Mewtu-Duell und Johto-Sperr-/Arenaprüfungen.
+- Versteckspiel mit drei festen Verstecken: Busch, Baum und Felsen.
+- Drei richtige Entdeckungen; nach Erfolg anderes Versteck.
+- Falsche Wahl behält dieselbe Runde und Position, zeigt anderen Hinweis.
+- Kein Gesamttimer, keine Energiebuchung und keine Wiederholungskosten.
+- Rosa Schwanzspitze, Ohren oder Silhouette als visuelle und zugängliche
+  Hinweise; reduzierte Bewegung schaltet dekoratives Schimmern ab.
+- Rundenrevision und getrennte DOM-Elemente verwerfen veraltete Eingaben.
+- Nach Speicherfehler bleibt das gelöste Spiel für Speichern-Retry erhalten.
+- Gemeinsamer Minispielvertrag create/attach/start/solved/dispose erhalten.
+- Isolierte Node-Logik-/DOM-Double-Prüfung im Assistenzwerkzeug bestanden.
+- Lokale Ergebnisse und echte Touch-/Darstellungsprüfung noch offen.
+- Storytexte, Nuggetbrücken-/Lichtungsgrafik, App-Anbindung, aktueller Build
+  und Mew-Revisionsbrowser folgen.
+- Keine Änderung an Lavados-/Mewtu-Grafik und Minispielen; kein Commit/Push.
+
+### Mew — App-Anbindung und Nuggetbrücken-Lichtung
+
+- Nutzer meldet bestandene Versteckspiel-Logik-/DOM-Double-Prüfungen;
+  Mewtus Psi-Barriere weiterhin erfolgreich geprüft.
+- Mew in gemeinsame Controllerkette, Menü, Katalog, Hinweis,
+  Eingabesicherungen und Kampfsteuerung eingebunden.
+- Ortsname im Geschichtenbutton nur Nuggetbrücke, ohne Pokémon-Spoiler.
+- Eigene Brücken-/Lichtungsansichten mit Busch, Baum, Felsen und rosa Spur;
+  nach Aufgabe freie Lichtung für Begegnung und gemeinsame Aufnahmesequenz.
+- Storytexte für de/en/es/fr und Offline-Dateiliste ergänzt.
+- Mew zunächst mit 65 Prozent Portraitskalierung; übrige Skalierungen erhalten.
+- Gemeinsame UI-/Finale-Prüfungen auf alle fünf Profile erweitert.
+- Bestehender Reviewrunner um Mew-Profil, p151 und Diagnosefeld erweitert;
+  Browserprofil, Bedienung und Startverfahren unverändert.
+- Nativer Zugriffstest erzeugt zusätzlich validierte Hall-Reviewdaten:
+  zwei Varianten, drei gleiche Siege und alle drei Varianten.
+- Prüfungen dieses Schritts, aktueller WASM-Build, Reviewspielstände und
+  manuelle Mew-Abnahme noch offen.
+- Kein Commit/Push; vollständiger Abschlusslauf erst nach Mew-Abnahme.
+
+### Buildwarnung — interne Named-Prompt-Linkage korrigiert
+
+- Nutzer fordert Behebung der wiederholt gemeldeten TPNamedPrompt-Warnung.
+- Aufrufer geprüft: interner C++-Helfer in browser_glue.cpp; zwei lokale
+  const-char*-Exporte. Separate Objective-C-Implementierung unverändert.
+- Explizite C++-Linkage ausschließlich am std::string-Helfer ergänzt.
+- Funktionskörper und öffentliche C-/JavaScript-Schnittstellen unverändert.
+- WASM-Build behandelt return-type-c-linkage künftig als Fehler;
+  keine Warnungsunterdrückung hinzugefügt.
+- Zentral registrierter Regressionstest nutzt tatsächliche Funktionskörper
+  mit simulierten Pet-/Übersetzungsabhängigkeiten und separatem C-Linkage-
+  Aufrufer; prüft Namen, UTF-8, Pufferlebensdauer und Abschneiden.
+- Clang-Test prüft zusätzlich Ablehnung der alten Deklaration.
+- Lokale Regression und strikter WASM-Neubau dieses Schritts noch offen.
+- Mew-Reviewvorbereitung folgt erst nach erfolgreicher Korrekturprüfung.
+- Kein Commit/Push und keine vollständige Paketfreigabe.
+
+### Mew — Reviewvorbereitung nach behobener Linkage-Warnung
+
+- Nutzer meldet bestandene Named-Prompt-Regression und Clang-Negativkontrolle.
+- Strikter WASM-Neubau erfolgreich; bekannte C-Linkage-Warnung nicht mehr vorhanden.
+- Bestätigter WASM-SHA-256: bc9c04d3d6f6dffadf39d6cc1c7b38da2975972cabd64cc6865cc02691a4671d.
+- Acht synthetische Mew-Fälle aus unveränderten Mewtu-Vorlagen erstellt.
+- Hall-Daten durch tatsächlichen nativen Hall-Serializer erzeugt und
+  vor Export mit tatsächlicher Mew-Freischaltung validiert:
+  zwei Varianten gesperrt, drei gleiche Siege gesperrt, alle drei frei.
+- Keine zweite vereinfachte Hall-Serialisierung im JS-Vorbereiter eingeführt.
+- Modell-/Aufnahmeverknüpfung und gespeicherte Dateien strikt geprüft.
+- Reviewspielstände: /Users/M1dn8/Downloads/iTamaPoke-Mew-Review-d0vAcc
+- Manuelle Mew-Darstellungs-/Touch-/Funktionsprüfung noch offen.
+- Finale-Direktfall ist nur Sichtprüfung, kein Nachweis eines echten Anschlusses.
+- Bestehendes Reviewprofil und importierte Grafiken weiterverwenden.
+- Kein Commit/Push; gemeinsamer Abschlusslauf weiterhin ausgesetzt.
+
+### Letzte Mew-Reviewkorrektur und echte Browserabdeckung
+
+- Mew-TXT-Notiz: Nuggetbrücke mittig zwischen Busch und Felsen platzieren.
+- Brückendeck und anschließenden Weg zentriert; übrige Szenerie erhalten.
+- Audit: neue Tests registriert, Webmodule geladen/gecacht, Sammlung
+  erfolgreich; 328 Browserausführungen in 42 Dateien vor Erweiterung.
+- Fehlende echte Browserfälle für Lavados/Mewtu/Mew ergänzt:
+  sieben Freischaltfälle und zwölf Spiel-/Aufnahme-/Retryfälle.
+- Reproduzierbare native Hall-Testfixture ohne private Medien versionieren;
+  nativer Generator prüft künftig Gleichheit gegen diese Fixture.
+- Browserfixtures haben explizite Pflege-Art 1 und geprüfte F4-Identität.
+- Laufzeit-Sprites sind synthetische Farbfelder, keine Pokémon-Bilddateien.
+- Gemeinsame Tippsperre verfolgt Kontakte schon vor Aktivierung und über
+  Reset/Arm hinweg; bereits gehaltene Kontakte müssen erst beendet werden.
+- Zusätzliche echte Browser-Halteprüfung beim letzten Psi-Impuls.
+- affected-Auswahl um neue Legendären-, Johto- und Teamliga-Fälle erweitert.
+- Gezielte neue Prüfungen und manuelle Bestätigung der Brückenposition offen.
+- Noch keine vollständige Paketabnahme, kein Gesamtlauf und kein Commit/Push.
+
+### Restpaket P06 — manuelle Abnahme und eingefrorener Abschlussstand
+
+- Nutzer bestätigt Lavados, Mewtu und Mew im bestehenden Revisionsbrowser.
+- Letzte Mew-Notiz erledigt: Brücke mittig zwischen Busch und Felsen;
+  Position am 29.10.2026 ausdrücklich bestätigt.
+- Ortsnamen ohne Pokémon-Spoiler und Johto-Sperre manuell bestätigt.
+- Neue Legendären-Chromiumfälle: 19 bestanden, Bericht dUucos.
+- Letzter gemeldeter gezielter Browserlauf: 24 bestanden, Bericht AjqIH4.
+- Gezielte Prüfungen ersetzen nicht die vollständige Gesamtregression.
+- Vollständige Browserregression und zentraler nativer Gesamtcheck
+  werden auf unverändertem Stand ausgeführt; Ergebnisse noch offen.
+- Keine Timeout-Erhöhungen, abgeschwächten Assertions oder automatischen Retries.
+- Aktueller WASM-Build enthält die behobene Named-Prompt-Linkage;
+  return-type-c-linkage wird im Build als Fehler behandelt.
+- Noch keine Veröffentlichung, CI-/Deployment-Bestätigung oder iPhone-Abnahme.
+- Commit/Push erst nach erfolgreichen Abschlussprüfungen und Nutzerfreigabe.
+
+### Abschlusslauf fehlgeschlagen — Arena-Fixture und Guard-Aktualisierung
+
+- Vollständiger Browserlauf gFr5Bc fehlgeschlagen:
+  362 bestanden, 3 fehlgeschlagen, 1 übersprungen.
+- Native Gesamtprüfung wurde wegen des vorherigen Fehlers nicht gestartet.
+- Übersehene parametrisierte arena-team-Johto-Fixture erhält jetzt vor
+  Teamaufbau den vorausgesetzten historischen Kanto-Abschluss.
+- Region-0-Fixture bleibt unverändert; Artenprüfung bleibt ausdrücklich 1.
+- Tippsperre aktualisiert ihren Freigabestatus auch bei Kontaktende
+  außerhalb der momentan sichtbaren Begegnung.
+- Halteverfolgung, 650-ms-Einstiegsschutz und 350-ms-Ruhephase bleiben erhalten.
+- Neue Regression für diesen Kontaktende-Fall und read-only Guard-Diagnostik.
+- Zapdos-Test behält seine Aktivierungsassertion unverändert bei Fehlern
+  und hängt zusätzliche Zustandsdaten an.
+- affected-Auswahl um arena-team ergänzt.
+- Quellen für gezielte Korrektur geöffnet; neuer vollständiger Abschlusslauf
+  auf anschließend erneut eingefrorenem Stand erforderlich.
+- Keine Timeout-Erhöhung, keine Retries und keine Veröffentlichung.
+
+### Zapdos — verlorene Freigabebenachrichtigung an Timergrenze
+
+- Stabilitätslauf FUb6Sr fehlgeschlagen: 35 bestanden, 1 fehlgeschlagen.
+- Arena-Team-Fixture zeigte in diesem Lauf keine weiteren Fehler.
+- Neue Zapdos-Diagnose: Guard intern bereit, keine gehaltenen Kontakte,
+  alle Schreib-/Busy-Gates frei, aber data-tap-ready weiterhin false.
+- Zeitgrenzenrennen isoliert reproduziert: Uhr überschreitet Freigabegrenze
+  zwischen falscher Benachrichtigung und erneuter Timerentscheidung.
+- refresh verwendet eine gemeinsame Zeitprobe für Benachrichtigung und
+  Folgetimer; keine zusätzliche Polling-Schleife und keine erzwungene
+  Schaltflächenfreigabe.
+- Deterministischer Regressionstest simuliert den Grenzübertritt und
+  verlangt eine nachfolgende tatsächliche Freigabebenachrichtigung.
+- Kontaktverfolgung sowie 650-/350-ms-Schutzzeiten unverändert.
+- Lokale Regression und erneute gezielte Browserprüfung noch offen.
+- Gesamtlauf und native Gesamtfreigabe weiterhin offen; kein Commit/Push.
+
+### Erneut eingefrorener Abschlussstand — Guard-Zeitgrenze
+
+- Nutzer meldet erfolgreichen Stabilitätslauf aWOeQG:
+  alle 30 Browserausführungen bestanden.
+- Enthalten: Zapdos-Finale und tatsächliche Minispiel-/Begegnungsübergänge
+  in Chromium und WebKit, jeweils drei explizite Durchgänge ohne Retries.
+- Deterministische Regression für verlorene Freigabebenachrichtigung
+  an der Timergrenze ergänzt; Schutzzeiten und Halteprüfung erhalten.
+- Zuvor korrigierte Arena-Team-Johto-Fixture bleibt Bestandteil des Pakets.
+- Fehlgeschlagene Läufe gFr5Bc und FUb6Sr bleiben als fehlgeschlagen
+  dokumentiert und werden nicht durch erfolgreiche Teilprüfungen ersetzt.
+- Manuelle Abnahme von Lavados, Mewtu und Mew einschließlich der
+  Brückenposition bleibt dokumentiert.
+- Korrigierten Stand für vollständige Abschlussprüfungen erneut eingefroren.
+- Browsergesamtregression und zentraler nativer Gesamtcheck noch offen.
+- Kein Commit/Push, keine CI-/Deployment- oder iPhone-Abnahme behauptet.
+
+### Geschichtenübersicht — schrittweise Entdeckung statt gesperrter Vorschau
+
+- Veröffentlichung auf Nutzerwunsch weiter ausgesetzt; kein Commit/Push.
+- Bisheriger Abschlusslauf historisch erfolgreich, einschließlich
+  nativem Gesamtcheck ZZ60rS; gilt nicht als Prüfung dieser neuen Änderung.
+- Geschichten erscheinen erst bei erfüllter tatsächlicher Freischaltung.
+- Ohne verfügbare Geschichte erscheint:
+  „Hier ist noch nichts zu entdecken. Komm später wieder!“
+- Abgeschlossene Geschichten bleiben sichtbar und deaktiviert.
+- Keine gesperrten Ortskacheln oder Voraussetzungstexte als Vorschau.
+- Neue-Geschichten-Hinweis und Bestätigung nur für freigeschaltete,
+  noch nicht abgeschlossene Geschichten; bestehender Offen-Zähler bleibt.
+- Leertext in Deutsch, Englisch, Spanisch und Französisch.
+- Regressionen für leeren Katalog, alle fünf Freischaltstufen,
+  abgeschlossene Geschichten, Zustandswechsel, Zähler und Hinweise ergänzt.
+- Gezielte Tests und RevisionBrowser-Sichtprüfung noch offen.
+- Vollständige Abschlussprüfungen erst nach Abschluss dieser Änderung.
+
+### Geschichtenentdeckung — Browserabdeckung und Testinventur
+
+- Nutzer bestätigt Katalog-, Shared-UI- und Follow-up-Tests erfolgreich.
+- Browserprüfung der vorhandenen nativen Freischaltfälle IEa8Xw erfolgreich:
+  gesperrte Geschichten samt Ortsnamen fehlen, freigeschaltete sind bedienbar.
+- Bestehende Prüfungen abgeschlossener Kacheln und geschützter
+  Begegnungsschaltflächen bleiben unverändert erhalten.
+- Sechs zusätzliche echte Browserfälle ergänzt: kein Zugang, vier/sechs/
+  acht Kanto-Orden, Kanto-Champion und vollständige Mew-Voraussetzungen.
+- Jede Stufe prüft native Freischaltung, genaue Kachelzahl, verborgene
+  Ortsnamen, Offen-Zähler, rote Punkte und Zustand nach Neuladen.
+- Zusätzlicher Browserlauf und vollständige Sichtung weiterer
+  katalogbezogener Testfundstellen noch offen.
+- RevisionBrowser-Sichtprüfung und erneute Gesamtprüfungen noch offen.
+- Kein Commit/Push.
+
+### Geschichtenentdeckung — bestehende Tests korrigiert und Katalogreview
+
+- Erweiterte Browserprüfung y3ljQl vom Nutzer als erfolgreich gemeldet.
+- Weitere Testinventur gesichtet: veraltete Erwartungen zusätzlich
+  in stories-overview.spec.js gefunden und gezielt korrigiert.
+- Drei-Orden-Fall verlangt leeren Katalog ohne Orts-/Voraussetzungsspoiler.
+- Bestehende Vier-/Fünf-/Sechs-Orden-Matrix verlangt genaue sichtbare
+  Kachelzahl und vollständige Abwesenheit noch gesperrter Geschichten.
+- Native Zugriffsverweigerung, bestehender Fortschritt ohne Orden,
+  Speicherfehler-Wiederholung und Hinweisgestaltung unverändert geprüft.
+- Übrige gezeigte Menü-/Navigations- und statische Vertragsfundstellen
+  benötigen nach Sichtung keine geänderten Erwartungen.
+- Bestehender RevisionBrowser um strikt validiertes Katalogprofil erweitert.
+- Alte Storyprofile und deren Navigation bleiben erhalten und werden
+  zusammen mit allen acht Katalogrouten im Profiltest geprüft.
+- Gezielter Browserlauf und visuelle Katalogabnahme noch offen.
+- Frühere Gesamtläufe bleiben historische Ergebnisse; erneuter Abschluss
+  erst nach dieser Änderung. Kein Commit/Push.
+
+### Geschichtenentdeckung — visuell abgenommen und erneut eingefroren
+
+- Nutzer bestätigt gezielten Browserlauf tzLUbm:
+  46 Prüfungen bestanden, Laufzeit 1,1 Minuten.
+- Enthalten sind die angepassten bestehenden Geschichtenprüfungen,
+  native Freischaltfälle und sechs neue Katalogstufen samt Neuladen.
+- Acht synthetische Katalog-Review-Spielstände erfolgreich vorbereitet
+  und über den vorhandenen Save-Decoder unverändert geprüft.
+- Nutzer bestätigt RevisionBrowser-Abnahme:
+  alles funktioniert und sieht gut aus.
+- Leerer Anfangszustand und schrittweise sichtbare Geschichten abgenommen.
+- Bereits abgeschlossene Geschichten bleiben sichtbar und deaktiviert;
+  bestehende Fortschritts-, Speicherfehler- und Eingabeschutzprüfungen erhalten.
+- Korrigierten Stand für vollständige Abschlussprüfungen erneut eingefroren.
+- Frühere erfolgreiche Gesamtläufe bleiben historische Ergebnisse;
+  Browsergesamtregression und zentraler nativer Gesamtcheck dieses
+  abschließenden Standes noch offen.
+- Kein Commit/Push. GitHub-Build/Deployment und iPhone-Abnahme
+  dieses Gesamtpakets weiterhin nicht behauptet.
+
+### P06 — abschließende lokale Freigabe und Veröffentlichung
+
+- Nutzer bestätigt den erneuten Abschlusslauf als erfolgreich.
+- Vollständige Browserregression und anschließender zentraler
+  nativer/Logik-Gesamtcheck erfolgreich; der freigegebene Befehlsblock
+  erreichte die abschließende Diffprüfung und Statusausgabe.
+- Bericht des zuletzt ausgeführten zentralen Checks: MdbxIN.
+- Abschließendes git diff --check ohne Beanstandung.
+- Zuvor 46 gezielte Katalog-Browserprüfungen im Lauf tzLUbm bestanden.
+- RevisionBrowser-Abnahme der schrittweisen Geschichtenentdeckung
+  ausdrücklich vom Nutzer bestätigt.
+- Früher fehlgeschlagene Läufe bleiben als historische Fehler dokumentiert.
+- Gemeinsamer Paketumfang umfasst die legendären Geschichten,
+  Aufnahmewege, Fortschrittssperren, Eingabeschutz, spoilerfreie
+  Katalogentdeckung und zugehörige Regressionen/Reviewwerkzeuge.
+- Nutzer hat Dokumentation, gemeinsamen Commit und Push nach
+  M1dn8/iTamaPoke auf main ausdrücklich freigegeben.
+- Durchführung über den vereinbarten Git-Terminalablauf.
+- Synthetische Review-Spielstände, Aufnahmen und private Grafikpakete
+  sind nicht Teil des Veröffentlichungsschritts.
+- GitHub-Build/Deployment und iPhone-Abnahme dieses Gesamtstands
+  bleiben separat zu prüfen; hier keine erfolgreiche Durchführung behauptet.

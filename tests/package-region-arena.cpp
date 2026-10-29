@@ -16,7 +16,7 @@ static void setup(){
  assert(!gArenaUndo&&!tp_energy_detail::arenaToken&&!tp_f4_store_pending());tp_lg_abort();tp_battle_close();gWildPromptActive=false;
  Preferences::store().clear();Preferences p;p.putBool("init",true);p.putShort("dexn",150);p.putShort("eggT2",150);p.putUInt("age",5940);
  for(const char*k:{"gatk","gdef","gspe","tatk","tdef","tspe","full","joy","ene","hyg","bond"})p.putUChar(k,100);
- p.putUChar("agver",1);p.putUChar("agmask",1);p.putUInt("agt0",1700000000);p.putUChar("lgver",1);p.putBool("lgkdone",false);p.putUInt("lgkdate",0);
+ p.putUChar("agver",1);p.putUChar("agmask",1);p.putUInt("agt0",1700000000);p.putUChar("lgver",1);p.putBool("lgkdone",true);p.putUInt("lgkdate",1700000000);
  p.putUChar("rkver",1);p.putUChar("rkstate",1);p.putShort("rkdex",4);p.putUInt("rkarm",0);p.putUInt("rkborn",0);p.putUChar("f4lver",1);p.putUInt("f4life",1);p.putUChar("mgver",3);
  hero=Pet();hero.begin();hero.setClock(uint32_t(std::time(nullptr)));energy(100);
 }
@@ -32,7 +32,10 @@ static void syntheticSeries(int region,int id,int token){
   win();if(i+1<leader->count){assert(!tp_region_arena_apply(region,token));const auto hp=gRun.playerHp;gRun.restUsesLeft=1;assert(tp_f2_next());assert(gRun.playerHp==hp&&gRun.restUsesLeft==1);}
  }assert(gResolved&&gTurn.playerWon&&!gTrainerNext&&!gCatchOffered);
 }
+#include "region-access-checks.h"
+
 int main(){
+ checkJohtoGate();
  setup();for(const auto pair:{std::pair<int,int>{-1,0},{2,0},{256,0},{1,-1},{1,8}}){const auto before=Preferences::store();assert(!tp_region_energy_arena_begin(pair.first,pair.second));assert(Preferences::store()==before&&hero.energy==100&&!gOpen&&!tp_f4_store_pending());}
  energy(44);auto before=Preferences::store();assert(!tp_region_energy_arena_begin(1,0)&&Preferences::store()==before);
  energy(45);before=Preferences::store();auto entry=tp_region_energy_arena_begin(1,0);assert(entry&&hero.energy==20&&tp_f4_store_pending());

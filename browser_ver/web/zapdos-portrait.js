@@ -3,7 +3,7 @@
  'use strict';
  const style=document.createElement('style');
  style.textContent=`
- #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page).tp-zapdos-encounter{
+ #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page,#tp-moltres-page,#tp-mewtwo-page,#tp-mew-page).tp-zapdos-encounter{
   gap:8px;
  }
  #tp-app-page .tp-zapdos-encounter>h3,
@@ -27,7 +27,7 @@
   display:block;width:100%;height:100%;
   image-rendering:pixelated;
  }
- #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page) .tp-zapdos-challenge{
+ #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page,#tp-moltres-page,#tp-mewtwo-page,#tp-mew-page) .tp-zapdos-challenge{
   position:absolute;inset:0;z-index:3;
   display:block;width:100%;height:100%;
   min-height:0!important;margin:0!important;padding:0!important;
@@ -35,10 +35,10 @@
   background:transparent!important;box-shadow:none!important;
   transform:none!important;cursor:pointer;
  }
- #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page) .tp-zapdos-challenge:focus-visible{
+ #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page,#tp-moltres-page,#tp-mewtwo-page,#tp-mew-page) .tp-zapdos-challenge:focus-visible{
   outline:3px solid #ffe784!important;outline-offset:-4px;
  }
- #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page) .tp-zapdos-challenge:disabled{
+ #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page,#tp-moltres-page,#tp-mewtwo-page,#tp-mew-page) .tp-zapdos-challenge:disabled{
   cursor:default;
  }
  #tp-app-page .tp-zapdos-art-status{
@@ -52,7 +52,7 @@
  document.head.appendChild(style);
 
  function create(text,options={}){
-  const dex=options.dex===144?144:145;
+  const dex=[144,145,146,150,151].includes(options.dex)?options.dex:145;
   let disposed=false;
   const element=document.createElement('div');
   element.className='tp-zapdos-portrait';
@@ -94,7 +94,7 @@
     off.width=image.width;off.height=image.height;
     off.getContext('2d').putImageData(image,0,0);
     const width=right-left+1,height=bottom-top+1;
-    const scale=Math.min(6,352/width,164/height)*(dex===144?0.8:1);
+    const scale=Math.min(6,352/width,164/height)*(dex===151?0.65:dex===144||dex===146||dex===150?0.8:1);
     const context=canvas.getContext('2d');
     context.clearRect(0,0,384,180);
     context.imageSmoothingEnabled=false;

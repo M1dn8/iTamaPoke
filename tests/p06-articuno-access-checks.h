@@ -118,7 +118,8 @@ static void p06CheckStoryIsolation(){
  const auto before=Preferences::store();
 
  auto token=tp_f4_store_begin();assert(token);
- for(int dex:{0,146,-1,999}){
+ // Lavados (146) is supported; 147 is not a story profile.
+ for(int dex:{0,147,-1,999}){
   assert(tp_story_step(dex)<0&&tp_story_ticket(dex)<0);
   assert(tp_story_access(dex)<0);
   assert(tp_story_notice_read(dex)<0);

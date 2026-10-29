@@ -3,28 +3,28 @@
  'use strict';
  const style=document.createElement('style');
  style.textContent=`
- #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page).tp-zapdos-finale{
+ #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page,#tp-moltres-page,#tp-mewtwo-page,#tp-mew-page).tp-zapdos-finale{
   flex:1 1 0;min-height:0;gap:6px;
   overflow:hidden!important;padding-bottom:0!important;
  }
- #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page).tp-zapdos-finale>h3{
+ #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page,#tp-moltres-page,#tp-mewtwo-page,#tp-mew-page).tp-zapdos-finale>h3{
   flex:0 0 auto;font-size:clamp(12px,3.4vw,16px);line-height:1.15;
  }
- #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page).tp-zapdos-finale>p{
+ #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page,#tp-moltres-page,#tp-mewtwo-page,#tp-mew-page).tp-zapdos-finale>p{
   flex:0 0 auto;font-size:11px;line-height:1.2;
  }
- #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page).tp-zapdos-finale .tp-zapdos-finale-art{
+ #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page,#tp-moltres-page,#tp-mewtwo-page,#tp-mew-page).tp-zapdos-finale .tp-zapdos-finale-art{
   display:flex;flex-direction:column;flex:1 1 0;
   min-height:0;gap:4px;
  }
- #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page).tp-zapdos-finale .tp-zapdos-portrait{
+ #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page,#tp-moltres-page,#tp-mewtwo-page,#tp-mew-page).tp-zapdos-finale .tp-zapdos-portrait{
   flex:1 1 0;min-height:32px;aspect-ratio:auto;
  }
- #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page).tp-zapdos-finale .tp-zapdos-portrait canvas{
+ #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page,#tp-moltres-page,#tp-mewtwo-page,#tp-mew-page).tp-zapdos-finale .tp-zapdos-portrait canvas{
   object-fit:contain;
  }
- #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page).tp-zapdos-finale .tp-zapdos-finale-caption,
- #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page).tp-zapdos-finale .tp-zapdos-finale-note{
+ #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page,#tp-moltres-page,#tp-mewtwo-page,#tp-mew-page).tp-zapdos-finale .tp-zapdos-finale-caption,
+ #tp-app-page :is(#tp-zapdos-page,#tp-articuno-page,#tp-moltres-page,#tp-mewtwo-page,#tp-mew-page).tp-zapdos-finale .tp-zapdos-finale-note{
   flex:0 0 auto;margin:0;font-size:11px;line-height:1.2;
  }
  #tp-app-page .tp-zapdos-finale-art .tp-zapdos-portrait canvas{

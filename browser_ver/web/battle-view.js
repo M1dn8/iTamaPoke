@@ -2,7 +2,10 @@
  * Native snapshots own stats/damage; this module only renders and routes taps.
  */
 (function(){'use strict';let key='',menu='main',last=null,targets={},feedbackAt=0,feedbackKey='',captureFx=null,captureView=null;
-const activeStoryUI=()=>window.TPArktosUI?.owns()?window.TPArktosUI:window.TPZapdosUI;
+const activeStoryUI=()=>window.TPMewUI?.owns()?window.TPMewUI:
+ window.TPMewtuUI?.owns()?window.TPMewtuUI:
+ window.TPLavadosUI?.owns()?window.TPLavadosUI:
+ window.TPArktosUI?.owns()?window.TPArktosUI:window.TPZapdosUI;
 const leagueText=(key,params={})=>window.TPLeagueText?
  window.TPLeagueText.t(key,params):TPText.t('leagueTeam.'+key,params);
 const call=(n,...a)=>Module.ccall(n,'number',a.map(()=> 'number'),a);
@@ -233,7 +236,7 @@ function standard(){
   region:arena>=0?arenaRegion:0,
   mode:story?'zapdos':trainer?(arena>=0?'arena':'trainer'):'wild',
   id:b(0),
-  theme:arena>=0?(arenaRegion===1?
+  theme:story&&fns.battleWildDex()===150?'psychic':story&&fns.battleWildDex()===146?'rock':arena>=0?(arenaRegion===1?
    ['field','field','field','ghost','rock','rock','ice','dragon']:
    ['rock','ice','field','field','ghost','ghost','champ','rock'])[arena]:'field',
   title:story?activeStoryUI().text('battleTitle'):
@@ -270,7 +273,7 @@ function standard(){
  };
 }
 function supported(){try{return !!Module&&typeof Module._tp_bv_get==='function';}catch(_){return false;}}
-function drawStandard(){if(!supported())return false;if(!call('tp_battle_is_open')){captureFx=null;captureView=null;targets={};screen=battleReturn;return true;}if(window.TPTrainer.active()&&(!call('tp_f2_can_actor')||document.visibilityState!=='visible')){window.TPTrainer.abort();return true;}window.TPZapdosUI?.poll();window.TPArktosUI?.poll();window.TPWildTeam?.poll();draw(standard());return true;}
+function drawStandard(){if(!supported())return false;if(!call('tp_battle_is_open')){captureFx=null;captureView=null;targets={};screen=battleReturn;return true;}if(window.TPTrainer.active()&&(!call('tp_f2_can_actor')||document.visibilityState!=='visible')){window.TPTrainer.abort();return true;}window.TPZapdosUI?.poll();window.TPArktosUI?.poll();window.TPLavadosUI?.poll();window.TPMewtuUI?.poll();window.TPMewUI?.poll();window.TPWildTeam?.poll();draw(standard());return true;}
 function abort(m){if(m.mode!=='wild'&&!m.resolved&&!confirm('Kampf aufgeben? Bereits bezahlte Energie wird nicht erstattet.'))return false;if(m.mode==='trainer'||m.mode==='arena')window.TPTrainer.abort();else{Module._tp_battle_close();screen=battleReturn;}return true;}
 function tapStandard(x,y){
  if(!supported())return false;

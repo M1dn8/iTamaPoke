@@ -67,10 +67,10 @@ async function importSave(page,buffer,expectedSpecies=1){
  await Promise.all([page.waitForEvent('load'),apply.click()]);await waitReady(page);
  await expect.poll(()=>page.evaluate(()=>fns.speciesId())).toBe(expectedSpecies);
 }
-async function prepare(page,initial=fixture()){
+async function prepare(page,initial=fixture(),expectedSpecies=1){
  await page.addInitScript(()=>{try{Object.defineProperty(navigator,'canShare',{configurable:true,value:()=>false});}catch(_e){}});
  await page.route('**/favicon.ico',r=>r.fulfill({status:204,body:''}));
- await page.goto('/');await waitReady(page);await importSave(page,initial);
+ await page.goto('/');await waitReady(page);await importSave(page,initial,expectedSpecies);
 }
 async function openHubSection(page,key){
  await openHub(page);

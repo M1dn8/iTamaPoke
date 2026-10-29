@@ -7,6 +7,8 @@
 #include <vector>
 #include "pet.h"
 #include "region-progress-keys.h"
+#include "region-access.h"
+#include "league-hall.h"
 extern Pet &tp_battle_pet();
 extern uint32_t g_millis;
 extern "C" int tp_battle_is_open();
@@ -70,9 +72,11 @@ int f4AdmissionTransport(bool *pending=nullptr){
 }
 // P06 fixed Zapdos pilot: typed scalar transport, no speculative migration.
 // Absent old profile = step 0. Partial/future data is never treated as absent.
+enum class StoryUnlock { Badges, FirstLeague, AllLeagueVariants };
 struct StoryProfile {
  const char *versionKey,*stepKey,*ticketKey,*noticeVersion,*noticeRead;
  int badges;
+ StoryUnlock unlock=StoryUnlock::Badges;
 };
 constexpr StoryProfile ZAPDOS_PROFILE{
  "zpdver","zpdstep","zpdtick","stynver","stynread",4
@@ -80,8 +84,23 @@ constexpr StoryProfile ZAPDOS_PROFILE{
 constexpr StoryProfile ARKTOS_PROFILE{
  "arcver","arcstep","arctick","arcnver","arcnread",6
 };
+constexpr StoryProfile LAVADOS_PROFILE{
+ "mltver","mltstep","mlttick","mltnver","mltnread",8
+};
+constexpr StoryProfile MEWTWO_PROFILE{
+ "mtwver","mtwstep","mtwtick","mtwnver","mtwnread",0,
+ StoryUnlock::FirstLeague
+};
+constexpr StoryProfile MEW_PROFILE{
+ "mewver","mewstep","mewtick","mewnver","mewnread",0,
+ StoryUnlock::AllLeagueVariants
+};
 const StoryProfile *storyProfile(int dex){
- return dex==145?&ZAPDOS_PROFILE:dex==144?&ARKTOS_PROFILE:nullptr;
+ return dex==145?&ZAPDOS_PROFILE:
+  dex==144?&ARKTOS_PROFILE:
+  dex==146?&LAVADOS_PROFILE:
+  dex==150?&MEWTWO_PROFILE:
+  dex==151?&MEW_PROFILE:nullptr;
 }
 int storyState(const StoryProfile &profile,uint32_t *ticket=nullptr){
  const auto &s=Preferences::store();
@@ -150,10 +169,22 @@ int zpdKantoBadges(){
  for(unsigned bit=0;bit<8;bit++)if(mask&(1<<bit))count++;
  return count;
 }
+// Historical Kanto completion metadata is shared by single/team runs.
+// No writes or repair; an unfinished later run does not erase past completion.
+int storyKantoLeagueCompleted(){return tpKantoLeagueCompletionState();}
+
 int storyAccess(const StoryProfile &profile){
  const int step=storyState(profile);
  if(step<0||storyNoticeState(profile)<0)return -1;
  if(step>0)return 1;
+ if(profile.unlock==StoryUnlock::FirstLeague)
+  return storyKantoLeagueCompleted();
+ if(profile.unlock==StoryUnlock::AllLeagueVariants){
+  const int completed=storyKantoLeagueCompleted();
+  if(completed!=1)return completed;
+  const int variants=tpHallCompletedVariantsFor(0);
+  return variants<0?-1:variants==7?1:0;
+ }
  const int badges=zpdKantoBadges();
  return badges<0?-1:badges>=profile.badges?1:0;
 }

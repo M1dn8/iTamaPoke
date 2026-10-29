@@ -4,12 +4,13 @@
  const storyUIs=new Set();
  function create(config){
  const tr=(key,params={})=>config.text(key,params);
+ const standaloneChallenge=config.dex===144||config.dex===146||config.dex===150||config.dex===151;
  const svc=config.service,collection=()=>root.TPCollection;
  const call=(name,args=[])=>{
-  if(config.dex===144&&name==='tp_zpd_get'){
-   name='tp_story_duel_get';args=[144,...args];
-  }else if(config.dex===144&&name==='tp_zpd_start'){
-   name='tp_story_duel_start';args=[144,...args];
+  if(standaloneChallenge&&name==='tp_zpd_get'){
+   name='tp_story_duel_get';args=[config.dex,...args];
+  }else if(standaloneChallenge&&name==='tp_zpd_start'){
+   name='tp_story_duel_start';args=[config.dex,...args];
   }
   return Module.ccall(name,'number',
    args.map(v=>typeof v==='string'?'string':'number'),args);
@@ -61,16 +62,18 @@
   return !!body?.isConnected&&!body.closest('#tp-app-page')?.hidden;
  }
  function openChallenge(){
-  if(config.dex!==144||iceOpen||cached?.phase!=='secure'||
+  if(!standaloneChallenge||iceOpen||cached?.phase!=='secure'||
      busy()||blocked()||!visible()||
      document.visibilityState!=='visible')return false;
   iceOpen=true;render();
   return securityGame?.start?.()===true;
  }
  function preparation(kind,titleKey,textKey,labelKey,action,disabled){
-  if(config.dex===144&&kind==='inside'){
+  if(standaloneChallenge&&kind==='inside'){
    if(iceOpen){
-    body.className='tp-app-list tp-ice-play';
+    body.className=config.dex===151?'tp-app-list tp-mew-play':
+     config.dex===150?'tp-app-list tp-psi-play':
+     config.dex===146?'tp-app-list tp-victory-play':'tp-app-list tp-ice-play';
     if(!securityGame)securityGame=config.game().create({
      text:config.gameText||tr,
      available:()=>iceOpen&&visible()&&cached?.phase==='secure'&&
@@ -93,7 +96,7 @@
   body.className='tp-app-list tp-power-prep';
   const scenery=config.scene(kind)||node('div');
   const copy=node('div');copy.className='tp-power-copy';
-  if(config.dex===144&&kind==='outside')
+  if(standaloneChallenge&&kind==='outside')
    copy.append(node('p',tr(textKey)));
   else copy.append(node('h3',tr(titleKey)),node('p',tr(textKey)));
   if(kind==='inside'){
@@ -347,6 +350,7 @@
  }
  const api=Object.freeze({
   mount,start,advance,openChallenge,admissionCompleted,poll,switchTo,retry:saveResult,finish,abort,owns,text:tr,
+  get encounterGuardState(){return encounterGuard.debug();},
   get busy(){return busy();},
   get saving(){return owns()&&saving;},
   get resultPending(){return owns()&&call('tp_zpd_get',[1])===1;},
@@ -400,4 +404,58 @@
   portrait:text=>root.TPZapdosPortrait.create(text,artOptions()),
   finale:text=>root.TPZapdosFinale.create(text,artOptions())
  });
+
+ const fireArtOptions=()=>({
+  dex:146,scene:()=>root.TPVictoryRoadScene.create(
+   'inner',root.TPLavadosText.t('sceneLabel'))
+ });
+ root.TPLavadosUI=create({
+  dex:146,source:'story:kanto:moltres',route:'moltres',pageId:'tp-moltres-page',
+  text:(...a)=>root.TPLavadosText.t(...a),service:()=>root.TPLavados,
+  accessText:(...a)=>root.TPLavadosText.t(...a),
+  scene:kind=>root.TPVictoryRoadScene.create(
+   kind==='outside'?'outside':'blocked',
+   root.TPLavadosText.t('sceneLabel')),
+  game:()=>root.TPVictoryRoadGame,
+  gameText:(...a)=>root.TPVictoryRoadGame.text(...a),
+  portrait:text=>root.TPZapdosPortrait.create(text,fireArtOptions()),
+  finale:text=>root.TPZapdosFinale.create(text,fireArtOptions())
+ });
+
+
+ const mindArtOptions=()=>({
+  dex:150,scene:()=>root.TPCeruleanCaveScene.create(
+   'inner',root.TPMewtuText.t('sceneLabel'))
+ });
+ root.TPMewtuUI=create({
+  dex:150,source:'story:kanto:mewtwo',route:'mewtwo',pageId:'tp-mewtwo-page',
+  text:(...a)=>root.TPMewtuText.t(...a),service:()=>root.TPMewtu,
+  accessText:(...a)=>root.TPMewtuText.t(...a),
+  scene:kind=>root.TPCeruleanCaveScene.create(
+   kind==='outside'?'outside':'blocked',
+   root.TPMewtuText.t('sceneLabel')),
+  game:()=>root.TPPsiBarrierGame,
+  gameText:(...a)=>root.TPPsiBarrierGame.text(...a),
+  portrait:text=>root.TPZapdosPortrait.create(text,mindArtOptions()),
+  finale:text=>root.TPZapdosFinale.create(text,mindArtOptions())
+ });
+
+
+ const mewArtOptions=()=>({
+  dex:151,scene:()=>root.TPNuggetBridgeScene.create(
+   'inner',root.TPMewText.t('sceneLabel'))
+ });
+ root.TPMewUI=create({
+  dex:151,source:'story:kanto:mew',route:'mew',pageId:'tp-mew-page',
+  text:(...a)=>root.TPMewText.t(...a),service:()=>root.TPMew,
+  accessText:(...a)=>root.TPMewText.t(...a),
+  scene:kind=>root.TPNuggetBridgeScene.create(
+   kind==='outside'?'outside':'blocked',
+   root.TPMewText.t('sceneLabel')),
+  game:()=>root.TPMewHideGame,
+  gameText:(...a)=>root.TPMewHideGame.text(...a),
+  portrait:text=>root.TPZapdosPortrait.create(text,mewArtOptions()),
+  finale:text=>root.TPZapdosFinale.create(text,mewArtOptions())
+ });
+
 })(typeof globalThis!=='undefined'?globalThis:this);

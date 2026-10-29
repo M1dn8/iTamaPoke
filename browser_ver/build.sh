@@ -27,7 +27,7 @@ fi
 
 mkdir -p browser_ver/web
 
-em++ -std=c++17 $OPT \
+em++ -std=c++17 -Werror=return-type-c-linkage $OPT \
   -I upstream-expanded \
   -I browser_ver/core \
   -I browser_ver/core/shim \

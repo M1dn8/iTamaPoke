@@ -3,6 +3,7 @@
 #include <string>
 #include "pet.h"
 #include "battle-energy.h"
+#include "region-access.h"
 extern Pet &tp_battle_pet();
 extern "C" {uint32_t tp_f4_store_begin();int tp_f4_store_finish(uint32_t,int);int tp_f3_start(int);int tp_region_arena_start(int,int);void tp_battle_close();}
 namespace tp_energy_detail {
@@ -12,7 +13,7 @@ uint32_t arenaToken=0;int arenaSession=0,arenaRegion=0;
 bool tpEnergyCan(unsigned kind){return kind<3&&tp_battle_pet().energy>=tp_energy_detail::costs[kind]+20;}
 bool tpEnergySpend(unsigned kind){if(!tpEnergyCan(kind))return false;auto&p=tp_battle_pet();p.energy=uint8_t(p.energy-tp_energy_detail::costs[kind]);Preferences().putUChar("ene",p.energy);return true;}
 extern "C" {
-static uint32_t energyArenaBeginFor(int region,int id){using namespace tp_energy_detail;if(arenaToken||!tpEnergyCan(0))return 0;uint32_t t=tp_f4_store_begin();if(!t)return 0;const int s=tp_region_arena_start(region,id);if(s<=0){tp_f4_store_finish(t,0);return 0;}arenaToken=t;arenaSession=s;arenaRegion=region;return t;}
+static uint32_t energyArenaBeginFor(int region,int id){using namespace tp_energy_detail;if(tpRegionAccessState(region)!=1)return 0;if(arenaToken||!tpEnergyCan(0))return 0;uint32_t t=tp_f4_store_begin();if(!t)return 0;const int s=tp_region_arena_start(region,id);if(s<=0){tp_f4_store_finish(t,0);return 0;}arenaToken=t;arenaSession=s;arenaRegion=region;return t;}
 EMSCRIPTEN_KEEPALIVE uint32_t tp_energy_arena_begin(int id){return energyArenaBeginFor(0,id);}
 EMSCRIPTEN_KEEPALIVE uint32_t tp_region_energy_arena_begin(int region,int id){return energyArenaBeginFor(region,id);}
 // Commit returns the original arena session token; rollback closes tentative combat.

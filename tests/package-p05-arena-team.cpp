@@ -42,6 +42,9 @@ static void setup(){
     p.putUChar(key,100);
   p.putUChar("mgver",3);
   p.putString("nick","Care");
+  p.putUChar("lgver",1);
+  p.putBool("lgkdone",true);
+  p.putUInt("lgkdate",1700000000);
 
   hero=Pet();
   hero.begin();

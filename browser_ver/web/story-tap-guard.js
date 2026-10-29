@@ -17,48 +17,61 @@
   }
   function refresh(){
    if(timer!==null)clearTimer(timer);
-   timer=null;onChange(ready());
-   if(active&&now()<until){
+   timer=null;
+   // One clock sample owns both notification and timer scheduling.
+   const sampled=now();
+   const isReady=!active||(sampled>=until&&down.size===0);
+   onChange(isReady);
+   if(active&&sampled<until){
     timer=setTimer(()=>{
      timer=null;refresh();
-    },Math.max(1,until-now()));
+    },Math.max(1,until-sampled));
    }
   }
-  function pointer(type,id){
-   if(!active)return;
+  function pointer(type,id,relevant=true){
    if(type==='pointerdown'){
-    const fresh=ready();
+    const fresh=active&&relevant&&ready();
     down.set(id,fresh);
-    if(!fresh){
+    if(active&&relevant&&!fresh){
      until=Math.max(until,now()+350);refresh();
     }
    }else{
     const fresh=down.get(id);
     down.delete(id);
-    if(fresh!==true||now()<until||down.size)
-     until=Math.max(until,now()+350);
-    refresh();
+    if(active){
+     if(fresh!==true||now()<until||down.size)
+      until=Math.max(until,now()+350);
+     refresh();
+    }
    }
   }
   function reset(){
-   active=false;until=0;down.clear();refresh();
+   active=false;until=0;
+   for(const id of down.keys())down.set(id,false);
+   refresh();
   }
   return Object.freeze({
    ready,pointer,reset,
+   debug(){
+    return Object.freeze({
+     active,now:now(),until,ready:ready(),
+     held:Object.freeze([...down.keys()])
+    });
+   },
    arm(){
-    active=true;until=now()+650;down.clear();refresh();
+    active=true;until=now()+650;
+    for(const id of down.keys())down.set(id,false);
+    refresh();
    },
    bind(doc,visible=()=>true){
     for(const type of ['pointerdown','pointerup','pointercancel']){
-     const handler=event=>{
-      if(visible())pointer(type,event.pointerId);
-     };
+     const handler=event=>pointer(type,event.pointerId,visible());
      doc.addEventListener(type,handler,true);
      unbind.push(()=>doc.removeEventListener(type,handler,true));
     }
    },
    dispose(){
-    reset();
+    reset();down.clear();
     for(const remove of unbind.splice(0))remove();
    }
   });

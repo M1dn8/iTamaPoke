@@ -3,11 +3,54 @@
 let preferred=0;try{preferred=localStorage.getItem(key)==='1'?1:0;}catch(_){}
 const valid=id=>Number.isInteger(id)&&id>=0&&id<2;
 function catalog(id){if(!valid(id))return null;const arena=id===0?window.TPKantoArena:window.TPJohtoArena,raw=id===0?window.TPKantoLeagueData:window.TPJohtoLeagueData;if(!arena||!raw||!Array.isArray(arena.leaders)||arena.leaders.length!==8||!Array.isArray(raw.names)||raw.names.length!==5||!Array.isArray(raw.elite)||raw.elite.length!==4||id===1&&(!Array.isArray(raw.champion)||raw.champion.length!==6))return null;const league=id===0?raw:Object.freeze({...raw,champions:Object.freeze([raw.champion]),variants:Object.freeze(['Siegfried'])});return Object.freeze({id,label:names[id],edition:id===0?'Rot/Blau':'Gold/Silber',arena,league,champ:id===0?'Blau':'Siegfried'});}
-const required=Object.freeze([...new Set(Object.values(routes).concat(['tp_region_arena_session_region','tp_region_lg_session_region','tp_f4_store_pending_token']))]);
-function available(id,mod=typeof Module!=='undefined'?Module:null){return !!mod&&!!catalog(id)&&(id===0||required.every(n=>typeof mod['_'+n]==='function'));}
+const required=Object.freeze([...new Set(Object.values(routes).concat(['tp_region_access','tp_region_arena_session_region','tp_region_lg_session_region','tp_f4_store_pending_token']))]);
+function supported(id,mod=typeof Module!=='undefined'?Module:null){return !!mod&&!!catalog(id)&&(id===0||required.every(n=>typeof mod['_'+n]==='function'));}
+
+const gateMessages={
+ en:{locked:'Johto requires your first complete Kanto League victory.',
+  unavailable:'Please load the current game core.',
+  invalid:'Kanto League progress is unreadable. Johto remains locked.'},
+ de:{locked:'Johto: zuerst die Kanto-Liga vollständig gewinnen.',
+  unavailable:'Bitte den aktuellen Spielkern laden.',
+  invalid:'Kanto-Ligafortschritt nicht lesbar. Johto bleibt gesperrt.'},
+ es:{locked:'Johto requiere tu primera victoria completa en la Liga de Kanto.',
+  unavailable:'Carga el núcleo actual del juego.',
+  invalid:'El progreso de la Liga de Kanto es ilegible. Johto sigue bloqueado.'},
+ fr:{locked:'Johto nécessite une première victoire complète dans la Ligue de Kanto.',
+  unavailable:'Charge le moteur de jeu actuel.',
+  invalid:'La progression de la Ligue de Kanto est illisible. Johto reste verrouillé.'}
+};
+if(window.TPText?.registerLocale)
+ for(const code of ['en','de','es','fr'])
+  window.TPText.registerLocale(code,Object.fromEntries(
+   Object.entries(gateMessages[code]).map(([k,v])=>['regions.'+k,v])
+  ));
+function gateText(key){
+ return window.TPText?.t?
+  window.TPText.t('regions.'+key):gateMessages.de[key];
+}
+function access(id,mod=typeof Module!=='undefined'?Module:null){
+ if(!valid(id)||!mod)return -1;
+ if(id===0)return 1;
+ if(!supported(id,mod))return -1;
+ try{
+  const value=mod.ccall('tp_region_access','number',['number'],[id]);
+  return value===0||value===1?value:-1;
+ }catch(_){return -1;}
+}
+function available(id,mod=typeof Module!=='undefined'?Module:null){
+ return supported(id,mod)&&access(id,mod)===1;
+}
+function reason(id){
+ if(id===0)return '';
+ if(!supported(id))return gateText('unavailable');
+ const value=access(id);
+ return value===1?'':gateText(value===0?'locked':'invalid');
+}
+
 function rpc(mod,id,name,type,args=[]){if(!valid(id)||!mod)throw Error('Region oder Spielkern ungueltig.');let native=name,values=args;if(id===1){native=routes[name];if(!native||typeof mod['_'+native]!=='function')throw Error('Johto benoetigt den neuen Spielkern.');values=[id,...args];}return mod.ccall(native,type,values.map(()=> 'number'),values);}
 function locked(){if(typeof tpSaveReplacing!=='undefined'&&tpSaveReplacing)return true;if(window.TPArena?.busy||window.TPLeague?.busy||window.TPCollection?.busy||window.TPRewardEgg?.busy)return true;try{if(typeof Module!=='undefined'&&Module){if(typeof Module._tp_lg_owned==='function'&&Module.ccall('tp_lg_owned','number',[],[]))return true;if(typeof Module._tp_f3_get==='function'&&Module.ccall('tp_f3_get','number',['number'],[0]))return true;if(typeof Module._tp_f4_store_pending==='function'&&Module.ccall('tp_f4_store_pending','number',[],[]))return true;}}catch(_){return true;}return false;}
 function remember(id){if(!valid(id)||!available(id)||locked())return false;preferred=id;try{localStorage.setItem(key,String(id));}catch(_){}return true;}
 function progress(id){try{if(!available(id))return null;const mod=Module;return {mask:rpc(mod,id,'tp_f3_mask','number'),league:JSON.parse(rpc(mod,id,'tp_lg_view','string'))};}catch(_){return null;}}
-window.TPRegions=Object.freeze({catalog,available,locked,remember,progress,call:rpc,required,get selected(){return preferred===1&&available(1)?1:0;},label:id=>valid(id)?names[id]:'Unbekannte Region'});
+window.TPRegions=Object.freeze({catalog,supported,access,reason,available,locked,remember,progress,call:rpc,required,get selected(){return preferred===1&&available(1)?1:0;},label:id=>valid(id)?names[id]:'Unbekannte Region'});
 })();

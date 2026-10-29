@@ -18,6 +18,18 @@
   articuno:Object.freeze({
    dex:144,source:'story:kanto:articuno',
    schema:'itamapoke.story.articuno',format:'ITA1',code:'ARTICUNO'
+  }),
+  moltres:Object.freeze({
+   dex:146,source:'story:kanto:moltres',
+   schema:'itamapoke.story.moltres',format:'ITM1',code:'MOLTRES'
+  }),
+  mewtwo:Object.freeze({
+   dex:150,source:'story:kanto:mewtwo',
+   schema:'itamapoke.story.mewtwo',format:'ITT1',code:'MEWTWO'
+  }),
+  mew:Object.freeze({
+   dex:151,source:'story:kanto:mew',
+   schema:'itamapoke.story.mew',format:'ITW1',code:'MEW'
   })
  });
  if(!Object.prototype.hasOwnProperty.call(profiles,profile))

@@ -32,6 +32,8 @@ std::vector<uint8_t> read(const char *path){
 }
 #include "p06-story-access-checks.h"
 #include "p06-articuno-access-checks.h"
+#include "p06-moltres-access-checks.h"
+#include "p06-mewtwo-access-checks.h"
 
 int main(int argc,char **argv){
  assert(argc==3);
@@ -42,6 +44,9 @@ int main(int argc,char **argv){
  p06CheckStoryAccess();
  p06CheckArktosAccess();
  p06CheckStoryIsolation();
+ p06CheckMoltresAccess();
+ p06CheckMoltresIsolation();
+ p06CheckMewtuAccess();
  p.putUChar(std::string(TP_KANTO_KEYS.arenaVersion).c_str(),1);
  p.putUChar(std::string(TP_KANTO_KEYS.arenaMask).c_str(),63);
  const auto initial=Preferences::store();

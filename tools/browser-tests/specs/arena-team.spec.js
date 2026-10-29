@@ -29,7 +29,35 @@ async function openArena(page,region){
  await H.tap(page,130,134);
  await quiet(page);
 }
+function arenaFixture(region){
+ const base=H.fixture();
+ if(region!==1)return base;
+ const fields=new Map();let at=4;
+ for(let i=0;i<base.readUInt32LE(0);i++){
+  const length=base[at++],key=base.toString('utf8',at,at+length);
+  at+=length;
+  const type=base[at++],size=base.readUInt32LE(at);at+=4;
+  fields.set(key,[type,Buffer.from(base.subarray(at,at+size))]);at+=size;
+ }
+ if(at!==base.length)throw Error('Invalid arena base fixture');
+ const number=value=>{
+  const bytes=Buffer.alloc(8);bytes.writeBigInt64LE(BigInt(value));return bytes;
+ };
+ fields.set('lgver',[1,number(1)]);
+ fields.set('lgkdone',[0,Buffer.from([1])]);
+ fields.set('lgkdate',[1,number(1700000000)]);
+ const count=Buffer.alloc(4);count.writeUInt32LE(fields.size);
+ return Buffer.concat([count,...Array.from(fields,([key,[type,value]])=>{
+  const name=Buffer.from(key),length=Buffer.alloc(4);
+  length.writeUInt32LE(value.length);
+  return Buffer.concat([
+   Buffer.from([name.length]),name,Buffer.from([type]),length,value
+  ]);
+ })]);
+}
+
 async function setup(page,{region=0,weak=false,loss=false,allWeak=false}={}){
+ if(region===1)await H.importSave(page,arenaFixture(region),1);
  await H.game(page);
  const seed=await page.evaluate(async({weak,loss,allWeak})=>{
   await TPCollectionGame.ensureCurrent();

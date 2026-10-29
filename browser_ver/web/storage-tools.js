@@ -87,7 +87,7 @@ function parseLegacy(input){
    m.data.admission?.ticket===admission.pending.ticket))
    throw Error("Wartendes Pokemon ist bereits aufgenommen.");
  }
- // P06: validate both profiles against shared admission/collection.
+ // P06: validate registered profiles against shared admission/collection.
  const storyTickets=new Set();
  for(const config of [
   {
@@ -99,6 +99,21 @@ function parseLegacy(input){
    name:'Arktos',keys:['arcver','arcstep','arctick'],
    notice:['arcnver','arcnread'],
    source:'story:kanto:articuno',model:root.TPArktosModel
+  },
+  {
+   name:'Lavados',keys:['mltver','mltstep','mlttick'],
+   notice:['mltnver','mltnread'],
+   source:'story:kanto:moltres',model:root.TPLavadosModel
+  },
+  {
+   name:'Mewtu',keys:['mtwver','mtwstep','mtwtick'],
+   notice:['mtwnver','mtwnread'],
+   source:'story:kanto:mewtwo',model:root.TPMewtuModel
+  },
+  {
+   name:'Mew',keys:['mewver','mewstep','mewtick'],
+   notice:['mewnver','mewnread'],
+   source:'story:kanto:mew',model:root.TPMewModel
   }
  ]){
   const [noticeVersion,noticeRead]=config.notice;

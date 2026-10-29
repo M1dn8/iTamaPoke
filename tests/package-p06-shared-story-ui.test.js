@@ -13,7 +13,7 @@ class Element{
  closest(){return {hidden:false};}
  setAttribute(name,value){this[name]=value;}
 }
-const phases={zapdos:'investigate',articuno:'investigate'};
+const phases={zapdos:'investigate',articuno:'investigate',moltres:'investigate',mewtwo:'investigate',mew:'investigate'};
 const advances=[],portraits=[],finales=[],games=[];
 const service=id=>({
  supported:true,noticeSupported:true,
@@ -46,13 +46,23 @@ const context={
  tpSaveReplacing:false,screen:'settings',choice:'none',statusEl:{},
  TPCollection:{busy:false,blocked:false},
  TPZapdos:service('zapdos'),TPArktos:service('articuno'),
+ TPLavados:service('moltres'),TPMewtu:service('mewtwo'),TPMew:service('mew'),
  TPZapdosText:{t:key=>'Zapdos:'+key},
  TPArktosText:{t:key=>'Arktos:'+key},
+ TPLavadosText:{t:key=>'Lavados:'+key},
+ TPMewtuText:{t:key=>'Mewtu:'+key},
+ TPMewText:{t:key=>'Mew:'+key},
  TPStoriesUI:{text:key=>key},TPAppMenu:{active:true},
  TPPowerPlantScene:{create:()=>new Element('plant')},
  TPIceCaveScene:{create:()=>new Element('cave')},
+ TPVictoryRoadScene:{create:()=>new Element('victory-road')},
+ TPCeruleanCaveScene:{create:()=>new Element('cerulean-cave')},
+ TPNuggetBridgeScene:{create:()=>new Element('clearing')},
  TPPowerPlantGame:gameFactory('plant'),
  TPIceCaveGame:{...gameFactory('ice'),text:key=>key},
+ TPVictoryRoadGame:{...gameFactory('rocks'),text:key=>key},
+ TPPsiBarrierGame:{...gameFactory('psi'),text:key=>key},
+ TPMewHideGame:{...gameFactory('hide'),text:key=>key},
  TPZapdosPortrait:{create(text,options={}){
   portraits.push(options.dex||145);
   return {element:new Element('portrait'),dispose(){}};
@@ -72,14 +82,17 @@ vm.runInContext(fs.readFileSync(
  assert.equal(context.TPArktosUI.text('level'),'Arktos:level');
  for(const [id,api,kind,dex] of [
   ['zapdos',context.TPZapdosUI,'plant',145],
-  ['articuno',context.TPArktosUI,'ice',144]
+  ['articuno',context.TPArktosUI,'ice',144],
+  ['moltres',context.TPLavadosUI,'rocks',146],
+  ['mewtwo',context.TPMewtuUI,'psi',150],
+  ['mew',context.TPMewUI,'hide',151]
  ]){
   const host=new Element('host');api.mount(host);
   assert.equal(host.id,
-   id==='zapdos'?'tp-zapdos-page':'tp-articuno-page');
+   'tp-'+id+'-page');
   const gameCountBefore=games.length;
   await api.advance('investigate');
-  if(id==='articuno'){
+  if(id!=='zapdos'){
    assert.equal(games.length,gameCountBefore);
    assert.equal(api.openChallenge(),true);
    assert.equal(api.openChallenge(),false);
@@ -98,7 +111,7 @@ vm.runInContext(fs.readFileSync(
   phases[id]='complete';api.mount(host);
   assert.equal(finales[finales.length-1],dex);
  }
- assert.equal(advances.length,4);
+ assert.equal(advances.length,10);
  console.log('Shared story UI passed: actual controller factory, '+
   'independent profiles, correct minigame, unsolved-task refusal, '+
   'encounter and finale profile forwarding. DOM/art/native dependencies '+

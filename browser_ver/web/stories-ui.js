@@ -59,6 +59,14 @@
  };
  for(const code of ['en','de','es','fr'])
   root.TPText.registerLocale(code,{'stories.openCount':countText[code]});
+ const emptyText={
+  en:'There is nothing to discover here yet. Come back later!',
+  de:'Hier ist noch nichts zu entdecken. Komm später wieder!',
+  es:'Todavía no hay nada que descubrir aquí. ¡Vuelve más tarde!',
+  fr:"Il n’y a encore rien à découvrir ici. Reviens plus tard !"
+ };
+ for(const code of ['en','de','es','fr'])
+  root.TPText.registerLocale(code,{'stories.empty':emptyText[code]});
  const journalText={
   en:['New journal entries: {count}',
    'The journal read status could not be saved. Reopen the journal to try again.',
@@ -220,7 +228,8 @@
  function readCatalogue(){
   const entries=[];
   for(const [id,order,service] of [
-   ['zapdos',1,root.TPZapdos],['articuno',2,root.TPArktos]
+   ['zapdos',1,root.TPZapdos],['articuno',2,root.TPArktos],
+   ['moltres',3,root.TPLavados],['mewtwo',4,root.TPMewtu],['mew',5,root.TPMew]
   ]){
    if(!service?.noticeSupported)continue;
    entries.push({id,order,service,...service.access()});
@@ -239,7 +248,9 @@
   }catch(_){host.append(node('p',tr('invalid')));return;}
   updateStoryCount(cached);updateJournalCount();
   if(kind==='hint'){
-   if(!cached.some(entry=>entry.newlyUnlocked))return;
+   if(!cached.some(entry=>
+    entry.unlocked&&entry.phase!=='complete'&&entry.newlyUnlocked
+   ))return;
    const info=button('',()=>acknowledge(true),saving);
    info.className='tp-story-info';
    info.setAttribute('aria-busy',String(saving));
@@ -255,18 +266,30 @@
    }
    return;
   }
-  const entries=cached.map(entry=>({...entry,
-   available:entry.unlocked,fresh:entry.newlyUnlocked,
-   done:entry.phase==='complete'
-  }));
+  // Reveal only accessible stories; retain completed adventures.
+  const entries=cached
+   .filter(entry=>entry.unlocked||entry.phase==='complete')
+   .map(entry=>({...entry,
+    available:entry.unlocked,fresh:entry.newlyUnlocked,
+    done:entry.phase==='complete'
+   }));
+  if(!entries.length){
+   const empty=node('p',tr('empty'));
+   empty.className='tp-stories-empty';
+   empty.setAttribute('role','status');
+   empty.style.cssText='margin:0;padding:12px;text-align:center;';
+   host.append(empty);
+   return;
+  }
   const rank=e=>e.done?3:e.fresh?0:e.available?1:2;
   entries.sort((a,b)=>rank(a)-rank(b)||b.order-a.order);
   for(const entry of entries){
    const art=entry.id==='articuno';
-   const status=!entry.available?
-    (art?root.TPArktosText.t('locked',{count:Math.max(0,entry.badges)}):
-     tr('locked',{count:Math.max(0,entry.badges)})):
-    entry.done?tr('done'):entry.phase==='waiting'?tr('waiting'):
+   const fire=entry.id==='moltres';
+   const mind=entry.id==='mewtwo';
+   const playful=entry.id==='mew';
+   const storyText=art?root.TPArktosText:fire?root.TPLavadosText:mind?root.TPMewtuText:playful?root.TPMewText:null;
+   const status=entry.done?tr('done'):
     entry.fresh?tr('new'):tr('open');
    const tile=button('',()=>{
     try{
@@ -279,14 +302,8 @@
    tile.dataset.complete=String(entry.done);
    tile.style.cssText='display:flex;align-items:center;gap:12px;'+
     'width:100%;min-height:68px;text-align:left;padding:10px;';
-   const symbol=art?node('span','❄'):icon();
-   if(art){
-    symbol.setAttribute('aria-hidden','true');
-    symbol.style.cssText=
-     'width:38px;flex:0 0 38px;font-size:30px;text-align:center';
-   }
-   tile.append(symbol,node('span',
-    (art?root.TPArktosText.t('place'):tr('plant'))+' · '+status));
+   tile.append(node('span',
+    (storyText?storyText.t('place'):tr('plant'))+' · '+status));
    if(entry.available&&!entry.done){
     const dot=node('span');
     dot.className='tp-unread-dot tp-story-open-dot';
@@ -303,7 +320,9 @@
   saving=true;message='';render();
   let confirmed=false;
   try{
-   for(const entry of cached.filter(entry=>entry.newlyUnlocked))
+   for(const entry of cached.filter(entry=>
+    entry.unlocked&&entry.phase!=='complete'&&entry.newlyUnlocked
+   ))
     await entry.service.acknowledgeNotice();
    confirmed=true;
   }catch(error){
@@ -331,7 +350,19 @@
    const arktosNew=typeof Module._tp_story_step==='function'&&
     artCall('tp_story_step')===0&&artCall('tp_story_access')===1&&
     artCall('tp_story_notice_read')===0;
-   if(!zapdosNew&&!arktosNew)return;
+   const fireCall=name=>Module.ccall(name,'number',['number'],[146]);
+   const moltresNew=typeof Module._tp_story_step==='function'&&
+    fireCall('tp_story_step')===0&&fireCall('tp_story_access')===1&&
+    fireCall('tp_story_notice_read')===0;
+   const mindCall=name=>Module.ccall(name,'number',['number'],[150]);
+   const mewtwoNew=typeof Module._tp_story_step==='function'&&
+    mindCall('tp_story_step')===0&&mindCall('tp_story_access')===1&&
+    mindCall('tp_story_notice_read')===0;
+   const mewCall=name=>Module.ccall(name,'number',['number'],[151]);
+   const mewNew=typeof Module._tp_story_step==='function'&&
+    mewCall('tp_story_step')===0&&mewCall('tp_story_access')===1&&
+    mewCall('tp_story_notice_read')===0;
+   if(!zapdosNew&&!arktosNew&&!moltresNew&&!mewtwoNew&&!mewNew)return;
    ctx.save();
    ctx.fillStyle='#17375e';ctx.strokeStyle='#fff7eb';ctx.lineWidth=1.5;
    ctx.beginPath();ctx.arc(x+18,y-18,8,0,Math.PI*2);

@@ -6,7 +6,9 @@ trap 'rm -rf "$TMP"' EXIT
 CXX=${CXX:-g++}
 for tool in node python3 "$CXX"; do command -v "$tool" >/dev/null || { echo "Fehlendes Testwerkzeug: $tool" >&2; exit 1; }; done
 node tools/quality/test-review-contracts.cjs
+python3 tools/quality/test-named-prompt-linkage.py
 node tests/package-battle-helper.test.js
+node tests/package-browser-prepare.test.js
 node tests/package-battle-league-transition.test.js
 for test in tests/package-f4-boxes.test.js tests/package-f4-lifecycle-ui.test.js tests/package-f4-lifecycle.test.js tests/package-f4-capture.test.js tests/package-f4-persistence.test.js tests/package-f4-collection.test.js tests/package-f3-browser-fix.test.js tests/package-f3.test.js tests/package-f2.test.js tests/package-f1.test.js tests/package-ci-perf.test.js tests/package-e3.test.js tests/package-e2-name.test.js tests/package-e2-size.test.js tests/package-e2.test.js tests/package-e.test.js tests/package-d3b.test.js tests/package-d3.test.js tests/package-d2.test.js tests/package-d1.test.js tests/package-a.test.js tests/package-b.test.js tests/package-c1-ui.test.js tests/package-c2-ui.test.js tests/package-c4-ui.test.js tests/package-c5-ui.test.js tests/package-c5-theme.test.js; do
   echo "Pruefe $test"; node "$test"
@@ -92,17 +94,40 @@ python3 tools/quality/test-p06-admission-store.py
 node tests/package-p06-admission.test.js
 node tests/package-p06-zapdos-model.test.js
 node tests/package-p06-articuno-model.test.js
+node tests/package-p06-moltres-model.test.js
+node tests/package-p06-moltres-store.test.js
+node tests/package-p06-moltres-controller.test.js
+node tests/package-p06-mewtwo-model.test.js
+node tests/package-p06-mewtwo-store.test.js
+node tests/package-p06-mewtwo-controller.test.js
+node tests/package-p06-mew-model.test.js
+node tests/package-p06-mew-store.test.js
+node tests/package-p06-mew-controller.test.js
+node tests/package-p06-mew-game.test.js
+node tests/package-p06-mew-wiring.test.js
+node tests/package-p06-mewtwo-game.test.js
+node tests/package-p06-mewtwo-wiring.test.js
+node tests/package-p06-moltres-game.test.js
+node tests/package-p06-moltres-review.test.js
+node tests/package-p06-moltres-wiring.test.js
+node tests/package-p06-review-profiles.test.js
 node tests/package-p06-articuno-store.test.js
 python3 tools/quality/test-p06-zapdos-store.py
 python3 tools/quality/test-journal-unread.py
 python3 tools/quality/test-p06-zapdos-duel.py
 python3 tools/quality/test-p06-articuno-duel.py
+python3 tools/quality/test-p06-moltres-duel.py
+python3 tools/quality/test-p06-mewtwo-duel.py
+python3 tools/quality/test-p06-mew-access.py
+python3 tools/quality/test-p06-mew-duel.py
 node tests/package-p06-zapdos-controller.test.js
 node tests/package-p06-articuno-controller.test.js
 node tests/package-p06-articuno-wiring.test.js
 node tests/package-p06-ice-cave-game.test.js
 node tests/package-p06-ice-cave-i18n.test.js
 node tests/package-p06-shared-story-ui.test.js
+node tests/package-p06-story-catalogue.test.js
+node tests/package-p06-browser-fixtures.test.js
 node tests/package-p06-story-followups.test.js
 python3 tools/quality/test-battle-energy.py
 python3 tools/quality/test-battle-view.py

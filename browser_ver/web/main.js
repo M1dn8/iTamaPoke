@@ -983,7 +983,7 @@ function draw() {
 }
 
 function handleTap(x, y) {
-  if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy)return;
+  if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy||window.TPLavadosUI?.busy||window.TPMewtuUI?.busy||window.TPMewUI?.busy)return;
   if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return;
   if(window.TPLeague?.busy)return;
   if(window.TPBoxes?.active)return;
@@ -1139,7 +1139,7 @@ function handleTap(x, y) {
 // during a tap, which SwiftUI/the DOM can both report as a large jump) must
 // not be read as "swipe out of the game."
 function swipeAllowed() {
-  if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy)return false;
+  if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy||window.TPLavadosUI?.busy||window.TPMewtuUI?.busy||window.TPMewUI?.busy)return false;
   if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return false;
   if(window.TPBoxes?.active)return false;
   if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen)return false;
@@ -1157,7 +1157,7 @@ function swipeAllowed() {
 // swipe opens the dex; on the dex/card, it turns pages; dir 1 = swiped
 // right, -1 = swiped left (left advances, matching upstream).
 function onSwipe(dir) {
-  if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy)return;
+  if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy||window.TPLavadosUI?.busy||window.TPMewtuUI?.busy||window.TPMewUI?.busy)return;
   if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return;
   if(window.TPBoxes?.active)return;
   if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen)return;
@@ -1743,19 +1743,40 @@ createTPCore({
         window.TPAdmissionModel,admission,storyBridge,
         life?life.reconcile:undefined,'articuno'
       ):null;
-    const collectionBridge=articuno?articuno.bridge:storyBridge;
+    const articunoBridge=articuno?articuno.bridge:storyBridge;
+    const moltres=window.TPLavadosModel?
+      window.TPCollectionZapdos?.create(
+        mod,window.TPCollectionModel,window.TPLavadosModel,
+        window.TPAdmissionModel,admission,articunoBridge,
+        life?life.reconcile:undefined,'moltres'
+      ):null;
+    const fireBridge=moltres?moltres.bridge:articunoBridge;
+    const mewtwo=window.TPMewtuModel?
+      window.TPCollectionZapdos?.create(
+        mod,window.TPCollectionModel,window.TPMewtuModel,
+        window.TPAdmissionModel,admission,fireBridge,
+        life?life.reconcile:undefined,'mewtwo'
+      ):null;
+    const psiBridge=mewtwo?mewtwo.bridge:fireBridge;
+    const mew=window.TPMewModel?
+      window.TPCollectionZapdos?.create(
+        mod,window.TPCollectionModel,window.TPMewModel,
+        window.TPAdmissionModel,admission,psiBridge,
+        life?life.reconcile:undefined,'mew'
+      ):null;
+    const collectionBridge=mew?mew.bridge:psiBridge;
     const journal=window.TPCollectionJournal?.create(mod,window.TPCollectionModel);
     window.TPCollection=window.TPCollectionPersistence.create({
       model:window.TPCollectionModel,
       bridge:admission?admission.wrapBridge(collectionBridge):collectionBridge,
-      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{}),...(wildResult?wildResult.nativeActions:{}),...(arenaResult?arenaResult.nativeActions:{}),...(leagueStart?leagueStart.nativeActions:{}),...(admission?admission.nativeActions:{}),...(zapdos?zapdos.nativeActions:{}),...(articuno?articuno.nativeActions:{}),...(journal?journal.nativeActions:{})},
+      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{}),...(wildResult?wildResult.nativeActions:{}),...(arenaResult?arenaResult.nativeActions:{}),...(leagueStart?leagueStart.nativeActions:{}),...(admission?admission.nativeActions:{}),...(zapdos?zapdos.nativeActions:{}),...(articuno?articuno.nativeActions:{}),...(moltres?moltres.nativeActions:{}),...(mewtwo?mewtwo.nativeActions:{}),...(mew?mew.nativeActions:{}),...(journal?journal.nativeActions:{})},
       acquire:(context)=>{
         const admissionContext=context==="admissionComplete";
         const leagueContext=[
           "leaguePrepare","leagueStart","leagueResume","leagueWin"
         ].includes(context);
         const arenaContext=context==="arenaPrepare"||context==="arenaResult";
-        const battleContext=["wildCapture","wildResult","arenaResult","zapdosResult","articunoResult"].includes(context);
+        const battleContext=["wildCapture","wildResult","arenaResult","zapdosResult","articunoResult","moltresResult","mewtwoResult","mewResult"].includes(context);
         const correctScreen=leagueContext?screen==="league":
           admissionContext?["idle","card","settings","battle"].includes(screen):
           battleContext?screen==="battle":
@@ -1790,6 +1811,18 @@ createTPCore({
     if(articuno){
       articuno.bind(window.TPCollection);
       window.TPArktos=articuno;
+    }
+    if(moltres){
+      moltres.bind(window.TPCollection);
+      window.TPLavados=moltres;
+    }
+    if(mewtwo){
+      mewtwo.bind(window.TPCollection);
+      window.TPMewtu=mewtwo;
+    }
+    if(mew){
+      mew.bind(window.TPCollection);
+      window.TPMew=mew;
     }
     if(admission){
       admission.bind(window.TPCollection);

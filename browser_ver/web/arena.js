@@ -8,8 +8,8 @@ const scoped=(mod,r,name,...args)=>window.TPRegions?TPRegions.call(mod,r,name,'n
 const regional=(r,name,...args)=>scoped(Module,r,name,...args);
 const label=()=>region===1?'Johto':'Kanto';
 const get=k=>call('tp_f3_get',k),mask=()=>regional(region,'tp_f3_mask');
-function chooseRegion(id){if(screen!=='arena'||busy()||active()||tpSaveReplacing||!Number.isInteger(id)||id<0||id>1||window.TPRegions?.locked())return false;if(id===1&&!window.TPRegions?.available(1)){message='Johto benoetigt den neuen Spielkern.';return false;}const info=window.TPRegions?.catalog(id);if(!info&&id!==0)return false;if(window.TPRegions&&!TPRegions.remember(id))return false;region=id;data=info?info.arena:window.TPKantoArena;selected=0;tab=origin='leaders';detail=false;session=null;message='';choosingRegion=false;invalidatePortraits();return true;}
-function regionPicker(){ctx.fillStyle=UI.bgDay;ctx.fillRect(0,0,466,466);text('Region waehlen',233,44,22);text('Orden, Liga und Ehrenei bleiben getrennt.',233,83,13);for(let id=0;id<2;id++){const y=125+id*113,enabled=id===0||!!window.TPRegions?.available(id),p=window.TPRegions?.progress(id);button((region===id?'✓ ':'')+(id===0?'Kanto · Rot/Blau':'Johto · Gold/Silber'),60,y,346,68,enabled);text(enabled?(p&&p.mask>=0?'Orden '+Array.from({length:8},(_,i)=>!!(p.mask&(1<<i))).filter(Boolean).length+' / 8'+(p.league.done?' · Champ-Titel':''):'Fortschrittsdaten nicht lesbar'):'Neuen Spielkern laden.',233,y+91,12);}button('Zurueck',70,414,326,36);statusEl.textContent='Regionen · Kanto / Johto';}
+function chooseRegion(id){if(screen!=='arena'||busy()||active()||tpSaveReplacing||!Number.isInteger(id)||id<0||id>1||window.TPRegions?.locked())return false;if(id===1&&!window.TPRegions?.available(1)){message=window.TPRegions?.reason(1)||'Johto ist gesperrt.';return false;}const info=window.TPRegions?.catalog(id);if(!info&&id!==0)return false;if(window.TPRegions&&!TPRegions.remember(id))return false;region=id;data=info?info.arena:window.TPKantoArena;selected=0;tab=origin='leaders';detail=false;session=null;message='';choosingRegion=false;invalidatePortraits();return true;}
+function regionPicker(){ctx.fillStyle=UI.bgDay;ctx.fillRect(0,0,466,466);text('Region waehlen',233,44,22);text('Orden, Liga und Ehrenei bleiben getrennt.',233,83,13);for(let id=0;id<2;id++){const y=125+id*113,enabled=id===0||!!window.TPRegions?.available(id),p=window.TPRegions?.progress(id);button((region===id?'✓ ':'')+(id===0?'Kanto · Rot/Blau':'Johto · Gold/Silber'),60,y,346,68,enabled);text(enabled?(p&&p.mask>=0?'Orden '+Array.from({length:8},(_,i)=>!!(p.mask&(1<<i))).filter(Boolean).length+' / 8'+(p.league.done?' · Champ-Titel':''):'Fortschrittsdaten nicht lesbar'):(window.TPRegions?.reason(id)||'Johto ist gesperrt.'),233,y+91,12);}button('Zurueck',70,414,326,36);statusEl.textContent='Regionen · Kanto / Johto';}
 
 function active(){try{return typeof Module!=='undefined'&&!!Module&&!!get(0);}catch(_e){return false;}}
 function busy(){return saving||artBusy;}
@@ -45,6 +45,10 @@ function start(id=selected){
  return startPaid(id);
 }
 async function startPaid(id){
+ if(region===1&&!window.TPRegions?.available(1)){
+  message=window.TPRegions?.reason(1)||'Johto ist gesperrt.';
+  statusEl.textContent=message;return false;
+ }
  if(!window.TPBattleEnergy?.supported||
     !window.TPArenaResult?.supported||
     typeof Module._tp_wt_arena_attach!=='function'){

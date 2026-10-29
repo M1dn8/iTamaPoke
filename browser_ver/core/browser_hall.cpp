@@ -213,6 +213,11 @@ std::string teamJson(const L::State &s){
 bool tpHallSupportedFor(int region){
  tp_hall_detail::Hall h;return tp_hall_detail::load(h,region);
 }
+// Internal read-only query: reuse full version/CRC/record validation.
+int tpHallCompletedVariantsFor(int region){
+ tp_hall_detail::Hall h;
+ return tp_hall_detail::load(h,region)?int(h.mask):-1;
+}
 bool tpHallStageWinFor(int region,const Pet &p,uint8_t level,uint8_t form,
  uint32_t life,uint8_t variant,uint32_t date){
  using namespace tp_hall_detail;

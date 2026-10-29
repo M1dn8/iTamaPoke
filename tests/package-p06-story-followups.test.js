@@ -35,6 +35,130 @@ at(2360);gate.pointer('pointerup',99);assert(!gate.ready());
 at(2710);assert(gate.ready());
 gate.reset();assert(gate.ready());assert.equal(timers.size,0);
 
+
+// A contact that began in the minigame must survive reset/arm tracking.
+{
+ let heldClock=0,heldSerial=0,encounterVisible=false;
+ const heldTimers=new Map(),handlers=new Map();
+ const documentDouble={
+  addEventListener:(type,fn)=>handlers.set(type,fn),
+  removeEventListener:type=>handlers.delete(type)
+ };
+ const heldGate=G.create({
+  now:()=>heldClock,
+  setTimer:(fn,delay)=>{
+   const id=++heldSerial;
+   heldTimers.set(id,{fn,at:heldClock+delay});return id;
+  },
+  clearTimer:id=>heldTimers.delete(id)
+ });
+ const advanceHeld=value=>{
+  heldClock=value;
+  for(const [id,timer] of [...heldTimers]){
+   if(timer.at<=heldClock){heldTimers.delete(id);timer.fn();}
+  }
+ };
+ heldGate.bind(documentDouble,()=>encounterVisible);
+ handlers.get('pointerdown')({pointerId:77});
+ heldGate.reset();
+ encounterVisible=true;heldGate.arm();
+ advanceHeld(1000);assert(!heldGate.ready());
+ handlers.get('pointerup')({pointerId:77});
+ advanceHeld(1349);assert(!heldGate.ready());
+ advanceHeld(1350);assert(heldGate.ready());
+ encounterVisible=false;
+ handlers.get('pointerdown')({pointerId:88});
+ handlers.get('pointercancel')({pointerId:88});
+ encounterVisible=true;heldGate.arm();
+ advanceHeld(2000);assert(heldGate.ready());
+ heldGate.dispose();
+ assert.equal(handlers.size,0);assert.equal(heldTimers.size,0);
+}
+
+
+// A release outside the visible encounter must still refresh its readiness.
+{
+ let releaseClock=0,releaseSerial=0,releaseVisible=true,lastReady=null;
+ const releaseTimers=new Map(),releaseHandlers=new Map();
+ const releaseGate=G.create({
+  now:()=>releaseClock,
+  setTimer:(fn,delay)=>{
+   const id=++releaseSerial;
+   releaseTimers.set(id,{fn,at:releaseClock+delay});return id;
+  },
+  clearTimer:id=>releaseTimers.delete(id),
+  onChange:value=>{lastReady=value;}
+ });
+ releaseGate.bind({
+  addEventListener:(type,fn)=>releaseHandlers.set(type,fn),
+  removeEventListener:type=>releaseHandlers.delete(type)
+ },()=>releaseVisible);
+ const advanceRelease=value=>{
+  releaseClock=value;
+  for(const [id,timer] of [...releaseTimers])
+   if(timer.at<=releaseClock){releaseTimers.delete(id);timer.fn();}
+ };
+ releaseGate.arm();
+ advanceRelease(100);
+ releaseHandlers.get('pointerdown')({pointerId:91});
+ releaseVisible=false;
+ advanceRelease(900);
+ assert.equal(lastReady,false);
+ assert(!releaseGate.ready());
+ releaseHandlers.get('pointerup')({pointerId:91});
+ assert.deepEqual([...releaseGate.debug().held],[]);
+ advanceRelease(1249);assert(!releaseGate.ready());
+ advanceRelease(1250);
+ assert(releaseGate.ready());assert.equal(lastReady,true);
+ releaseGate.dispose();
+ assert.equal(releaseHandlers.size,0);
+ assert.equal(releaseTimers.size,0);
+}
+
+
+// Fractional timer boundary must not lose the final ready notification.
+{
+ let edgeClock=0,edgeSerial=0,edgeNotified=null;
+ const edgeTimers=new Map();
+ const edgeGate=G.create({
+  now:()=>edgeClock,
+  setTimer:(fn,delay)=>{
+   const id=++edgeSerial;
+   edgeTimers.set(id,{fn,at:edgeClock+delay});
+   return id;
+  },
+  clearTimer:id=>edgeTimers.delete(id),
+  onChange:value=>{
+   edgeNotified=value;
+   // Simulate DOM work crossing the deadline after a false notification.
+   if(edgeClock===649.75&&value===false)edgeClock=650.25;
+  }
+ });
+ edgeGate.arm();
+ assert.equal(edgeTimers.size,1);
+
+ // Simulate a timer callback immediately before the fractional boundary.
+ edgeClock=649.75;
+ const [firstId,firstTimer]=[...edgeTimers][0];
+ edgeTimers.delete(firstId);
+ firstTimer.fn();
+
+ assert.equal(edgeGate.ready(),true);
+ assert.equal(edgeNotified,false);
+ // A false notification must still have a follow-up timer.
+ assert.equal(edgeTimers.size,1);
+
+ const [nextId,nextTimer]=[...edgeTimers][0];
+ edgeClock=nextTimer.at;
+ edgeTimers.delete(nextId);
+ nextTimer.fn();
+
+ assert.equal(edgeGate.ready(),true);
+ assert.equal(edgeNotified,true);
+ assert.equal(edgeTimers.size,0);
+ edgeGate.dispose();
+}
+
 class E{
  constructor(tag){
   this.tagName=tag;this.children=[];this.style={};this.handlers={};
@@ -53,7 +177,7 @@ const source=fs.readFileSync(
  'browser_ver/web/collection-admission-ui.js','utf8'
 );
 async function admissionCase(dex,mode,fail=false){
- const sourceId='story:kanto:'+(dex===144?'articuno':'zapdos');
+ const sourceId='story:kanto:'+({144:'articuno',145:'zapdos',146:'moltres',150:'mewtwo',151:'mew'})[dex];
  let pending={
   kind:'join',source:sourceId,ticket:1,pokemon:{dex,level:50}
  };
@@ -121,22 +245,31 @@ async function admissionCase(dex,mode,fail=false){
 }
 
 (async()=>{
- for(const dex of [145,144])
+ for(const dex of [145,144,146,150,151])
   for(const mode of ['replace','box','auto'])
    await admissionCase(dex,mode);
  await admissionCase(144,'replace',true);
  await admissionCase(144,'later');
+ for(const mode of ['replace','box','auto'])
+  await admissionCase(146,mode,true);
+ await admissionCase(146,'later');
+ for(const mode of ['replace','box','auto'])
+  await admissionCase(150,mode,true);
+ await admissionCase(150,'later');
+ for(const mode of ['replace','box','auto'])
+  await admissionCase(151,mode,true);
+ await admissionCase(151,'later');
 
  const ui=fs.readFileSync('browser_ver/web/zapdos-story-ui.js','utf8');
  const a=ui.indexOf(' function admissionCompleted(pending){');
  const b=ui.indexOf(' function showStory(){',a);
  assert(a>=0&&b>a);
 
- for(const dex of [145,144]){
+ for(const dex of [145,144,146,150,151]){
   let routed=0;
   const provenance={
    kind:'join',ticket:1,
-   source:'story:kanto:'+(dex===145?'zapdos':'articuno')
+   source:'story:kanto:'+({144:'articuno',145:'zapdos',146:'moltres',150:'mewtwo',151:'mew'})[dex]
   };
   const pending={...provenance,pokemon:{dex}};
   const context={
@@ -163,7 +296,7 @@ async function admissionCase(dex,mode,fail=false){
  }
  console.log(
   'Story follow-ups passed: transition quiet period, held/stale pointers, '+
-  'both species with replacement/box/auto, save-failure retry, later '+
+  'all five species with replacement/box/auto, save-failure retry, later '+
   'without finale, persisted provenance routing and duplicate-finale '+
   'refusal. UI/model boundaries simulated; real touch, animation and '+
   'native persistence require browser review.'

@@ -11,15 +11,22 @@
  function fail(code){throw Object.assign(Error(code),{code});}
  function create(
   mod,M,Z,A,admission,base,reconcile=s=>s,profile='zapdos'){
+  const profiles=Object.freeze({
+   zapdos:{dex:145,code:'ZAPDOS'},
+   articuno:{dex:144,code:'ARTICUNO'},
+   moltres:{dex:146,code:'MOLTRES'},
+   mewtwo:{dex:150,code:'MEWTWO'},
+   mew:{dex:151,code:'MEW'}
+  });
+  const config=Object.prototype.hasOwnProperty.call(profiles,profile)?
+   profiles[profile]:null;
   const fail=raw=>{
-   const code=profile==='articuno'?
-    raw.replace(/ZAPDOS/g,'ARTICUNO'):raw;
+   const code=raw.replace(/ZAPDOS/g,config?.code||'ZAPDOS');
    throw Object.assign(Error(code),{code});
   };
-  if(!['zapdos','articuno'].includes(profile))
-   fail('UNSUPPORTED_STORY_PROFILE');
+  if(!config)fail('UNSUPPORTED_STORY_PROFILE');
   const actionName=suffix=>profile+suffix;
-  const routes=profile==='articuno'?{
+  const routes=profile!=='zapdos'?{
    'tp_zpd_step':['tp_story_step',0],
    'tp_zpd_ticket':['tp_story_ticket',0],
    'tp_zpd_access':['tp_story_access',0],
@@ -45,7 +52,7 @@
   function call(name,args=[],type='number'){
    const route=routes[name];
    const actual=args.slice();
-   if(route)actual.splice(route[1],0,144);
+   if(route)actual.splice(route[1],0,config.dex);
    return mod.ccall(
     nativeName(name),type,actual.map(()=>'number'),actual
    );

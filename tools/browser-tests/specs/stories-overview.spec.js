@@ -14,9 +14,16 @@ test('Geschichten: drei Kanto-Orden bleiben trotz acht Johto-Orden gesperrt',asy
   'button[data-hub="stories"] .tp-hub-count'
  )).toHaveCount(0);
  await root(page).getByRole('button',{name:'Geschichten',exact:true}).click();
- await expect(tile(page)).toBeDisabled();
- await expect(tile(page).locator('.tp-story-open-dot')).toHaveCount(0);
- await expect(tile(page)).toContainText('3/4');
+ const catalogue=page.locator('#tp-stories-page');
+ await expect(catalogue).toBeVisible();
+ await expect(tile(page)).toHaveCount(0);
+ await expect(catalogue.locator('button[data-story]')).toHaveCount(0);
+ await expect(catalogue.locator('.tp-story-open-dot')).toHaveCount(0);
+ await expect(catalogue.locator('.tp-stories-empty')).toHaveText(
+  'Hier ist noch nichts zu entdecken. Komm später wieder!'
+ );
+ await expect(catalogue).not.toContainText('Kraftwerk');
+ await expect(catalogue).not.toContainText('3/4');
  const result=await page.evaluate(async()=>{
   try{await TPZapdos.advance('investigate');return 'unexpected-success';}
   catch(error){return error.code||error.message;}
@@ -202,11 +209,36 @@ for(const [badges,expectedCount,zapdosOpen,arktosOpen] of [
    const arktos=page.locator(
     '#tp-stories-page button[data-story="articuno"]'
    );
-   if(zapdosOpen)await expect(zapdos).toBeEnabled();
-   else await expect(zapdos).toBeDisabled();
+   const catalogue=page.locator('#tp-stories-page');
+   await expect(catalogue.locator('button[data-story]'))
+    .toHaveCount(expectedCount);
+   await expect(catalogue.locator('.tp-story-open-dot'))
+    .toHaveCount(expectedCount);
 
-   if(arktosOpen)await expect(arktos).toBeEnabled();
-   else await expect(arktos).toBeDisabled();
+   if(zapdosOpen){
+    await expect(zapdos).toBeEnabled();
+    await expect(zapdos).toContainText('Kraftwerk');
+   }else{
+    await expect(zapdos).toHaveCount(0);
+    await expect(catalogue).not.toContainText('Kraftwerk');
+   }
+
+   if(arktosOpen){
+    await expect(arktos).toBeEnabled();
+    await expect(arktos).toContainText('Eishöhle');
+   }else{
+    await expect(arktos).toHaveCount(0);
+    await expect(catalogue).not.toContainText('Eishöhle');
+   }
+
+   const empty=catalogue.locator('.tp-stories-empty');
+   if(expectedCount===0){
+    await expect(empty).toHaveText(
+     'Hier ist noch nichts zu entdecken. Komm später wieder!'
+    );
+   }else{
+    await expect(empty).toHaveCount(0);
+   }
   }
  );
 }

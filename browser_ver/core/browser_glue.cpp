@@ -730,7 +730,7 @@ EMSCRIPTEN_KEEPALIVE void tp_start_farewell() { if(Preferences().isKey("f4lver")
 EMSCRIPTEN_KEEPALIVE void tp_start_runaway() { if(Preferences().isKey("f4lver"))return;gPet.startRunaway(); }
 
 namespace {
-std::string TPNamedPrompt(StrId id) {
+extern "C++" std::string TPNamedPrompt(StrId id) {
   const char *nm = gPet.nick[0] ? gPet.nick : dexName(gPet.speciesId);
   char buf[64];
   snprintf(buf, sizeof(buf), T(id), nm);

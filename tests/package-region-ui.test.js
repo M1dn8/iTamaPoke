@@ -4,9 +4,12 @@ const turn=()=>new Promise(setImmediate);
 function env(){
  let saveResolve,saveReject,pending=null,arenaActive=false,arenaOwner=-1,arenaPhase=0,arenaAttached=false;const calls=[],text=[],storage=new Map(),masks=[1,0];
  const states=[0,1].map(()=>({supported:1,unlocked:1,state:0,live:0,done:0,index:0,actor:1,battleId:1,records:[],playerDex:376,playerLevel:100,level:40,hp:300,maxHp:300,rests:5}));
+ states[0].done=1;
  const halls=[{supported:1,records:[],wins:0,seen:0,pendingCeremony:0},{supported:1,records:[{dex:158,level:50,shiny:1,form:0,life:1,date:1700000000,variant:0,nick:'J-Sieger',sequence:1}],wins:1,seen:0,pendingCeremony:1,variants:1}];
  const gifts=[0,1].map(()=>({supported:1,eligible:1,state:0,dex:0,candidates:[152,155,158],canChoose:1,canArm:0,canDisarm:0,queueSupported:1,armedRegion:-1}));
  const mod={ccall(n,type,_types,args=[]){calls.push([n,...args]);const regional=n.startsWith('tp_region_'),r=regional?args[0]:0,a=regional?args.slice(1):args;
+  if(n==='tp_region_access')return args[0]===0?1:
+   args[0]===1?(states[0].supported?Number(!!states[0].done):-1):-1;
   if(n==='tp_lg_owned')return states.some(s=>s.live)||pending?.kind==='league'?1:0;
   if(n==='tp_f4_store_pending')return pending&&pending.kind!=='league'?1:0;
   if(n==='tp_f4_store_pending_token')return pending?.token||0;
@@ -195,5 +198,28 @@ function env(){
  e.gifts[1].canArm=0;e.gifts[1].armedRegion=0;e.text.length=0;c.TPRewardEgg.draw();assert(e.text.some(x=>x.includes('Kanto-Ei bereits vorgemerkt')));const count=e.calls.length;c.TPRewardEgg.tap(233,386);assert.equal(e.calls.filter(x=>x[0]==='tp_region_rg_prepare').length,e.calls.slice(0,count).filter(x=>x[0]==='tp_region_rg_prepare').length);
  const drawContext=env();vm.runInContext(fs.readFileSync('browser_ver/web/battle-view.js','utf8'),drawContext.c);const themes=[];for(const index of [0,5,10,15,20]){drawContext.c.TPBattleView.drawLeague({region:1,battleId:index+1,index,playerDex:376,playerLevel:100,form:0,shiny:0,hp:200,maxHp:300,atk:300,def:200,spe:200,dex:178,level:40,enemyHp:100,enemyMaxHp:150,round:0,rests:5,live:1});themes.push(drawContext.c.TPBattleView.current.theme);assert.equal(drawContext.c.TPBattleView.current.region,1);}assert.equal(new Set(themes).size,5);assert(drawContext.c.TPBattleView.current.title.includes('Siegfried'));
  const cold=env();delete cold.c.Module._tp_region_rg_finish;assert(!cold.c.TPRegions.available(1));assert(cold.c.TPArena.open());assert(!cold.c.TPArena.chooseRegion(1));assert.equal(cold.c.TPArena.region,0);assert.equal(cold.c.TPRegions.catalog(2),null);assert(!cold.c.TPRegions.remember(2));
+
+ const gated=env();
+ gated.states[0].done=0;
+ assert.equal(gated.c.TPRegions.access(1),0);
+ assert(!gated.c.TPRegions.available(1));
+ assert(gated.c.TPRegions.reason(1).includes('Kanto'));
+ assert(gated.c.TPArena.open());
+ assert(!gated.c.TPArena.chooseRegion(1));
+ assert.equal(gated.c.TPArena.region,0);
+ gated.c.__forceArenaRegion(1);
+ const beforeGateCalls=gated.calls.length;
+ assert.equal(await gated.c.TPArena.start(0),false);
+ assert(!gated.calls.slice(beforeGateCalls).some(call=>
+  call[0]==='tp_region_energy_arena_begin'||
+  call[0]==='tp_energy_arena_begin'||call[0]==='tp_wt_stage_begin'
+ ));
+ gated.states[0].done=1;
+ assert(gated.c.TPRegions.available(1));
+ gated.states[0].supported=0;
+ assert.equal(gated.c.TPRegions.access(1),-1);
+ assert(!gated.c.TPRegions.available(1));
+ console.log('Johto UI gate passed: locked selection/start, prerequisite hint, no team/payment preparation and unreadable-proof refusal.');
+
  console.log('Regional UI passed: old-core Johto refusal; independent catalogs, remembered selection guards, captured arena/league/Hall/gift owners across deferred writes and forced context changes; quota rollback, actual saved winner labels and visible cross-region egg queue. VM tests, not browser/native integration.');
 })().catch(e=>{console.error(e);process.exit(1);});

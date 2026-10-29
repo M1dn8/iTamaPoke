@@ -29,7 +29,10 @@ for(const [globalName,file] of [
  ['TPCollectionModel','collection-model.js'],
  ['TPAdmissionModel','collection-admission-model.js'],
  ['TPZapdosModel','zapdos-story-model.js'],
- ['TPArktosModel','articuno-story-model.js']
+ ['TPArktosModel','articuno-story-model.js'],
+ ['TPLavadosModel','moltres-story-model.js'],
+ ['TPMewtuModel','mewtwo-story-model.js'],
+ ['TPMewModel','mew-story-model.js']
 ]){
  globalThis[globalName]=require(
   path.join(ROOT,'browser_ver/web',file)
@@ -37,7 +40,8 @@ for(const [globalName,file] of [
 }
 const T=require(path.join(ROOT,'browser_ver/web/storage-tools.js'));
 
-const names=[
+// P06 review profile configuration
+const defaultNames=[
  '01-drei-orden',
  '02-vier-orden',
  '03-fuenf-orden',
@@ -47,6 +51,30 @@ const names=[
  '07-arktos-aufnahme-wartet',
  '08-arktos-finale'
 ];
+
+const manifestPath=path.join(saves,'review.json');
+const hasManifest=fs.existsSync(manifestPath);
+const manifest=hasManifest?
+ JSON.parse(fs.readFileSync(manifestPath,'utf8')):null;
+
+if(hasManifest){
+ if(!manifest||typeof manifest!=='object'||Array.isArray(manifest)||
+    Object.keys(manifest).length!==3||
+    !['schema','story','names'].every(key=>
+     Object.prototype.hasOwnProperty.call(manifest,key))||
+    manifest.schema!==1||
+    !['articuno','moltres','mewtwo','mew','catalogue'].includes(manifest.story)||
+    !Array.isArray(manifest.names)||manifest.names.length!==8||
+    manifest.names.some((name,index)=>
+     typeof name!=='string'||name.length>96||
+     !/^[0-9]{2}-[a-z0-9-]+$/.test(name)||
+     !name.startsWith(String(index+1).padStart(2,'0')+'-'))||
+    new Set(manifest.names).size!==8)
+  throw Error('Ungueltiges Reviewprofil.');
+}
+const reviewStory=hasManifest?manifest.story:'articuno';
+const names=Object.freeze([...(hasManifest?manifest.names:defaultNames)]);
+// End P06 review profile configuration
 
 let context,server,page,output,origin;
 let current=5,busy=false,closing=false,shot=0,eventCount=0;
@@ -72,7 +100,17 @@ function help(){
  console.log('s: Screenshot + Notiz');
  console.log('r: neu laden, Fortschritt behalten');
  console.log('w: Breite wechseln | h: Hilfe | q: Ende');
- console.log('5 = Eiszapfen-Minispiel · 6 = Arktos-Begegnung\n');
+ console.log(reviewStory==='catalogue'?
+  '1 = leer · 2 = vier Orden · 3 = sechs Orden · 4 = acht Orden\n'+
+  '5 = Kanto-Champion · 6 = alle fünf Geschichten\n'+
+  '7 = leerer Katalog / Breitencheck · 8 = voller Katalog / Breitencheck\n':
+  reviewStory==='mew'?
+  '5 = Versteckspiel · 6 = Mew-Begegnung\n':
+  reviewStory==='mewtwo'?
+  '5 = Psi-Barriere · 6 = Mewtu-Begegnung\n':
+  reviewStory==='moltres'?
+  '5 = Felsenschieber · 6 = Lavados-Begegnung\n':
+  '5 = Eiszapfen-Minispiel · 6 = Arktos-Begegnung\n');
 }
 async function ready(){
  await page.waitForFunction(
@@ -85,13 +123,13 @@ async function ready(){
 async function openStory(){
  await page.evaluate(
   id=>window.TPAppMenu.show(id),
-  current<=3?'stories':'articuno'
+  (reviewStory==='catalogue'||current<=3)?'stories':reviewStory
  );
 }
 async function graphics(){
  const files=[];
  for(const name of [
-  'p001.bin','p144.bin','p145.bin','p376.bin'
+  'p001.bin','p144.bin','p145.bin','p146.bin','p150.bin','p151.bin','p376.bin'
  ]){
   const file=path.join(ROOT,'Resources/mons',name);
   if(fs.existsSync(file)&&fs.statSync(file).isFile()){
@@ -219,6 +257,9 @@ async function screenshot(){
   return {
    screen:typeof screen==='string'?screen:'',
    arktos:read(()=>window.TPArktos?.read()),
+   lavados:read(()=>window.TPLavados?.read()),
+   mewtu:read(()=>window.TPMewtu?.read()),
+   mew:read(()=>window.TPMew?.read()),
    diagnostics:read(()=>window.TPDiagnostics?.report)
   };
  }).catch(error=>({error:error.message}));
@@ -378,7 +419,7 @@ async function keyHandler(value,key={}){
  console.log('Aufnahmen:',output);
  console.log('Profil:',profile);
 
- await loadCase(5);
+ await loadCase(reviewStory==='catalogue'?1:5);
 
  readline.emitKeypressEvents(process.stdin);
  process.stdin.setRawMode(true);

@@ -96,7 +96,8 @@ async function preflight(){
     'specs/journal-unread.spec.js','specs/stories-overview.spec.js',
     'specs/power-plant-scenes.spec.js','specs/power-plant-game.spec.js',
     'specs/zapdos-encounter.spec.js','specs/zapdos-story.spec.js',
-    'specs/offline.spec.js'
+    'specs/offline.spec.js','specs/legendary-rest.spec.js',
+    'specs/regions-johto.spec.js','specs/league-team.spec.js','specs/arena-team.spec.js'
    ]);
    if(mode==='full')await browser('full');
   }

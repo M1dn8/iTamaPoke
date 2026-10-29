@@ -2147,3 +2147,18 @@ Erster lokaler Teilschritt:
   sind nicht Teil des Veröffentlichungsschritts.
 - GitHub-Build/Deployment und iPhone-Abnahme dieses Gesamtstands
   bleiben separat zu prüfen; hier keine erfolgreiche Durchführung behauptet.
+
+### P06 — Veröffentlichung und iPhone-Abnahme abgeschlossen
+
+- Paketcommit: f16802ee6628d772109a2e5c7132cbac44ee924f
+  (feat(p06): complete legendary stories and spoiler-free discovery).
+- Push nach M1dn8/iTamaPoke auf main erfolgreich.
+- Nutzer bestätigt anschließend: Build grün, iPhone-Test erfolgreich.
+- Lokale Gesamtprüfungen und RevisionBrowser-Abnahmen sind bereits
+  in den vorherigen Abschlussabschnitten dokumentiert.
+- Einschließlich der nachträglichen Katalogänderung:
+  zunächst leerer Geschichtenbereich mit Hinweistext, danach schrittweise
+  Anzeige tatsächlich freigeschalteter Geschichten ohne Ortsvorschau.
+- P06-Gesamtpaket damit einschließlich Veröffentlichung und
+  nutzerbestätigter iPhone-Abnahme abgeschlossen.
+- Dieser Nachtrag verändert ausschließlich die Projektdokumentation.

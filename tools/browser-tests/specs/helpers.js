@@ -1,4 +1,8 @@
-const {expect}=require('@playwright/test');
+// Pure fixture generation must also work before browser packages are installed.
+function expect(...args){
+ return require('@playwright/test').expect(...args);
+}
+expect.poll=(...args)=>require('@playwright/test').expect.poll(...args);
 function number(n){const b=Buffer.alloc(8);b.writeBigInt64LE(BigInt(n));return b;}
 function fixture(entries=120){
  const diary=Buffer.alloc(entries*36);const now=Math.floor(Date.now()/1000);

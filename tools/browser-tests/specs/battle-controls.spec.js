@@ -23,15 +23,9 @@ function strong(){
  return Buffer.concat([count,...fields]);
 }
 async function start(page){
- await H.importSave(page,strong(),376);await H.game(page);
- const a=await H.point(page,233,300),b=await H.point(page,233,110);
- await page.mouse.move(a.x,a.y);await page.mouse.down();
- await page.mouse.move(b.x,b.y,{steps:8});await page.mouse.up();
- await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');
- for(let i=0;i<4;i++)await H.tap(page,350,382);
- await H.tap(page,103,308);
- await expect.poll(()=>page.evaluate(()=>screen)).toBe('battle');
- await expect.poll(()=>page.evaluate(()=>TPBattleView.current?.mode)).toBe('wild');
+ await H.importSave(page,strong(),376);
+ await H.openWildBattleSelection(page);
+ await H.startWildBattleFromSelection(page);
 }
 const targets=(page,names)=>page.evaluate(names=>Object.fromEntries(
  names.map(name=>[name,TPBattleView.target(name)])
@@ -47,7 +41,7 @@ test('Review controls: four-button grids and healing from the moves page',async(
  await expect.poll(()=>page.evaluate(()=>TPBattleView.menu)).toBe('moves');
  await expect.poll(()=>targets(page,['quick','dodge','heavy','back','rest'])).toEqual({
   heavy:{x:137,y:371},dodge:{x:329,y:371},
-  quick:{x:137,y:425},back:{x:329,y:425},rest:null
+  quick:{x:137,y:425},back:{x:30,y:26},rest:{x:329,y:425}
  });
  const round=await page.evaluate(()=>fns.battleRound());
  await H.battleAction(page,'rest');
@@ -129,13 +123,16 @@ test('Review navigation: fifth care button opens the Pokedex hub',async({page})=
  await back();
  await hub();
 
- await root.getByRole('button',{name:'Arten-Pokédex',exact:true}).click();
- const modal=page.locator('.tp-modal:visible');
- await expect(modal).toHaveCount(1);
- await modal.locator('.tp-modal-head button').click();
+ await root.getByRole('button',{
+  name:await H.uiText(page,'menu.dex'),exact:true
+ }).click();
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('dex');
+ await expect(page.locator('.tp-modal:visible')).toHaveCount(0);
+ await page.locator('#tp-dex-back').click();
  await hub();
 
- await root.getByRole('button',{name:'Arten-Pokédex',exact:true}).click();
+ await H.openSpeciesSearch(page);
+ const modal=page.locator('.tp-modal:visible');
  await expect(modal).toHaveCount(1);
  await modal.getByRole('button',{
   name:'Filter im Pokédex anwenden',exact:true

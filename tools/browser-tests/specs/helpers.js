@@ -41,6 +41,43 @@ async function openHub(page){
  await expect(heading).toBeVisible();
 }
 async function game(page){
+ const megaPage=page.locator('#tp-mega-page');
+ if(await megaPage.isVisible()){
+  await megaPage.locator('[data-mega-back]').click();
+ }
+
+ if(await page.evaluate(()=>screen==='keyboard')){
+  await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');
+ }
+ const inlineName=page.locator('#tp-inline-name');
+ if(await inlineName.isVisible()){
+  await page.locator('#tp-status-page [data-status-back]').click();
+  await expect(inlineName).not.toBeVisible();
+ }
+ if(await page.evaluate(()=>screen==='activity')){
+  await page.locator('#tp-activity-page').getByRole('button',{
+   name:await uiText(page,'common.back'),exact:true
+  }).click();
+  await expect.poll(()=>page.evaluate(()=>screen)).toBe('idle');
+ }
+
+ if(await page.evaluate(()=>!!window.TPActions?.active))
+  await tap(page,233,200);
+ if(await page.evaluate(()=>screen==='gamemenu')){
+  await page.locator('#tp-games-page [data-play-focus="back"]').click();
+  await expect.poll(()=>page.evaluate(()=>screen)).toBe('idle');
+ }
+ if(await page.evaluate(()=>
+  screen==='expedition'||screen==='card'&&cardPage===7)){
+  for(let step=0;step<2;step++){
+   await page.locator('#tp-expedition-page [data-exp-back]').click();
+   if(await page.evaluate(()=>screen==='idle'))break;
+  }
+  await expect.poll(()=>page.evaluate(()=>screen)).toBe('idle');
+ }
+
+ const dexBack=page.locator('#tp-dex-back');
+ if(await dexBack.isVisible())await dexBack.click();
  const root=page.locator('#tp-app-page');
  for(let step=0;step<6&&await root.isVisible();step++){
   const home=root.getByRole('button',{
@@ -53,7 +90,17 @@ async function game(page){
  }
  await expect(root).toBeHidden();
  if(await page.evaluate(()=>screen==='card')){
-  await tap(page,233,406);
+  const index=await page.evaluate(()=>cardPage);
+  if([0,1,2,4,5,6].includes(index)){
+   const status=page.locator('#tp-status-page');
+   await expect(status).toBeVisible();
+   for(let step=0;step<3;step++){
+    await status.locator('[data-status-back]').click();
+    if(await page.evaluate(()=>screen==='idle'))break;
+   }
+  }else{
+   await tap(page,233,406);
+  }
   await expect.poll(()=>page.evaluate(()=>screen)).toBe('idle');
  }
 }
@@ -79,7 +126,9 @@ async function openHubSection(page,key){
  }).click();
 }
 async function openSpeciesSearch(page){
- await openHubSection(page,'navigation.species');
+ await openHubSection(page,'menu.dex');
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('dex');
+ await page.locator('#tp-dex-search').click();
  await expect(modal(page)).toBeVisible();
  return modal(page);
 }
@@ -117,12 +166,14 @@ async function closeHubModal(page){
  await modal(page).locator('.tp-modal-head').getByRole('button',{
   name:await uiText(page,'common.back'),exact:true
  }).click();
+ const dexBack=page.locator('#tp-dex-back');
+ if(await dexBack.isVisible())await dexBack.click();
  await expect(page.locator('#tp-app-page').getByRole('heading',{
   name:await uiText(page,'navigation.hub'),exact:true
  })).toBeVisible();
 }
 async function diary(page){return openJournal(page);}
-async function battleAction(page,action){
+async function battleAction(page,action,options={}){
  const capture=()=>page.evaluate(a=>{
   const ui=window.TPBattleView,m=ui?.current;
   if(!m||tpSaveReplacing)return null;
@@ -145,14 +196,22 @@ async function battleAction(page,action){
   if((menu==='moves'&&fight)||(menu==='main'&&back))return null;
   const rect=document.getElementById('tp').getBoundingClientRect();
   if(!rect.width||!rect.height)return null;
-  const point=p=>p?{
-   x:rect.left+p.x*rect.width/466,
-   y:rect.top+p.y*rect.height/466
-  }:null;
+  const point=(p,action)=>{
+   if(!p)return null;
+   if(window.TPBattlePokedex?.active)
+    return TPBattlePokedex.actionPoint(action);
+   return {
+    x:rect.left+p.x*rect.width/466,
+    y:rect.top+p.y*rect.height/466
+   };
+  };
+  const desiredPoint=point(ui.target(a),a);
+  const backPoint=desiredPoint?null:point(ui.target('back'),'back');
+  const fightPoint=desiredPoint||backPoint?null:point(ui.target('fight'),'fight');
   return {
    id,round,rests,resolved,menu,mode:m.mode,league,
-   confirmAbort:m.mode!=='wild'&&!resolved,
-   desired:point(ui.target(a)),fight:point(fight),back:point(back)
+   confirmAbort:!resolved,
+   desired:desiredPoint,fight:fightPoint,back:backPoint
   };
  },action);
  const waitChoice=async()=>{
@@ -175,10 +234,18 @@ async function battleAction(page,action){
   await page.mouse.click(point.x,point.y);
  }
  if(!before?.desired)throw Error('Battle navigation did not expose '+action);
- if(action==='abort'&&before.confirmAbort)
-  page.once('dialog',dialog=>dialog.accept());
  // Use the captured, validated coordinate; never read the target again.
  await page.mouse.click(before.desired.x,before.desired.y);
+ if(action==='leave'&&options.confirm!==false){
+  const next=page.locator('#tp-battle-page [data-battle-action="confirm-no-catch"]');
+  await expect(next).toBeVisible();await next.click();
+ }
+
+ if(action==='abort'&&before.confirmAbort&&options.confirm!==false){
+  const confirmation=page.locator('#tp-give-up-confirm');
+  await expect(confirmation).toBeVisible();
+  await confirmation.locator('[data-give-up="yes"]').click();
+ }
  if(['quick','heavy','dodge','rest'].includes(action)){
   await expect.poll(()=>page.evaluate(previous=>{
    if(previous.league){
@@ -224,4 +291,302 @@ async function waitForWildCatchReady(page){
  });
 }
 
-module.exports={uiText,openSpeciesSearch,openStories,openJournal,openEggPlanning,openEvolution,backToHub,closeHubModal,openHub,waitForWildCatchReady,battleAction,fixture,waitReady,point,tap,openMenu,game,modal,importSave,prepare,diary};
+
+async function selectStory(page,id){
+ const tile=page.locator('#tp-stories-page button[data-story="'+id+'"]');
+ await expect(tile).toHaveCount(1);
+ await expect(tile).toBeEnabled();
+ for(let attempt=0;attempt<4&&!await tile.isVisible();attempt++){
+  const next=page.locator('#tp-stories-next');
+  const previous=page.locator('#tp-stories-prev');
+  if(await next.isVisible()&&await next.isEnabled())await next.click();
+  else if(await previous.isVisible()&&await previous.isEnabled())await previous.click();
+  else break;
+ }
+ await expect(tile).toBeVisible();
+ await tile.click();
+ await expect(tile).toHaveAttribute('aria-pressed','true');
+ await expect(page.locator('#tp-story-preview')).toHaveAttribute('data-story',id);
+ return tile;
+}
+async function startStory(page,id){
+ await selectStory(page,id);
+ const start=page.locator('#tp-story-preview button[data-story-start="'+id+'"]');
+ await expect(start).toBeEnabled();
+ await start.click();
+}
+module.exports={openStatus,openExpedition,startGame,openGames,selectStory,startStory,uiText,openSpeciesSearch,openStories,openJournal,openEggPlanning,openEvolution,backToHub,closeHubModal,openHub,waitForWildCatchReady,battleAction,fixture,waitReady,point,tap,openMenu,game,modal,importSave,prepare,diary};
+
+
+async function openGames(page){
+ if(await page.evaluate(()=>screen==='gamemenu'))return;
+ await game(page);await tap(page,157,404);
+ await expect.poll(()=>page.evaluate(()=>window.TPActions?.mode)).toBe('root');
+ const target=await page.evaluate(()=>TPActions.targets.find(item=>item.id==='games'));
+ expect(target?.enabled).toBe(true);
+ await tap(page,target.x+target.w/2,target.y+target.h/2);
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('gamemenu');
+}
+
+
+async function startGame(page,index){
+ const ids=['ball','catch','memo','clean','type'];
+ expect(Number.isInteger(index)&&index>=0&&index<ids.length).toBe(true);
+ await openGames(page);
+ const root=page.locator('#tp-games-page');
+ await expect(root).toBeVisible();
+ const target=root.locator('[data-play-game="'+ids[index]+'"]');
+ await expect(target).toHaveCount(1);
+ await target.scrollIntoViewIfNeeded();
+ await target.click();
+ await root.locator('[data-play-start]').click();
+ await expect.poll(()=>page.evaluate(()=>({screen,mode:gameMode})))
+  .toEqual({screen:'game',mode:index});
+ await expect(root).not.toBeVisible();
+}
+
+
+async function openExpedition(page){
+ if(await page.evaluate(()=>screen!=='expedition')){
+  await game(page);await tap(page,157,404);
+  await expect.poll(()=>page.evaluate(()=>TPActions.mode)).toBe('root');
+  const target=await page.evaluate(()=>TPActions.targets.find(
+   item=>item.id==='expedition'
+  ));
+  expect(target?.enabled).toBe(true);
+  await tap(page,target.x+target.w/2,target.y+target.h/2);
+ }
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('expedition');
+ await expect(page.locator('#tp-expedition-page')).toBeVisible();
+}
+
+
+async function openStatus(page){
+ const current=await page.evaluate(()=>({
+  screen,page:cardPage
+ }));
+ if(current.screen!=='card'||![0,1,2,4,5,6].includes(current.page)){
+  await game(page);
+  const a=await point(page,233,300),b=await point(page,233,110);
+  await page.mouse.move(a.x,a.y);await page.mouse.down();
+  await page.mouse.move(b.x,b.y,{steps:8});await page.mouse.up();
+ }
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');
+ const root=page.locator('#tp-status-page');
+ await expect(root).toBeVisible();
+ return root;
+}
+
+
+// UI01 closeout: shared visible battle selection and wild capture preparation.
+async function openBattleSelection(page){
+ await game(page);
+ await page.waitForFunction(()=>!tpSaveReplacing&&!TPCollection.busy);
+ await tap(page,157,404);
+ await expect.poll(()=>page.evaluate(()=>TPActions.mode)).toBe('root');
+
+ const target=await page.evaluate(
+  ()=>TPActions.targets.find(item=>item.id==='battle')||null
+ );
+ expect(target,'Visible battle action must have a real target').not.toBeNull();
+ await tap(page,target.x+target.w/2,target.y+target.h/2);
+
+ const root=page.locator('#tp-activity-page');
+ await expect(root).toBeVisible();
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('activity');
+ return root;
+}
+async function openWildBattleSelection(page){
+ const root=await openBattleSelection(page);
+ await root.locator('[data-activity-choice="wild"]').click();
+ await expect(root).toHaveAttribute('data-battle-view','wild');
+ await expect(root.locator('[data-activity-start="wild"]')).toBeVisible();
+ return root;
+}
+async function startWildBattleFromSelection(page){
+ const root=page.locator('#tp-activity-page');
+ await expect(root).toBeVisible();
+ await expect(root).toHaveAttribute('data-battle-view','wild');
+ const start=root.locator('[data-activity-start="wild"]');
+ await expect(start).toBeEnabled();
+ await start.click();
+
+ await expect.poll(()=>page.evaluate(()=>({
+  screen,
+  notice:TPWildTeam.notice||''
+ }))).toMatchObject({screen:'battle'});
+
+ expect(await page.evaluate(()=>Module.ccall(
+  'tp_battle_is_open','number',[],[]
+ ))).toBe(1);
+ await expect.poll(()=>page.evaluate(()=>
+  TPBattleView.current?.mode==='wild'&&
+  TPBattleView.current.id===Module.ccall(
+   'tp_bv_get','number',['number'],[0]
+  )
+ )).toBe(true);
+ expect(await page.evaluate(()=>battleReturn)).toBe('activity');
+}
+async function prepareWildCapture(page){
+ await openWildBattleSelection(page);
+ let selected=false;
+ for(let attempt=0;attempt<16;attempt++){
+  await startWildBattleFromSelection(page);
+  const types=await page.evaluate(()=>[
+   fns.dexType1(fns.battleWildDex()),
+   fns.dexType2(fns.battleWildDex())
+  ]);
+  if(types.every(type=>![2,9,14,16].includes(type))){
+   selected=true;break;
+  }
+  await battleAction(page,'abort');
+  await expect.poll(()=>page.evaluate(()=>screen)).toBe('activity');
+  await expect(page.locator('#tp-activity-page')).toBeVisible();
+ }
+ expect(selected,'A suitable real opponent must be reached within the existing attempt limit').toBe(true);
+ for(let round=0;round<40;round++){
+  if(await page.evaluate(()=>!!fns.battleResolved()))break;
+  await battleAction(page,'quick');
+ }
+ expect(await page.evaluate(()=>!!fns.battleResolved())).toBe(true);
+ expect(await page.evaluate(()=>!!fns.battlePlayerWon())).toBe(true);
+ await waitForWildCatchReady(page);
+ expect(await page.evaluate(()=>!!fns.battleCatchOffered())).toBe(true);
+}
+Object.assign(module.exports,{
+ openBattleSelection,openWildBattleSelection,
+ startWildBattleFromSelection,prepareWildCapture
+});
+
+
+// UI01 closeout: migrate battle, arena and training entry routes.
+async function battleSelectionRoot(page){
+ const root=page.locator('#tp-activity-page');
+ if(await root.isVisible()&&await root.getAttribute('data-activity-page')==='battle')
+  return root;
+ return openBattleSelection(page);
+}
+async function openArenaSelection(page){
+ const activity=await battleSelectionRoot(page);
+ await activity.locator('[data-activity-choice="arena"]').click();
+ const start=activity.locator('[data-activity-start="arena"]');
+ await expect(start).toBeEnabled();
+ await start.click();
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('arena');
+ const arena=page.locator('#tp-arena-page');
+ await expect(arena).toBeVisible();
+ return arena;
+}
+async function openTrainerSelection(page){
+ const activity=await battleSelectionRoot(page);
+ await activity.locator('[data-activity-choice="trainer"]').click();
+ const start=activity.locator('[data-activity-start="trainer"]');
+ await expect(start).toBeEnabled();
+ await start.click();
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('trainer');
+}
+async function openTrainingSelection(page){
+ const root=page.locator('#tp-activity-page');
+ if(await root.isVisible()&&await root.getAttribute('data-activity-page')==='training')
+  return root;
+ await game(page);
+ await page.waitForFunction(()=>!tpSaveReplacing&&!TPCollection.busy);
+ await tap(page,157,404);
+ await expect.poll(()=>page.evaluate(()=>TPActions.mode)).toBe('root');
+ const target=await page.evaluate(
+  ()=>TPActions.targets.find(item=>item.id==='training')||null
+ );
+ expect(target,'Visible training action must have a target').not.toBeNull();
+ await tap(page,target.x+target.w/2,target.y+target.h/2);
+ await expect(root).toBeVisible();
+ await expect(root).toHaveAttribute('data-activity-page','training');
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('activity');
+ return root;
+}
+async function startTrainingFromSelection(page,id){
+ expect(['strength','defence','speed']).toContain(id);
+ const root=await openTrainingSelection(page);
+ await root.locator('[data-activity-choice="'+id+'"]').click();
+ const start=root.locator('[data-activity-start="'+id+'"]');
+ await expect(start).toBeEnabled();
+ await start.click();
+ await expect.poll(()=>page.evaluate(()=>TPTraining.snapshot?.phase)).toBe('running');
+}
+async function clickWildStartOnly(page){
+ const root=page.locator('#tp-activity-page');
+ await expect(root).toBeVisible();
+ await expect(root).toHaveAttribute('data-battle-view','wild');
+ const button=root.locator('[data-activity-start="wild"]');
+ await expect(button).toBeEnabled();
+ await button.click();
+}
+Object.assign(module.exports,{
+ openArenaSelection,openTrainerSelection,openTrainingSelection,
+ startTrainingFromSelection,clickWildStartOnly
+});
+
+// UI01 release: Mega tests use the real profile link and visible actions.
+async function megaProfile(page){
+ const root=await openStatus(page);
+ await root.locator('[data-status-tab="profile"]').click();
+ return root;
+}
+async function openMegaPage(page){
+ const profile=await megaProfile(page);
+ const link=profile.locator('.tp-status-portrait [data-status-mega]');
+ await expect(link).toHaveCount(1);
+ await expect(link).toBeVisible();
+ await link.click();
+ const root=page.locator('#tp-mega-page');
+ await expect(root).toBeVisible();
+ await expect.poll(()=>page.evaluate(()=>({screen,page:cardPage})))
+  .toEqual({screen:'card',page:8});
+ return root;
+}
+async function megaPrimary(page){
+ const state=await page.evaluate(()=>TPMega.view(true));
+ expect(state).not.toBeNull();
+ const action=state.stone?'activate':'claim';
+ const button=page.locator('#tp-mega-page [data-mega-action="'+action+'"]');
+ await expect(button).toBeVisible();
+ await expect(button).toBeEnabled();
+ await button.click();
+ await expect.poll(()=>page.evaluate(()=>TPMega.busy)).toBe(false);
+}
+async function backFromMega(page){
+ const root=page.locator('#tp-mega-page');
+ const label=await uiText(page,'common.back');
+ const escaped=label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+ const back=root.getByRole('button',{name:new RegExp('^'+escaped)});
+ await expect(back).toHaveCount(1);
+ await back.click();
+ await expect(root).toBeHidden();
+}
+Object.assign(module.exports,{megaProfile,openMegaPage,megaPrimary,backFromMega});
+
+// UI01 release: current collection navigation and team candidate controls.
+async function openCollectionTeam(page){
+ const root=page.locator('#tp-box-page');
+ if(!await root.isVisible()){
+  await openHub(page);
+  await page.locator('#tp-app-page').getByRole('button',{name:'Boxen',exact:true}).click();
+ }
+ await expect(root).toBeVisible();
+ const team=root.getByRole('button',{name:/^Teamplanung /});
+ await team.click();await expect(team).toHaveAttribute('aria-pressed','true');
+ return root;
+}
+async function openStoredBoxes(page){
+ const root=await openCollectionTeam(page);
+ await root.getByRole('button',{name:'Boxen',exact:true}).click();
+ return root;
+}
+async function chooseTeamCandidate(page,id){
+ const root=await openCollectionTeam(page);
+ const empty=root.locator('.tp-box-column-right .tp-box-empty:visible').first();
+ await expect(empty).toBeVisible();await empty.click();
+ const candidate=root.locator('.tp-box-column-right [data-mon-id="'+id+'"]:visible');
+ await expect(candidate).toHaveCount(1);await candidate.click();
+ return root;
+}
+Object.assign(module.exports,{openCollectionTeam,openStoredBoxes,chooseTeamCandidate});

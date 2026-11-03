@@ -15,7 +15,9 @@ const A=require('../browser_ver/web/trainer-art.js');
  assert(manager.includes('note("Trainerdateien: "'));
  assert(!manager.includes('note("Leiterdateien: "'));
 
- assert(rights.includes("node('p','Quellen & Nutzungsrechte')"));
+ // The visible title belongs to the shared page header, not an inner paragraph.
+ // Its actual text is verified by rights-layout.spec.js.
+ assert(rights.includes("window.TPRights=Object.freeze({mount})"));
  assert(!rights.includes('Stand 23.10.2026'));
  assert(rights.includes('Lokal dokumentierte Trainer-BINs'));
  assert(rights.includes('Arenaleiter, Top Vier und Champs.'));

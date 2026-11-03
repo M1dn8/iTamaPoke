@@ -1,6 +1,49 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),crypto=require('node:crypto');
-class E{constructor(tag){this.tag=tag;this.children=[];this.textContent='';}append(...nodes){this.children.push(...nodes);}}
-const c={document:{createElement:tag=>new E(tag)},URL,TextEncoder,TextDecoder,Uint8Array,ArrayBuffer,DataView,crypto:crypto.webcrypto,console};c.window=c;vm.createContext(c);for(const file of ['trainer-art.js','rights-data.js','rights.js'])vm.runInContext(fs.readFileSync('browser_ver/web/'+file,'utf8'),c);function flat(n){return [n,...n.children.flatMap(flat)];}
+class E{
+ constructor(tag){
+  this.tag=tag;this.tagName=tag.toUpperCase();this.children=[];this.textContent='';
+  this.dataset={};this.attributes={};this.style={};this.events={};
+  this.hidden=false;this.disabled=false;this.className='';this.parentNode=null;
+ }
+ append(...nodes){
+  for(const child of nodes){
+   if(child.parentNode){
+    const old=child.parentNode.children.indexOf(child);
+    if(old>=0)child.parentNode.children.splice(old,1);
+   }
+   child.parentNode=this;this.children.push(child);
+  }
+ }
+ appendChild(child){this.append(child);return child;}
+ setAttribute(key,value){this.attributes[key]=String(value);}
+ getAttribute(key){return this.attributes[key]??null;}
+ // UI01: class tokens and child replacement for native paging markup.
+ get classList(){
+  const element=this;
+  const read=()=>element.className.split(/\s+/).filter(Boolean);
+  const write=values=>{
+   element.className=values.join(' ');
+   element.setAttribute('class',element.className);
+  };
+  return {
+   contains(value){return read().includes(value);},
+   add(...values){write([...new Set([...read(),...values])]);},
+   remove(...values){write(read().filter(value=>!values.includes(value)));},
+   toggle(value,force){
+    const enabled=force===undefined?!read().includes(value):Boolean(force);
+    if(enabled)this.add(value);else this.remove(value);
+    return enabled;
+   }
+  };
+ }
+ replaceChildren(...nodes){
+  for(const child of this.children)child.parentNode=null;
+  this.children=[];this.textContent='';
+  this.append(...nodes);
+ }
+ addEventListener(key,fn){this.events[key]=fn;}
+}
+const c={document:{createElement:tag=>new E(tag),createElementNS:(_ns,tag)=>new E(tag)},URL,TextEncoder,TextDecoder,Uint8Array,ArrayBuffer,DataView,crypto:crypto.webcrypto,console};c.window=c;vm.createContext(c);for(const file of ['trainer-art.js','rights-data.js','rights.js'])vm.runInContext(fs.readFileSync('browser_ver/web/'+file,'utf8'),c);function flat(n){return [n,...n.children.flatMap(flat)];}
 (async()=>{let unsafe=false;c.loadSpriteAsset=async name=>{const p=path.join(process.env.TP_TRAINER_FIXTURES,name);if(!fs.existsSync(p))return null;let b=fs.readFileSync(p);if(unsafe){const x=await c.TPTrainerArt.inspect(b),meta=Buffer.from(JSON.stringify({...x.metadata,author:'<script>not executable</script>',source:'javascript:alert(1)'})),head=Buffer.from(b.subarray(0,16));head.writeUInt32LE(meta.length,8);const body=Buffer.concat([head,meta,Buffer.from(x.png)]);b=Buffer.concat([body,crypto.createHash('sha256').update(body).digest()]);}return b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength);};const root=new E('main');await c.TPRights.mount(root);const nodes=flat(root);assert(nodes.some(n=>n.textContent===fs.readFileSync('LICENSE','utf8')));assert(nodes.some(n=>n.textContent===fs.readFileSync('NOTICE','utf8')));assert(nodes.some(n=>n.textContent==='Synthetic test author'));assert(nodes.some(n=>n.textContent.includes('nicht verifiziert')));unsafe=true;const other=new E('main');await c.TPRights.mount(other);const unsafeNodes=flat(other);assert(unsafeNodes.some(n=>n.textContent==='<script>not executable</script>'));assert(!unsafeNodes.some(n=>n.tag==='a'&&String(n.href).startsWith('javascript:')));assert(!fs.readFileSync('browser_ver/web/rights.js','utf8').includes('innerHTML'));
  const paints=[];c.ctx=new Proxy({fill(){paints.push('fill');},stroke(){paints.push('stroke');}},{get(t,k){return k in t?t[k]:()=>{};},set(t,k,v){t[k]=v;return true;}});vm.runInContext(fs.readFileSync('browser_ver/web/badge-ui.js','utf8'),c);for(let id=0;id<8;id++)for(const owned of [false,true]){paints.length=0;c.TPBadgeUI.draw(id,50,50,25,owned);assert(paints.includes('fill')&&paints.includes('stroke'));}
  const sw=fs.readFileSync('browser_ver/web/sw.js','utf8'),index=fs.readFileSync('browser_ver/web/index.html','utf8');for(const file of ['trainer-art.js','badge-ui.js','rights-data.js','rights.js','rights.css']){assert(sw.includes('./'+file));assert(index.includes(file));}assert(index.indexOf('trainer-art.js')<index.indexOf('storage-tools.js'));assert(index.indexOf('rights.js')<index.indexOf('app-menu.js'));assert(index.indexOf('badge-ui.js')<index.indexOf('arena.js'));

@@ -54,9 +54,9 @@ test('Tagebuchzaehler: echte neue Spielereignisse zaehlen bei voller 200er-Liste
  await H.prepare(page,J.withUnread(H.fixture(200),0));
  await H.game(page);
  const before=await page.evaluate(()=>TPJournalUnread.read().total);
- await H.tap(page,157,404);
+ await H.openGames(page);
  await expect.poll(()=>page.evaluate(()=>screen)).toBe('gamemenu');
- await H.tap(page,233,355);
+ await H.startGame(page,4);
  await expect.poll(()=>page.evaluate(()=>screen)).toBe('game');
 
  const correct=await page.evaluate(()=>TypeGame.correct);

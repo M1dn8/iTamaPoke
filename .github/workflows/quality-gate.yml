@@ -2,6 +2,12 @@ name: Gemeinsames Qualitaetstor
 
 on:
   workflow_call:
+    inputs:
+      test_scope:
+        description: Releaseprofil oder ausdrücklich angeforderte Gesamtregression
+        required: false
+        type: string
+        default: release
 
 permissions:
   contents: read
@@ -111,7 +117,17 @@ jobs:
           node -e 'const fs=require("fs"),assert=require("assert");for(const name of ["@playwright/test","playwright","playwright-core"])assert.equal(require(name+"/package.json").version,"1.64.1");const {chromium,webkit}=require("@playwright/test");for(const b of [chromium,webkit]){fs.accessSync(b.executablePath(),fs.constants.X_OK);console.log(b.name()+": "+b.executablePath());}'
       - name: Browserpruefungen
         timeout-minutes: 20
-        run: node tools/quality/timed-run.cjs "$RUNNER_TEMP/ci-browser-times.json" browser-tests --cwd tools/browser-tests -- npx --no-install playwright test
+        run: |
+          set -euo pipefail
+          # UI01 release profile cleanup
+          if [[ '${{ inputs.test_scope }}' == 'regression' ]]; then
+            node tools/quality/timed-run.cjs "$RUNNER_TEMP/ci-browser-times.json" browser-tests --cwd tools/browser-tests -- npx --no-install playwright test
+          elif [[ '${{ inputs.test_scope }}' == 'release' ]]; then
+            node tools/quality/timed-run.cjs "$RUNNER_TEMP/ci-browser-times.json" browser-tests --cwd tools/browser-tests -- node ../../tools/quality/release-browser.cjs
+          else
+            echo 'Unbekanntes Testprofil; keine Freigabe.' >&2
+            exit 2
+          fi
       - name: Unveraenderten Kandidaten nach Browserpruefung bestaetigen
         run: node tools/quality/web-artifact.cjs verify --web browser_ver/web --candidate "$RUNNER_TEMP/ci-candidate" --package tools/browser-tests/package.json --sha "$GITHUB_SHA" --manifest-sha "${{ needs.build.outputs.manifest_sha }}"
       - name: Browser-Zeiten und Werkzeugversionen festhalten

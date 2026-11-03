@@ -27,8 +27,8 @@ for(const language of languages)
    .toHaveText([language.backups,language.settings]);
   await H.openHub(page);
   await expect(root.getByRole('heading',{level:2})).toHaveText(language.hub);
-  await expect(root.locator('.tp-app-grid button')).toHaveCount(5);
-  await expect(root.getByRole('button',{name:language.species,exact:true})).toBeVisible();
+  await expect(root.locator('.tp-app-grid button')).toHaveCount(6);
+  await expect(root.getByRole('button',{name:await H.uiText(page,'menu.dex'),exact:true})).toBeVisible();
   await H.openJournal(page);await H.backToHub(page);
   await H.openStories(page);await H.backToHub(page);
   await H.openSpeciesSearch(page);await H.closeHubModal(page);

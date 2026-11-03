@@ -7,12 +7,14 @@ const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 const runner=read('tools/quality/review-check.cjs');
 const argumentExpression=runner.match(/const args=(\[[\s\S]*?\]);/);
 assert(argumentExpression,'Runner argument expression missing');
+// UI01: test normal and diagnostic failure limits in the actual runner expression.
 for(const workers of [1,2])
+for(const maxFailuresRaw of ['5','0'])
 for(const name of ['test-collection','navigation-smoke','affected','full','quick']){
  const selection=name==='navigation-smoke'?
   ['specs/navigation-smoke.spec.js']:[];
  const args=require('node:vm').runInNewContext(argumentExpression[1],{
-  cli:'playwright-cli',root,path,selection,name,workers
+  cli:'playwright-cli',root,path,selection,name,workers,maxFailuresRaw
  });
  const index=args.indexOf('--config');
  assert(index>=0,'Explicit Playwright configuration missing: '+name);
@@ -20,9 +22,12 @@ for(const name of ['test-collection','navigation-smoke','affected','full','quick
  assert.equal(args[index+1],
   path.join(root,'tools/browser-tests/playwright.config.js'));
  assert(args.includes('--retries=0'));
+ assert.equal(args.filter(value=>
+  typeof value==='string'&&value.startsWith('--max-failures=')
+ ).length,1,'Exactly one explicit failure limit is required');
  assert(args.includes('--workers='+workers));
  assert(args.includes('--max-failures='+
-  (name==='navigation-smoke'?1:5)));
+  (name==='navigation-smoke'?1:Number(maxFailuresRaw))));
 }
 const config=read('tools/browser-tests/playwright.config.js');
 assert.match(config,/retries:\s*0\b/,'Automatic whole-test retries must remain disabled');

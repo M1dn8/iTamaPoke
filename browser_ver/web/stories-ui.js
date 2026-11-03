@@ -67,6 +67,16 @@
  };
  for(const code of ['en','de','es','fr'])
   root.TPText.registerLocale(code,{'stories.empty':emptyText[code]});
+
+ const noticeRetryText={
+  en:"Saving failed. Tap to try again.",
+  de:"Speichern fehlgeschlagen. Erneut tippen.",
+  es:"No se guardó. Toca para reintentar.",
+  fr:"Échec de sauvegarde. Réessaie."
+ };
+ for(const code of ["en","de","es","fr"])
+  root.TPText.registerLocale(code,{"stories.saveFailedShort":noticeRetryText[code]});
+
  const journalText={
   en:['New journal entries: {count}',
    'The journal read status could not be saved. Reopen the journal to try again.',
@@ -236,9 +246,187 @@
   }
   return entries;
  }
+
+ // UI01-05: selecting and paging never advances or acknowledges a story.
+ let storyPane=null,storyNav=null,storySelected=null,storyPage=null;
+ let storyTiles=[],storyPrev=null,storyNext=null,storyIndicator=null;
+ const storyPageSize=3;
+ const previewLocales={
+  en:{
+   previewStart:"Start story",previewResume:"Continue story",
+   previewPrevious:"Previous stories",previewNext:"Next stories",
+   previewList:"Choose a story",previewLabel:"Story introduction",
+   "teaser.zapdos":"The lights flicker. What is disturbing the power plant?",
+   "teaser.articuno":"Snow hides the cave entrance. What lies beyond?",
+   "teaser.moltres":"A feather glows among the rocks. Where does the path lead?",
+   "teaser.mewtwo":"An unseen force blocks your way. What lies beyond?",
+   "teaser.mew":"Something darts through the leaves. A trail begins past the bridge."
+  },
+  de:{
+   previewStart:"Geschichte starten",previewResume:"Geschichte fortsetzen",
+   previewPrevious:"Vorherige Geschichten",previewNext:"Weitere Geschichten",
+   previewList:"Geschichte auswählen",previewLabel:"Geschichteneinstieg",
+   "teaser.zapdos":"Im Kraftwerk flackert das Licht. Was stört die Anlage?",
+   "teaser.articuno":"Schnee wirbelt vor dem Höhleneingang. Was liegt dahinter?",
+   "teaser.moltres":"Zwischen Felsen glimmt eine Feder. Wohin führt der Seitenpfad?",
+   "teaser.mewtwo":"Eine unsichtbare Kraft hält dich auf. Was liegt dahinter?",
+   "teaser.mew":"Etwas huscht durchs Laub. Hinter der Brücke beginnt eine Spur."
+  },
+  es:{
+   previewStart:"Iniciar historia",previewResume:"Continuar historia",
+   previewPrevious:"Historias anteriores",previewNext:"Más historias",
+   previewList:"Elegir una historia",previewLabel:"Inicio de la historia",
+   "teaser.zapdos":"Las luces parpadean. ¿Qué altera la central?",
+   "teaser.articuno":"La nieve oculta la cueva. ¿Qué habrá detrás?",
+   "teaser.moltres":"Una pluma brilla entre rocas. ¿Adónde lleva el sendero?",
+   "teaser.mewtwo":"Una fuerza invisible te frena. ¿Qué habrá detrás?",
+   "teaser.mew":"Algo cruza el follaje. Una pista sigue tras el puente."
+  },
+  fr:{
+   previewStart:"Lancer l’histoire",previewResume:"Continuer l’histoire",
+   previewPrevious:"Histoires précédentes",previewNext:"Autres histoires",
+   previewList:"Choisir une histoire",previewLabel:"Début de l’histoire",
+   "teaser.zapdos":"Les lumières vacillent. Qu’est-ce qui trouble la centrale ?",
+   "teaser.articuno":"La neige cache la grotte. Que se trouve-t-il derrière ?",
+   "teaser.moltres":"Une plume luit entre les rochers. Où mène ce passage ?",
+   "teaser.mewtwo":"Une force invisible te bloque. Que cache la grotte ?",
+   "teaser.mew":"Les feuilles bougent. Une piste commence derrière le pont."
+  }
+ };
+ for(const code of ['en','de','es','fr'])
+  root.TPText.registerLocale(code,Object.fromEntries(
+   Object.entries(previewLocales[code]).map(([key,value])=>['stories.'+key,value])
+  ));
+ function storyPlace(entry){
+  const text={
+   articuno:root.TPArktosText,moltres:root.TPLavadosText,
+   mewtwo:root.TPMewtuText,mew:root.TPMewText
+  }[entry.id];
+  return text?text.t('place'):tr('plant');
+ }
+ function storyAction(label,fn,disabled=false){
+  const b=node('button',label);
+  b.type='button';b.disabled=disabled;
+  b.addEventListener('click',()=>{
+   if(b.disabled||b.isConnected===false||kind!=='list'||!visible()||
+      saving||root.TPCollection?.busy||
+      (typeof tpSaveReplacing!=='undefined'&&tpSaveReplacing)||
+      document.visibilityState==='hidden')return;
+   fn();
+  });
+  return b;
+ }
+ function storyIcon(id){
+  const art={
+   zapdos:['#866033','<path d="M4 20V9h6V5h4v4h6v11Z" fill="#fff0cf"/><path d="m13 10-4 5h4l-2 4 5-6h-4Z"/>'],
+   articuno:['#315b83','<path d="M4 20V12a8 8 0 0 1 16 0v8Z" fill="#dbe9f5"/><path d="M12 7v12M7 10l10 6M7 16l10-6"/>'],
+   moltres:['#963c45','<path d="m3 20 4-13 5-4 5 4 4 13Z" fill="#f4dadd"/><path d="M9 16c6 0 7-6 6-8-4 0-7 3-6 8Zm0 1 6-8"/>'],
+   mewtwo:['#71538a','<path d="M4 18V12a8 8 0 0 1 16 0v6Z" fill="#ece2f5"/><path d="M9 17v-5a3 3 0 0 1 6 0v5M3 21h18"/>'],
+   mew:['#3e7455','<path d="M3 14h18v4H3Z" fill="#dceedd"/><path d="M5 8v13M19 8v13M5 11h14M9 14v4M15 14v4"/>']
+  }[id];
+  const icon=node('span');
+  icon.className='tp-story-place-icon';
+  icon.setAttribute('aria-hidden','true');
+  icon.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="'+art[0]+
+   '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+
+   art[1]+'</svg>';
+  return icon;
+ }
+ function paintStoryPreview(entry){
+  if(!storyPane)return;
+  storyPane.replaceChildren();
+  storyPane.dataset.story=entry.id;
+  const copy=node('p',message||tr('teaser.'+entry.id));
+  copy.setAttribute('role',message?'alert':'status');
+  const start=storyAction(
+   entry.done?tr('done'):
+    tr(entry.phase==='investigate'?'previewStart':'previewResume'),
+   ()=>{
+    if(storySelected!==entry.id)return;
+    try{
+     const current=entry.service.access();
+     if(!current.unlocked||current.phase==='complete'){render();return;}
+     root.TPAppMenu.show(entry.id);
+    }catch(_){message=tr('invalid');render();}
+   },!entry.available||entry.done
+  );
+  start.dataset.storyStart=entry.id;
+  storyPane.append(copy,start);
+ }
+ function selectStoryEntry(entry){
+  storySelected=entry.id;message='';
+  for(const tile of storyTiles)
+   tile.setAttribute('aria-pressed',String(tile.dataset.story===storySelected));
+  paintStoryPreview(entry);
+ }
+ function paintStoryPage(entries,requested,chooseFirst=false){
+  const size=storyNav?storyPageSize:entries.length;
+  const pages=Math.max(1,Math.ceil(entries.length/size));
+  storyPage=Math.max(0,Math.min(pages-1,requested));
+  const first=storyPage*size,last=first+size;
+  for(let i=0;i<storyTiles.length;i++)
+   storyTiles[i].hidden=i<first||i>=last;
+  if(chooseFirst){
+   const shown=entries.slice(first,last);
+   selectStoryEntry(shown.find(entry=>!entry.done)||shown[0]);
+  }
+  if(storyPrev)storyPrev.disabled=storyPage===0;
+  if(storyNext)storyNext.disabled=storyPage===pages-1;
+  if(storyIndicator)storyIndicator.textContent=(storyPage+1)+' / '+pages;
+ }
+ function renderStorySelection(entries){
+  const retained=entries.find(entry=>entry.id===storySelected);
+  const chosen=retained||entries.find(entry=>!entry.done)||entries[0];
+  storySelected=chosen.id;
+  if(storyPage===null||!retained)
+   storyPage=Math.floor(entries.indexOf(chosen)/storyPageSize);
+  for(const entry of entries){
+   const status=entry.done?tr('done'):entry.fresh?tr('new'):tr('open');
+   const tile=storyAction('',()=>selectStoryEntry(entry),
+    !entry.available||entry.done);
+   tile.dataset.story=entry.id;
+   tile.dataset.complete=String(entry.done);
+   tile.setAttribute('aria-pressed',String(entry.id===storySelected));
+   const place=node('span',storyPlace(entry));
+   place.className='tp-story-place';
+   const state=node('span',' · '+status);
+   state.className='tp-story-status-sr';
+   tile.append(storyIcon(entry.id),place,state);
+   if(entry.available&&!entry.done){
+    const dot=node('span');
+    dot.className='tp-unread-dot tp-story-open-dot';
+    dot.setAttribute('aria-hidden','true');tile.appendChild(dot);
+    tile.setAttribute('aria-description',tr('openCount',{count:1}));
+   }
+   storyTiles.push(tile);host.append(tile);
+  }
+  if(storyNav&&entries.length>storyPageSize){
+   storyNav.hidden=false;
+   storyPrev=storyAction('‹',()=>paintStoryPage(entries,storyPage-1,true));
+   storyPrev.id='tp-stories-prev';
+   storyPrev.setAttribute('aria-label',tr('previewPrevious'));
+   storyNext=storyAction('›',()=>paintStoryPage(entries,storyPage+1,true));
+   storyNext.id='tp-stories-next';
+   storyNext.setAttribute('aria-label',tr('previewNext'));
+   storyIndicator=node('span');
+   storyIndicator.setAttribute('role','status');
+   storyNav.append(storyPrev,storyIndicator,storyNext);
+  }
+  paintStoryPage(entries,storyPage);
+  paintStoryPreview(chosen);
+  if(!storyPane&&message)host.append(node('p',message));
+ }
+
  function render(){
   if(!visible())return;
   host.replaceChildren();
+  if(kind==='list'){
+   storyTiles=[];storyPrev=null;storyNext=null;storyIndicator=null;
+   if(storyPane){
+    storyPane.replaceChildren();delete storyPane.dataset.story;
+   }
+   if(storyNav){storyNav.replaceChildren();storyNav.hidden=true;}
+  }
   try{
    if(!saving&&!root.TPCollection?.busy)cached=readCatalogue();
    if(!cached?.length){
@@ -253,6 +441,7 @@
    ))return;
    const info=button('',()=>acknowledge(true),saving);
    info.className='tp-story-info';
+   info.setAttribute('aria-label',tr('hintText'));
    info.setAttribute('aria-busy',String(saving));
    const symbol=node('span','i');
    symbol.className='tp-story-info-symbol';
@@ -261,8 +450,13 @@
    label.className='tp-story-info-text';
    info.append(symbol,label);host.append(info);
    if(message){
-    const error=node('p',message);
-    error.setAttribute('role','alert');host.append(error);
+    label.textContent=tr('saveFailedShort');
+    const error=node('span',message);
+    error.id='tp-story-notice-error';
+    error.className='tp-story-notice-detail';
+    error.setAttribute('role','alert');
+    info.setAttribute('aria-describedby',error.id);
+    info.append(error);
    }
    return;
   }
@@ -283,36 +477,7 @@
   }
   const rank=e=>e.done?3:e.fresh?0:e.available?1:2;
   entries.sort((a,b)=>rank(a)-rank(b)||b.order-a.order);
-  for(const entry of entries){
-   const art=entry.id==='articuno';
-   const fire=entry.id==='moltres';
-   const mind=entry.id==='mewtwo';
-   const playful=entry.id==='mew';
-   const storyText=art?root.TPArktosText:fire?root.TPLavadosText:mind?root.TPMewtuText:playful?root.TPMewText:null;
-   const status=entry.done?tr('done'):
-    entry.fresh?tr('new'):tr('open');
-   const tile=button('',()=>{
-    try{
-     const current=entry.service.access();
-     if(!current.unlocked||current.phase==='complete')return;
-     root.TPAppMenu.show(entry.id);
-    }catch(_){message=tr('invalid');render();}
-   },!entry.available||entry.done);
-   tile.dataset.story=entry.id;
-   tile.dataset.complete=String(entry.done);
-   tile.style.cssText='display:flex;align-items:center;gap:12px;'+
-    'width:100%;min-height:68px;text-align:left;padding:10px;';
-   tile.append(node('span',
-    (storyText?storyText.t('place'):tr('plant'))+' · '+status));
-   if(entry.available&&!entry.done){
-    const dot=node('span');
-    dot.className='tp-unread-dot tp-story-open-dot';
-    dot.setAttribute('aria-hidden','true');tile.appendChild(dot);
-    tile.setAttribute('aria-description',tr('openCount',{count:1}));
-   }
-   host.append(tile);
-  }
-  if(message)host.append(node('p',message));
+  renderStorySelection(entries);
  }
  async function acknowledge(openStories){
   if(saving)return;
@@ -333,8 +498,18 @@
   if(confirmed&&openStories)root.TPAppMenu.show('stories');
   else render();
  }
- function mount(target,mode='list'){
+ function mount(target,mode='list',options={}){
   host=target;kind=mode;cached=null;message='';
+  storyPane=options.preview||null;storyNav=options.navigation||null;
+  storyPage=null;
+  if(mode==='list'){
+   host.setAttribute('role','group');
+   host.setAttribute('aria-label',tr('previewList'));
+  }
+  if(storyPane){
+   storyPane.setAttribute('role','region');
+   storyPane.setAttribute('aria-label',tr('previewLabel'));
+  }
   host.id=mode==='hint'?'tp-story-unlock':'tp-stories-page';
   host.style.cssText='display:flex;flex-direction:column;gap:10px;'+
    'min-height:0;overflow:auto;';
@@ -375,7 +550,7 @@
  }
  setInterval(updateJournalCount,1000);
  root.TPStoriesUI=Object.freeze({
-  mount:target=>mount(target),
+  mount:(target,options)=>mount(target,'list',options),
   mountHint:target=>mount(target,'hint'),
   drawNotice,text:tr,get busy(){return saving;}
  });

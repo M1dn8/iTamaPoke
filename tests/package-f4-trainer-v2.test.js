@@ -18,14 +18,56 @@ for(const name of ['trainer-art.js','storage-tools.js']){
 }
 const A=context.TPTrainerArt,T=context.TPStoreTools;
 const expected=[
- 'rocko','misty','major-bob','erika','koga','sabrina','pyro','giovanni',
- 'johto-arena-falk','johto-arena-kai','johto-arena-bianka',
- 'johto-arena-jens','johto-arena-hartwig','johto-arena-jasmin',
- 'johto-arena-norbert','johto-arena-sandra',
- 'kanto-elite-lorelei','kanto-elite-bruno','kanto-elite-agathe',
- 'kanto-elite-siegfried','kanto-champ-blau',
- 'johto-elite-willi','johto-elite-koga','johto-elite-bruno',
- 'johto-elite-melanie','johto-champ-siegfried'
+ "rocko",
+ "misty",
+ "major-bob",
+ "erika",
+ "koga",
+ "sabrina",
+ "pyro",
+ "giovanni",
+ "johto-arena-falk",
+ "johto-arena-kai",
+ "johto-arena-bianka",
+ "johto-arena-jens",
+ "johto-arena-hartwig",
+ "johto-arena-jasmin",
+ "johto-arena-norbert",
+ "johto-arena-sandra",
+ "kanto-elite-lorelei",
+ "kanto-elite-bruno",
+ "kanto-elite-agathe",
+ "kanto-elite-siegfried",
+ "kanto-champ-blau",
+ "johto-elite-willi",
+ "johto-elite-koga",
+ "johto-elite-bruno",
+ "johto-elite-melanie",
+ "johto-champ-siegfried",
+ "kanto-youngster",
+ "kanto-elite-lorelei-portrait-b",
+ "kanto-elite-bruno-portrait-b",
+ "kanto-elite-agathe-portrait-b",
+ "kanto-elite-siegfried-portrait-b",
+ "kanto-champ-blau-portrait-b",
+ "kanto-arena-rocko-portrait-b",
+ "kanto-arena-misty-portrait-b",
+ "kanto-arena-major-bob-portrait-b",
+ "kanto-arena-erika-portrait-b",
+ "kanto-arena-koga-portrait-b",
+ "kanto-arena-sabrina-portrait-b",
+ "kanto-arena-pyro-portrait-b",
+ "kanto-arena-giovanni-portrait-b",
+ "johto-arena-falk-portrait-b",
+ "johto-arena-kai-portrait-b",
+ "johto-arena-bianka-portrait-b",
+ "johto-arena-jens-portrait-b",
+ "johto-arena-hartwig-portrait-b",
+ "johto-arena-jasmin-portrait-b",
+ "johto-arena-norbert-portrait-b",
+ "johto-arena-sandra-portrait-b",
+ "johto-elite-willi-portrait-b",
+ "johto-elite-melanie-portrait-b"
 ];
 let checks=0;
 function eq(actual,wanted){
@@ -74,7 +116,7 @@ function reheader(input,version,index){
  const dir=process.env.TP_TRAINER_FIXTURES;
  if(!dir)throw Error('Run tools/quality/test-f4-trainer.py');
  eq(JSON.stringify(A.entries.map(e=>e.leader)),JSON.stringify(expected));
- eq(new Set(A.entries.map(e=>e.key)).size,26);
+ eq(new Set(A.entries.map(e=>e.key)).size,expected.length);
  const files=[],raws=[];
  for(let i=0;i<expected.length;i++){
   const leader=expected[i];
@@ -111,7 +153,7 @@ function reheader(input,version,index){
  for(const [raw,version,index] of [
   [raws[0],2,0],[raws[8],1,8],
   [raws[0],0,0],[raws[8],3,8],
-  [raws[8],2,26],[raws[8],2,65535]
+  [raws[8],2,A.entries.length],[raws[8],2,65535]
  ]){
   await rejects(()=>A.inspect(reheader(raw,version,index)));
  }
@@ -119,10 +161,10 @@ function reheader(input,version,index){
  const decode=async png=>{A.inspectPNG(png);};
  const db=database();
  const result=await A.importBatch(db,'sprites',files,{decode});
- eq(result.saved,26);
+ eq(result.saved,expected.length);
  eq(result.skipped,0);
  eq(db.transactions,1);
- eq(db.values.size,26);
+ eq(db.values.size,expected.length);
  eq(
   JSON.stringify([...db.values.keys()]),
   JSON.stringify(A.entries.map(e=>e.key))
@@ -132,7 +174,7 @@ function reheader(input,version,index){
   decode,onlyMissing:true,readExisting:async key=>db.values.get(key)
  });
  eq(skipped.saved,0);
- eq(skipped.skipped,26);
+ eq(skipped.skipped,expected.length);
  eq(db.transactions,1);
 
  const mismatch=database(),wrong=files.slice();
@@ -154,8 +196,8 @@ function reheader(input,version,index){
 
  console.log(
   'TPTR v1/v2 passed: '+checks+' assertions; '+
-  '26 Python/JS mappings, version separation, rehashed invalid headers, '+
-  '26-file import, only-missing, mismatch, duplicates and quota abort. '+
+  '50 Python/JS mappings, version separation, rehashed invalid headers, '+
+  '50-file import, only-missing, mismatch, duplicates and quota abort. '+
   'Browser image decoding not tested.'
  );
 })().catch(error=>{console.error(error);process.exit(1);});

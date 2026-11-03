@@ -27,9 +27,14 @@ const UI = {
 // candy is the weight mechanic; neither was reachable at all while FEED
 // short-circuited to feedBerry(0)). CLEAN starts the bath, which washes the
 // creature only once the suds finish -- see behaviour.js's stepBath.
+/* UI01 idle navigation: explicit dex entry and sleeping hub */
+function idleButtonAvailable(label,sleeping) {
+  return !sleeping || label === "LIGHT" || label === "POKEDEX";
+}
+
 const BUTTONS = [
   { x: 81, y: 404, label: "FEED",  icon: () => TPIcon.food,  action: (now) => { feedMenuUntil = now + 6000; } },
-  { x: 157, y: 404, label: "PLAY",  icon: () => TPIcon.play,  action: () => { screen = "gamemenu"; } },
+  { x: 157, y: 404, label: "PLAY",  icon: () => TPIcon.play,  action: (now) => { window.TPActions?.open(now); } },
   { x: 233, y: 404, label: "LIGHT", icon: () => TPIcon.light, action: () => Module._tp_toggle_light() },
   { x: 309, y: 404, label: "CLEAN", icon: () => TPIcon.clean, action: (now) => {
     startBath(now, fns.isEgg() !== 0, fns.sleeping() !== 0, fns.ceremony());
@@ -41,6 +46,7 @@ const BUTTONS = [
 // Mirrors PetScreen.swift's `feedMenuUntil` / `confirmUntil`: deadlines in
 // ms after which the feed menu / release dialog close on their own.
 let feedMenuUntil = 0;
+let actionTouchOwned = false;
 let confirmUntil = 0;
 
 const canvas = document.getElementById("tp");
@@ -322,7 +328,8 @@ function drawSettings() {
 
   ctx.fillStyle = UI.track;
   ctx.font = "13px monospace";
-  ctx.fillText(fns.backHint(), TP.cx, 414);
+  if(window.TPNavBack)window.TPNavBack.draw(ctx,TP.cx-12,394,24);
+  else ctx.fillText(fns.backHint(), TP.cx, 414);
 
   statusEl.textContent = TPText.status(`Settings · sound ${SND_LABELS[soundMode]} · lang ${LANG_CODES[fns.language()]}`);
 }
@@ -363,49 +370,386 @@ const GAME_STARTERS = [
   (now) => TypeGame.start(now),
 ];
 
-function drawGameMenu() {
-  ctx.fillStyle = UI.bgDay;
-  ctx.fillRect(0, 0, TP.screen, TP.screen);
-  ctx.strokeStyle = UI.ink;
-  ctx.lineWidth = 2;
-  roundRect(78, 112, 310, 266, 18);
-  ctx.stroke();
-  ctx.fillStyle = UI.ink;
-  ctx.textAlign = "center";
-  ctx.font = "bold 20px monospace";
-  ctx.fillText(fns.playTitle(), TP.cx, 140);
 
-  for (const t of GAME_TILES) {
-    ctx.fillStyle = t.color;
-    roundRect(t.x, t.y, t.w, t.h, 14);
-    ctx.fill();
-    ctx.strokeStyle = UI.ink;
-    roundRect(t.x, t.y, t.w, t.h, 14);
-    ctx.stroke();
-    ctx.fillStyle = UI.bgDay;
-    ctx.font = "bold 15px monospace";
-    ctx.textBaseline = "middle";
-    // PetScreen's tiles carry the label alone, centred; the record shows
-    // inside each game instead.
-    ctx.fillText(t.label(), t.x + t.w / 2, t.y + t.h / 2);
-    ctx.textBaseline = "alphabetic";
+/* UI01 games selection: shared double display */
+const gameMenuUI = (function(){
+ "use strict";
+ /* UI01 games revision: five tiles and upper navigation */
+ const ids=["ball","catch","memo","clean","type"];
+ const messages={
+  en:{
+   start:"Start game",preview:"Game preview",record:"Record",
+   page:"Page {current} / {total}",position:"Game {current} / {total}",previous:"Previous page",next:"Next page",
+   failed:"The game could not be started.",
+   ball:"Tap the ball to keep it in the air.",
+   catch:"Tap the targets before they disappear.",
+   memo:"Watch the pattern, then repeat it.",
+   clean:"Tap the dirt spots.",
+   type:"Choose a super-effective type."
+  },
+  de:{
+   start:"Spiel starten",preview:"Spielvorschau",record:"Rekord",
+   page:"Seite {current} / {total}",position:"Spiel {current} / {total}",previous:"Vorherige Seite",next:"Nächste Seite",
+   failed:"Das Spiel konnte nicht gestartet werden.",
+   ball:"Tippe den Ball und halte ihn in der Luft.",
+   catch:"Tippe die Ziele an, bevor sie verschwinden.",
+   memo:"Merke dir das Muster und wiederhole es.",
+   clean:"Tippe die Schmutzflecken an.",
+   type:"Wähle einen sehr effektiven Typ."
+  },
+  es:{
+   start:"Iniciar juego",preview:"Vista previa",record:"Récord",
+   page:"Página {current} / {total}",position:"Juego {current} / {total}",previous:"Página anterior",next:"Página siguiente",
+   failed:"No se ha podido iniciar el juego.",
+   ball:"Toca la pelota para mantenerla en el aire.",
+   catch:"Toca los objetivos antes de que desaparezcan.",
+   memo:"Observa el patrón y repítelo.",
+   clean:"Toca las manchas de suciedad.",
+   type:"Elige un tipo supereficaz."
+  },
+  fr:{
+   start:"Lancer le jeu",preview:"Aperçu du jeu",record:"Record",
+   page:"Page {current} / {total}",position:"Jeu {current} / {total}",previous:"Page précédente",next:"Page suivante",
+   failed:"Le jeu n’a pas pu démarrer.",
+   ball:"Touchez la balle pour la garder en l’air.",
+   catch:"Touchez les cibles avant leur disparition.",
+   memo:"Observez le motif, puis répétez-le.",
+   clean:"Touchez les taches de saleté.",
+   type:"Choisissez un type super efficace."
   }
-  statusEl.textContent = TPText.status("Play menu");
-}
+ };
+ if(typeof TPText.registerLocale==="function"){
+  for(const code of ["en","de","es","fr"]){
+   TPText.registerLocale(code,Object.fromEntries(
+    Object.entries(messages[code]).map(([key,value])=>["gamesMenu."+key,value])
+   ));
+  }
+ }
+ const text=(key,params={})=>TPText.t("gamesMenu."+key,params);
 
-function gameMenuTap(x, y) {
-  const now = performance.now();
-  for (let i = 0; i < GAME_TILES.length; i++) {
-    const t = GAME_TILES[i];
-    if (inRect(x, y, t)) {
-      gameMode = i;
-      GAME_STARTERS[i](now);
-      lastFrameT = now;
-      screen = "game";
-      return;
+ /* UI01 games revision: direct grid and type symbols */
+ const typeSymbolMarkup={"1": "<circle cx=\"12\" cy=\"12\" r=\"7\"/><circle cx=\"12\" cy=\"12\" r=\"2\"/>", "2": "<path d=\"M12 2c2 6 8 8 8 13a8 8 0 0 1-16 0c0-4 3-7 5-9 0 5 3 6 3 6s2-4 0-10Z\"/>", "3": "<path d=\"M12 2S4 11 4 16a8 8 0 0 0 16 0c0-5-8-14-8-14Z\"/>", "5": "<path d=\"M4 20C1 7 11 3 21 3c0 11-5 19-17 17ZM4 20 17 7\"/>"};
+ const typeSymbolCache=new Map();
+ function paintTypeSymbol(c,type,x,y,size,colour){
+  if(!typeSymbolCache.has(type)){
+   const source=typeSymbolMarkup[type]||typeSymbolMarkup[1];
+   const svg=new DOMParser().parseFromString(
+    '<svg xmlns="http://www.w3.org/2000/svg">'+source+'</svg>',
+    'image/svg+xml'
+   ).documentElement;
+   const commands=Array.from(svg.children).map(element=>{
+    if(element.tagName==="path"){
+     return {path:new Path2D(element.getAttribute("d"))};
     }
+    return {
+     x:Number(element.getAttribute("cx")),
+     y:Number(element.getAttribute("cy")),
+     r:Number(element.getAttribute("r"))
+    };
+   });
+   typeSymbolCache.set(type,commands);
   }
-  screen = "idle";
+  c.save();c.translate(x,y);c.scale(size/24,size/24);
+  c.strokeStyle=colour;c.lineWidth=1.8;
+  c.lineCap="round";c.lineJoin="round";
+  for(const command of typeSymbolCache.get(type)){
+   if(command.path)c.stroke(command.path);
+   else{
+    c.beginPath();c.arc(command.x,command.y,command.r,0,Math.PI*2);c.stroke();
+   }
+  }
+  c.restore();
+ }
+
+ let root=null,left=null,preview=null,buffer=null;
+ let active=false,selected=0,lastKey="",notice="";
+ let raf=null,lastPaint=-Infinity,lastRefresh=-Infinity;
+
+ function node(tag,value,cls){
+  const element=document.createElement(tag);
+  if(value!==undefined)element.textContent=value;
+  if(cls)element.className=cls;
+  return element;
+ }
+ function locked(){
+  return choice!=="none"||tpSaveReplacing||!!window.TPCollection?.busy||
+   !!window.TPCollection?.blocked||!!window.TPCollectionGame?.dialogOpen||
+   !!window.TPAdmissionUI?.active||!!window.TPAdmissionUI?.busy;
+ }
+ function button(label,key,action,disabled=false){
+  const element=node("button",label);
+  element.type="button";element.disabled=!!disabled;
+  element.dataset.playFocus=key;
+  element.addEventListener("click",()=>{
+   if(!active||screen!=="gamemenu"||locked()||
+      element.disabled||!element.isConnected)return;
+   action();
+   if(active)render(true);
+  });
+  return element;
+ }
+ function glyph(kind){
+  const image=node("canvas");
+  image.width=image.height=32;
+  image.setAttribute("aria-hidden","true");
+  const c=image.getContext("2d");
+  c.imageSmoothingEnabled=false;
+  if(kind==="back"&&window.TPNavBack){
+   TPNavBack.draw(c,4,4,24,"#315b83");
+  }else if(kind==="previous"||kind==="next"){
+   c.strokeStyle="#315b83";c.lineWidth=3;c.lineJoin="round";
+   c.beginPath();
+   if(kind==="previous"){
+    c.moveTo(21,6);c.lineTo(10,16);c.lineTo(21,26);
+   }else{
+    c.moveTo(11,6);c.lineTo(22,16);c.lineTo(11,26);
+   }
+   c.stroke();
+  }else if(kind==="memo"){
+   ["#c56562","#d6ad55","#6396bd","#699c70"].forEach((color,index)=>{
+    c.fillStyle=color;
+    c.fillRect(3+(index%2)*15,3+Math.floor(index/2)*15,12,12);
+   });
+  }else if(kind==="type"){
+   c.fillStyle="#315b83";c.fillRect(3,4,11,11);
+   c.fillStyle="#699c70";c.fillRect(18,4,11,11);
+   c.fillStyle="#c56562";c.fillRect(10,19,12,10);
+  }else{
+   const map=kind==="ball"?TPIcon.play:
+    kind==="catch"?TPIcon.food:kind==="clean"?TPIcon.clean:null;
+   if(map)drawIconOn(c,map,0,0,2);
+  }
+  return image;
+ }
+ function frameButton(label,key,action,disabled,kind){
+  const element=button(label,key,action,disabled);
+  element.className="tp-play-frame-button";
+  element.setAttribute("aria-label",label);element.title=label;
+  element.replaceChildren(glyph(kind));
+  return element;
+ }
+ function hide(){
+  active=false;
+  if(root)root.hidden=true;
+  if(raf!==null)cancelAnimationFrame(raf);
+  raf=null;
+ }
+ function close(){
+  if(locked())return;
+  hide();dragStart=dragNow=null;
+  if(screen==="gamemenu")screen="idle";
+  canvas.focus?.();
+ }
+ function launch(){
+  if(locked()||document.visibilityState!=="visible")return;
+  const now=performance.now(),previousMode=gameMode;
+  try{
+   gameMode=selected;
+   GAME_STARTERS[selected](now);
+   lastFrameT=now;screen="game";
+   hide();dragStart=dragNow=null;canvas.focus?.();
+  }catch(error){
+   gameMode=previousMode;notice=text("failed");
+   if(window.TPDiagnostics?.record)TPDiagnostics.record("games-menu",error);
+  }
+ }
+ function ensure(){
+  if(root)return;
+  const host=document.getElementById("tp-game-shell");
+  if(!host)throw Error("Spielrahmen fehlt.");
+  if(typeof hubDexDesignTokens==="function"){
+   for(const [key,value]of Object.entries(hubDexDesignTokens())){
+    host.style.setProperty(key,value);
+   }
+  }
+  root=node("section");root.id="tp-games-page";root.hidden=true;
+  root.setAttribute("role","dialog");root.setAttribute("aria-modal","true");
+  host.append(root);
+  root.addEventListener("keydown",event=>{
+   if(!active)return;
+   if(event.key==="Escape"){
+    event.preventDefault();event.stopPropagation();close();return;
+   }
+   if(event.key!=="Tab")return;
+   const buttons=Array.from(root.querySelectorAll("button:not(:disabled)"));
+   if(!buttons.length){event.preventDefault();return;}
+   const first=buttons[0],last=buttons[buttons.length-1];
+   if(event.shiftKey&&document.activeElement===first){
+    event.preventDefault();last.focus();
+   }else if(!event.shiftKey&&document.activeElement===last){
+    event.preventDefault();first.focus();
+   }
+  });
+
+ }
+ function render(force=false){
+  if(!active)return;
+  const labels=GAME_TILES.map(item=>item.label());
+  const records=GAME_TILES.map(item=>item.hi());
+
+  const key=JSON.stringify([
+   labels,records,selected,locked(),notice,
+   text("start"),text(ids[selected]),fns.playTitle()
+  ]);
+  if(!force&&key===lastKey)return;
+  lastKey=key;
+  const focused=root.contains(document.activeElement)?
+   document.activeElement.dataset.playFocus:null;
+  // Preserve the games grid scroll position across rendering.
+  const previousGrid=root.querySelector(".tp-play-grid");
+  const previousScrollTop=previousGrid?previousGrid.scrollTop:0;
+  root.replaceChildren();preview=null;
+  root.setAttribute("aria-label",fns.playTitle());
+
+  const head=node("header",undefined,"tp-play-head");
+  head.append(node("h2",fns.playTitle()),
+   frameButton(TPText.t("common.back"),"back",close,locked(),"back"));
+
+  const frame=node("div",undefined,"tp-play-frame");
+  frame.setAttribute("aria-hidden","true");
+  for(const cls of [
+   "tp-pokedex-display tp-pokedex-display-left",
+   "tp-pokedex-display tp-pokedex-display-right","tp-pokedex-spine"
+  ])frame.append(node("span",undefined,cls));
+
+  const body=node("div",undefined,"tp-play-body");
+  left=node("div",undefined,"tp-play-choices");
+  const picks=node("div",undefined,"tp-play-grid");
+  left.append(picks);
+  for(let index=0;index<ids.length;index++){
+   const tile=button(labels[index],"choose-"+ids[index],()=>{
+    selected=index;notice="";
+   },locked());
+   tile.dataset.playGame=ids[index];
+   tile.setAttribute("aria-pressed",String(index===selected));
+   tile.replaceChildren(glyph(ids[index]),node("span",labels[index]));
+   picks.append(tile);
+  }
+
+  const right=node("div",undefined,"tp-play-right");
+  const info=node("div",undefined,"tp-play-info");
+  preview=node("canvas",undefined,"tp-play-preview");
+  preview.width=224;preview.height=112;
+  preview.setAttribute("role","img");
+  preview.setAttribute("aria-label",labels[selected]+" · "+text("preview"));
+  info.append(node("h3",labels[selected]),preview,
+   node("p",text(ids[selected]),"tp-play-instruction"),
+   node("p",text("record")+": "+records[selected],"tp-play-record"));
+  if(notice){
+   const status=node("p",notice,"tp-play-notice");
+   status.setAttribute("role","status");info.append(status);
+  }
+  const start=button(text("start"),"start",launch,locked());
+  start.setAttribute("data-play-start","");
+  right.append(info,start);body.append(left,right);
+
+  root.append(head,frame,body);
+  const restoredGrid=root.querySelector(".tp-play-grid");
+  if(restoredGrid)restoredGrid.scrollTop=previousScrollTop;
+  const target=focused?
+   Array.from(root.querySelectorAll("button")).find(
+    element=>element.dataset.playFocus===focused&&!element.disabled
+   ):root.querySelector('[aria-pressed="true"]');
+  target?.focus({preventScroll:true});
+  lastPaint=-Infinity;paint(performance.now());
+ }
+ function paint(now){
+  if(!preview||now-lastPaint<120)return;
+  lastPaint=now;
+  const c=preview.getContext("2d"),time=now/1000;
+  c.clearRect(0,0,224,112);c.imageSmoothingEnabled=false;
+  c.fillStyle="#dce6df";c.fillRect(8,98,208,2);
+  const icon=(map,x,y,scale=2)=>drawIconOn(c,map,x,y,scale);
+  if(selected===0){
+   if(typeof currentSprite!=="undefined"&&currentSprite){
+    const action=currentSprite.actions[TPAct.idle];
+    const image=action?
+     frameImageData(currentSprite,TPAct.idle,frameIndexAt(action,now,true)):null;
+    const bounds=image&&typeof hubDexBounds==="function"?hubDexBounds(image):null;
+    if(bounds){
+     if(!buffer)buffer=document.createElement("canvas");
+     buffer.width=image.width;buffer.height=image.height;
+     buffer.getContext("2d").putImageData(image,0,0);
+     const scale=Math.min(2,60/bounds.w,76/bounds.h);
+     c.drawImage(buffer,bounds.x,bounds.y,bounds.w,bounds.h,
+      48-bounds.w*scale/2,98-bounds.h*scale,bounds.w*scale,bounds.h*scale);
+    }
+   }
+   icon(TPIcon.play,139+Math.sin(time*1.8)*26,40+Math.cos(time*1.8)*13);
+  }else if(selected===1){
+   [TPIcon.food,TPIcon.berryBlue,TPIcon.berryGreen].forEach((map,index)=>{
+    icon(map,30+index*64,34+Math.sin(time*2+index)*9);
+   });
+  }else if(selected===2){
+   const active=Math.floor(time*1.4)%4;
+   ["#c56562","#d6ad55","#6396bd","#699c70"].forEach((color,index)=>{
+    c.globalAlpha=index===active?1:.55;c.fillStyle=color;
+    c.fillRect(66+(index%2)*52,10+Math.floor(index/2)*46,40,36);
+   });
+   c.globalAlpha=1;
+  }else if(selected===3){
+   [[48,43],[113,69],[177,38]].forEach(([x,y],index)=>{
+    c.globalAlpha=.65+.35*Math.sin(time*1.5+index)**2;
+    c.fillStyle="#8a6645";c.fillRect(x-15,y-12,30,24);
+    c.fillStyle="#62452e";c.fillRect(x-8,y-6,6,5);c.fillRect(x+4,y+3,7,5);
+   });
+   c.globalAlpha=1;
+  }else{
+   const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+   const phase=reduced?2.4:time%4;
+   const background=getComputedStyle(root).getPropertyValue("--tp-card").trim()||"#fffaf0";
+
+   const enemy=2,options=[3,5,1];
+   c.textAlign="center";
+   c.fillStyle=background;c.fillRect(63,5,98,28);
+   c.strokeStyle="#b56b43";c.lineWidth=2;c.strokeRect(63,5,98,28);
+   paintTypeSymbol(c,enemy,101,8,22,"#c56542");
+   c.strokeStyle="#71818b";c.lineWidth=2;
+   c.beginPath();c.moveTo(112,36);c.lineTo(112,46);
+   c.moveTo(107,42);c.lineTo(112,47);c.lineTo(117,42);c.stroke();
+   options.forEach((type,index)=>{
+    const x=4+index*74;
+    const correct=Module._tp_type_effect_pct(type,enemy)>100;
+    const highlighted=correct&&phase>=1.8&&phase<3.4;
+    c.globalAlpha=phase<.7?.4:1;
+    c.fillStyle=background;c.fillRect(x,55,68,40);
+    c.strokeStyle=highlighted?"#2f6b44":"#8b969b";
+    c.lineWidth=highlighted?3:1;c.strokeRect(x,55,68,40);
+    paintTypeSymbol(c,type,x+22,62,24,
+     ["#6396bd","#699c70","#aaa08b"][index]);
+    if(highlighted){
+     c.strokeStyle="#2f6b44";c.lineWidth=3;
+     c.beginPath();c.moveTo(x+48,64);c.lineTo(x+53,69);
+     c.lineTo(x+62,59);c.stroke();
+    }
+   });
+   c.globalAlpha=1;
+  }
+ }
+ function tick(now){
+  raf=null;
+  if(!active)return;
+  if(screen!=="gamemenu"){hide();return;}
+  if(now-lastRefresh>=120){lastRefresh=now;render();}
+  paint(now);
+  raf=requestAnimationFrame(tick);
+ }
+ function show(){
+  if(active)return;
+  ensure();active=true;notice="";lastKey="";
+  root.hidden=false;
+  render(true);
+  statusEl.textContent=fns.playTitle();
+  raf=requestAnimationFrame(tick);
+ }
+ return Object.freeze({show,hide});
+})();
+function drawGameMenu() {
+ gameMenuUI.show();
+}
+function gameMenuTap() {
+ // Visible DOM controls own selection and start; no legacy tap route.
+ return false;
 }
 
 // Shared game-over card: the four newer minigames all show the same
@@ -825,6 +1169,9 @@ function draw() {
     if(window.TPAppMenu)window.TPAppMenu.drawDexBack();
     return;
   }
+  if(screen!=='arena')window.TPArena?.hidePage?.();
+  if(screen!=='league')window.TPLeague?.hidePage?.();
+  if(screen!=='league')window.TPHall?.hidePage?.();
   if (screen === "arena") { window.TPArena.draw(); return; }
   if (screen === "league") { window.TPLeague.draw(); return; }
   if (screen === "trainer") { window.TPTrainer.draw(); return; }
@@ -832,8 +1179,10 @@ function draw() {
     drawBattle(performance.now());
     return;
   }
+  if(screen==="activity"){window.TPActivities?.draw();return;}
+  if (screen === "expedition") { drawStandaloneExpedition(); return; }
   if (screen === "card") {
-    drawCard(performance.now());
+    if(!statusUI.draw(performance.now()))drawCard(performance.now());
     return;
   }
   if (screen === "keyboard") {
@@ -935,7 +1284,7 @@ function draw() {
 
   // Buttons: asleep, only the light button stays lit -- drawButtons on iOS.
   for (const b of BUTTONS) {
-    const off = sleeping && b.label !== "LIGHT";
+    const off = !idleButtonAvailable(b.label,sleeping);
     if (!sleeping) {
       ctx.fillStyle = UI.white;
       roundRect(b.x - TP.btnHalf, b.y - TP.btnHalf, TP.btnHalf * 2, TP.btnHalf * 2, 14);
@@ -973,6 +1322,7 @@ function draw() {
   // genuinely the front-most thing -- mirrors PetScreen.swift's
   // mainScreenReadyForWild gate (no egg/sleeping/other dialog/CTA open).
   const wildEligible = !isEgg && !sleeping && choice === "none" &&
+    !window.TPActions?.active&&!window.TPActions?.busy&&
     fns.wantsEvolve() === 0 && fns.canRunaway() === 0 && fns.wantsFarewell() === 0;
   Module._tp_battle_check_wild(wildEligible ? 1 : 0);
   if (choice === "none" && fns.wildPromptActive() !== 0) drawWildPrompt();
@@ -980,9 +1330,12 @@ function draw() {
   statusEl.textContent =
     TPText.status(`${fns.name()} Lv${fns.level()} · FUL ${fns.fullness()} JOY ${fns.joy()} ` +
     `ENE ${fns.energy()} HYG ${fns.hygiene()}` + (sleeping ? " · sleeping" : ""));
+
+  window.TPActions?.draw();
 }
 
 function handleTap(x, y) {
+  if(window.TPActions?.busy||window.TPActivities?.busy)return;
   if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy||window.TPLavadosUI?.busy||window.TPMewtuUI?.busy||window.TPMewUI?.busy)return;
   if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return;
   if(window.TPLeague?.busy)return;
@@ -1013,6 +1366,8 @@ function handleTap(x, y) {
     window.TPArena?.checkEnd();
     return;
   }
+  if(screen==="activity")return;
+  if(screen==="expedition"){standaloneExpeditionTap(x,y);return;}
   if (screen === "card") {
     cardTap(x, y);
     return;
@@ -1079,14 +1434,13 @@ function handleTap(x, y) {
     confirmUntil = 0;
     return;
   }
-  if (fns.ceremony() !== 0) return;  // no buttons during a ceremony
+  if (fns.ceremony() !== 0) return;
+  if(window.TPActions?.tap(x,y,now))return;  // no buttons during a ceremony
 
   // The expedition chip (top right, "tour 12m" / "arrived!" / "bag x2")
   // opens the card's Expedition page, as on iOS.
   if (fns.isEgg() === 0 && expeditionHudTap(x, y)) {
-    screen = "card";
-    cardPage = 7;
-    playSfx(0);
+    if(window.TPExpeditions?.open("idle"))playSfx(0);
     return;
   }
 
@@ -1121,7 +1475,7 @@ function handleTap(x, y) {
     const b = BUTTONS[i];
     const dx = x - b.x, dy = y - b.y;
     if (dx * dx + dy * dy > 36 * 36) continue;
-    if (sleeping && b.label !== "LIGHT") return;
+    if (!idleButtonAvailable(b.label,sleeping)) return;
     playSfx(0); // tap
     b.action(now);
     return;
@@ -1139,6 +1493,8 @@ function handleTap(x, y) {
 // during a tap, which SwiftUI/the DOM can both report as a large jump) must
 // not be read as "swipe out of the game."
 function swipeAllowed() {
+  if(window.TPActions?.active||window.TPActions?.busy||screen==='expedition'||screen==='activity')return false;
+
   if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy||window.TPLavadosUI?.busy||window.TPMewtuUI?.busy||window.TPMewUI?.busy)return false;
   if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return false;
   if(window.TPBoxes?.active)return false;
@@ -1157,6 +1513,8 @@ function swipeAllowed() {
 // swipe opens the dex; on the dex/card, it turns pages; dir 1 = swiped
 // right, -1 = swiped left (left advances, matching upstream).
 function onSwipe(dir) {
+  if(window.TPActions?.active||window.TPActions?.busy||screen==='expedition'||screen==='activity')return ;
+
   if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy||window.TPLavadosUI?.busy||window.TPMewtuUI?.busy||window.TPMewUI?.busy)return;
   if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return;
   if(window.TPBoxes?.active)return;
@@ -1171,11 +1529,7 @@ function onSwipe(dir) {
     return;
   }
   if (screen === "idle") {
-    if (fns.isEgg() !== 0 || choice !== "none") return;
-    dexScreen = "grid";
-    dexPage = 0;
-    dexFilter = 0;
-    screen = "dex";
+    // UI01: no hidden horizontal route from the care screen.
     return;
   }
   if (screen !== "dex") return;
@@ -1189,10 +1543,31 @@ function onSwipe(dir) {
   dexPage = Math.min(next, pages - 1);
 }
 
+function openPokedexFromIdle() {
+  if(window.TPActions?.active||window.TPActions?.busy||screen==='expedition'||screen==='activity')return false;
+
+  if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy||window.TPLavadosUI?.busy||window.TPMewtuUI?.busy||window.TPMewUI?.busy)return false;
+  if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return false;
+  if(window.TPBoxes?.active)return false;
+  if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen)return false;
+  if (window.TPExpeditions && window.TPExpeditions.busy) return false;
+
+  if (screen !== "idle" || choice !== "none" || tpSaveReplacing) return false;
+  if (!swipeAllowed() || fns.awaitingStarter() !== 0 || fns.isEgg() !== 0) return false;
+  if (fns.ceremony() !== 0 || fns.evolvingNow() !== 0) return false;
+  dexScreen = "grid";
+  dexPage = 0;
+  dexFilter = 0;
+  screen = "dex";
+  return true;
+}
+
 // Ports PetScreen.swift's onSwipeV (vertical): dir 1 = swiped down (opens
 // settings from idle), -1 = swiped up (opens the stat card from idle,
 // closes it if already open).
 function onSwipeV(dir) {
+  if(window.TPActions?.active||window.TPActions?.busy||screen==='expedition'||screen==='activity')return ;
+
   if (!swipeAllowed()) return;
   if(window.TPAppMenu&&window.TPAppMenu.swipe(dir))return;
   if (fns.awaitingStarter() !== 0) return;   // the picker only pages sideways
@@ -1241,6 +1616,8 @@ function toScreenSpace(clientX, clientY) {
 // the idle screen, inside the pet zone, with nothing else open. Polled from
 // the frame loop the same way iOS polls it from its tick.
 function checkHold(now) {
+  if(actionTouchOwned||window.TPActions?.active||window.TPActions?.busy)return;
+
   if (holdFired || screen !== "idle" || !dragStart || !dragNow) return;
   if (now - dragStartAt <= 3000) return;
   if (Math.abs(dragNow.x - dragStart.x) >= 30 || Math.abs(dragNow.y - dragStart.y) >= 30) return;
@@ -1258,6 +1635,7 @@ canvas.addEventListener("pointerdown", (e) => {
   dragStart = toScreenSpace(e.clientX, e.clientY);
   dragNow = dragStart;
   dragStartAt = performance.now();
+  actionTouchOwned=!!window.TPActions?.active||screen==='expedition';
   holdFired = false;
 });
 canvas.addEventListener("pointermove", (e) => {
@@ -1273,6 +1651,11 @@ canvas.addEventListener("pointerup", (e) => {
   // than also treating the release as a tap.
   if (holdFired) { holdFired = false; return; }
   const to = toScreenSpace(e.clientX, e.clientY);
+  const owned=actionTouchOwned;actionTouchOwned=false;
+  if(owned||window.TPActions?.active||screen==='expedition'){
+    if(Math.abs(to.x-from.x)>=40||Math.abs(to.y-from.y)>=40)return;
+    if(owned&&screen==='idle'&&!window.TPActions?.active)return;
+  }
   if (!swipeAllowed()) {
     handleTap(from.x, from.y);
     return;
@@ -1286,7 +1669,7 @@ canvas.addEventListener("pointerup", (e) => {
     handleTap(from.x, from.y);
   }
 });
-canvas.addEventListener("pointercancel", () => { dragStart = null; dragNow = null; holdFired = false; });
+canvas.addEventListener("pointercancel", () => { dragStart = null; dragNow = null; holdFired = false; actionTouchOwned=false; });
 
 // --- Save persistence ----------------------------------------------------
 //
@@ -1777,10 +2160,15 @@ createTPCore({
         ].includes(context);
         const arenaContext=context==="arenaPrepare"||context==="arenaResult";
         const battleContext=["wildCapture","wildResult","arenaResult","zapdosResult","articunoResult","moltresResult","mewtwoResult","mewResult"].includes(context);
+        const wildPreparationActivity=context==="wildPrepare"&&
+          screen==="activity"&&
+          !!window.TPActivities?.inContext("battle")&&
+          window.TPActivities?.battleKind==="wild";
         const correctScreen=leagueContext?screen==="league":
           admissionContext?["idle","card","settings","battle"].includes(screen):
           battleContext?screen==="battle":
           context==="arenaPrepare"?screen==="arena":
+          wildPreparationActivity?true:
           ["idle","card","settings"].includes(screen);
         if(Module!==mod||!window.TPAppMenu?.ready||tpSaveReplacing||
            (window.TPLeague?.busy&&!leagueContext)||

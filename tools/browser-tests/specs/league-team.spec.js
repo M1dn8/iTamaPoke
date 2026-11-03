@@ -1,6 +1,13 @@
  'use strict';
+const HU=require('./hall-ui-helpers');
+
+const LU=require('./league-ui-helpers');
+
+const AU=require('./arena-ui-helpers');
+
 const {test,expect}=require('@playwright/test');
 const H=require('./helpers');
+const CF=require('./care-team-fixtures');
 
 function fixture(region=0){
  const base=H.fixture(0),fields=new Map();
@@ -37,33 +44,29 @@ async function quiet(page){
  );
 }
 async function openLeague(page,region){
- await H.game(page);
- const a=await H.point(page,233,300),b=await H.point(page,233,110);
- await page.mouse.move(a.x,a.y);await page.mouse.down();
- await page.mouse.move(b.x,b.y,{steps:8});await page.mouse.up();
- await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');
- for(let i=0;i<4;i++)await H.tap(page,350,382);
- await H.tap(page,363,308);
- await expect.poll(()=>page.evaluate(()=>screen)).toBe('arena');
+ await H.openArenaSelection(page);
  if(await page.evaluate(()=>TPArena.region)!==region){
-  await H.tap(page,402,21);
+  await AU.option(page,'regions');
   await expect.poll(()=>page.evaluate(()=>TPArena.choosingRegion)).toBe(true);
   await page.waitForFunction(()=>!TPRegions.locked());
-  await H.tap(page,233,region===1?270:155);
+  await AU.region(page,region);
  }
  await expect.poll(()=>page.evaluate(()=>TPArena.region)).toBe(region);
- await H.tap(page,130,435);
+ await AU.option(page,'league');
  await expect.poll(()=>page.evaluate(()=>screen)).toBe('league');
  await quiet(page);
  await expect.poll(()=>page.evaluate(()=>TPLeague.state?.teamMode)).toBe(true);
 }
 async function setup(page,{region=0,weakFirst=false,allWeak=false}={}){
- if(region===1)await H.importSave(page,fixture(1),1);
+ await H.importSave(page,CF.withCare(fixture(region),{
+  dex:6,level:allWeak||weakFirst?1:30,nickname:'Liga Alpha',
+  weak:allWeak||weakFirst
+ }),6);
  await H.game(page);
  const seed=await page.evaluate(async({weakFirst,allWeak})=>{
   await TPCollectionGame.ensureCurrent();
-  const active=TPCollection.read().active,ids=[];
-  for(let i=0;i<2;i++){
+  const active=TPCollection.read().active,ids=[active];
+  for(let i=1;i<2;i++){
    const weak=allWeak||weakFirst&&i===0;
    await TPCollection.apply('catchWild',{
     dex:6,level:weak?1:30,
@@ -77,10 +80,17 @@ async function setup(page,{region=0,weakFirst=false,allWeak=false}={}){
    ids.push(TPCollection.read().nextId-1);
   }
   for(const id of [...TPCollection.read().team])
-   await TPCollection.apply('unselectTeam',id);
-  for(const id of ids)await TPCollection.apply('selectTeam',id);
+   if(id!==active)await TPCollection.apply('unselectTeam',id);
+  for(const id of ids)
+   if(!TPCollection.read().team.includes(id))
+    await TPCollection.apply('selectTeam',id);
+  const team=TPCollection.read().team;
+  if(team.length!==2||team.some((id,i)=>id!==ids[i]))
+   throw Error('League fixture roster mismatch');
   Module.ccall('tp_seed_random',null,['number'],[314159]);
-  return {active,ids};
+  return {active,ids,baseStats:ids.map(id=>
+   TPCollection.read().mons.find(m=>m.id===id).data.stats.atk
+  )};
  },{weakFirst,allWeak});
  await openLeague(page,region);
  return seed;
@@ -170,7 +180,7 @@ async function select(page,index){
  await action(page,'member'+index);
 }
 async function start(page){
- await H.tap(page,233,380);
+ await LU.start(page);
  await expect.poll(()=>page.evaluate(()=>({
   live:TPLeague.state.live,team:TPLeague.state.teamMode,
   busy:TPLeague.busy,gate:tpSaveReplacing
@@ -178,8 +188,7 @@ async function start(page){
  await rendered(page);
 }
 async function resume(page){
- const phase=await page.evaluate(()=>TPLeague.diagnostics.phase);
- await H.tap(page,233,phase==='checkpoint'?270:359);
+ await LU.resume(page);
  await expect.poll(()=>page.evaluate(()=>TPLeague.state.live)).toBe(1);
  await quiet(page);await rendered(page);
 }
@@ -189,7 +198,7 @@ async function beatCurrent(page,{retry=false,final=false}={}){
   const v=await state(page);
   if(!v.live||v.resolved)break;
   if(v.needsSwitch)throw Error('Unexpected forced switch in strong fixture');
-  await action(page,'heavy');
+  await action(page,v.rests>0&&v.hp*100<v.maxHp*45?'rest':'heavy');
  }
  if(retry){
   await expect.poll(()=>page.evaluate(()=>TPLeague.diagnostics.phase))
@@ -288,7 +297,8 @@ for(const region of [0,1]){
    expect(v.index).toBe(index);
    expect(v.members.map(m=>m.level)).toEqual([30,30]);
    expect(await energy(page)).toBe(index<20?50:20);
-   await select(page,index%2);
+   // UI01 closeout: explicit asymmetric two-winner schedule.
+   await select(page,1);
    await beatCurrent(page,{final:index===25});
    if(index<25)await resume(page);
   }
@@ -301,26 +311,26 @@ for(const region of [0,1]){
   expect(record.team.care.id).toBe(seed.active);
   expect(record.team.members.map(m=>m.id)).toEqual(seed.ids);
   expect(record.team.members.map(m=>m.level)).toEqual([30,30]);
-  expect(record.team.members.map(m=>m.wins)).toEqual([13,13]);
-  expect(record.team.members.map(m=>m.levelGains)).toEqual([13,13]);
+  expect(record.team.members.map(m=>m.wins)).toEqual([1,25]);
+  expect(record.team.members.map(m=>m.levelGains)).toEqual([1,25]);
   current=await model(page);
   expect(seed.ids.map(id=>current.mons.find(m=>m.id===id).level))
-   .toEqual([43,43]);
+   .toEqual([31,55]);
   expect(seed.ids.map(id=>current.mons.find(m=>m.id===id).data.stats.atk))
-   .toEqual([3013,3013]);
+   .toEqual(seed.baseStats.map((value,index)=>value+(index===0?1:25)));
   const finalProfile=await profile(page,region);
   expect(finalProfile.done).toBe(true);
   expect(finalProfile.hallVersion).toBe(2);
   expect(finalProfile.hasRun).toBe(false);
-  expect(finalProfile.careBattleBonus).toBe(0);
+  expect(finalProfile.careBattleBonus).toBe(1);
   expect((await profile(page,1-region)).done).toBe(region===1);
 
-  await H.tap(page,333,440);
+  await HU.acknowledge(page);
   await expect.poll(()=>page.evaluate(()=>TPHall.view.seen)).toBe(1);
   await quiet(page);
   await page.reload();await H.waitReady(page);
   await openLeague(page,region);
-  await H.tap(page,130,440);
+  await LU.hall(page);
   await expect.poll(()=>page.evaluate(()=>TPHall.active)).toBe(true);
   const reloaded=await page.evaluate(()=>TPHall.view);
   expect(reloaded.records).toEqual(hall.records);
@@ -410,7 +420,7 @@ for(const [name,number] of [['preparation',1],['paid entry',2]]){
  async({page})=>{
   const seed=await setup(page);
   await rejectWrite(page,number);
-  await H.tap(page,233,380);
+  await LU.start(page);
   await expect.poll(()=>page.evaluate(()=>TPLeague.diagnostics.error))
    .toContain('P05c intentional quota');
   await quiet(page);
@@ -444,10 +454,8 @@ test('P05c UI: changed planning does not replace the saved bound team',
    let value=Buffer.from(bytes.subarray(at,at+size));at+=size;
    if(key==='f4col'){
     let collection=M.decode(value.toString('utf8'));
-    collection=M.moveTeam(collection,seed.ids[0],1);
-    collection=M.unselectTeam(collection,seed.ids[0]);
-    collection=M.selectTeam(collection,seed.active);
-    expect(collection.team).toEqual([seed.ids[1],seed.active]);
+    collection=M.unselectTeam(collection,seed.ids[1]);
+    expect(collection.team).toEqual([seed.active]);
     value=Buffer.from(M.encode(collection));
    }
    const name=Buffer.from(key),len=Buffer.alloc(4);
@@ -461,17 +469,19 @@ test('P05c UI: changed planning does not replace the saved bound team',
 
   // Import through the real backup UI after reload, not by replacing RPCs.
   await page.reload();await H.waitReady(page);
-  await H.importSave(page,backup,1);
+  await H.importSave(page,backup,6);
   await openLeague(page,0);
-  expect((await model(page)).team).toEqual([seed.ids[1],seed.active]);
+  expect((await model(page)).team).toEqual([seed.active]);
   expect(await savedRun(page,0)).toEqual(checkpoint);
   await resume(page);
   expect((await state(page)).members.map(m=>m.id)).toEqual(seed.ids);
-  expect((await model(page)).team).toEqual([seed.ids[1],seed.active]);
+  expect((await model(page)).team).toEqual([seed.active]);
 
-  // Rewards still go to the bound fighter, even if unselected today.
+  // Stored Beta remains bound despite today's care-only plan.
+  await select(page,1);
   await beatCurrent(page);
   const after=await model(page);
-  expect(after.mons.find(m=>m.id===seed.ids[0]).level).toBe(32);
-  expect(after.team).toEqual([seed.ids[1],seed.active]);
+  expect(after.mons.find(m=>m.id===seed.ids[0]).level).toBe(31);
+  expect(after.mons.find(m=>m.id===seed.ids[1]).level).toBe(31);
+  expect(after.team).toEqual([seed.active]);
  });

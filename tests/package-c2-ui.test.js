@@ -34,12 +34,8 @@ async function staleAutosaveTest(){
  const ctx={tpSaveReplacing:false,console,STORE_NAME:"save",SAVE_KEY:"state",openDb(){return ++opens===1?new Promise(r=>resolveOld=r):Promise.resolve(db);}};
  vm.createContext(ctx);vm.runInContext("var tpSaveEpoch=0;\n"+fn,ctx);const old=ctx.writeSave("stale");ctx.tpSaveReplacing=true;ctx.tpSaveEpoch++;await ctx.writeSave("new",true);ctx.tpSaveEpoch++;ctx.tpSaveReplacing=false;resolveOld(db);await old;assert.deepEqual(writes,["new"]);await ctx.writeSave("fresh");assert.deepEqual(writes,["new","fresh"]);
 }
-function canvasTest(){
- const text=fs.readFileSync("browser_ver/web/expedition.js","utf8"),calls=[];let pending=false,ready=false;
- const api={busy:false,view:()=>({pending,ready}),start:r=>calls.push(["start",r]),claim:()=>calls.push(["claim"]),use:i=>calls.push(["use",i]),tell(){}};
- const ctx={window:{TPExpeditions:api},expeditionTrainChoiceOpen:false,fns:{expeditionItemCount:()=>1,trainStatUsable:()=>1}};vm.createContext(ctx);vm.runInContext(extract(text,"function cardExpeditionTap("),ctx);
- ctx.cardExpeditionTap(100,100);ctx.cardExpeditionTap(340,185);assert.deepEqual(calls,[["start",1],["start",4]]);
- pending=ready=true;ctx.cardExpeditionTap(100,330);ctx.cardExpeditionTap(230,170);assert.deepEqual(calls.slice(-2),[["use",2],["claim"]]);
- assert(!extract(text,"function drawCardExpedition()").includes("Expeditionen oeffnen"));
+async function canvasTest(){
+ await require("./ui01-expedition-renderer.cjs")();
 }
-(async()=>{for(let r=1;r<=4;r++)await controllerTest(r);await controllerTest(1,true);await controllerTest(1,false,true);await staleAutosaveTest();canvasTest();console.log("C2 fixed UI passed: four one-tap missions, exact times/costs, guaranteed item mapping, no extra DOM/reload, rollback and stale-autosave guard.");})().catch(e=>{console.error(e);process.exit(1);});
+
+(async()=>{for(let r=1;r<=4;r++)await controllerTest(r);await controllerTest(1,true);await controllerTest(1,false,true);await staleAutosaveTest();await canvasTest();console.log("C2 fixed UI passed: four fixed missions, exact times/costs, guaranteed item mapping, controller without extra DOM/reload, rollback and stale-autosave guard.");})().catch(e=>{console.error(e);process.exit(1);});

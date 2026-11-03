@@ -70,7 +70,7 @@ async function setup(page,p,{step=0,full=false}={}){
  const tile=page.locator('#tp-stories-page button[data-story="'+p.id+'"]');
  await expect(tile).toBeEnabled();
  await expect(tile).toContainText(p.place);
- await tile.click();
+ await H.startStory(page,p.id);
  await expect(pageRoot(page,p)).toBeVisible();
 }
 async function solve(page,p){
@@ -391,6 +391,15 @@ for(const [id,options,allowed] of [
 
     await expect(catalogue.locator('button[data-story]'))
      .toHaveCount(scenario.shown.length);
+
+     await expect(catalogue.locator('button[data-story]:visible'))
+      .toHaveCount(Math.min(3,scenario.shown.length));
+     for(const id of scenario.shown){
+      await H.selectStory(page,id);
+      await expect(page.locator('#tp-story-preview button[data-story-start="'+id+'"]'))
+       .toBeEnabled();
+     }
+
 
     for(const [id,place] of locations){
      const tile=catalogue.locator('button[data-story="'+id+'"]');

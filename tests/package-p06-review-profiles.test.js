@@ -92,7 +92,15 @@ assert(!source.includes('channel:'));
    );
   }
  }
- assert(source.includes("await loadCase(reviewStory==='catalogue'?1:5);"));
+ // UI01 bundled closeout test alignment.
+ const startups=[...source.matchAll(/await loadCase\(([^;\n]+)\);/g)]
+  .map(match=>match[1]).filter(expression=>expression.includes('reviewStory'));
+ assert.equal(startups.length,1,'Exactly one profile-dependent startup expression');
+ for(const profile of ['articuno','moltres','mewtwo','mew','catalogue','journal','mega']){
+  const actual=vm.runInNewContext(startups[0],{reviewStory:profile});
+  assert.equal(actual,['catalogue','journal','mega'].includes(profile)?1:5,
+   'Wrong initial case for '+profile);
+ }
 }
 
 console.log(

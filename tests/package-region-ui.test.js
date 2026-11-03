@@ -118,6 +118,7 @@ function env(){
    }
   }
  };
+ const dom=require('./helpers/ui01-dom.cjs').installDOM(c);
  c.window=c;vm.createContext(c);
  const load=(n,transform=x=>x)=>vm.runInContext(transform(fs.readFileSync('browser_ver/web/'+n,'utf8')),c);
  for(const n of ['arena-kanto.js','league-kanto-data.js','arena-johto.js','league-johto-data.js','regions-ui.js'])load(n);
@@ -142,7 +143,7 @@ function env(){
  load('league-kanto.js',s=>s.replace('window.TPLeague=Object.freeze','window.__forceLeagueRegion=r=>region=r;window.__leagueTransaction=transaction;window.TPLeague=Object.freeze'));
  load('league-hall.js',s=>s.replace('window.TPHall=Object.freeze','window.__forceHallRegion=r=>region=r;window.TPHall=Object.freeze'));
  load('regional-reward-egg.js',s=>s.replace('window.TPRewardEgg=Object.freeze','window.__forceGiftRegion=r=>region=r;window.__giftTransaction=transaction;window.TPRewardEgg=Object.freeze'));
- return {c,calls,text,states,halls,gifts,masks,resolve:()=>saveResolve(true),reject:()=>saveReject(Error('synthetic UI quota'))};
+ return {c,calls,text,visibleText:()=>[...text,...dom.visibleTexts()],states,halls,gifts,masks,resolve:()=>saveResolve(true),reject:()=>saveReject(Error('synthetic UI quota'))};
 }
 (async()=>{
  const e=env(),c=e.c;assert(c.TPRegions.available(1));assert.equal(c.TPRegions.catalog(1).champ,'Siegfried');assert.equal(c.TPRegions.catalog(1).league.champions.length,1);assert.equal(c.TPRegions.catalog(0).champ,'Blau');
@@ -193,9 +194,9 @@ function env(){
  c.__forceArenaRegion(1);
  c.TPArena.abort();
  assert(c.TPLeague.open());assert.equal(c.TPLeague.region,1);p=c.__leagueTransaction('tp_lg_prepare_start',[0]);c.__forceLeagueRegion(0);e.resolve();assert(await p);assert(e.calls.some(x=>x[0]==='tp_region_lg_finish'&&x[1]===1&&x[3]===1));c.__forceLeagueRegion(1);assert.equal(c.TPLeague.state.region,1);c.TPLeague.back();
- c.screen='league';assert(c.TPHall.open(false,1));e.text.length=0;c.TPHall.draw();assert(e.text.includes('J-Sieger'));assert(!e.text.includes('Aktiv'));assert(e.text.includes('Champ: Siegfried'));p=c.TPHall.acknowledge();c.__forceHallRegion(0);e.resolve();assert(await p);assert.equal(e.halls[0].seen,0);assert.equal(e.halls[1].seen,1);c.__forceHallRegion(1);
+ c.screen='league';assert(c.TPHall.open(false,1));e.text.length=0;c.TPHall.draw();assert(e.visibleText().includes('J-Sieger'));assert(!e.visibleText().includes('Aktiv'));assert(e.visibleText().includes('Champ: Siegfried'));p=c.TPHall.acknowledge();c.__forceHallRegion(0);e.resolve();assert(await p);assert.equal(e.halls[0].seen,0);assert.equal(e.halls[1].seen,1);c.__forceHallRegion(1);
  assert(c.TPRewardEgg.open());p=c.__giftTransaction(0,152);c.__forceGiftRegion(0);e.reject();assert.equal(await p,false);assert(e.calls.some(x=>x[0]==='tp_region_rg_finish'&&x[1]===1&&x[3]===0));c.__forceGiftRegion(1);p=c.__giftTransaction(0,152);c.__forceGiftRegion(0);e.resolve();assert(await p);c.__forceGiftRegion(1);assert.equal(e.gifts[0].state,0);assert.equal(e.gifts[1].dex,152);
- e.gifts[1].canArm=0;e.gifts[1].armedRegion=0;e.text.length=0;c.TPRewardEgg.draw();assert(e.text.some(x=>x.includes('Kanto-Ei bereits vorgemerkt')));const count=e.calls.length;c.TPRewardEgg.tap(233,386);assert.equal(e.calls.filter(x=>x[0]==='tp_region_rg_prepare').length,e.calls.slice(0,count).filter(x=>x[0]==='tp_region_rg_prepare').length);
+ e.gifts[1].canArm=0;e.gifts[1].armedRegion=0;e.text.length=0;c.TPRewardEgg.draw();assert(e.visibleText().some(x=>x.includes('Kanto-Ei bereits vorgemerkt')));const count=e.calls.length;c.TPRewardEgg.tap(233,386);assert.equal(e.calls.filter(x=>x[0]==='tp_region_rg_prepare').length,e.calls.slice(0,count).filter(x=>x[0]==='tp_region_rg_prepare').length);
  const drawContext=env();vm.runInContext(fs.readFileSync('browser_ver/web/battle-view.js','utf8'),drawContext.c);const themes=[];for(const index of [0,5,10,15,20]){drawContext.c.TPBattleView.drawLeague({region:1,battleId:index+1,index,playerDex:376,playerLevel:100,form:0,shiny:0,hp:200,maxHp:300,atk:300,def:200,spe:200,dex:178,level:40,enemyHp:100,enemyMaxHp:150,round:0,rests:5,live:1});themes.push(drawContext.c.TPBattleView.current.theme);assert.equal(drawContext.c.TPBattleView.current.region,1);}assert.equal(new Set(themes).size,5);assert(drawContext.c.TPBattleView.current.title.includes('Siegfried'));
  const cold=env();delete cold.c.Module._tp_region_rg_finish;assert(!cold.c.TPRegions.available(1));assert(cold.c.TPArena.open());assert(!cold.c.TPArena.chooseRegion(1));assert.equal(cold.c.TPArena.region,0);assert.equal(cold.c.TPRegions.catalog(2),null);assert(!cold.c.TPRegions.remember(2));
 

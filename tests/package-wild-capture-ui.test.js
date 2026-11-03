@@ -16,12 +16,13 @@ function env(result=true,owned=false,reduced=false){
  },_tp_battle_close(){state.open=false;},_tp_battle_leave_wild(){state.done=true;state.tried=false;}};
  const ctx=new Proxy({fillText:t=>labels.push(String(t)),arc:(...a)=>arcs.push(a)},{get:(o,k)=>k in o?o[k]:()=>{},set:(o,k,v)=>(o[k]=v,true)});
  const capture={status:()=>({allowed:state.allowed,message:state.error}),get error(){return state.error;},get message(){return state.message||state.error;},tryCatch(){attempts++;if(!rolls)rolls++;state.done=state.tried=true;state.success=result;state.owned=owned||result;return new Promise(r=>resolve=ok=>{if(!ok){state.done=state.tried=state.success=false;state.owned=owned;state.error='Speichern fehlgeschlagen – Fang erneut versuchen.';}else{state.error='';state.message=result?'Abgelegt: Box 1':'';}r(ok);});}};
- const c={window:null,console,ctx,Module:mod,performance:{now:()=>now},matchMedia:()=>({matches:reduced}),document:{visibilityState:'visible',addEventListener:(n,fn)=>events[n]=fn},screen:'battle',battleReturn:'card',roundRect(){},spriteFor:()=>null,megaSpriteFor:()=>null,statusEl:{textContent:''},TPTrainer:{active:()=>false},TPCapture:capture,TPBoxes:{state:{box:0}},fns:{dexName:d=>'Art '+d,battleRound:()=>1,battleMessage:()=>'',battleResolved:()=>1,battlePlayerWon:()=>1,battleCatchOffered:()=>1,battleCatchDone:()=>+state.done,speciesId:()=>376,battlePlayerHp:()=>80,battlePlayerMaxHp:()=>100,battleWildDex:()=>25,battleEnemyHp:()=>0,battleEnemyMaxHp:()=>60}};
+ const c={window:null,console,ctx,Module:mod,performance:{now:()=>now},matchMedia:()=>({matches:reduced}),document:{visibilityState:'visible',addEventListener:(n,fn)=>{(events[n]??=[]).push(fn);}},screen:'battle',battleReturn:'card',roundRect(){},spriteFor:()=>null,megaSpriteFor:()=>null,statusEl:{textContent:''},TPTrainer:{active:()=>false},TPCapture:capture,TPBoxes:{state:{box:0}},fns:{dexName:d=>'Art '+d,battleRound:()=>1,battleMessage:()=>'',battleResolved:()=>1,battlePlayerWon:()=>1,battleCatchOffered:()=>1,battleCatchDone:()=>+state.done,speciesId:()=>376,battlePlayerHp:()=>80,battlePlayerMaxHp:()=>100,battleWildDex:()=>25,battleEnemyHp:()=>0,battleEnemyMaxHp:()=>60}};
+ require('./helpers/ui01-dom.cjs').installDOM(c);
  c.window=c;vm.createContext(c);vm.runInContext(source,c);const ui=c.TPBattleView;
  const draw=()=>{labels.length=0;arcs.length=0;ui.drawStandard();};
  const tap=a=>{const p=ui.target(a);assert(p,'missing target '+a);ui.tapStandard(p.x,p.y);};
  const flush=()=>new Promise(setImmediate);
- return {c,state,ui,draw,tap,flush,labels,arcs,time:t=>now=t,release:ok=>{assert(resolve);resolve(ok);},get attempts(){return attempts;},get rolls(){return rolls;},hide(){c.document.visibilityState='hidden';events.visibilitychange();},show(){c.document.visibilityState='visible';events.visibilitychange();}};
+ return {c,state,ui,draw,tap,flush,labels,arcs,time:t=>now=t,release:ok=>{assert(resolve);resolve(ok);},get attempts(){return attempts;},get rolls(){return rolls;},hide(){c.document.visibilityState='hidden';for(const fn of [...(events.visibilitychange||[])])fn();},show(){c.document.visibilityState='visible';for(const fn of [...(events.visibilitychange||[])])fn();}};
 }
 (async()=>{
  for(const owned of [false,true]){const e=env(true,owned);e.draw();assert.equal(e.ui.current.enemy.caught,owned);assert.equal(e.arcs.filter(a=>a[2]===6).length,owned?2:0);}
@@ -40,5 +41,10 @@ function env(result=true,owned=false,reduced=false){
  const reduced=env(false,false,true);reduced.draw();reduced.tap('catch');reduced.draw();await reduced.flush();assert.equal(reduced.attempts,1);assert.equal(reduced.ui.capture.phase,'saving');reduced.release(true);await reduced.flush();reduced.draw();assert.equal(reduced.ui.capture.phase,'escaped');
  const blocked=env();blocked.state.allowed=false;blocked.draw();assert.equal(blocked.ui.target('catch'),null);blocked.ui.tapStandard(137,371);await blocked.flush();assert.equal(blocked.attempts,0);
  const left=env();left.draw();left.tap('leave');left.draw();assert.equal(left.ui.capture.phase,'left');assert(left.labels.includes('Ohne Fang weiter.'));assert.equal(left.attempts,0);
+ // This is the lower-level action adapter, invoked directly after UI confirmation.
+ // The user-facing confirmation gate is tested in no-catch-decision.spec.js.
+ assert.equal(left.state.done,true);
+ assert.equal(left.state.tried,false);
+ assert.equal(left.rolls,0);
  console.log('Wild capture UI passed: historical painted marker; throw/absorb/shake; one attempt; no provisional success; saved success/failure; quota retry without extra roll; background cancel; reduced motion; capacity guard; skip and return. Native storage remains covered separately.');
 })().catch(e=>{console.error(e);process.exit(1);});

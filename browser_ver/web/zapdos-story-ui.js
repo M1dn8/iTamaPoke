@@ -339,10 +339,10 @@
   }else showStory();
   return true;
  }
- function abort(){
+ function abort(confirmed=false){
   if(!owns()||busy()||collection().busy||collection().blocked)return false;
   if(call('tp_zpd_get',[1])===1||call('tp_zpd_get',[2])===1)return false;
-  if(!root.confirm(tr('abortConfirm')))return false;
+  if(!confirmed&&!root.confirm(tr('abortConfirm')))return false;
   Module._tp_battle_close();
   if(call('tp_battle_is_open'))return false;
   ownedBattle=0;ownedMod=null;resultError='';message='';

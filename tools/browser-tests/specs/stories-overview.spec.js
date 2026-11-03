@@ -57,7 +57,7 @@ test('Geschichten: vierter Orden zeigt Hinweis; Schreibfehler bleibt wiederholba
  expect(await page.evaluate(()=>TPZapdos.access().noticeRead)).toBe(true);
  await root(page).getByRole('button',{name:'Geschichten',exact:true}).click();
  await expect(tile(page)).toBeEnabled();
- await tile(page).click();
+ await H.startStory(page,'zapdos');
  await expect(page.locator('#tp-zapdos-page')).toBeVisible();
  await root(page).locator('.tp-app-head').getByRole('button',{
   name:'Zurück',exact:true
@@ -80,7 +80,7 @@ for(const step of [1,2])
   await expect(page.locator('#tp-story-unlock')).toBeEmpty();
   await root(page).getByRole('button',{name:'Geschichten',exact:true}).click();
   await expect(tile(page)).toBeEnabled();
-  await tile(page).click();
+  await H.startStory(page,'zapdos');
   await expect(page.locator('#tp-zapdos-page')).toBeVisible();
   expect(await page.evaluate(()=>TPZapdos.read().step)).toBe(step);
   expect(await page.evaluate(()=>TPZapdos.access().badges)).toBe(0);
@@ -144,7 +144,7 @@ for(const width of [320,390])
   await expect(info.locator('.tp-story-info-text')).toHaveCSS(
    'text-align','center'
   );
-  await expect(panel.locator('.tp-app-grid button')).toHaveCount(5);
+  await expect(panel.locator('.tp-app-grid button')).toHaveCount(6);
   await expect.poll(()=>panel.evaluate(n=>{
    const outer=n.getBoundingClientRect();
    return n.scrollHeight<=n.clientHeight+1&&

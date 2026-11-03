@@ -225,6 +225,67 @@ for(const [prefix,names] of [
  assert.equal(typeof place,'string');
  assert(!names.some(name=>place.includes(name)));
 }
+
+// UI01-05: selection and paging are read-only; only Start changes route.
+{
+ E.prototype.addEventListener=function(type,fn){
+  this.listeners=this.listeners||{};this.listeners[type]=fn;
+ };
+ const routes=[];
+ context.TPAppMenu={show:id=>routes.push(id)};
+ for(const id of Object.keys(states))
+  states[id]={unlocked:true,newlyUnlocked:true,phase:'investigate',badges:8};
+ const before=JSON.stringify(states);
+ const list=new E('host'),preview=new E('preview'),navigation=new E('nav');
+ context.TPStoriesUI.mount(list,{preview,navigation});
+ const rows=()=>list.children.filter(n=>n.dataset.story);
+ const shown=()=>rows().filter(n=>!n.hidden);
+ assert.equal(rows().length,5);
+ const restored=rows().find(n=>n.dataset.story===preview.dataset.story);
+ assert(restored,'Restored preview must have a catalogue entry');
+ assert.equal(restored.hidden,false,'Restored selection must be visible');
+ const previous=navigation.children.find(n=>n.id==='tp-stories-prev');
+ assert(previous,'Five stories must provide a previous-page control');
+ if(!previous.disabled)previous.listeners.click();
+ assert.equal(shown().length,3);
+ const first=shown()[0];
+ first.listeners.click();
+ assert.equal(preview.dataset.story,first.dataset.story);
+ assert.equal(first.attributes['aria-pressed'],'true');
+ assert.equal(routes.length,0);
+ navigation.children.find(n=>n.id==='tp-stories-next').listeners.click();
+ assert.equal(shown().length,2);
+ assert.equal(routes.length,0);
+ assert.equal(JSON.stringify(states),before);
+ const choice=shown()[0];
+ choice.listeners.click();
+ const start=preview.children.find(n=>n.dataset.storyStart);
+ assert.equal(start.dataset.storyStart,choice.dataset.story);
+ start.listeners.click();
+ assert.deepEqual(routes,[choice.dataset.story]);
+ states[choice.dataset.story].unlocked=false;
+ start.listeners.click();
+ assert.equal(routes.length,1,'Start must revalidate current access');
+ assert(!rows().some(n=>n.dataset.story===choice.dataset.story));
+ const replacement=rows().find(n=>n.dataset.story===preview.dataset.story);
+ assert(replacement,'Removed selection must receive a valid replacement');
+ assert.equal(replacement.hidden,false,'Replacement selection must be visible');
+ assert.equal(replacement.attributes['aria-pressed'],'true');
+ const completed=Object.keys(states).find(id=>id!==choice.dataset.story);
+ states[completed].phase='complete';
+ context.TPStoriesUI.mount(list,{preview,navigation});
+ const done=rows().find(n=>n.dataset.story===completed);
+ assert.equal(done.disabled,true);
+ assert(!done.children.some(n=>n.className==='tp-unread-dot tp-story-open-dot'));
+ for(const code of ['en','de','es','fr'])
+  for(const id of Object.keys(states)){
+   const teaser=locales[code]['stories.teaser.'+id];
+   assert.equal(typeof teaser,'string');
+   assert(teaser.length>0);
+   assert(!/\b(?:zapdos|arktos|articuno|lavados|moltres|mewtu|mewtwo|mew)\b/i.test(teaser));
+  }
+}
+
 console.log(
  'Story catalogue passed: location-only labels in four locales, '+
  'new/open/completed states, waiting admission shown as open, '+

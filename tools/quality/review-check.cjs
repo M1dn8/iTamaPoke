@@ -10,6 +10,12 @@ if(!/^[12]$/.test(workersRaw)){
  process.exit(2);
 }
 const workers=Number(workersRaw);
+// UI01 closeout: optional diagnostic failure collection.
+const maxFailuresRaw=process.env.TP_TEST_MAX_FAILURES||'5';
+if(!/^(0|[1-9][0-9]{0,2})$/.test(maxFailuresRaw)){
+ console.error('TP_TEST_MAX_FAILURES muss 0 bis 999 sein.');process.exit(2);
+}
+
 const quickSelection=process.argv.slice(3);
 if(mode==='quick'&&!quickSelection.length){
  console.error('quick benoetigt eine ausdrueckliche Testauswahl.');
@@ -37,6 +43,7 @@ function sourceFingerprint(){
  for(const dir of ['browser_ver/web','browser_ver/core','upstream-expanded','tests','tools/browser-tests','tools/quality'])walk(path.join(root,dir));
  return crypto.createHash('sha256').update(JSON.stringify(rows)).digest('hex');
 }
+manifest.maxFailures=Number(maxFailuresRaw);
 manifest.sourceFingerprint=sourceFingerprint();
 manifest.wasmSha256=hash(path.join(root,'browser_ver/web/tp_core.wasm'));
 function save(){fs.writeFileSync(path.join(log,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');}
@@ -60,7 +67,7 @@ const cli=path.join(root,'tools/browser-tests/node_modules/@playwright/test/cli.
 async function browser(name,selection=[],list=false){
  if(!fs.existsSync(cli))throw Error('Lokale Playwright-Installation fehlt; kein automatisches Nachladen.');
  const args=[cli,'test','--config',path.join(root,'tools/browser-tests/playwright.config.js'),...selection,'--retries=0','--workers='+workers,
-  '--max-failures='+(name==='navigation-smoke'?1:5)];
+  '--max-failures='+(name==='navigation-smoke'?'1':maxFailuresRaw)];
  if(list)args.push('--list','--reporter=list');
  else args.push('--reporter=list,json,html','--output='+path.join(log,name+'-artifacts'));
  await run(name,process.execPath,args,{
@@ -92,7 +99,7 @@ async function preflight(){
    if(mode==='quick')await browser('quick',quickSelection);
    if(mode==='affected')await browser('affected',[
     'specs/app.spec.js','specs/dex-raster.spec.js','specs/i18n.spec.js',
-    'specs/navigation-polish.spec.js','specs/battle-controls.spec.js',
+    'specs/battle-controls.spec.js',
     'specs/journal-unread.spec.js','specs/stories-overview.spec.js',
     'specs/power-plant-scenes.spec.js','specs/power-plant-game.spec.js',
     'specs/zapdos-encounter.spec.js','specs/zapdos-story.spec.js',

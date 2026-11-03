@@ -7,7 +7,7 @@ const tap=page=>body(page).locator('button[data-security-tap]');
 const progress=page=>body(page).locator('.tp-power-progress');
 async function openStory(page){
  await H.openStories(page);
- await page.locator('#tp-stories-page button[data-story="zapdos"]').click();
+ await H.startStory(page,'zapdos');
  await expect(body(page)).toBeVisible();
 }
 async function securePage(page){
@@ -80,7 +80,7 @@ test('Sicherung: Verlassen verwirft nur den unvollstaendigen Versuch',async({pag
  await taps(page,3);
  await page.evaluate(()=>TPAppMenu.show('stories'));
  await expect(page.locator('#tp-stories-page')).toBeVisible();
- await page.locator('#tp-stories-page button[data-story="zapdos"]').click();
+ await H.startStory(page,'zapdos');
  await expect(progress(page)).toHaveText('0 / 10');
  expect(await page.evaluate(()=>TPZapdos.read().step)).toBe(1);
  await taps(page,10);await duel(page);

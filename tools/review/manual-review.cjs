@@ -28,6 +28,7 @@ if(!globalThis.crypto)globalThis.crypto=crypto.webcrypto;
 for(const [globalName,file] of [
  ['TPCollectionModel','collection-model.js'],
  ['TPAdmissionModel','collection-admission-model.js'],
+ ['TPLeagueTeamState','league-team-state.js'],
  ['TPZapdosModel','zapdos-story-model.js'],
  ['TPArktosModel','articuno-story-model.js'],
  ['TPLavadosModel','moltres-story-model.js'],
@@ -63,7 +64,7 @@ if(hasManifest){
     !['schema','story','names'].every(key=>
      Object.prototype.hasOwnProperty.call(manifest,key))||
     manifest.schema!==1||
-    !['articuno','moltres','mewtwo','mew','catalogue'].includes(manifest.story)||
+    !['articuno','moltres','mewtwo','mew','catalogue','journal','mega'].includes(manifest.story)||
     !Array.isArray(manifest.names)||manifest.names.length!==8||
     manifest.names.some((name,index)=>
      typeof name!=='string'||name.length>96||
@@ -99,8 +100,18 @@ function help(){
  console.log('\n1–8: Testspielstand neu starten');
  console.log('s: Screenshot + Notiz');
  console.log('r: neu laden, Fortschritt behalten');
- console.log('w: Breite wechseln | h: Hilfe | q: Ende');
- console.log(reviewStory==='catalogue'?
+ console.log('w: Größe wechseln (Hoch-/Querformat) | h: Hilfe | q: Ende');
+ /* UI01 arena review case help */
+  console.log(['01-keine-orden','01-johto-ohne-orden'].includes(names[0])?
+  names.map((name,index)=>(index+1)+' = '+name.slice(3).replaceAll('-',' ')).join('\n'):
+  reviewStory==='mega'?
+   names.map((name,index)=>(index+1)+' = '+name.slice(3).replaceAll('-',' ')).join('\n'):
+   reviewStory==='journal'?
+  '1 = gemischt / neue Einträge · 2 = gemischt / bereits gelesen\n'+
+  '3 = kurzer Eintrag · 4 = langer Eintrag\n'+
+  '5 = Expeditionsgruppen · 6 = leeres Tagebuch\n'+
+  '7 = 120 Einträge · 8 = 200 Einträge\n':
+  reviewStory==='catalogue'?
   '1 = leer · 2 = vier Orden · 3 = sechs Orden · 4 = acht Orden\n'+
   '5 = Kanto-Champion · 6 = alle fünf Geschichten\n'+
   '7 = leerer Katalog / Breitencheck · 8 = voller Katalog / Breitencheck\n':
@@ -112,6 +123,7 @@ function help(){
   '5 = Felsenschieber · 6 = Lavados-Begegnung\n':
   '5 = Eiszapfen-Minispiel · 6 = Arktos-Begegnung\n');
 }
+/* UI01 winner-team review: existing slot 7, unchanged shortcuts. */
 async function ready(){
  await page.waitForFunction(
   ()=>window.TPAppMenu?.ready===true&&
@@ -120,17 +132,61 @@ async function ready(){
   {timeout:30000}
  );
 }
+
+/* UI01 Mega: report existing profile graphics */
+let megaGraphicsReported=false;
+async function reportMegaProfileGraphics(){
+ if(megaGraphicsReported)return;
+ const entries=await page.evaluate(async()=>{
+  const names=[
+   "p006.bin","ps006.bin","p376.bin","ps376.bin","p303.bin","ps303.bin",
+   "p006-mega-x.bin","ps006-mega-x.bin",
+   "p376-mega.bin","ps376-mega.bin",
+   "p303-mega.bin","ps303-mega.bin"
+  ];
+  const entries=[];
+  for(const name of names){
+   if(typeof loadSpriteAsset!=="function"){
+    entries.push({name,status:"NICHT PRÜFBAR: Leseschnittstelle fehlt"});
+    continue;
+   }
+   try{
+    const raw=await loadSpriteAsset(name);
+    if(!raw){entries.push({name,status:"FEHLT IM PROFIL"});continue;}
+    TPStoreTools.inspectSprite(raw);
+    entries.push({name,status:"VORHANDEN UND LESBAR"});
+   }catch(error){
+    entries.push({name,status:"NICHT LESBAR: "+String(error.message||error)});
+   }
+  }
+  return entries;
+ });
+ console.log('\nMega-Grafikbestand im vorhandenen Reviewprofil:');
+ for(const entry of entries)console.log(entry.status+' · '+entry.name);
+ console.log('Nur gelesen: keine Grafik ersetzt oder heruntergeladen.\n');
+ megaGraphicsReported=true;
+}
+
 async function openStory(){
+ /* UI01 Mega review profile */
+ if(reviewStory==='mega'){
+  const H=require(path.join(ROOT,'tools/browser-tests/specs/helpers.js'));
+  await reportMegaProfileGraphics();
+  await H.openStatus(page);
+  return;
+ }
  await page.evaluate(
   id=>window.TPAppMenu.show(id),
-  (reviewStory==='catalogue'||current<=3)?'stories':reviewStory
+  reviewStory==='journal'?'journal':(reviewStory==='catalogue'||current<=3)?'stories':reviewStory
  );
 }
 async function graphics(){
  const files=[];
- for(const name of [
-  'p001.bin','p144.bin','p145.bin','p146.bin','p150.bin','p151.bin','p376.bin'
- ]){
+ for(const name of [...new Set([...[
+  'p001.bin','p003.bin','p006.bin','p009.bin','ps009.bin',
+  'p025.bin','p094.bin','p149.bin',
+  'p144.bin','p145.bin','p146.bin','p150.bin','p151.bin','p376.bin'
+ ],...(reviewStory==='mega'?["p006.bin", "ps006.bin", "p376.bin", "ps376.bin", "p303.bin", "ps303.bin", "p006-mega-x.bin", "ps006-mega-x.bin", "p376-mega.bin", "ps376-mega.bin", "p303-mega.bin", "ps303-mega.bin"]:[])])]){
   const file=path.join(ROOT,'Resources/mons',name);
   if(fs.existsSync(file)&&fs.statSync(file).isFile()){
    const bytes=fs.readFileSync(file);
@@ -156,7 +212,9 @@ async function graphics(){
 }
 async function loadCase(number){
  const oldPages=context.pages();
+ const retainedViewport=page?.viewportSize()||null;
  const loader=await context.newPage();
+ if(retainedViewport)await loader.setViewportSize(retainedViewport);
  await loader.goto(origin+'/__review_bootstrap__');
 
  for(const old of oldPages)await old.close();
@@ -312,13 +370,16 @@ async function keyHandler(value,key={}){
    await openStory();
    console.log('Neu geladen, Fortschritt behalten.');
   }else if(value==='w'){
-   const widths=[320,390,430];
-   const old=page.viewportSize().width;
-   const width=widths[
-    (widths.indexOf(old)+1)%widths.length
-   ];
-   await page.setViewportSize({width,height:844});
-   console.log('Breite:',width);
+   const sizes=[
+ {width:320,height:844},{width:390,height:844},{width:430,height:844},
+ {width:568,height:320},{width:844,height:390},{width:926,height:430}
+];
+const old=page.viewportSize();
+const index=sizes.findIndex(size=>size.width===old.width&&size.height===old.height);
+const size=sizes[(index+1)%sizes.length];
+await page.setViewportSize(size);
+console.log('Review-Größe:',size.width+' × '+size.height,
+ size.width>size.height?'Querformat':'Hochformat');
   }else if(value==='h'){
    help();
   }else if(value==='q'){
@@ -419,7 +480,7 @@ async function keyHandler(value,key={}){
  console.log('Aufnahmen:',output);
  console.log('Profil:',profile);
 
- await loadCase(reviewStory==='catalogue'?1:5);
+ await loadCase(['catalogue','journal','mega'].includes(reviewStory)?1:5);
 
  readline.emitKeypressEvents(process.stdin);
  process.stdin.setRawMode(true);

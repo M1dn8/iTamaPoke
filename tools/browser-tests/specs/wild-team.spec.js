@@ -1,28 +1,23 @@
 'use strict';
 const {test,expect}=require('@playwright/test');
 const H=require('./helpers');
+const CF=require('./care-team-fixtures');
 
 async function openBattleCard(page){
- await H.game(page);
- const a=await H.point(page,233,300);
- const b=await H.point(page,233,110);
- await page.mouse.move(a.x,a.y);
- await page.mouse.down();
- await page.mouse.move(b.x,b.y,{steps:8});
- await page.mouse.up();
- await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');
- for(let i=0;i<4;i++)await H.tap(page,350,382);
- await expect.poll(()=>page.evaluate(()=>cardPage)).toBe(4);
+ await H.openWildBattleSelection(page);
 }
 
 async function setup(page,{weak=false,empty=false}={}){
+ await H.importSave(page,CF.withCare(H.fixture(0),{
+  dex:25,level:weak?1:20,nickname:'P05 Alpha',weak
+ }),25);
  await H.game(page);
  const seed=await page.evaluate(async({weak,empty})=>{
   await TPCollectionGame.ensureCurrent();
   const active=TPCollection.read().active;
-  const ids=[];
+  const ids=[active];
   if(!empty){
-   for(let i=0;i<2;i++){
+   for(let i=1;i<2;i++){
     // Synthetic values isolate transitions; not a battle-balancing fixture.
     const fragile=weak&&i===0;
     await TPCollection.apply('catchWild',{
@@ -38,9 +33,14 @@ async function setup(page,{weak=false,empty=false}={}){
    }
   }
   for(const id of [...TPCollection.read().team]){
-   await TPCollection.apply('unselectTeam',id);
+   if(id!==active)await TPCollection.apply('unselectTeam',id);
   }
-  for(const id of ids)await TPCollection.apply('selectTeam',id);
+  for(const id of ids)
+   if(!TPCollection.read().team.includes(id))
+    await TPCollection.apply('selectTeam',id);
+  const team=TPCollection.read().team;
+  if(team.length!==ids.length||team.some((id,i)=>id!==ids[i]))
+   throw Error('Wild fixture roster mismatch');
   return {active,ids};
  },{weak,empty});
  await openBattleCard(page);
@@ -48,8 +48,7 @@ async function setup(page,{weak=false,empty=false}={}){
 }
 
 async function start(page,count){
- await H.tap(page,103,308);
- await expect.poll(()=>page.evaluate(()=>screen)).toBe('battle');
+ await H.startWildBattleFromSelection(page);
  await expect.poll(()=>page.evaluate(
   ()=>TPBattleView.current?.wildTeam?.count
  )).toBe(count);
@@ -186,7 +185,7 @@ test('P05 UI: forced switch, defeated indicators and actual winner level after r
   expect(await page.evaluate(()=>TPCollection.read().active)).toBe(seed.active);
  });
 
-test('P05 UI: empty plan uses the existing care individual without making a copy',
+test('P05 UI: care-only plan uses the existing care individual without making a copy',
  async({page})=>{
   const seed=await setup(page,{empty:true});
   await start(page,1);
@@ -194,14 +193,14 @@ test('P05 UI: empty plan uses the existing care individual without making a copy
 
   expect(battle.team.members[0].id).toBe(seed.active);
   expect(battle.activeCare).toBe(seed.active);
-  expect(await page.evaluate(()=>TPCollection.read().team)).toEqual([]);
+  expect(await page.evaluate(()=>TPCollection.read().team)).toEqual([seed.active]);
   expect(await page.evaluate(()=>TPCollection.read().mons.length)).toBe(1);
   await expect.poll(()=>page.evaluate(
    ()=>TPBattleView.teamIndicators?.player.length
   )).toBe(1);
 
   await H.battleAction(page,'abort');
-  await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');
+  await expect.poll(()=>page.evaluate(()=>screen)).toBe('activity');
   expect(await page.evaluate(()=>TPCollection.read().mons.length)).toBe(1);
   expect(await page.evaluate(()=>TPCollection.read().active)).toBe(seed.active);
  });
@@ -261,10 +260,10 @@ test('P05 UI: preparation write failure does not open a battle and a new start s
     return window.__p05PrepareWrite(bytes,force);
    };
   });
-  await H.tap(page,103,308);
+  await H.clickWildStartOnly(page);
   await expect.poll(()=>page.evaluate(()=>TPWildTeam.notice.length>0))
    .toBe(true);
-  expect(await page.evaluate(()=>screen)).toBe('card');
+  expect(await page.evaluate(()=>screen)).toBe('activity');
   expect(await page.evaluate(()=>
    Module.ccall('tp_battle_is_open','number',[],[])
   )).toBe(0);

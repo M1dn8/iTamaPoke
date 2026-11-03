@@ -36,8 +36,9 @@ function workflowRejects(pattern,name){
 }
 
 const trainerNames=trainers.entries.map(entry=>entry.key);
-assert.equal(trainerNames.length,26);
-assert.equal(new Set(trainerNames).size,26);
+assert.equal(trainerNames.length,50);
+assert(trainerNames.includes('trainer-kanto-youngster.bin'));
+assert.equal(new Set(trainerNames).size,50);
 checks+=2;
 
 const privateNames=[...new Set([

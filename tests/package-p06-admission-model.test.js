@@ -80,7 +80,7 @@ assert.deepEqual(automatic.collection.team,[...small.team,automatic.id]);
 assert.equal(automatic.collection.active,small.active);
 
 let packed=collection();
-while(M.summary(packed).stored<200)
+while(M.summary(packed).stored<240)
  packed=M.catchWild(packed,pokemon());
 const packedBefore=M.encode(packed);
 for(const choice of [

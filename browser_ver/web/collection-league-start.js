@@ -87,6 +87,7 @@
   }
   function fresh(s,request,currentLife){
    M.validate(s);
+ if(M.needsCarePlacement(s))fail('CARE_TEAM_SELECTION_REQUIRED');
    const c=care(s,currentLife),selected=ids(s);
    if(!selected.length||selected.length>6)fail('LEAGUE_TEAM_UNAVAILABLE');
    const run={

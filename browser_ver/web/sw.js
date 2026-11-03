@@ -115,6 +115,8 @@ const FILES = [
   "./ui-scale.js",
   "./performance-metrics.js",
   "./diagnostics.js",
+  "./activity-pages.js",
+  "./action-menu.js",
   "./main.js",
 ];
 

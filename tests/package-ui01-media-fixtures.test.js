@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict');
+const F=require('../tools/browser-tests/specs/asset-media-fixtures');
+const wav=F.silentWav();
+assert(Buffer.isBuffer(wav));
+assert.equal(wav.toString('ascii',0,4),'RIFF');
+assert.equal(wav.readUInt32LE(4),wav.length-8);
+assert.equal(wav.toString('ascii',8,12),'WAVE');
+assert.equal(wav.readUInt16LE(20),1);
+assert.equal(wav.readUInt16LE(22),1);
+assert.equal(wav.readUInt32LE(24),8000);
+assert.equal(wav.readUInt32LE(40),wav.length-44);
+const text=F.textFile();
+assert(Buffer.isBuffer(text));
+assert(text.toString('utf8').includes('1|'+F.testEntry));
+console.log('Medien-Funktionsfixtures: echte Buffer, PCM-WAV und gekennzeichneter Testtext bestanden.');

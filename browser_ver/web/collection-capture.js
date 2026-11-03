@@ -24,7 +24,7 @@ function create(mod,model,baseBridge,notify=()=>{},reconcile=(s)=>s,admission=nu
   if(controller.busy)return statusCache||{allowed:false,message:'Speichern ...'};
   try{const battle=call('tp_f4_capture_battle_id'),size=call('tp_f4_store_size'),ptr=size>0?call('tp_f4_store_ptr'):0,key=ptr+':'+size;
    if(battle!==lastBattle){lastBattle=battle;error='';successMessage='';lastKey='';}
-   if(key!==lastKey||!statusCache){const s=controller.read(),used=model.summary(s).stored;let allowed=used<200,message=used>=200?'Boxen voll – kein Fang moeglich.':'';if(allowed){const preview=snapshot();if(!preview){allowed=false;message='Kein fangbares wildes Pokemon.';}else if(enc.encode(model.encode(model.catchWild(s,preview,0))).length>262080){allowed=false;message='Sammlungsdaten voll – kein Fangversuch.';}}statusCache={allowed,message,stored:used};lastKey=key;}
+   if(key!==lastKey||!statusCache){const s=controller.read(),used=model.summary(s).stored;let allowed=used<model.summary(s).capacity,message=used>=model.summary(s).capacity?'Boxen voll – kein Fang moeglich.':'';if(allowed){const preview=snapshot();if(!preview){allowed=false;message='Kein fangbares wildes Pokemon.';}else if(enc.encode(model.encode(model.catchWild(s,preview,0))).length>262080){allowed=false;message='Sammlungsdaten voll – kein Fangversuch.';}}statusCache={allowed,message,stored:used};lastKey=key;}
    return {...statusCache,message:error||statusCache.message};
   }catch(_){return {allowed:false,message:'Sammlung pruefen – kein Fang moeglich.'};}
  }
@@ -118,7 +118,7 @@ function createAdmissionCapture(mod,M,base,notify,reconcile,admission){
   if(success){
    message=tr('capturePending');
    const s=controller.read();
-   if(s.team.length<6&&M.summary(s).stored<200){
+   if(s.team.length<6&&M.summary(s).stored<M.summary(s).capacity){
     try{
      await admission.complete({mode:'auto',box});
      message=tr('saved');

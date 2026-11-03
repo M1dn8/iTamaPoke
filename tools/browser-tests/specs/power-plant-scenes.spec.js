@@ -5,7 +5,7 @@ const F=require('./story-fixtures');
 const body=page=>page.locator('#tp-zapdos-page');
 async function openStory(page){
  await H.openStories(page);
- await page.locator('#tp-stories-page button[data-story="zapdos"]').click();
+ await H.startStory(page,'zapdos');
  await expect(body(page)).toBeVisible();
 }
 test.beforeEach(async({page})=>{

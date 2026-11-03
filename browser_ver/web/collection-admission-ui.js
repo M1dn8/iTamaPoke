@@ -31,6 +31,12 @@
   });
   return n;
  }
+ function actionButton(kind,label,handler,disabled=false,memberId=null){
+  const n=button(label,handler,disabled);
+  n.setAttribute('data-admission-action',kind);
+  if(memberId!==null)n.setAttribute('data-admission-member-id',String(memberId));
+  return n;
+ }
  function close(){
   if(busy||collection()?.blocked)return;
   active=false;choosing=false;
@@ -81,32 +87,37 @@
   const pending=admission.pending;
   if(!pending){page.append(button(tr('later'),close,disabled));return;}
   const pokemon=pending.pokemon;
+  root.TPBattlePokedex?.admission(page,pokemon);
   page.append(node('h3',tr('member',{name:name(pokemon),level:pokemon.level})));
   if(message)page.append(node('p',message,'tp-box-message'));
   if(collection().blocked){
    page.append(button(tr('reloadButton'),()=>root.location.reload()));
    return;
   }
-  const full=root.TPCollectionModel.summary(s).stored>=200;
+  const full=root.TPCollectionModel.summary(s).stored>=root.TPCollectionModel.summary(s).capacity;
   if(full)page.append(node('p',tr('waiting')));
   else if(s.team.length<6){
-   page.append(button(tr('accept'),()=>complete({mode:'auto'}),disabled));
+   page.append(actionButton('accept',tr('accept'),()=>complete({mode:'auto'}),disabled));
   }else if(!choosing){
    page.append(node('p',tr('ask')),
-    button(tr('team'),()=>{choosing=true;render();},disabled),
-    button(tr('box'),()=>complete({mode:'box'}),disabled));
+    actionButton('team',tr('team'),()=>{choosing=true;render();},disabled),
+    actionButton('box',tr('box'),()=>complete({mode:'box'}),disabled));
   }else{
    page.append(node('p',tr('choose')));
    for(const id of s.team){
     const m=s.mons.find(p=>p.id===id),pinned=id===s.active;
-    page.append(button(tr('member',{name:name(m),level:m.level})+
+    page.append(actionButton('replace',tr('member',{name:name(m),level:m.level})+
      (pinned?' · '+tr('care'):''),
-     ()=>complete({mode:'replace',replaceId:id}),disabled||pinned));
+     ()=>complete({mode:'replace',replaceId:id}),disabled||pinned,id));
    }
-   page.append(button(tr('box'),()=>complete({mode:'box'}),disabled));
+   page.append(actionButton('box',tr('box'),()=>complete({mode:'box'}),disabled));
   }
-  page.append(button(tr('boxes'),boxes,disabled));
-  const later=button(tr('later'),close,disabled);
+  if(choosing&&root.TPBattlePokedex?.active)
+   page.append(actionButton('back',root.TPText.t('common.back'),()=>{
+    choosing=false;render();
+   },disabled));
+  page.append(actionButton('boxes',tr('boxes'),boxes,disabled));
+  const later=actionButton('later',tr('later'),close,disabled);
   page.append(later);
   if(!disabled)later.focus();
  }
@@ -156,7 +167,7 @@
   if(active&&key!==lastKey){lastKey=key;render();}
   if(!active&&notified!==pending.ticket&&allowed()){
    notified=pending.ticket;
-   if(s.team.length<6&&root.TPCollectionModel.summary(s).stored<200&&
+   if(s.team.length<6&&root.TPCollectionModel.summary(s).stored<root.TPCollectionModel.summary(s).capacity&&
       !service().autoAttempted(pending.ticket)){
     void complete({mode:'auto'});
    }else open();

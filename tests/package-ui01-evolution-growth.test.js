@@ -1,0 +1,12 @@
+const fs=require('node:fs'),vm=require('node:vm');
+const assert=require('node:assert/strict');
+const source=fs.readFileSync('browser_ver/web/comfort.js','utf8');
+const found=/function evolutionGrowthFraction\(level,into,per\)\{[\s\S]*?\n\}/.exec(source);
+assert(found,'Actual evolution growth formatter missing');
+const context={};vm.createContext(context);
+vm.runInContext(found[0],context);
+assert.equal(context.evolutionGrowthFraction(10,0,60),0);
+assert.equal(context.evolutionGrowthFraction(10,30,60),0.5);
+assert.equal(context.evolutionGrowthFraction(100,0,60),1);
+assert.equal(context.evolutionGrowthFraction(10,90,60),1);
+console.log('Entwicklungs-Wachstum: vorhandener Zeitfortschritt und Maximum korrekt dargestellt.');

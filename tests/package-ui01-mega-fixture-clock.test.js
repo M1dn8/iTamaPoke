@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict');
+const F=require('../tools/browser-tests/specs/mega-review-fixtures');
+(async()=>{
+ const begin=Math.floor(Date.now()/1000);
+ const quest=await F.createFreshCase(F.definitions[0]);
+ assert(Buffer.isBuffer(quest.raw),'Datei-Payload muss ein Node-Buffer sein');
+ const T=require('../browser_ver/web/storage-tools');
+ const parsed=T.parseLegacy(quest.raw);
+ assert(Buffer.from(parsed.raw).equals(quest.raw),'Byteinhalt unverändert');
+ const seen=quest.values.get('seen').value;
+ assert(seen>=begin&&seen<=Math.floor(Date.now()/1000));
+ for(const key of ['full','joy','ene','hyg'])assert.equal(quest.values.get(key).value,100);
+ assert.equal(quest.values.get('bond').value,80);
+ assert.equal(quest.values.get('mgtrain').value,3);
+ assert.equal(quest.values.get('mgmask').value,0);
+ const cooldown=await F.createFreshCase(F.definitions[7]);
+ assert(Buffer.isBuffer(cooldown.raw),'Auch Sperrzeitfall braucht einen Node-Buffer');
+ assert.equal(cooldown.values.get('mgcool').value-cooldown.values.get('seen').value,3600);
+ console.log('Mega-Testvorbereitung: frische Zeitstempel, Voraussetzungen und Sperrzeit bestanden.');
+})().catch(error=>{console.error(error.stack);process.exitCode=1;});

@@ -62,7 +62,7 @@ async function openStory(page){
  await page.evaluate(()=>TPCollectionGame.ensureCurrent());
  await H.openStories(page);
  await expect(page.locator('#tp-stories-page')).toBeVisible();
- await page.locator('#tp-stories-page').getByRole('button',{name:/^Kraftwerk/}).click();
+ await H.startStory(page,'zapdos');
  await expect(pageRoot(page)).toBeVisible();
 }
 async function prepare(page){

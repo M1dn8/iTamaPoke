@@ -1,0 +1,15 @@
+const fs=require('node:fs'),vm=require('node:vm');
+const assert=require('node:assert/strict');
+const source=fs.readFileSync('browser_ver/web/card.js','utf8');
+const match=/function megaDisplayMode\(view,sleeping\)\{[\s\S]*?\n \}/.exec(source);
+assert(match,'Actual emblem state helper missing');
+const c={};vm.createContext(c);vm.runInContext(match[0],c);
+const base={supported:1,now:100,cool:0,active:0,quest:0,stone:0};
+assert.equal(c.megaDisplayMode(null,false),'dormant');
+assert.equal(c.megaDisplayMode(base,false),'dormant');
+assert.equal(c.megaDisplayMode({...base,quest:1},false),'ready');
+assert.equal(c.megaDisplayMode({...base,stone:1},false),'ready');
+assert.equal(c.megaDisplayMode({...base,stone:1},true),'dormant');
+assert.equal(c.megaDisplayMode({...base,stone:1,cool:200},false),'dormant');
+assert.equal(c.megaDisplayMode({...base,active:1},false),'active');
+console.log('Mega-Emblem: lesende Darstellung für offen, bereit, aktiv und Sperrzeit bestanden.');

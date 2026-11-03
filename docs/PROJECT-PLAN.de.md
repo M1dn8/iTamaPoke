@@ -1,2164 +1,812 @@
-# Projektplan und Übergabe — iTamaPoke
-
-Stand dieser Planfassung: 28.10.2026.
-Diese Datei ist die maßgebliche Aufgaben- und Übergabeliste für die
-hier vereinbarten Browser-/iPhone-Erweiterungen.
-
-## Aktueller Arbeitsstand
-
-- Aktives Gesamtpaket bleibt P06: Legendären-Geschichten Kanto.
-- Zapdos und Arktos einschließlich gemeinsamer UX-Nacharbeit abgenommen.
-- Arktos-Funktionspaket: 24a3105.
-- Gemeinsame Begegnungs-Tippsperre und Aufnahme-Finale-Korrektur: 3478b05.
-- Veröffentlichter Abnahmestand einschließlich Johto-CI-Testfix:
-  c58a67cc00e7574a5dad9af1882f2c41ddcdf284.
-- GitHub-Build dieses Standes vom Nutzer als grün bestätigt.
-- iPhone-Abnahme vom Nutzer bestätigt; Nacharbeit abgeschlossen.
-- Gemeinsames lokales Restpaket P06: Lavados, Mewtu und Mew.
-- Konzepte für alle drei vom Nutzer freigegeben; Einzelheiten siehe
-  Abschnitt „Konzeptfreigabe Restpaket P06 — 28.10.2026“.
-- Lavados lokal implementiert; gezielte Prüfungen bestanden und vom Nutzer
-  nach Reviewkorrekturen am 28.10.2026 im Revisionsbrowser abgenommen.
-- Lavados und Mewtu lokal im Revisionsbrowser vom Nutzer abgenommen.
-- Geschichtenbuttons auf Ortsnamen ohne Pokémon-Spoiler korrigiert.
-- Johto-Sperre gezielt im Browser geprüft und vom Nutzer bestätigt.
-- Lavados, Mewtu und Mew lokal im Revisionsbrowser abgenommen.
-- Letzte Mew-Brückenkorrektur vom Nutzer am 29.10.2026 bestätigt.
-- Stand für vollständige Abschlussprüfungen eingefroren; Ergebnisse offen.
-- Noch keine neue iPhone-Abnahme oder Abschlussfreigabe des Restpakets.
-- Gemeinsame Tippsperre, Aufnahmewege und Finale-Regeln weiterverwenden.
-- Danach innerhalb von P06 Mewtu und Mew.
-- UI01 bleibt nach dem gesamten P06 und vor P07.
-- Interaktiven Revisionsbrowser unverändert als Arbeitsweg weiterverwenden.
-
-### Historischer Ausgangsstand vor dem Arktos-Abschluss
-
-- Aktives Paket: P06 Legendären-Geschichten Kanto — gemeinsame Aufnahmefunktion
-  mit Commit d5119a4 auf main veröffentlicht; Build vom Nutzer als grün
-  bestätigt und iPhone-Abnahme am 27.10.2026 erfolgreich abgeschlossen.
-- Zapdos ist als erster Storypilot abgenommen: Kraftwerk-Abenteuer und
-  freiwilliger, garantierter Anschluss nach gewonnenem Prüfduell auf Level 50.
-  Funktionscommit 22e6ab8 auf main veröffentlicht, Build vom Nutzer als grün
-  bestätigt und iPhone-Abnahme am 27.10.2026 ausdrücklich bestätigt.
-- Vor Arktos folgt die freigegebene Reviewnacharbeit: Kampfbedienung,
-  Pokédex-/Geschichtennavigation, Sechs-Orden-Freischaltung und Hinweis,
-  Kraftwerk-Gestaltung sowie Sicherungsaufgabe und Abschlussanimation.
-- Funktionale Zapdos-Abnahme bleibt bestehen; Gestaltung ist noch nicht final.
-- Arktos folgt erst danach; P06 insgesamt bleibt offen.
-- P05c auf Stand 02e3973 veröffentlicht, Build vom Nutzer als grün
-  bestätigt und am 26.10.2026 ausdrücklich abgenommen.
-- Grafische P05c-Optimierungen sind zurückgestellt, aktuell nicht hoch
-  priorisiert und blockieren P06 nicht.
-- P05a bleibt abgenommen: veröffentlichter Funktionsstand 6cf9c07,
-  vollständige Nutzerabnahme am 26.10.2026.
-- P05b: Commit fb86920 auf main veröffentlicht; CI/Build vom Nutzer als
-  grün bestätigt. Erfolgreiche iPhone-Abnahme am 26.10.2026 bestätigt.
-- Arbeitsbranch nach Integration: main.
-- P01 abgeschlossen mit Commit 99091dc.
-- Gezielter Schutztest und vollständige zentrale Prüfung lokal bestanden.
-- CI-/Veröffentlichungsworkflow laut Nutzerbestätigung erfolgreich.
-- Keine Spieloberfläche oder Spielmechanik in P01 verändert; keine neue
-  eigenständige iPhone-Abnahme dieses Schutzpakets durchgeführt.
-- Letzter abgenommener Funktionsstand: Zapdos-Kraftwerk-Pilot,
-  22e6ab8; iPhone-Abnahme am 27.10.2026.
-- Gemeinsame Aufnahmefunktion d5119a4 bleibt als P06-Voraussetzung abgenommen.
-- P05c Team in Liga-Kämpfen, 02e3973, bleibt abgenommen.
-- Ebenfalls bereits abgenommen: Kanto-/Johto-Teamübersichten,
-  26 lokale Trainerporträt-Zuordnungen, TPTR-v1/v2 und Quellenanzeige.
-- Diese früheren Funktionsstände wurden nach grüner CI auf dem iPhone geprüft.
-- Bilddateien bleiben außerhalb des Repositorys.
-- Herkunft dokumentiert; Nutzungs-/Weitergabefreigabe nicht nachgewiesen.
-
-## Verbindlicher Arbeitsablauf
-
-1. Diese Datei und den Git-Arbeitsstand zuerst lesen.
-2. Ein aktives Paket mit klaren Abnahmekriterien bestimmen.
-3. Betroffene Dateien und vorhandene Tests lesen, nicht Schnittstellen raten.
-4. Kleine Änderungen; keine Tests abschwächen, um einen Fehler zu verdecken.
-5. Gezielte Tests, danach zentrale Prüfung vor Veröffentlichung.
-6. Commit und Push über normale Git-Terminalbefehle.
-7. Bestehenden CI-/Build-/Deployment-Workflow abwarten.
-8. Änderungen mit sichtbarer Wirkung auf dem iPhone abnehmen.
-9. Status, Entscheidungen und nächsten Schritt hier aktualisieren.
-
-Keine GitHub CLI voraussetzen. Keine Schutzregeln umgehen.
-Neue Ideen zunächst im Ideenspeicher aufnehmen.
-Eine neue Sitzung darf abgeschlossene Arbeit nicht ungeprüft neu eröffnen.
-
-## Reihenfolge und Abnahme
-
-| ID | Paket | Status | Schwierigkeit | Abnahme |
-|---|---|---|---|---|
-| P00 | Kanto-/Johto-Übersichten und Trainerporträts | Abgenommen | Erledigt | Tests, Deployment und iPhone-Test erfolgreich |
-| P01 | Veröffentlichungsschutz Kanto und Johto | Abgeschlossen | Niedrig–mittel | Beide Workflow-Sperren und Artefaktsperre weisen alle 26 Trainerdateinamen ab; Negativtests und zentrale Prüfung grün |
-| P02 | Dokumentation und Kontinuität | Abgenommen | Niedrig | Plan/Übergabe versioniert; veraltete Format-/Quellentexte geprüft und bereinigt |
-| P03 | Erweiterbare Spracharchitektur | Abgenommen | Mittel–hoch | Sprachregister, Textschlüssel, Rückfallsprache, persistente Sprachwahl und Prüfung fehlender Übersetzungen |
-| P04 | Eigenes Team mit bis zu sechs Pokémon | Abgenommen | Erledigt | Individuelle Auswahl, sechs Plätze, Reihenfolge, Entfernen/Ersetzen und persistente Speicherung automatisiert sowie auf dem iPhone geprüft; Build grün, Nutzerabnahme am 25.10.2026 |
-| P05 | Eigenes Team in Kämpfen | Abgenommen am 26.10.2026 | Erledigt | P05a, P05b und P05c getrennt implementiert, geprüft und vom Nutzer abgenommen |
-| P05a | Team in Wildkämpfen | Abgenommen am 26.10.2026 | Erledigt | Individuelle Mitglieder, Wechsel, KP, Pokéball-Anzeigen, Levelbonus bis 100 und atomare Ergebnis-/Fangspeicherung |
-| P05b | Team in Arena-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit fb86920; zentrale Prüfung, WASM-Build, Browserprüfungen, CI/Veröffentlichung und manuelle iPhone-Abnahme erfolgreich |
-| P05c | Team in Liga-Kämpfen | Abgenommen am 26.10.2026 | Erledigt | Commit 02e3973; lokale Prüfungen und WASM-Build erfolgreich, 221 Browserprüfungen bestanden/1 übersprungen, Build grün gemeldet und Nutzerabnahme bestätigt; grafische Folgeoptimierungen zurückgestellt |
-| P06 | Legendären-Geschichten Kanto | Aktiv; Restpaket lokal abgenommen, vollständige Abschlussprüfungen offen | Hoch | Arktos einschließlich gemeinsamer Nacharbeit veröffentlicht; Build grün und iPhone-Abnahme bestätigt. Lavados, Mewtu und Mew weiterhin getrennt festlegen, umsetzen und abnehmen |
-| UI01 | Interface der Pokédex-Zentrale überarbeiten; Canvas aufräumen und optimieren | Offen; nach P06, vor P07 | Nach Umfangsfestlegung bewerten | Konkrete Ansichten und Änderungen gemeinsam festlegen; Revisionsbrowser-Prüfung, passende Tests und iPhone-Abnahme |
-| P07 | Legendären-Geschichten Johto | Offen | Hoch | Auf Storysystem aufbauen; getrennte regionale Fortschritte und geprüfte Freischaltungen |
-| P08 | Weitere Mega-Entwicklungen | Offen | Hoch | Bestand und Zielarten festlegen; Voraussetzungen, Werte, Darstellung, Rückverwandlung und Speicherung pro Ausbaustufe prüfen |
-| P09 | Ligen aller Generationen erweitern | Offen | Sehr hoch | Umfang nach Region/Edition/Variante festlegen; danach jede Liga mit Gegnerdaten, Freischaltung, Fortschritt, Tests und iPhone-Abnahme |
-| P10 | Dynamax/Gigadynamax | Konzept offen | Sehr hoch | Erst Machbarkeit und Regeln entscheiden; dann begrenzter Prototyp mit Aktivierung, Dauer, Effekten und Rückkehr zum Normalzustand |
-| Q01 | Englisch, Spanisch und Französisch | Offen; nach P03 fortlaufend | Hoch | Alle vereinbarten Oberflächen inklusive dynamischer Texte/Fehler übersetzt; Layout und Sprachwechsel getestet; weitere Sprachen ohne grundlegenden Umbau ergänzbar |
-| Q02 | Rechte und private Medien | Fortlaufend | Unterschiedlich | Keine privaten Medien im veröffentlichten Paket; Quellen nachvollziehbar; ungeklärte Erlaubnis nicht als Freigabe darstellen |
-| Q03 | Reproduzierbare Bildvorbereitung | Offen | Niedrig–mittel | Entscheidung über medienfreies Beschaffungsskript, Quellenmanifest und Anleitung im Repository |
-| Q04 | Testaufbau für gemeinsame UI-Module | Offen | Mittel | Abhängigkeiten von Arena/Liga dauerhaft absichern; vorhandene Tests nicht abschwächen |
-| Q05 | Ältere Roadmap abgleichen | Offen | Zunächst Bestandsaufnahme | docs/ROADMAP.ko.md vollständig lesen; alte Punkte gegen aktuellen Code prüfen; nur bestätigte Restaufgaben übernehmen |
-
-## Sprachumfang
-
-P03 betrifft zunächst die Architektur, nicht die Behauptung einer
-bereits vollständigen Übersetzung. Q01 umfasst die komplette vereinbarte
-Oberfläche auf Englisch, Spanisch und Französisch.
-Neue Oberflächentexte sollen nach Einführung von P03 über Textschlüssel
-hinzukommen. Namen, importierte Metadaten und fremde Inhalte müssen
-gesondert behandelt werden; keine ungeprüfte automatische Übersetzung.
-
-## Entscheidungen vor den größeren Paketen
-
-- P04/P05: Verhältnis Pflege-Pokémon, Box und Team; individuelle Identität,
-  Austausch/Freigabe, KP, Heilung/Energie, Wechselregeln und Kampfarten.
-- P06/P07: Ziel-Legendäre, Geschichten und Belohnungen gemeinsam festlegen.
-  Keine erfundenen Wünsche des Nutzers als beschlossen behandeln.
-- P08: Bereits vorhandene Mega-Formen und konkret fehlende Formen erfassen.
-- P09: Definition aller Ligen einschließlich Editionen, Varianten und
-  gegebenenfalls ligaähnlicher Formate beschließen.
-- P10: Dynamax/Gigadynamax als zeitweiliges Kampfsystem untersuchen;
-  nicht stillschweigend als dauerhafte Entwicklung umsetzen.
-- Q02: Vor Weitergabe von Bildern passende Erlaubnisse klären oder
-  ausreichend lizenzierte Alternativen wählen.
-
-## Bekannte Grenzen / weitere Befunde
-
-- Der gezeigte Asset-Pack-Erzeuger erkennt Trainerdateien bislang über
-  eine Kanto-Liste. Die Unterstützung neuer Trainer für diesen separaten
-  Paketweg ist zu prüfen; der Einzeldateiimport der 26 BINs ist abgenommen.
-  Nicht ungefragt im Schutz-Paket mitändern.
-- P02-Textbereinigung vorbereitet: Formatbeschreibung v1/v2,
-  Trainer-Gesamtzähler und Quellenabschnitt für Arenaleiter/Top Vier/Champs.
-  Pauschales Quelldatum entfernt; keine neue Rechteprüfung behauptet.
-  Bezeichnungstest, Trainer-/Rechteprüfungen und vollständige zentrale
-  Prüfung lokal bestanden. Mit Commit cf6d787 veröffentlicht;
-  CI grün und iPhone-Textprüfung vom Nutzer bestätigt. P02 abgeschlossen.
-- Alte Roadmap docs/ROADMAP.ko.md bleibt erhalten. Ihr historischer
-  Aufgabenstatus ist nicht automatisch der aktuelle Projektstatus.
-- Diese Roadmap ist ein Plan, kein Nachweis abgeschlossener Implementierung.
-
-## Abgenommener Stand P05a — Wildkämpfe
-
-P03 und P04 sind abgenommen. Die P04-iPhone-Abnahme wurde mit Commit
-6b2bacb dokumentiert. Der folgende Abschnitt hält den P05a-Abnahmestand fest.
-
-P05a ist abgeschlossen. Commit 6cf9c07 wurde auf main veröffentlicht;
-der Build wurde vom Nutzer als grün bestätigt.
-Am 26.10.2026 hat der Nutzer alle aufgeführten iPhone-Prüfpunkte als
-bestanden bestätigt: manueller Start und natürliche Begegnung, aktive
-Identität, Teamwechsel, Pokéball-Zustände, Levelbonus bis 100,
-Kampfstatistik, Fang, Neuladen, leeres Team und Niederlage.
-
-Implementierter Umfang:
-- Vorhandene individuelle Sammlungs-IDs und Teamreihenfolge weiterverwenden.
-- Manueller Wildkampf und Begegnungsannahme an denselben Teamweg angebunden.
-- Explizit begrenzte wildPrepare-Aktion für den Sammlungsabgleich vor Start.
-- Native individuelle KP, freiwilliger Wechsel mit Gegnerzug und erzwungener
-  Wechsel ohne zusätzlichen Gegnerzug; gemeinsame zwei Heilungen pro Kampf.
-- Aktives Individuum mit korrektem Namen, Art und Schillernd-/Mega-Snapshot.
-- Pokéball-Anzeigen beider Seiten; besiegte Mitglieder grau mit Kreuz,
-  aktive Position zusätzlich markiert.
-- Sieger erhält genau ein Level bis maximal 100, ohne Trainingsbonus.
-  Pflegealter bleibt unverändert; alte Spielstände laden Bonus null.
-- Pflege- und Box-Sieger über denselben Ganzspielstand-Ergebnisweg speichern.
-- Fangfreigabe erst nach bestätigtem Ergebnis; kein doppelter Levelbonus
-  bei Speicher-Neuversuch oder anschließendem Fang.
-- Profilstatistik für Sieg/Niederlage und Siegesserien wieder angebunden.
-  Kampf-Tagesziel zählt mit, aber ohne zusätzliche persönliche Freude-/
-  Bindungsbelohnung über diesen Wildkampfweg.
-- Neue Texte über die vorhandene Sprachwahl auf Deutsch, Englisch,
-  Spanisch und Französisch; kein zweiter Sprachspeicher.
-- Zum P05a-Abnahmezeitpunkt blieben Arena und Liga auf ihrem bisherigen Spielerpfad.
-
-Beschlossene Regeln für P05a laut Nutzerentscheidung vom 25.10.2026:
-- Das erste kampffähige Mitglied der Teamreihenfolge beginnt.
-- Bei leerem Team bleibt der Einzelkampf mit dem Pflege-Pokémon erhalten.
-- Teamwechsel verändern die Pflegezuordnung nicht.
-- Freiwilliger Wechsel kostet einen Zug; der Gegner kann das neu
-  eingewechselte Mitglied angreifen.
-- Nach Besiegen eines Mitglieds erfolgt der erzwungene Wechsel ohne
-  zusätzlichen gegnerischen Gratisangriff.
-- Besiegte Mitglieder bleiben für den restlichen Kampf gesperrt.
-- KP bleiben beim Wechsel innerhalb desselben Kampfes erhalten.
-- Jeder neue Wildkampf beginnt mit vollständig geheilten Mitgliedern.
-- Neuladen beendet den laufenden Wildkampf; keine nachträgliche
-  Sieg-/Fangbelohnung. Bereits dauerhaft gespeicherte Ergebnisse bleiben.
-- Das Individuum, das das wilde Pokémon besiegt, erhält genau ein Level,
-  höchstens Level 100. Dies gilt auch für den Pflege-Einzelkampf.
-- Kein zusätzlicher Angriff-/Verteidigung-/Tempo-Trainingsbonus.
-  Auf Level 100 kein weiterer Aufstieg und keine Ersatzbelohnung.
-- Der Levelbonus hängt nicht vom anschließenden Fangerfolg ab.
-- Keine doppelte Belohnung bei erneutem Speicherversuch.
-- Beide Kampfseiten zeigen ihre tatsächliche Mitgliederzahl mit kleinen
-  Pokébällen: kampffähig farbig, besiegt ausgegraut.
-- Levelbonus nicht durch künstliche Erhöhung der Pflegezeit umsetzen.
-  Pflege-Level, Kampfwerte und Sammlungssynchronisierung konsistent halten.
-
-Tatsächlicher Prüfstand am 25.10.2026:
-- Zentrale lokale Logik-/Oberflächenprüfung erfolgreich.
-- Native Level-, Team-, Start- und Ergebnisprüfungen erfolgreich.
-- Levelberechnung über 42.400 Alters-/Bonus-Kombinationen geprüft.
-- Level-Sicherungsprüfung: 252 Assertions.
-- Ergebnisadapter: 54 Assertions plus Ablehnungsprüfungen.
-- Routing/neue Sprachkataloge: 74 Assertions.
-- Echte WASM-/IndexedDB-Ergebnisfälle: zwölf Browserausführungen erfolgreich.
-- Neue Team-Bedienfälle: zehn Browserausführungen erfolgreich.
-- Fehlgeschlagene Gesamtläufe wurden nicht als Erfolg gewertet:
-  ältere Fang-Testhelfer prüften die Freigabe vor dem asynchronen
-  Ergebnisabschluss. Beide warten nun über waitForWildCatchReady auf
-  abgeschlossenen Commit, freie Gates und Fangfreigabe; ursprüngliche
-  Assertions bleiben erhalten. Keine Zeitlimits erhöht.
-- Gemeinsame Fangregression: 24 Ausführungen ohne Retries erfolgreich.
-- Abschließende vollständige Browser-Suite ohne Retries:
-  187 bestanden, ein vorgesehener Skip, 9,8 Minuten.
-- Der Skip betrifft ausschließlich offline.spec.js unter WebKit:
-  dieser vorhandene Offlinecache-Test ist ausdrücklich Chromium-spezifisch.
-- git diff --check ohne Befund.
-- Lokal mit Emscripten 6.0.13 gebaut.
-- Buildwarnung in browser_glue.cpp zu TPNamedPrompt/std::string mit
-  C-Linkage beobachtet; nicht unterdrückt oder als behoben dargestellt.
-- Natürlicher Begegnungsstart durch nativen Prompt-Test und Browser-
-  Routingtest getrennt geprüft; keine durchgängige automatische Prüfung
-  einer natürlich auftauchenden Begegnung behauptet.
-- CI/Veröffentlichung von 6cf9c07 laut Nutzerbestätigung erfolgreich; vollständige manuelle P05a-iPhone-Abnahme am 26.10.2026 bestätigt.
-
-## Abgenommener Stand P05b — Team in Arena-Kämpfen
-
-Regeln vom Nutzer am 26.10.2026 ausdrücklich freigegeben:
-- Geplante Individuen und Reihenfolge verwenden; bei leerem Team das
-  vorhandene Pflege-Pokémon allein, ohne Kopie oder Pflegewechsel.
-- Zu Beginn volle KP und zwei Heilungen je teilnehmendem Individuum.
-- Eigene KP, Heilungsvorräte und ausgeschiedene Mitglieder über alle
-  gegnerischen Pokémon derselben Arena erhalten; keine Zwischenheilung.
-- Freiwilliger Wechsel verbraucht einen Zug mit möglichem Gegnerangriff.
-- Pflichtwechsel nach eigenem K. o. ohne zusätzlichen Gratisangriff.
-- Eintritt unverändert einmalig 25 Energie beim Pflege-Pokémon;
-  20 Energie Reserve erforderlich. Speicherfehler beim Eintritt rollen zurück.
-- Siegerindividuum erhält pro besiegtem Gegner ein Level bis maximal 100.
-  Mehrere Boni desselben Individuums innerhalb einer Serie sind möglich.
-- Boni zunächst nur vormerken; Kampfwerte und maximale KP der laufenden
-  Serie bleiben eingefroren. Keine indirekte Zwischenheilung durch Aufstieg.
-- Ergebnisabschluss speichert Boni und gegebenenfalls neuen Orden gemeinsam.
-  Wiederholungssiege speichern Boni ohne erneuten Orden oder neues Ordensdatum.
-- Bei späterer Niederlage bleiben bereits verdiente Boni über den
-  Ergebnisabschluss speicherbar. Abbruch vor Abschluss verwirft Vormerkungen.
-- Speicherfehler rollen Pflegezustand, Sammlung und Ordensänderung gemeinsam
-  zurück; erneuter Versuch darf keine doppelte Belohnung erzeugen.
-- Keine Fangoption und keine zusätzliche Wildkampfstatistik über den Arenaweg.
-- Kanto und Johto bleiben getrennt. Liga-Teamkämpfe sind nicht Teil von P05b.
-
-Implementierung:
-- Arena nutzt den erweiterten Team-Unterbau mit ausdrücklich aktivierten
-  individuellen Heilungsvorräten; Wildkämpfe behalten ihren gemeinsamen Vorrat.
-- Native Team-Anbindung vor bestätigter Eintrittsspeicherung.
-- Eigene und gegnerische Mitgliederanzeigen, aktive Identität und Teammenü.
-- Gemeinsamer nativer Ergebnisabschluss und validierter JS-Sammlungsadapter.
-- Vorherige reine Ordens-API kann Team-Arena-Ergebnisse nicht separat vergeben.
-- Ergebnisanzeige für neuen Orden, Wiederholungssieg, Niederlage und Retry.
-- Ergebnisadapter in App-Initialisierung und Offline-Dateiliste registriert.
-- Neue native und JS-Prüfungen in der zentralen Prüfliste enthalten.
-- Vorhandene Arena-Oberfläche enthält weiterhin deutsche Direkttexte;
-  keine vollständige Q01-Übersetzung oder abgeschlossene Sprachabnahme behauptet.
-
-Gefundene und behobene Fehler:
-- Alte UI-Testdoubles kannten weder asynchrone Teamvorbereitung noch
-  Team-Anbindung und Ergebnisadapter. Auf tatsächlichen Ablauf umgestellt;
-  Energie-, Regions-, Rollback- und Sperrprüfungen bleiben erhalten.
-- Neue Browserhelfer warten auf die zur nativen Kampf-ID, Runde und
-  aktiven Position passende Darstellung statt auf alte Canvas-Menüziele.
-- Zeitlimitfehler im gemeinsamen Team-Adapter behoben: Eine Niederlage
-  am bestehenden 20-Runden-Limit darf keinen weiteren Pflichtwechsel und
-  anschließenden künstlichen Sieg durch erneuten KP-Vergleich ermöglichen.
-- Auch reguläre Zeitlimit-Siege mit gegnerischen Rest-KP können zum nächsten
-  Arena-Gegner führen. Rundengrenze, Schadensformeln und Siegervergleich
-  des Kampfkerns bleiben unverändert; ergänzt ist eine lesende Grenzabfrage.
-- Diese gemeinsame Adapterkorrektur betrifft auch den Wild-Team-Unterbau;
-  P05a-Regressionsfälle wurden im vollständigen Browserlauf erneut geprüft.
-
-Tatsächlicher lokaler Prüfstand am 26.10.2026:
-- Vollständige zentrale Logik-/Oberflächenprüfung erfolgreich.
-- Native Arena-Laufzeit-, Team-/Transaktions- und Zeitlimitprüfungen erfolgreich.
-- Arena-Ergebnisadapter: 120 Assertions plus Ablehnungsprüfungen,
-  tatsächliches Modell, Speichercontroller und strikter Save-Parser;
-  nativer Backend-Teil dieses JS-Tests simuliert.
-- Aktueller WebAssembly-Kern mit vorhandenem Emscripten 6.0.13 gebaut.
-- Vorhandene Warnung zu TPNamedPrompt/std::string mit C-Linkage weiter sichtbar;
-  nicht unterdrückt und nicht als behoben dargestellt.
-- Neun Arena-Team-Browserfälle in Chromium und WebKit jeweils zweimal:
-  36 bestanden, ohne Retry-Erfolg als Ersatz für einen fehlgeschlagenen Lauf.
-- Fälle umfassen beide Regionen, individuelle Heilungen, freiwilligen und
-  erzwungenen Wechsel, eingefrorene Werte, Reload, Wiederholungssieg,
-  Vorbereitung-/Eintrittsquota, Ergebnisrollback und einmaligen Retry-Commit.
-- Zeitlimit-Niederlage nach bereits verdientem Bonus und vollständiges
-  Team-K. o. werden getrennt im echten Browser geprüft.
-- Abschließende vollständige Browser-Suite:
-  205 bestanden, eine Prüfung übersprungen, 10,8 Minuten.
-- Die übersprungene Prüfung zählt nicht als bestanden; für diesen Lauf
-  liegt hier nur die übermittelte Gesamtsumme vor.
-- Frühere fehlgeschlagene Browserläufe wurden nicht als Erfolg gewertet.
-- git diff --check ohne Befund vor diesem Dokumentationsschritt.
-- Commit fb86920 erfolgreich auf main veröffentlicht.
-- CI/Build vom Nutzer am 26.10.2026 als grün bestätigt.
-- Nutzerbestätigung am 26.10.2026: „P05b Abnahme erfolgreich abgeschlossen“.
-- P05b damit abgenommen; keine zusätzlichen manuellen Einzelprüfungen
-  über die vorliegende Nutzerbestätigung hinaus behauptet.
-
-## Paket P05c — Team in Liga-Kämpfen
-
-Bestandsaufnahme vor Beginn der Implementierung:
-- P05b-Abnahme mit Commit 8c31e5c dokumentiert und auf main gepusht.
-- Native Liga-Steuerung, Browser-Steuerung und vorhandene Kanto-/Johto-
-  Liga-Prüfungen gelesen.
-- Hallenadapter, Hallenoberfläche und regionale Format-/Rollback-
-  Absicherungen gelesen.
-- Bestehende Liga-Läufe enthalten genau einen Spieler-Snapshot.
-- Bestehende Halleneinträge enthalten genau einen Pokémon-Snapshot;
-  keine nachträgliche Teamhistorie aus heutigen Sammlungsdaten erfinden.
-- Zu diesem damaligen Zeitpunkt war noch keine P05c-Spiellogik
-  implementiert oder getestet; aktueller Stand siehe unten.
-
-Vom Nutzer am 26.10.2026 freigegebene Liga-Regeln:
-- Neue Läufe binden die geplanten individuellen Mitglieder und ihre
-  Reihenfolge. Leere Planung verwendet das vorhandene Pflege-Pokémon allein.
-- Mitgliedschaft, Kampflevel, Kampfwerte, Typen und Form werden als
-  unveränderlicher Lauf-Snapshot gespeichert.
-- Änderungen der aktuellen Teamplanung ersetzen kein Team eines
-  gespeicherten Liga-Laufs.
-- Neue Läufe beginnen mit vollen KP und fünf eigenen Heilungen je Mitglied.
-- KP, verbrauchte Heilungen und ausgeschiedene Mitglieder bleiben über
-  alle 26 Gegner erhalten, einschließlich des Übergangs zum Champ.
-- Keine Zwischenheilung, Wiederbelebung oder Auffüllung durch Fortsetzen.
-- Freiwilliger Wechsel kostet einen Zug mit möglichem Gegnerangriff.
-- Pflichtwechsel nach eigenem K. o. ohne zusätzlichen Gratisangriff.
-- Bestehende Zeitlimitentscheidung beachten: kein zusätzlicher Wechsel
-  nach abschließendem Zeitlimit-Ergebnis.
-- Gesamte Teamniederlage beendet den Versuch.
-- Pflegezuordnung bleibt unverändert.
-- Energie weiterhin einmalig 50 für Top Vier und zusätzlich 30 beim
-  Start des Champ-Abschnitts, jeweils mit 20 Reserve beim Pflege-Pokémon.
-- Keine Zusatzkosten pro Mitglied oder gewöhnlicher Checkpoint-Fortsetzung.
-- Bereits bestätigte Eintrittskosten werden nicht erstattet.
-- Pro besiegtem Gegner erhält das siegreiche Individuum ein Level bis 100.
-- Levelbonus und nächster Checkpoint werden gemeinsam dauerhaft gespeichert.
-- Kampfwerte und maximale KP bleiben während des gesamten Laufs eingefroren.
-- Bereits bestätigte Boni bleiben bei späterer Niederlage oder Abbruch erhalten.
-- Fehlgeschlagene Speicherung darf weder Bonus noch Fortschritt übernehmen.
-- Retry darf weder Belohnung noch Gegnerfortschritt doppelt vergeben.
-- Letzter Bonus, regionaler Abschluss und Halleneintrag teilen eine Transaktion.
-- Bestehende Einzel-Pokémon-Läufe bleiben im bisherigen Modus nutzbar;
-  keine stillschweigende Umwandlung in ein aktuelles Team.
-
-Vom Nutzer am 26.10.2026 freigegebene Ruhmeshallen-Regeln:
-- Neue Team-Erfolge verewigen alle zum Lauf gebundenen Individuen
-  in ihrer gespeicherten Reihenfolge.
-- Das tatsächliche Siegerindividuum des letzten Champ-Gegners wird markiert.
-- Ausgeschiedene Mitglieder bleiben Teil des ausgezeichneten Teams;
-  ihr Zustand beim Abschluss wird kenntlich gemacht.
-- Angezeigt werden eingefrorene Kampflevel und Formen des Lauf-Snapshots,
-  nicht spätere Sammlungswerte.
-- Individuelle Sammlungs-IDs verwenden; Box-Mitgliedern keine Pflege-
-  Lebenskennung erfinden.
-- Jeder vollständig gewonnene Lauf zählt als ein Erfolg, nicht als
-  mehrere Erfolge pro Teammitglied.
-- Höchstens zwölf erfasste Erfolge nach bisherigem Aufbewahrungsprinzip:
-  erster Erfolg und bei längerer Historie elf neueste weitere Erfolge.
-- Bestehende Einzel-Pokémon-Einträge und historische Abschlüsse bleiben erhalten.
-- Alte laufende Einzel-Pokémon-Ligen erzeugen weiterhin passende Einzeleinträge.
-- Neues Teamformat ausdrücklich versionieren; unbekannte oder beschädigte
-  Daten nicht stillschweigend überschreiben.
-- Team-Historie nicht nachträglich für alte Siege rekonstruieren.
-
-## Lokaler Implementierungs- und Prüfstand P05c — 26.10.2026
-
-- Versionierter regionaler Liga-Teamzustand mit C++-/Python-/JS-Prüfungen.
-- Individuelle KP, fünf eigene Heilungen je Mitglied, ausgeschiedene Reserven,
-  eingefrorene Kampfwerte und Wiederherstellung ohne Auffüllen.
-- Start, Fortsetzung, Wechsel und Sieg-Abrechnung an die gemeinsame
-  Pflege-/Preferences-/Sammlungstransaktion angeschlossen.
-- Eintrittskosten weiterhin 50 für Top Vier und 30 beim Champ-Start;
-  gewöhnliche Fortsetzungen und Mitgliederwechsel ohne neue Eintrittskosten.
-- Individuelle Levelgewinne bis 100; Bonus und Checkpoint gemeinsam gespeichert.
-- Letzter Bonus, regionaler Titel, Team-Halleneintrag und Entfernen des
-  Laufzustands werden innerhalb einer gemeinsamen Transaktion vorbereitet.
-- Team-Hallenformat V2 mit gespeicherten Mitgliedern und separater Pflegebindung.
-  Vorhandene Einzelsieger bleiben Einzelsieger; keine erfundene Teamhistorie.
-- Liga- und Hallenoberfläche angeschlossen. Alte Einzelläufe behalten ihren Pfad.
-- Fortsetzen und Sieg-Abrechnung verwenden die gebundene gespeicherte
-  Mitgliederliste, nicht die heutige Teamplanung. Mitglieder müssen weiterhin
-  vorhanden sein; Pflegebindung und gespeicherter Fortschritt werden geprüft.
-- Neue P05c-Oberflächentexte über Textschlüssel für de/en/es/fr registriert;
-  englische Basisschlüssel werden zuerst angelegt. Keine Behauptung einer
-  vollständigen Übersetzung aller älteren Liga-Oberflächen; Q01 bleibt offen.
-
-Vorliegende lokale Prüfergebnisse:
-- Zentrale Logik-/Oberflächen-Vorprüfungen nach den letzten Korrekturen grün.
-- Regulärer Emscripten-WASM-Build erfolgreich; native Quellen danach unverändert.
-- 16 gezielte Team-Liga-Browserprüfungen in Chromium/WebKit bestanden:
-  beide Regionen, individuelle Sieger und Heilungen, Checkpoint-Reload,
-  Pflichtwechsel, Niederlage, Speicherfehler/Retry, Team-Halleneintrag sowie
-  Sicherungsimport mit abweichender heutiger Teamplanung.
-- 10 vorhandene Sprachpilot-Browserprüfungen bestanden.
-- Arena-Synchronisationsschutz: 12 gezielte Wiederholungen und alle
-  18 Arena-Team-Browserprüfungen bestanden; Erwartungen nicht abgeschwächt.
-- Vollständiger Browserlauf nach den abschließenden Sprach-/Planungskorrekturen
-  am 26.10.2026: 221 bestanden, 1 übersprungen, keine Fehlschläge
-  (222 Testausführungen über Chromium und WebKit; Laufzeit 13,1 Minuten).
-- Starke/schwache synthetische Sammlungswerte dienen der Integrationsprüfung,
-  nicht als Balancing-Nachweis.
-- Bekannte separate Build-Warnung: TPNamedPrompt mit C-Linkage und std::string
-  in browser_glue.cpp. Build erfolgreich; Warnung nicht behoben oder unterdrückt.
-- Keine CI-/Deployment-Bestätigung und keine iPhone-Abnahme durch diese
-  lokalen Ergebnisse behauptet; diese Schritte separat bestätigen.
-
-## P05c-Abnahme und Übergang zu P06 — 26.10.2026
-
-- Veröffentlichter Funktionscommit: 02e3973 auf main.
-- Nutzer meldete den Build als grün.
-- Nutzerbestätigung: „P05c abgenommen einige Grafische Optimierungen sind
-  nötig aber sind zum jetzigen Zeitpunkt nicht von hoher Priorität,
-  weiter mit P06“.
-- P05c ist damit abgenommen. Keine weiteren manuellen Einzelprüfungen
-  über diese Nutzerbestätigung hinaus behauptet.
-- Grafische Folgeoptimierungen sind kein aktueller P06-Umfang.
-  Betroffene Ansichten und konkrete Änderungen wurden noch nicht benannt.
-- Frühere lokale Zwischenstände mit offener Abnahme sind historisch;
-  diese Abnahmebestätigung ist der aktuelle Status.
-
-## Aktuelles Paket P06 — Legendären-Geschichten Kanto
-
-- Zunächst einen einzelnen Pilotfall festlegen und vollständig abnehmen.
-- Vom Nutzer am 26.10.2026 festgelegte Reihenfolge:
-  Zapdos, Arktos, Lavados, Mewtu, Mew.
-- Erster vollständig umzusetzender und abzunehmender Pilot: Zapdos.
-- Freigegebene Zapdos-Grundlage: Variante 1, das Kraftwerk-Abenteuer,
-  mit freiwilligem, garantiertem Anschluss nach gewonnenem Prüfduell.
-- Die zunächst offenen Story-/Kampfregeln wurden am 27.10.2026 als
-  begrenzter Pilotvorschlag freigegeben; verbindliche Einzelheiten
-  siehe Abschnitt „Freigegebene Zapdos-Pilotregeln — 27.10.2026“.
-- Vorhandene Begegnungs-, Kampf-, Sammlungs-, Fortschritts- und
-  Speichermechanismen zuerst anhand des Codes prüfen.
-- Voraussetzungen, Fortschritt, Begegnung und Ergebnis persistent abbilden.
-- Fang-/Belohnungsregel, Wiederholbarkeit und Verhalten bei Niederlage,
-  Abbruch, Reload oder fehlgeschlagener Speicherung ausdrücklich festlegen.
-- Keine Wünsche, Orte, Dialoge oder Belohnungen als bereits vereinbart erfinden.
-- Neue Oberflächentexte über das vorhandene Sprachregister ergänzen.
-- P07 und weitere Geschichten erst nach dem abgenommenen Pilotfall angehen.
-
-## Freigegebene gemeinsame Aufnahmefunktion — 26.10.2026
-
-- Gilt für erfolgreiche Fänge und freiwillige Pokémon-Anschlüsse.
-- Bei freiem Teamplatz wird das neue Individuum zusätzlich ins Team aufgenommen.
-- Bei sechs Teammitgliedern fragt ein Dialog nach Teamaufnahme oder Boxablage.
-- Bei gewünschter Teamaufnahme wählt der Spieler das zu ersetzende Mitglied.
-- Das Pflege-Pokémon darf im Aufnahmedialog nicht ausgetauscht werden.
-- Das ersetzte Individuum bleibt in der Sammlung; keine automatische Freilassung.
-- Ohne Teamaufnahme wird das neue Individuum in einer freien Box gespeichert.
-- Auch eine Teamaufnahme benötigt einen freien Sammlungsplatz:
-  Ein Teamtausch entfernt das bisherige Individuum nicht aus der Sammlung.
-- Bei fehlendem Platz bleibt die bestätigte Aufnahme dauerhaft ausstehend.
-- Höchstens eine ausstehende Aufnahme pro Spielerprofil.
-- Weitere Fang- und Anschlussvorgänge bleiben bis zu deren Abschluss gesperrt.
-- Pflege und Boxverwaltung zum Schaffen eines freien Platzes bleiben möglich.
-- Nach Neustart darf die Aufnahme weder verloren gehen noch überschrieben werden.
-- Kein erneuter Fangwurf für einen bereits bestätigten erfolgreichen Fang.
-- Teamänderung, neues Individuum und Abschluss der ausstehenden Aufnahme
-  gemeinsam speichern; bei Fehler keine halbe oder doppelte Übernahme.
-- Für Zapdos bleibt der gewonnene Prüfkampf bestätigt. Bei voller Sammlung
-  wartet Zapdos auf seine Aufnahme; kein erneuter Kampf erforderlich.
-- Die gemeinsame Aufnahmefunktion ist Voraussetzung des Zapdos-Piloten.
-- Bereits abgenommene Kampf- und Belohnungswege nur gezielt erweitern und
-  mit bestehenden sowie neuen Prüfungen absichern.
-
-## P06-Zwischenstand — gemeinsame Aufnahmefunktion, 26.10.2026
-
-Implementierter Umfang:
-- Gemeinsames Aufnahmemodell für erfolgreiche Fänge und freiwillige Anschlüsse;
-  höchstens ein wartendes Individuum je Profil.
-- Native Speicherung mit Versions-/Prüfsummenmetadaten, strikte Save-Prüfung
-  und Einbindung in die vorhandene Sammlungstransaktion.
-- Erfolgreiche Fänge speichern zunächst die bestätigte Aufnahme. Bei freiem
-  Team- und Sammlungsplatz folgt die automatische Einordnung.
-- Bei sechs Teammitgliedern stehen ausdrückliche Teamaufnahme mit Auswahl
-  des zu ersetzenden Mitglieds oder reine Boxablage zur Verfügung.
-- Das aktuelle Pflege-Pokémon ist in dieser Austauschentscheidung gesperrt;
-  das ersetzte Individuum bleibt in der Sammlung.
-- Volle Boxen erhalten den Wartezustand über Reload hinweg. Die vorhandene
-  Boxverwaltung ist aus der Aufnahmeoberfläche erreichbar; nach Freigabe
-  eines Platzes kann die Aufnahme fortgesetzt werden.
-- Weitere Fangversuche sind bei wartender Aufnahme nativ gesperrt;
-  der gemeinsame Anschlussweg verweigert eine zweite Reservierung.
-- Neues Sammlungsindividuum, Teamänderung und Abschluss der Aufnahme werden
-  gemeinsam dauerhaft gespeichert. Bis zur Bestätigung bleiben die bisherigen
-  veröffentlichten Zustände sichtbar; Fehler erlauben keine halbe Übernahme.
-- Ein Fehler bei der Einordnung eines bereits bestätigten Fangs bewahrt
-  die Aufnahme, statt einen neuen Fangwurf anzufordern.
-- Neue Aufnahmetexte verwenden das vorhandene Sprachregister mit Einträgen
-  für Englisch, Deutsch, Spanisch und Französisch. Keine vollständige
-  Q01-Übersetzungsabnahme daraus ableiten.
-
-Lokal bestätigte Prüfungen:
-- Zentrale Logik-/Oberflächen-Vorprüfungen einschließlich Aufnahmemodell,
-  nativem Speicheradapter und gemeinsamem Persistenzcontroller bestanden.
-- Aktueller WASM-Build erfolgreich.
-- Gezielter Browserlauf für Aufnahme, Fangadapter und Fangdarstellung:
-  16 bestanden.
-- Abschließende vollständige Browserregression über Chromium und WebKit:
-  229 bestanden, 1 übersprungen, keine fehlgeschlagen; Laufzeit 13,3 Minuten.
-  Die übersprungene Prüfung wird nicht als bestanden gezählt.
-- Der Fangdarstellungstest hält Fangbestätigung und automatische Einordnung
-  ausdrücklich getrennt an und prüft die unveröffentlichten Zwischenstände.
-  Erfolgs-/Entkommensprüfungen folgen dem tatsächlichen Fangausgang;
-  kein erzwungener nativer Erfolg und kein Nachweis beider Ausgänge je Lauf.
-- Anschluss-Browserfälle verwenden vorbereitete Aufnahmedaten und echte
-  Speicher-/UI-Wege. Das dortige Zapdos-Level ist ausschließlich ein
-  Fixturewert, kein beschlossener Story- oder Balancingparameter.
-- Bestehende Strukturassertion der Frame-Sperre an die zusätzliche
-  Aufnahme-UI-Sperre angepasst; bisherige Sperren weiterhin verlangt.
-- Fang-UI-Test von einer auf die tatsächlich erforderlichen Speichergrenzen
-  umgestellt: zwei bei erfolgreicher automatischer Aufnahme, eine bei
-  entkommenem Pokémon. Kein Timeout als Fehlerbehebung erhöht.
-
-Abgrenzung / noch offen:
-- Der damalige offene Veröffentlichungs-/Abnahmestand ist durch die
-  nachfolgende Nutzerbestätigung vom 27.10.2026 überholt.
-- Push des Funktionscommits d5119a4 auf main erfolgreich; der Nutzer hat
-  den Build als grün bestätigt. Keine zusätzlichen CI-Einzelresultate
-  über diese Bestätigung hinaus behauptet.
-- Zum damaligen Aufnahme-Zwischenstand war der Zapdos-Pilot noch offen.
-  Sein späterer Abschluss ist nachfolgend dokumentiert; P06 insgesamt
-  bleibt wegen der weiteren vereinbarten Geschichten offen.
-- Zum Aufnahme-Zwischenstand war noch kein Kraftwerk-Abenteuer, Prüfduell
-  oder persistenter Zapdos-Storyfortschritt implementiert.
-  Der spätere lokale Pilotstand einschließlich wartendem Anschluss ohne
-  Wiederholungskampf ist im nachfolgenden Prüfbericht dokumentiert.
-- Die damals offenen Pilotregeln sind inzwischen freigegeben;
-  siehe „Freigegebene Zapdos-Pilotregeln — 27.10.2026“.
-  Daraus folgt noch keine technische Implementierung oder Abnahme.
-- Arktos, Lavados, Mewtu, Mew und P07 sind nicht Teil dieses Zwischenstands.
-
-## Abnahme der gemeinsamen Aufnahmefunktion — 27.10.2026
-
-- Veröffentlichter Funktionscommit auf main:
-  d5119a4cf0583db8938cdc8ec60f8a82e2d0b54b.
-- Commit-Titel: feat: add durable shared Pokemon admission.
-- Push erfolgreich; abschließender Arbeitsstand beim Funktionscommit sauber.
-- Build vom Nutzer als grün bestätigt.
-- Nutzerbestätigung am 27.10.2026:
-  „iPhone-Abnahme ist erfolgreich abgeschlossen“.
-- Die gemeinsame Aufnahmefunktion als Voraussetzung des Zapdos-Piloten
-  ist damit abgenommen.
-- Keine zusätzlichen manuellen Einzelprüfungen, insbesondere kein separater
-  manueller Vollbox-Nachweis, über diese Gesamtbestätigung hinaus behauptet.
-- Diese Aufnahmeabnahme ist keine Abnahme des Zapdos-Storypiloten.
-  Dessen späteren Implementierungs-/Prüfstand siehe nachfolgenden Bericht;
-  P06 insgesamt bleibt offen.
-
-## Freigegebene Zapdos-Pilotregeln — 27.10.2026
-
-Nutzerfreigabe:
-- „Ich gebe den Vorschlag frei und bestätige Lvl 50“.
-- Die Freigabe betrifft den begrenzten Pilotvorschlag, nicht eine bereits
-  implementierte oder geprüfte Geschichte.
-
-Zugang und Geschichte:
-- Eigener Einstieg „Kraftwerk“; genaue Einbindung nach Prüfung der
-  vorhandenen Navigation.
-- Keine zusätzlichen Orden-, Liga- oder Serienbedingungen im Pilot.
-- Kampfbeginn nur, wenn die bestehenden Kampfregeln ihn erlauben.
-- Drei kurze, persistent gespeicherte Storyabschnitte:
-  Stromstörungen untersuchen, Anlage sichern und Zapdos begegnen,
-  anschließend Zapdos' Prüfduell.
-- Keine neuen Inventargegenstände, Zufallsfunde oder zeitabhängigen Aufgaben.
-
-Prüfduell und Anschluss:
-- Eigenes Team gegen ein einzelnes Zapdos auf festem Level 50.
-- Kein Shiny-Zufall im Pilot.
-- Keine zusätzlichen Story-Energiekosten; vorhandene Kampfkosten und
-  Startbedingungen vor der Anbindung anhand des Codes prüfen.
-- Kein Pokéballwurf und keine zusätzliche Fangwahrscheinlichkeit.
-- Nach dauerhaft bestätigtem Sieg freiwilliger, garantierter Anschluss
-  über die abgenommene gemeinsame Aufnahmefunktion.
-- Prüfsieg und Reservierung der Aufnahme gemeinsam dauerhaft bestätigen:
-  kein gespeicherter Sieg ohne zugehörigen Anschlussanspruch.
-
-Niederlage, Abbruch und Speicherverhalten:
-- Nach Niederlage oder freiwilligem Abbruch bleibt die Geschichte vor
-  dem Prüfduell; späterer neuer Versuch ist möglich.
-- Bei Schließen/Reload während eines unbestätigten Kampfes Rückkehr zur
-  gespeicherten Vorbereitung; kein erfundener Sieg und keine Belohnung.
-- Scheitert die Sieg-Speicherung, keine Erfolgsmeldung und kein
-  Storyabschluss vor dauerhafter Bestätigung.
-- Ein bereits gespeicherter Sieg mit wartendem Anschluss benötigt
-  keinen erneuten Kampf, auch nicht nach Reload oder bei vollen Boxen.
-
-Einmaligkeit und Abschluss:
-- Genau ein Story-Zapdos pro Profil; nach bestätigtem Sieg kein weiterer
-  Belohnungskampf.
-- Wartender Anschluss wird in der Geschichte ausdrücklich angezeigt.
-- Nach abgeschlossener Aufnahme ist das Abenteuer erledigt.
-- Späteres Freilassen erzeugt keinen zweiten Anschlussanspruch.
-- Keine zusätzliche Geld-, Gegenstands- oder sonstige Storybelohnung.
-- Diese Regelfreigabe war noch keine Implementierungs- oder
-  Abnahmebestätigung. Der spätere Abschluss des Zapdos-Piloten ist
-  nachfolgend dokumentiert; P06 insgesamt bleibt offen.
-
-## Zapdos-Pilot — lokaler Implementierungs- und Prüfstand, 27.10.2026
-
-Implementierter Umfang:
-- Einstieg „Geschichten“ im Spielmenü zur Seite „Kanto · Kraftwerk“.
-- Gespeicherte Untersuchung der Stromstörungen und Sicherung der Anlage;
-  anschließende Bereitschaft für das Prüfduell.
-- Eigenes Team gegen ein einzelnes Zapdos auf festem Level 50.
-- Bestehende native Kampfberechnung und individuelle Team-Runtime;
-  eigene Story-Kampfzuordnung und eigene Ergebnisübergabe.
-- Kein Shiny-Zufall, kein Fangknopf und kein Fangwurf im Prüfduell.
-- Bestätigter Sieg reserviert den garantierten freiwilligen Anschluss.
-  Story-Sieg, Aufnahmeticket und historischer Artennachweis werden
-  innerhalb derselben vorhandenen Gesamtspielstand-Transaktion gespeichert.
-- Vor dauerhafter Bestätigung bleiben die bisherigen veröffentlichten
-  Story-, Aufnahme- und Sammlungszustände erhalten.
-- Speicherfehler erlauben die erneute Bestätigung desselben aufgelösten
-  Kampfs; kein neuer Kampf und kein neuer Fangwurf erforderlich.
-- Nach Niederlage oder bestätigtem Abbruch bleibt die Vorbereitung erhalten;
-  kein Zapdos-Anschlussanspruch aus diesen Ausgängen.
-- Nach bestätigtem Sieg Übergabe an die abgenommene Aufnahmefunktion:
-  automatische Teamaufnahme bei freiem Team-/Sammlungsplatz, ausdrückliche
-  Entscheidung bei sechs Mitgliedern oder dauerhafter Wartezustand.
-- Volle Boxen verlieren den bestätigten Sieg auch nach Reload nicht.
-  Nach Platzschaffen kann Zapdos ohne Wiederholungskampf aufgenommen werden.
-- Nach Aufnahme bleibt das Abenteuer abgeschlossen. Späteres Freilassen
-  erzeugt keinen zweiten Anschlussanspruch.
-- Typisierte native Storyfelder zpdver/zpdstep/zpdtick und strikte
-  gegenseitige Prüfung von Story, Aufnahmeticket und Sammlungsherkunft.
-  Unvollständige, unbekannte oder widersprüchliche Zustände werden verweigert.
-- Bestehende Kampfbilanz wird fortgeführt; kein zusätzlicher Story-Levelbonus
-  und keine zusätzlichen Trainings-, Freude-, Bindungs- oder Energiegaben.
-- Historischer Artennachweis über die lokale Erweiterung
-  Pet::recordStoryJoin, ohne Zufallsfang oder zusätzliche Tagesziel-/
-  Pokédex-Belohnung bei diesem Aufruf.
-- Neue Storytexte über das Sprachregister für Englisch, Deutsch, Spanisch
-  und Französisch. Keine vollständige Q01-Abnahme daraus ableiten.
-
-Lokal bestätigte Prüfungen:
-- Zentrale Logik-/Oberflächen-Vorprüfungen bestanden.
-- Reines Storymodell mit echten Aufnahme-/Sammlungsmodellen geprüft.
-- Native Speicherung mit echter Pet-/Preferences-Rücknahme und striktem
-  Save-Parser geprüft; alte Spielstände ohne Storyzustand bleiben lesbar.
-- Eigene native Duellprüfung mit echter Kampfberechnung: Sieg, Niederlage,
-  Wechsel, Abbruch, Akteurs-/Tokensperren, Ergebnis-Rollback, Wiederholung
-  desselben Ergebnisses und einmaliger Anschlussanspruch.
-- Browser-Transaktionscontroller mit echten Modellen, bestehendem
-  Persistenzcontroller und echtem Save-Parser geprüft. Native Aufrufe
-  werden dort simuliert; der echte Kampf wird separat geprüft.
-- Aktueller WASM-Build erfolgreich.
-- Gezielter Browserlauf: 30 bestanden über Chromium und WebKit.
-- Abschließende vollständige Browserregression:
-  243 bestanden, 1 übersprungen, keine fehlgeschlagen; Laufzeit 15,1 Minuten.
-  Die übersprungene Prüfung wird nicht als bestanden gezählt.
-- Neue Browserfälle prüfen gespeicherte Vorbereitung, vier Sprachvarianten,
-  abgewiesene Vorbereitungsspeicherung, tatsächlichen Sieg und Niederlage,
-  Abbruch, automatische Aufnahme, gesperrtes Pflege-Pokémon beim Austausch,
-  volle Boxen mit Reload/Platzschaffen sowie Ergebnis-Speicherfehler mit
-  Wiederholung derselben Begegnung ohne zweite Siegeszählung.
-- Starke/schwache Teamwerte und volle Sammlungen sind Testfixtures;
-  kein Balancing-Nachweis und keine behauptete manuelle Vollboxprüfung.
-- Zwei Fehler im neuen Browsertest korrigiert: fehlenden JavaScript-
-  Levelwrapper durch vorhandenen nativen RPC ersetzt und doppelte
-  Abbruchdialog-Behandlung entfernt. Keine Testbedingung abgeschwächt.
-- Bekannte separate Build-Warnung weiterhin vorhanden:
-  TPNamedPrompt mit C-Linkage und std::string in browser_glue.cpp.
-  Build erfolgreich; Warnung weder behoben noch unterdrückt.
-
-Zum Zeitpunkt dieses lokalen Prüfberichts noch offene Folgeschritte:
-- Veröffentlichung und eigene iPhone-Abnahme waren zunächst offen.
-  Diese Punkte sind inzwischen durch den nachfolgend dokumentierten
-  Push, die grüne Build-Meldung und die ausdrückliche Pilotabnahme bestätigt.
-- P06 insgesamt bleibt offen. Arktos, Lavados, Mewtu, Mew und P07
-  wurden mit diesem Pilotstand nicht implementiert oder abgenommen.
-
-## Zapdos-Pilot — Veröffentlichung und Abnahme, 27.10.2026
-
-- Veröffentlichter Funktionscommit auf main:
-  22e6ab85f26da1464dab91fafe510759c3fdf940.
-- Commit-Titel: feat: implement Kanto Zapdos story pilot.
-- Push von de47e87 auf 22e6ab8 erfolgreich; abschließender Arbeitsstand
-  beim Funktionscommit sauber.
-- Build vom Nutzer als grün bestätigt. Keine zusätzlichen CI-Einzelresultate
-  über diese Bestätigung hinaus behauptet.
-- Nutzerbestätigung am 27.10.2026:
-  „Zapdos-Pilot auf dem iPhone abgenommen“.
-- Der Kraftwerk-/Zapdos-Pilot ist damit ausdrücklich abgenommen.
-- Keine zusätzlichen manuellen Einzelprüfungen, insbesondere kein separater
-  manueller Vollbox-Nachweis, über diese Gesamtbestätigung hinaus behauptet.
-- Die gemeinsame Aufnahmefunktion d5119a4 bleibt ebenfalls abgenommen.
-- P06 insgesamt bleibt offen. Als Nächstes folgt Arktos, anschließend
-  Lavados, Mewtu und Mew. Aus der Reihenfolge folgt noch keine Freigabe
-  konkreter Geschichten, Begegnungslevel oder Anschlussregeln dieser Fälle.
-
-## Verbindliche Reviewentscheidungen — 27.10.2026
-
-Grundlage:
-- Neun Reviewaufnahmen mit zugehörigen Textdateien und Änderungsnotizen.
-- PNG-Dateien wurden aufgelistet, ihre Bildinhalte im Chat aber nicht gesehen.
-- Die konkrete Reviewliste ersetzt frühere allgemeine Menü-/Textentwürfe.
-- Zusätzliche Bestätigung des Nutzers: „1. ja 2. ja“ für Angriffsanordnung
-  und zehn Tipps innerhalb von fünf Sekunden.
-
-Gemeinsame Kampfbedienung:
-- Hauptmenü als 2x2-Anordnung:
-  links oben Kampf, links unten Pokémon,
-  rechts oben Heilung, rechts unten Aufgeben.
-- Angriffsmenü als 2x2-Anordnung:
-  links oben Kräftig, rechts oben Ausweichen,
-  links unten Schnell, rechts unten Zurück.
-- Reihenfolge von Kräftig und Schnell auf Nutzerwunsch während der
-  manuellen Reviewphase am 27.10.2026 gegenüber der ersten Freigabe getauscht.
-- Heilung entfällt im Angriffsmenü; kleiner Mini-Zurück-Knopf entfällt.
-- Aktionswirkungen, Heilungsbudgets und native Kampfberechnung unverändert.
-
-Arena und Navigation:
-- Ordensübergabe mit passendem Arena-/Typenhintergrund.
-- Zusätzlicher fünfter Zugang mit Pokédex-Symbol auf der Pflegeansicht.
-- Pokédex-Zentrale bündelt Tagebuch, Geschichten und Arten-Pokédex.
-- Wischmenü entsprechend aufräumen und auf Einstellungen ausrichten;
-  bestehende Funktionen wie Eier, Entwicklung, Sicherungen und Dateiimporte
-  nicht entfernen oder ohne erreichbaren Zugang zurücklassen.
-- Freischalthinweis nach sechs unterschiedlichen Kanto-Orden mit
-  Pokédex-Kennzeichnung; persistenter Gelesenstatus.
-- Bestehende begonnene, wartende oder abgeschlossene Zapdos-Geschichten erhalten.
-
-Geschichten und Kraftwerk:
-- Vorgeschaltete Übersicht mit schmalen Geschichtenkacheln und eigenen Symbolen.
-- Neue Freischaltungen zuerst, neueste oben; danach weitere offene Geschichten,
-  abgeschlossene am Ende. Kraftwerk mit eigenem Kraftwerk-Symbol.
-- Kraftwerk-Einstieg: Außenansicht mit flackernden Lichtern;
-  Überschrift und Text zentrieren, Fortsetzen-Schaltfläche erhalten.
-- Sicherungsseite: Hintergrund im Kraftwerk, Texte zentrieren.
-- „Sichere den Weg“ durch „Sichere die Anlage“ ersetzen.
-- Zehn Tipps auf eine Stromsicherung innerhalb von fünf Sekunden,
-  Zeitbeginn beim ersten Tipp. Bei Ablauf nur den Versuch zurücksetzen.
-- Erst nach erfolgreicher Aufgabe „Anlage sichern“ verfügbar machen;
-  bestätigten Storyabschluss dauerhaft speichern und nicht erneut verlangen.
-
-Begegnung und Abschluss:
-- Überschrift: „Wow ein wildes Zapdos“.
-- Haupttext: „Zapdos fordert dich zum Kampf heraus. Wirst du seinen
-  gewaltigen Stromschlägen stand halten können?“.
-- Große Zapdos-Grafik zwischen Text und Schaltfläche;
-  Name und Level darunter möglich. „Ohne Fangwurf“ als sichtbaren Text entfernen.
-- Schaltfläche: „Herausforderung beginnen“.
-- Sichtbare Bezeichnung „Prüfduell“ durch „Herausforderung“ ersetzen.
-- Erfolgstext: „Herausforderung bestanden. Du bist würdig.
-  Zapdos möchte sich dir anschließen.“.
-- Abschluss zentriert: „Zapdos gefangen. Kraftwerk-Abenteuer abgeschlossen.“.
-  Bisherige zusätzliche Abschlusserklärungen entfernen.
-- Gewünschte Pokéball-Flug-/Fanganimation ist rein visuell:
-  kein neuer Fangwurf, keine neue Fangchance, kein zweites Individuum.
-- Erfolgreichen Aufnahmeabschluss erst nach dauerhafter Bestätigung zeigen;
-  volle Sammlung weiterhin als wartende Aufnahme darstellen.
-
-Umsetzungsstand:
-- Reviewentscheidungen freigegeben; nicht pauschal als bereits implementiert
-  oder gestalterisch abgenommen behandeln.
-- Funktionale Zapdos-Pilotabnahme 22e6ab8 bleibt bestehen.
-- Nacharbeit vor Arktos in getrennten, prüfbaren Schritten abschließen.
-
-## Nächster konkreter Schritt — ausschließlich P06
-
-1. Funktionale Zapdos-Abnahme und konkrete Reviewentscheidungen erhalten.
-2. Gemeinsame Kampfbedienung umstellen und einschließlich Heilungsrouting prüfen.
-3. Pokédex-Zentrale, Geschichtenübersicht, Sechs-Orden-Freischaltung und
-   persistenten Freischalthinweis mit Erhalt bestehender Storyfortschritte umsetzen.
-4. Kraftwerk-Gestaltung, konkrete Texte, Sicherungsaufgabe und rein visuelle
-   Abschlussanimation ergänzen; keine Fang-/Belohnungsregeln unbemerkt ändern.
-5. Nacharbeit gezielt und zentral prüfen; Build, Browserregression,
-   Veröffentlichung und passende iPhone-Abnahme separat bestätigen.
-6. Erst danach Arktos-Geschichte und Regeln vorschlagen.
-
-
-## Ideenspeicher
-
-- 26.10.2026: Grafische Folgeoptimierungen für P05c vom Nutzer benannt.
-  Aktuell nicht hoch priorisiert; konkrete Ansichten und Änderungen
-  noch offen. Nicht automatisch in P06 aufnehmen.
-
-Neue Ideen hier mit Datum, Nutzen, Abhängigkeiten und offenem
-Entscheidungsbedarf ergänzen. Nicht automatisch ins aktive Paket aufnehmen.
-
-## Übergabe nach jedem Paket
-
-- Aktives Paket / ID:
-- Branch und letzter Commit:
-- Geänderte Bereiche:
-- Gezielte Tests:
-- Zentrale Prüfung:
-- CI / Veröffentlichung:
-- iPhone-Abnahme, sofern betroffen:
-- Offene Fehler / Entscheidungen:
-- Nächster konkreter Schritt:
-
-## Reviewnacharbeit — bestätigter Zwischenstand, 27.10.2026
-
-Manuelle Bestätigung:
-- Nutzerbestätigung im Revisionsbrowser am 27.10.2026:
-  „jetzt passt alles“.
-- Bestätigt sind die nachfolgend beschriebenen gemeinsamen Bedienungs-,
-  Navigations- und Hinweisänderungen.
-- Keine Veröffentlichung, kein veröffentlichter grüner Build und keine
-  gesonderte iPhone-Abnahme dieses Änderungsstands damit behauptet.
-
-Lokaler Umfang:
-- Kampfhauptmenü: Kampf / Heilung sowie Pokémon / Aufgeben.
-- Angriffsmenü: Kräftig / Ausweichen sowie Schnell / Zurück.
-  Heilung nur auf der Hauptebene; Aktionswirkungen unverändert.
-- Fünfter Pflegezugang zur Pokédex-Zentrale.
-- Zentrale mit Tagebuch, Geschichten, Arten-Pokédex, Eier und Entwicklung.
-- Oberes Wischmenü auf Sicherungen und Einstellungen reduziert;
-  bestehende Rückwege und Datei-/Verwaltungszugänge erhalten.
-- Geschichtenübersicht mit Kraftwerk-Kachel.
-- Neuer Zapdos-Beginn nach sechs unterschiedlichen Kanto-Orden;
-  Johto zählt nicht mit, vorhandener Storyfortschritt bleibt erreichbar.
-- Blau-weißes Informationssymbol und vollbreiter hellblauer Hinweisbutton:
-  „In deinem Pokédex ist eine neue Geschichte verfügbar.“
-  Bestätigung dauerhaft speichern und direkt Geschichten öffnen.
-- Rote Zahlenplaketten für offene Geschichten und neue Tagebucheinträge.
-- Roter Geschichtenpunkt bleibt bis zum vollständigen Abschluss bestehen.
-- Neue Tagebucheinträge beim ersten Anzeigen markieren; nach gespeicherter
-  Lesebestätigung beim erneuten Aufruf ohne Markierung.
-- Fortlaufende native Tagebuchzählung berücksichtigt den 200-Einträge-Ring;
-  vorhandener Altbestand wird nicht pauschal als neue Meldung behandelt.
-- Schreibfehler behalten Hinweis-/Lesestatus und erlauben Wiederholung.
-- Weitere Form-/Farboptimierung der Zentrale und Neuordnung der unteren
-  Karten-/Statusseiten ausdrücklich zurückgestellt.
-
-Prüfstand und Grenzen:
-- Native Freischalt-, Hinweis- und Tagebuchprüfungen erfolgreich.
-- WASM-Build erfolgreich; bekannte TPNamedPrompt-C-Linkage-Warnung bleibt.
-- Letzter gezielter Browserlauf: 40/40 bestanden in Chromium und WebKit,
-  ohne automatische Fehler-Retries.
-- Frühere größere gezielte Läufe einschließlich Navigation und Offlinezugang
-  ebenfalls erfolgreich; daraus keine vollständige aktuelle Gesamtregression
-  ableiten.
-- Abschließende zentrale Gesamtprüfung, vollständige Browserregression,
-  Diff-Prüfung und Dokumentationsabgleich vor Veröffentlichung noch offen.
-
-Jetzt folgende Zapdos-Nacharbeit:
-1. Kraftwerk-Außenansicht mit flackernden Lichtern, zentrierter Einstieg
-   und Sicherungsseite mit Innenansicht.
-2. Sicherungsaufgabe mit zehn Tipps innerhalb von fünf Sekunden;
-   Beginn beim ersten Tipp, bei Ablauf nur Versuch zurücksetzen.
-3. Vereinbarte Begegnungs-/Erfolgstexte und große Zapdos-Darstellung.
-4. Rein visuelle Aufnahmeanimation und bestätigter Abschluss ohne neue
-   Fangchance oder zweites Individuum.
-- Bestehende Story-, Aufnahme- und Speicherabsicherung erhalten.
-- Weitere freigegebene, noch nicht umgesetzte Reviewpunkte bleiben offen.
-- Arktos erst nach Abschluss der vereinbarten Reviewnacharbeit.
-
-### Zapdos-Sicherungsaufgabe — Implementierung zur Prüfung
-
-- Außenbeleuchtung nach Nutzerreview heller und doppelt so schnell;
-  sechs Ansichtsprüfungen erfolgreich, Flackern manuell bestätigt.
-- Innenansicht manuell bestätigt.
-- Sicherungsaufgabe zur Prüfung ergänzt: zehn Tipps innerhalb von fünf
-  Sekunden, Zeitbeginn beim ersten Tipp.
-- Versuchszähler und Zeit sind flüchtig; kein Speichern einzelner Tipps.
-- Zeitablauf oder Verlassen verwirft nur den unvollständigen Versuch.
-- Erfolg nutzt den bestehenden dauerhaften Storyübergang.
-- Bei fehlgeschlagener Speicherung bleibt der geschaffte Versuch auf
-  der geöffneten Seite für eine Schreibwiederholung erhalten.
-- Browser-UI verhindert den direkten secure-Übergang ohne geschaffte
-  Aufgabe; kein neues natives Minispiel-Speicherfeld eingeführt.
-- Texte in Deutsch, Englisch, Spanisch und Französisch.
-- Gezielter kombinierter Browserlauf: 33 bestanden, eine
-  Chromium-spezifische Offlineprüfung unter WebKit übersprungen;
-  keine automatischen Fehler-Retries.
-- Zusätzliche gezielte WebKit-Prüfungen für Zeitablauf und stabile
-  Eingabe erfolgreich.
-- Minispiel am 27.10.2026 manuell bestätigt: „das passt sehr gut“.
-- Keine vollständige Projekt-Gesamtregression oder Veröffentlichung
-  damit behauptet.
-- Begegnungsseite vor dem Kampf und Aufnahme-/Abschlussdarstellung
-  weiterhin als folgende Reviewnacharbeit offen.
-
-### Zapdos-Begegnungsseite — Implementierung zur Prüfung
-
-- Große zentrierte Darstellung aus lokalem p145.bin über den vorhandenen
-  gemeinsamen TPK2-Lader und dessen Frame-Decoder.
-- Statischer erster Idle-Frame; eigene Canvas-Zeichenfläche, kein Wechsel
-  des aktiven Pflege-Pokémon und kein Zugriff auf den Hauptcanvas.
-- Transparente Ränder beim Darstellen ausgespart.
-- Fehlende/unlesbare Grafik verständlich anzeigen, Kampfzugang nicht
-  zusätzlich sperren; keine externen Grafikdownloads.
-- Begegnungsbeschreibung knüpft in vier Sprachen an die gesicherte Anlage an.
-- Level, Kampfregeln, Aufnahmebedingungen und Storyzustand unverändert.
-- Neue Grafikprüfungen verwenden synthetische TPK2-Testdaten, keine
-  mitgelieferte Pokémon-Grafik.
-- Prüfungen und manuelle Abnahme der Begegnungsseite noch ausstehend.
-- Aufnahmeanimation und Abschlussdarstellung bleiben folgende Nacharbeit.
-
-### Begegnungsseite — Nutzerkorrektur, 27.10.2026
-
-- Überschrift: „Ein wildes Zapdos“.
-- Beschreibung nach Nutzerwortlaut: „Beweise Zapdos, dass du würdig bist!“
-- Name und Level bleiben; Zusatz „Ohne Fangwurf“ entfernt.
-- Sichtbaren Startbutton entfernt. Der Grafikbereich ist selbst der
-  Kampfzugang, einschließlich Tastaturbedienung und zugänglicher
-  Aktionsbeschriftung.
-- Vorhandene Sperren und derselbe start-Aufruf bleiben erhalten.
-- Entsprechende Texte in allen vier Sprachen aktualisiert.
-- Prüfungen und manuelle Abnahme dieser Korrektur noch ausstehend.
-
-### Begegnungsseite — manuelle Abnahme und offenes Finale
-
-- Begegnungsseite am 27.10.2026 manuell im Browser bestätigt.
-- Deutscher Begegnungstext korrigiert:
-  „Beweise Zapdos, dass du würdig bist!“
-- Kombinierter gezielter Lauf vor dieser Satzkorrektur:
-  45 bestanden, eine Chromium-spezifische Offlineprüfung unter WebKit
-  übersprungen. Danach zwölf Begegnungsprüfungen bestanden.
-- Neuer Nutzerwunsch: deutscher Siegtext „Du bist würdig!“;
-  „Zapdos möchte sich dir anschließen.“ bleibt unverändert.
-- Finale Aufnahme-/Fangdarstellung und Abschluss noch umzusetzen.
-- Animation ausschließlich visuell; bestehende dauerhafte Aufnahme,
-  Kapazitätsprüfung und Schutz vor zweitem Individuum erhalten.
-- Keine Gesamtregression oder Veröffentlichung damit behauptet.
-
-### Zapdos-Aufnahmeszene — Implementierung zur Prüfung
-
-- Finale Abschlussseite um visuelle Pokéball-Aufnahmeszene ergänzt.
-- Szene ausschließlich im bestehenden Abschlusszweig nach erfolgreicher
-  dauerhafter Aufnahme; wartende Aufnahme und Kapazitätsverwaltung
-  unverändert.
-- Animation hat keine Speicher-, Zufalls- oder Aufnahmeautorität.
-- Bereits abgeschlossene Abenteuer können die rein kosmetische Szene
-  beim erneuten Öffnen wieder zeigen; kein zweites Individuum entsteht.
-- Eigene Darstellungsfläche mit vorhandenem lokalem Zapdos-Porträt.
-- Reduzierte Bewegung zeigt unmittelbar den statischen Erfolgszustand.
-- Fehlende Grafik verhindert weder den gespeicherten Abschluss noch
-  dessen Bestätigung; statischer Ball und verständlicher Hinweis.
-- „Abschließen“ führt zurück zur Geschichtenübersicht.
-- Deutscher Siegtext „Du bist würdig!“; bestehender Anschlusswunsch
-  unverändert. Siegtext sinngemäß auch in den anderen drei Sprachen.
-- Prüfungen und manuelle Abnahme der finalen Szene noch ausstehend.
-
-### Zapdos-Abschlusskachel und Anschluss-Tagebuch
-
-- Finale auf 7,2 Sekunden verlängert, drei getrennte Wackelbewegungen,
-  einzelner goldener Blinkeffekt.
-- Flexible Bildhöhe, kein Scrollen; zusätzlicher Abschlussbutton entfernt.
-- Vier gezielte Finale-/Layoutprüfungen erfolgreich.
-- Abgeschlossene Kraftwerk-Kachel ausgegraut und deaktiviert;
-  18 Zapdos-Browserprüfungen danach erfolgreich.
-- recordStoryJoin setzt weiterhin ausschließlich die bestehende historische
-  Markierung; keine zusätzliche Belohnung oder Tagebuchmeldung am Sieg.
-- Anschluss-Tagebuch zur Prüfung an die tatsächliche Aufnahme gekoppelt:
-  spezieller nativer Staging-Aufruf mit Storyticket und Pending-Prüfung,
-  eingebunden in den bestehenden vollständigen Pet-/Preferences-Undo.
-- Der dekodierte Aufnahme-Datensatz wird weiterhin im JS-Modell validiert;
-  der native Aufnahmetransport bleibt ein opaker Transport.
-- JR_CAPTURE mit Flag 2 kennzeichnet freiwilligen Story-Anschluss.
-  Bestehende Datensatzgröße und Ereignistypnummern unverändert.
-- Tagebuchtext in vier Sprachen, vorhandener Ungelesen-Hook weiterverwendet.
-- Neue native Wirkung wird durch echte WASM-Browserintegration geprüft;
-  der Controller-Test mockt weiterhin nur den Transport.
-- WASM-Build erfolgreich; bekannte TPNamedPrompt-C-Linkage-Warnung
-  unverändert vorhanden.
-- Vier Modell-/Controllerprüfungen erfolgreich; native Transportschicht
-  in den betreffenden Controllerprüfungen weiterhin gemockt.
-- Echter WASM-Browserlauf: 20 Zapdos-Prüfungen in Chromium und WebKit
-  bestanden, ohne automatische Fehler-Retries.
-- Aufnahme einschließlich Tagebucheintrag, Ungelesen-Zähler,
-  fehlgeschlagener Speicherung, Wiederholung und Duplikatschutz geprüft.
-- Revisionsbrowser am 27.10.2026 um 22:41 Uhr manuell abgenommen.
-- Vollständige Browserregression nach dem neuen WASM-Build, zentraler
-  nativer Gesamtcheck und abschließender Diff-/Planabgleich noch offen.
-- Noch kein Commit, Push oder veröffentlichter grüner Build.
-
-### Testworkflow — gebuendelter Abgleich nach dem Review
-
-- Audit der bereitgestellten 330 Dateien und 41 Browser-Spec-Dateien.
-- Veralteten Dex-Menueinstieg und veraltete C5-Menueerwartung korrigiert.
-- Gemeinsame Navigationshelfer fuer die aktuellen fuenf Zentralenzugaenge;
-  Menue-, Zentralen- und Rueckwege sprachabhaengig statt fest deutsch.
-- Neuen kurzen Navigationstest fuer vier Sprachen und beide Browser ergaenzt.
-- Automatische Ganztest-Retries auch in CI auf null; Standard-Fehlerbudget
-  fuenf, vorgeschaltete Navigation weiterhin Fail-fast.
-- Gestufter Runner mit eigenen Artefakten und Quell-/WASM-Fingerabdruck;
-  Details in docs/TEST-WORKFLOW.de.md.
-- Auf dem exportierten Stand lokal in der Auditumgebung: 57 eigenstaendig
-  auswertbare vorhandene Node-Pruefungen nach Korrektur bestanden;
-  sieben weitere benoetigen native Referenzen oder nicht exportierte Dateien.
-- 50 JS-/CJS-Syntaxpruefungen bestanden. Keine Browser-, WASM- oder native
-  Gesamtpruefung in der Auditumgebung behauptet.
-- Neuer gestufter Lauf auf dem Zielrechner und Gesamtfreigabe noch offen.
-
-### Paketworkflow und Parallelversuch — 27.10.2026
-
-- Vollstaendige Browserregression nach Testaudit erfolgreich:
-  315 bestanden, eine vorgesehene Offlinepruefung unter WebKit
-  uebersprungen; vollstaendige Browserphase 20,0 Minuten mit einem Worker.
-- Vorgeschaltete Navigation und betroffene Testgruppen zuvor bestanden.
-- Vereinbarter Ablauf: erarbeiten, umsetzen, direkt im Revisionsbrowser
-  pruefen/korrigieren, manuell abnehmen, erst am Paketende vollstaendig
-  pruefen und nach Freigabe auf GitHub abschliessen.
-- Expliziten quick-Modus und einstellbare Browser-Workerzahl ergaenzt.
-- Zwei Worker werden erprobt, noch nicht als Standard freigegeben.
-- Keine Aenderung an Spielcode oder Spielstaenden.
-- Zentraler nativer Gesamtcheck, abschliessender Plan-/Diffabgleich
-  und Veroeffentlichungsfreigabe weiterhin offen.
-
-### Worker-Vergleich — zwei erfolgreich, vier zur Erprobung
-
-- Vollstaendige Browserregression mit zwei Workern bestanden:
-  315 erfolgreich, eine vorgesehene Offlinepruefung unter WebKit
-  uebersprungen; Browserphase 11,4 Minuten.
-- Gleicher Testumfang mit einem Worker zuvor: 20,0 Minuten.
-- Vier Worker als zusaetzlicher Vergleich freigeschaltet,
-  noch nicht als Standard bestaetigt.
-- Keine Aenderung an Spielcode, Testumfang, Timeouts oder Retries.
-- Zentraler nativer Gesamtcheck und abschliessende Freigabe weiterhin offen.
-
-### Abschlussvorbereitung nach Workerentscheidung — 28.10.2026
-
-- Vollstaendige Browserregression mit zwei Workern erfolgreich:
-  315 bestanden, ein vorgesehener Test uebersprungen, 11,4 Minuten.
-- Vier-Worker-Vergleich ohne beobachteten Zeitvorteil:
-  affected 107 bestanden, ein Test uebersprungen, 3,7 Minuten.
-- Nutzerentscheidung: lokal zwei Worker beibehalten.
-- Iterativer Revisionsbrowser-/Paketabschluss-Workflow dokumentiert.
-- Keine weiteren Benchmark-Runden vorgesehen.
-- Zentraler nativer Gesamtcheck und abschliessende Git-Bestandsaufnahme
-  werden vor Commit und Push ausgefuehrt.
-- Noch keine erfolgreiche Veroeffentlichung behauptet.
-
-### Geprüfter Abschluss des Reviewpakets — 28.10.2026
-
-- Revisionsbrowser-Abnahme des Navigation-/Zapdos-Reviewstands erfolgt.
-- Vollständige Browserregression mit zwei Workern bestanden:
-  315 erfolgreich, eine vorgesehene Offlineprüfung unter WebKit
-  übersprungen; Browserphase 11,4 Minuten.
-- Zentraler nativer Logik-/Oberflächen-Gesamtcheck erfolgreich.
-- Abschließendes git diff --check ohne Beanstandung.
-- Lokaler Runner standardmäßig zwei Worker, CI ohne ausdrückliche
-  Vorgabe weiterhin ein Worker; ein Worker als Rückfalloption.
-- Iterativer Revisionsbrowser-/Paketabschluss-Workflow dokumentiert.
-- Commit und Push dieses geprüften Reviewpakets nach main vorbereitet.
-- Erfolgreicher GitHub-Build und Veröffentlichung sind erst nach dem
-  Push gesondert zu kontrollieren; hier noch nicht als grün behauptet.
-- Weitere Projektpakete und außerhalb dieses Reviewpakets verbleibende
-  Aufgaben richten sich weiterhin nach dem Projektplan.
-
-### CI-Nacharbeit — Trainer-Kampfhelfer, 28.10.2026
-
-- Berichteter GitHub-Browserlauf fuer 27565e8 fehlgeschlagen:
-  313 bestanden, zwei Trainerpruefungen fehlgeschlagen, ein Test uebersprungen.
-- Bestaetigter Helferfehler: erneuter Zielabruf nach erfolgreichem Polling
-  kann null liefern; Klickziel wird jetzt aus dem bestaetigten Snapshot benutzt.
-- Nur frische Renderer-Snapshots passend zu Kampf-ID, Runde, Erholungen und
-  Ergebniszustand akzeptieren. Canvas-Koordinaten im selben Snapshot erfassen.
-- Heilung oeffnet nicht ersatzweise das Angriffsmenue. Menuewechsel und
-  echte Zugwirkung werden bestaetigt, keine automatische Klickwiederholung.
-- Trainerpruefung verlangt unveraendert genau eine verbrauchte Erholung.
-- Fuenf simulierte Helfer-Protokollfaelle vorab bestanden; keine echten
-  Browser-/Kampfergebnisse daraus abgeleitet.
-- Protokollpruefung in lokale Vorpruefung und zentrales Gate aufgenommen.
-- Spiel-/Native-Code, Timeouts und Ganztest-Retries unveraendert.
-- Gezielte Browserpruefungen, Folgecommit und erfolgreicher GitHub-Lauf offen.
-
-### CI-Nacharbeit — Liga-Checkpoint im Kampfhelfer
-
-- Erster korrigierter Trainerlauf: sechs Browserprüfungen bestanden.
-- Breiter Kampfgruppenlauf deckte eine zu enge neue Wirkungskontrolle auf:
-  automatischer Liga-Siegcheckpoint wurde nicht als Zugwirkung erkannt.
-- Helfer akzeptiert jetzt den bestätigten Fortschritt um einen Gegner
-  beziehungsweise den abgeschlossenen finalen Sieg in derselben Region.
-- Laufende/fehlgeschlagene Speicherung, Abbruch ohne Fortschritt,
-  fremde Region und unabhängige neue Kampf-ID werden nicht als
-  erfolgreicher Checkpoint gewertet.
-- Zusätzliche Protokollprüfung mit 14 simulierten Fällen integriert.
-- Spielcode, Timeouts, Ganztest-Retries und Klickanzahl unverändert.
-- Erneuter echter Kampfgruppenlauf und erfolgreicher GitHub-Lauf offen.
-
-### Geprüfter Folgefix — Kampf-Testhelfer, 28.10.2026
-
-- GitHub-Lauf von 27565e8 mit zwei Trainerfehlern nicht erfolgreich.
-- Kampfhelfer verwendet einen gemeinsam bestätigten Ziel-/Koordinatensnapshot
-  statt eines erneuten möglicherweise leeren Zielabrufs.
-- Menüwechsel und tatsächliche Zugwirkung werden ohne Nachklicken geprüft.
-- Automatisch gespeicherter Liga-Siegcheckpoint und finaler Abschluss werden
-  als gültige Übergänge berücksichtigt; Abbruch, fremde Region und
-  unbestätigte Speicherung zählen nicht als erfolgreicher Checkpoint.
-- Trainerprüfungen zunächst 6/6 erfolgreich.
-- Danach alle 114 Prüfungen der 13 betroffenen Kampf-Testdateien in
-  Chromium und WebKit bestanden; Laufzeit 5,1 Minuten, keine Test-Retries.
-- Helfer-Protokollprüfungen in Vorprüfung und zentrales Gate aufgenommen.
-- Keine Änderungen an Spielcode, nativen Regeln, Timeouts oder Fangchancen.
-- Folgecommit wird gepusht; erfolgreicher GitHub-Gesamtlauf und
-  Veröffentlichung bleiben bis zur CI-Bestätigung offen.
-
-### Veröffentlichter Reviewstand — iPhone-Abnahme, 28.10.2026
-
-- Review-Hauptcommit: 27565e838d4d02115908335e4286b78725637179.
-- CI-Folgefix: f8907530c4618a7820a09971f1b2011c03229c1e.
-- Folgefix auf main gepusht; GitHub-Build vom Nutzer als grün bestätigt.
-- Veröffentlichte Änderungen am 28.10.2026 auf dem iPhone vom Nutzer
-  abgenommen.
-- Navigation-/Zapdos-Reviewpaket einschließlich CI-Nacharbeit und
-  manueller iPhone-Abnahme abgeschlossen.
-- Vereinbarter iterativer Revisionsbrowser-/Paketabschluss-Workflow
-  bleibt für folgende Pakete verbindlich.
-
-## Freigegebener Arktos-Umfang — 28.10.2026
-
-Aktives Teilpaket: P06 — Arktos.
-Status: Inhalt vom Nutzer freigegeben; Umsetzung beginnt.
-Dieser Abschnitt ersetzt für die nachstehenden Punkte ältere
-Planungsangaben, nicht die historischen Abnahmeprotokolle.
-
-### Freischaltung
-
-- Zapdos künftig mit mindestens vier Kanto-Orden statt sechs.
-- Arktos mit mindestens sechs Kanto-Orden.
-- Lavados später mit mindestens acht Kanto-Orden.
-- Keine zusätzliche Voraussetzung einer vorherigen Zapdos-Aufnahme
-  als beschlossen behandeln.
-- Bestehende gespeicherte Storyfortschritte und Aufnahmen erhalten.
-- Zugehörige Anzeigen und Freischalthinweise an die neuen Schwellen
-  anpassen; historische Dokumentation nicht pauschal umschreiben.
-
-### Geschichte und Darstellung
-
-- Mischung aus den freigegebenen Vorschlägen 1 und 3.
-- Eisformationen versperren den Zugang zur inneren Höhlenkammer.
-- Grafischer Schwerpunkt: Schneewirbel, blockierter Luftstrom und
-  eingeschränkte Sicht vor dem vereisten Durchgang.
-- Nach bestandenem Minispiel wird der Durchgang frei; der Schneewirbel
-  legt sich und gibt die Sicht in die innere Höhlenkammer frei.
-- Dort erscheint ein wildes Arktos auf Level 50.
-
-### Minispiel
-
-- Innerhalb von zehn Sekunden zehn fallende Eiszapfen treffen.
-- Ein Eiszapfen darf nur einmal als Treffer zählen.
-- Zehn Treffer innerhalb des Zeitlimits bedeuten Erfolg.
-- Weniger als zehn Treffer beim Ablauf bedeuten Nichtbestehen.
-- Bei Nichtbestehen erscheint:
-  „Der Schneesturm ist zu stark, ich muss es noch einmal versuchen.“
-- Anschließend ist ein neuer Versuch möglich.
-- Jeder Versuch startet mit zehn Sekunden und Trefferzähler null.
-- Keine Strafen oder Energiekosten für Nichtbestehen oder Wiederholen.
-- Kein Verlust bereits gespeicherter Fortschritte.
-- Arktos-Begegnung erst nach bestandenem Minispiel.
-- Keine zusätzlichen Strafregeln für Fehlklicks oder verpasste
-  Eiszapfen als beschlossen behandeln.
-- Schwierigkeit zunächst mit zehn Treffern in zehn Sekunden umsetzen.
-  Falls im manuellen Review zu schwer, nach Nutzerfeedback anpassen.
-
-### Pilot wiederverwenden
-
-- Bestehende Zapdos-Kampf- und Anschlussregeln übernehmen.
-- Freiwilliger, garantierter Anschluss nach gewonnenem Prüfduell.
-- Vorhandene Begegnungs-, Aufnahme- und Abschlussanimationen übernehmen
-  und inhaltlich/grafisch auf Arktos anpassen.
-- Bestehende Speicher-, Wiederholungs- und Abschlussabsicherung nutzen;
-  kein zweites unabhängiges Kampf- oder Aufnahmesystem aufbauen.
-- Neue Inhalte über die vorhandene Spracharchitektur integrieren.
-- Änderungen im Wesentlichen auf Inhalt, Grafik, Minispiel und die
-  ausdrücklich geänderten Freischaltbedingungen begrenzen.
-
-### Arbeitsablauf und Abnahme
-
-- Zuerst betroffene Implementierung, Projektanweisungen und Tests lesen.
-- Kleine Umsetzungsschritte mit passenden kurzen Prüfungen.
-- Früh im Revisionsbrowser ansehen und Nutzerkorrekturen einarbeiten.
-- Keine vollständige Testsuite nach jeder Darstellungsänderung.
-- Abschließende Gesamtprüfung erst nach manueller Paketabnahme,
-  auf unverändertem Stand; lokal grundsätzlich zwei Worker.
-- Commit, Push, GitHub-Ergebnis und iPhone-Abnahme anschließend
-  getrennt durchführen und dokumentieren.
-- Keine bereits bestandenen Prüfungen oder erfolgte Implementierung
-  allein aus dieser Freigabe ableiten.
-
-### Arktos — gemeinsames Modell und Reviewvorbereitung
-
-- Gemeinsames P06-Modell um ein fest definiertes Arktos-Profil erweitert.
-- Zapdos bleibt Standardprofil mit unverändertem Schema und Container.
-- Arktos erhält getrenntes Schema, Aufnahmeherkunft und Modellcontainer.
-- Vorhandene Modellprüfungen für Arktos übernommen; zusätzliche
-  Profiltrennung und Ablehnung unbekannter Profile geprüft werden sollen.
-- Neue Modellprüfung im zentralen Prüflauf registriert.
-- Noch keine native Arktos-Speicherung, Kampfanbindung oder sichtbare
-  Arktos-Oberfläche durch diesen Modellschritt behaupten.
-- Tatsächliche lokale Prüfergebnisse nach Ausführung separat ergänzen.
-- Vor dem ersten manuellen Review zuerst Testspielstände vorbereiten,
-  dann aktuellen Browser-/WASM-Stand bauen und Revisionsbrowser starten.
-- Befehle für diese Vorbereitung vor den manuellen Prüfschritten ausgeben.
-- Benötigte Ordensstände: drei/vier für Zapdos und fünf/sechs für Arktos.
-- Zusätzliche Fortschrittsstände für Minispiel, Begegnung und Abschluss
-  vorbereiten; echten Spielstand nicht durch Testdaten überschreiben.
-
-### Arktos — native Vorbereitung auf gemeinsamem Speicherweg
-
-- Gemeinsame native Funktionen fuer Vorbereitung und Hinweise erweitert.
-- Bestehende Zapdos-Schluessel und Schnittstellen bleiben erhalten.
-- Arktos-Fortschritt: arcver, arcstep, arctick.
-- Getrennter Arktos-Hinweis: arcnver, arcnread.
-- Freischaltung: Zapdos vier, Arktos sechs Kanto-Orden.
-- Neue Arktos- und Trennungspruefungen im vorhandenen gezielten
-  nativen Speichertest eingebunden.
-- Implementierung zur Pruefung; Testerfolg separat dokumentieren.
-- Noch keine Arktos-Kampfanbindung, Gesamtspeicherparser-Erweiterung
-  oder sichtbare Oberflaeche durch diesen Schritt behaupten.
-- Arbeitsweg bleibt: kopierbare Terminalbloecke ohne separate Patchdatei.
-
-### Arktos — Gesamtspielstandprüfung für beide Storyprofile
-
-- Native Vorbereitung lokal erfolgreich geprüft:
-  je 256 Kanto-Ordenskombinationen für Zapdos und Arktos.
-- Getrennte Fortschritte/Hinweise, Rollback, Reload und unveränderte
-  Energie durch die übermittelte Prüfausgabe bestätigt.
-- Gesamtspielstandprüfung auf beide Storyprofile erweitert.
-- Arktos-Hinweise auf Vollständigkeit, Typ und Version prüfen.
-- Aufnahmeherkunft, individuelle Sammlung und Storyticket verknüpfen.
-- Doppelte Storytickets zwischen beiden Profilen auch nach Freilassung
-  der aufgenommenen Individuen ablehnen.
-- Arktos-Modell in Browser-Ladereihenfolge und Offline-Dateiliste ergänzt.
-- Neue Parserprüfung im zentralen Ablauf registriert.
-- Parser-Schritt zur Prüfung; Ergebnisse nach Ausführung ergänzen.
-- Noch keine Arktos-Kampfanbindung oder Browser-/iPhone-Abnahme behaupten.
-
-### Arktos — gemeinsamer nativer Prüfduellkanal
-
-- Modell-, Profiltrennungs- und Gesamtspielstandprüfungen lokal bestanden.
-- Zapdos und Arktos je 88 Modell-Assertions; Zapdos 30 Speicherprüfungen,
-  erweiterte Arktos-Spielstandprüfung insgesamt 44 Prüfungen bestätigt.
-- Nativen Pilot-Kampfkanal auf die beiden Storyprofile erweitert.
-- Arktos auf Level 50; gleiche Kampf- und Ergebnisregeln.
-- Bestehende Zapdos-Schnittstellen bleiben als profilgebundene Aufrufe.
-- Ergebnisoperationen an das tatsächlich laufende Storyprofil binden.
-- Zusätzliche native Arktos-Duellprüfung im zentralen Ablauf registriert.
-- Duellimplementierung zur Prüfung; Ergebnisse separat dokumentieren.
-- Noch keine vollständige JS-Kampfanbindung, Höhlendarstellung,
-  Eiszapfen-Aufgabe oder Browser-/iPhone-Abnahme behaupten.
-
-### Arktos — gemeinsamer JS-Adapter und Aufnahme-Tagebuch
-
-- Native Zapdos- und Arktos-Duellprüfungen laut übermittelter Ausgabe bestanden.
-- Gemeinsamen JS-Adapter um explizites Arktos-Profil erweitert.
-- Arktos verwendet gemeinsame native Funktionen und getrennte Aktionsnamen.
-- Vorhandene Zapdos-Aufrufe bleiben unverändert nutzbar.
-- Arktos-Aufnahmeabschluss an die native Story-Tagebuchübergabe angebunden.
-- Controllerprüfung mit tatsächlichen Modellen, Speichercontroller und
-  Gesamtspielstandparser für Arktos ergänzt; nativer Transport simuliert.
-- Native Arktos-Duellprüfung um Aufnahme-Tagebuch und Wiederholungssperre
-  erweitert; Ergebnisse dieses Schritts separat dokumentieren.
-- Noch keine Initialisierung des Arktos-Dienstes in main.js, sichtbare
-  Höhlenseite, Minispiel- oder Browser-/iPhone-Abnahme behaupten.
-
-### Arktos — App-Initialisierung und Dienstbindung
-
-- Namenskollision im Adapter korrigiert: actionName statt action.
-- Zapdos- und Arktos-Controller jeweils mit 42 Assertions plus
-  Ablehnungsprüfungen laut übermittelter Ausgabe bestanden.
-- Native Arktos-Duellprüfung mit Aufnahmeübergabe erneut bestanden.
-- Arktos-Dienst an gemeinsame Adapterkette und Speichercontroller gebunden.
-- Getrennte Arktos-Aktionen registriert; articunoResult nur im Kampfkontext.
-- Isolierte Prüfung des tatsächlichen Initialisierungsabschnitts ergänzt.
-- Initialisierung zur Prüfung; Ergebnisse separat dokumentieren.
-- Noch keine sichtbare Höhlenseite, Minispiel- oder Browserabnahme behaupten.
-
-### Arktos — Eiszapfen-Minispiel zur Einbindung
-
-- App-Verdrahtungsprüfung laut Nutzer-Ausgabe bestanden.
-- Eigenständige vorübergehende Minispielkomponente mit zehn Treffern
-  innerhalb von zehn Sekunden ergänzt.
-- Keine Speicher-, Energie- oder Kampfoperationen im Rundenmodell.
-- Unterschiedliche Eiszapfen; Doppelwertung, abgelaufene Ziele und
-  Ziele früherer Versuche zählen nicht.
-- Nichtbestehen zeigt die vereinbarte Meldung und erlaubt neuen Versuch.
-- Bestandene Aufgabe bleibt bei einer Schreibwiederholung erhalten.
-- Anfangswerte für manuelles Balancing: neue Ziele alle 550 ms,
-  Fallzeit 1800 ms und Tippflächen von 48 mal 64 CSS-Pixeln.
-- Neue Texte über vorhandene Spracharchitektur in de/en/es/fr.
-- Komponente in Browser- und Offline-Dateiliste aufgenommen.
-- Rundenlogikprüfung registriert; tatsächliche lokale Ausgabe nachführen.
-- Noch keine sichtbare Storyseite oder Touch-/Schwierigkeitsabnahme behaupten.
-
-### Arktos — sichtbarer Ablauf über gemeinsame Storyoberfläche
-
-- Minispiel-Rundenlogik und genaue Fehlermeldung lokal bestätigt.
-- Gemeinsame Storyoberfläche für Zapdos und Arktos konfigurierbar gemacht.
-- Arktos-Kachel, Sechs-Orden-Sperre und eigener Freischalthinweis ergänzt.
-- Höhle mit versperrtem Eisgang und Schneewirbel als eigene SVG/CSS-Szene.
-- Eiszapfen-Aufgabe an den gespeicherten Vorbereitungsschritt angeschlossen.
-- Danach innere Kammer, Arktos-Begegnung und vorhandener Prüfduellweg.
-- Bestehenden Porträtdecoder und vorhandene Aufnahmeanimation wiederverwendet.
-- Texte in de/en/es/fr über vorhandene Spracharchitektur.
-- Gemeinsame UI-Prüfung registriert; lokale Ausgabe separat dokumentieren.
-- Noch keine Browser-/iPhone-Abnahme oder endgültiges Balancing behaupten.
-- Vor manuellem Review Testspielstände vorbereiten, Browserstand bauen
-  und Revisionsbrowser über vorher ausgegebene Befehle starten.
-
-### Interaktiven Revisionsbrowser wieder bereitstellen
-
-- Nutzer verlangt den bewährten Ein-Terminal-Reviewablauf mit Testbadge,
-  Screenshot/Notiz-Taste und direktem Testspielstandwechsel.
-- Wiederverwendbaren Runner unter tools/review/manual-review.cjs ergänzt.
-- Start und Bedienung in docs/TEST-WORKFLOW.de.md festgehalten.
-- Vorbereitete acht Arktos-Testspielstände weiterverwenden.
-- Kein erneuter Build allein durch den Runnerstart.
-- Erste tatsächliche Ausführung und manuelle Abnahme separat bestätigen.
-
-### Arktos — Reviewkorrekturen aus fünf Textnotizen
-
-- Grundlage: fünf übermittelte Textnotizen; Bildinhalte nicht gesehen.
-- Kein Scrollen in den Arktos-Ansichten.
-- Einstiegssatz: „Der Schneewirbel versperrt die Sicht in die Höhle.“
-- Button: „Näher herangehen“; nächste Ansicht mit näherer Perspektive.
-- Bild antippen öffnet und startet die eigene Minispielansicht.
-- Zufällige horizontale Eiszapfenpositionen statt fester Reihenfolge.
-- Zehn Treffer in zehn Sekunden und kostenlose Wiederholung unverändert.
-- Arktos bei Begegnung und Finale zunächst 20 Prozent kleiner.
-- Zur erneuten manuellen Prüfung; keine Abnahme behaupten.
-
-## Verbindliche Reviewentscheidung — 28.10.2026
-
-Der Nutzer bestätigt zum aktuellen sichtbaren Stand:
-„genau so soll es aussehen! sehr gut“
-
-Der interaktive Revisionsbrowser und seine Bedienung werden als
-verbindlicher Arbeitsweg für weitere Pakete übernommen.
-
-- Einstiegspunkt für Folgesitzungen: AGENTS.md.
-- Detaillierter Ablauf und Startbefehl: docs/TEST-WORKFLOW.de.md.
-- Werkzeug: tools/review/manual-review.cjs.
-- Ein Terminal, sichtbarer Browser mit Testbadge, direkte
-  Testspielstandwahl, Screenshots und zugehörige Textnotizen.
-- Bestehenden Arbeitsweg wiederverwenden statt neue Startverfahren
-  oder zusätzliche manuelle Importschritte einzuführen.
-- Die positive Bestätigung betrifft den aktuellen sichtbaren Reviewstand
-  und den Review-Arbeitsweg. Keine vollständige P06-, Browsergesamt-,
-  Veröffentlichungs- oder iPhone-Abnahme daraus ableiten.
-
-## Arktos — manuelle Browserabnahme, 28.10.2026
-
-Nutzerbestätigung:
-„minispiel bestanden -> begegnung erfolgreich -> Kampf gewonnen,
-arktos schließt sich an, tagebuch eintrag vorhanden, nach einem
-neu laden ist arktos noch da...“
-
-- Sichtbare Darstellung zuvor ausdrücklich positiv bestätigt.
-- Minispiel bestanden und Begegnung erfolgreich.
-- Prüfduell gewonnen; Arktos hat sich angeschlossen.
-- Zugehöriger Tagebucheintrag vorhanden.
-- Arktos nach erneutem Laden weiterhin vorhanden.
-- Manuelle Browserabnahme des Arktos-Pakets damit bestätigt.
-- Keine darüber hinausgehenden manuellen Einzelprüfungen behaupten.
-- Vollständige Abschlussprüfungen stehen noch aus.
-- Noch keine GitHub-Veröffentlichung oder iPhone-Abnahme behaupten.
-
-### Abschlussprüfung — Zählererwartungen für zwei Geschichten
-
-- Betroffene Browsergruppe fehlgeschlagen:
-  94 bestanden, fünf fehlgeschlagen, einer unterbrochen,
-  einer übersprungen und sieben nicht ausgeführt.
-- Ausgewiesene Zählerfehler betreffen alte Ein-Geschichten-Erwartungen:
-  sechs Kanto-Orden ergeben zwei offene Geschichten;
-  nach Zapdos-Abschluss bleibt Arktos als eine offene Geschichte.
-- Konkrete Sollwerte korrigiert, ohne Spielcode zu ändern.
-- Zusätzlich feste Browserfälle für drei, vier, fünf und sechs
-  Kanto-Orden mit acht Johto-Orden ergänzt.
-- Zapdos-Abschlusstest prüft ausdrücklich die weiterhin offene
-  Arktos-Geschichte und ihren unveränderten Fortschritt.
-- Keine Assertions entfernt, keine Timeouts erhöht, keine Tests übersprungen.
-- Gezielt neu prüfen; vollständige Abschlussprüfungen weiterhin offen.
-
-## Arktos — bestandene Abschlussprüfungen, 28.10.2026
-
-Manuelle Browserabnahme:
-- Darstellung ausdrücklich positiv bestätigt.
-- Minispiel bestanden, Begegnung erfolgreich, Prüfduell gewonnen.
-- Arktos angeschlossen, Tagebucheintrag vorhanden.
-- Arktos nach erneutem Laden weiterhin vorhanden.
-
-Automatische Abschlussprüfungen:
-- affected: 115 bestanden, 1 übersprungen, 0 unerwartete Fehler,
-  0 instabile Tests; zwei Browser-Worker.
-- full: 323 bestanden, 1 übersprungen, 0 unerwartete Fehler,
-  0 instabile Tests; zwei Browser-Worker.
-- Zentraler nativer Check bestanden.
-- Abschließendes git diff --check ohne Befund.
-- Übersprungene Prüfungen werden nicht als bestanden gezählt.
-- Keine parallele native Ausführung aus der Workerangabe ableiten.
-
-Zusammengehörige Berichte:
-- affected: itamapoke-review-vqHaSq
-- full: itamapoke-review-m4owC1
-- native: itamapoke-review-pzRuIq
-
-Identischer Quellfingerabdruck:
-6d5fd2e367df12ca3d1dd39c1eb68e9b0214f09c6f23c90966daf6d1dca6e07b
-
-Identischer WASM-SHA-256:
-1e4651e1a92f3bfd7622e291d83f014a0170c4154bf7c42ea161bc9cea95ecee
-
-Veröffentlichungsumfang:
-- Arktos-Eishöhlengeschichte mit vorhandenem Pilot-Kampf-/Aufnahmeweg.
-- Zapdos-Freischaltung mit vier, Arktos mit sechs Kanto-Orden.
-- Eiszapfen-Minispiel und bestätigte Darstellungskorrekturen.
-- Gemeinsame Storykomponenten und profilgetrennte Speicherabsicherung.
-- Erweiterte Tests sowie wiederverwendbarer interaktiver Reviewrunner.
-- Keine privaten Medien, Reviewaufnahmen oder Testspielstände enthalten.
-
-Status:
-- Lokal abgenommen und Abschlussprüfungen bestanden.
-- GitHub-Build/Deployment und iPhone-Abnahme separat bestätigen.
-- P06 insgesamt bleibt offen; keine Freigabe von P07 oder UI01 ableiten.
-
-## iPhone-Nacharbeit — Eingabeschutz und Aufnahmesequenz
-
-Nutzerbestätigung vom 28.10.2026:
-- GitHub-Build von 24a3105 grün.
-- Grundlegender iPhone-Ablauf funktioniert.
-- Zwei offene Befunde verhindern den endgültigen Abschluss:
-  schnelles Weiter-Tippen überspringt die Begegnung;
-  Aufnahmesequenz fehlt nach manueller Team-/Boxentscheidung.
-
-Gemeinsame Nacharbeit für die Storyprofile:
-- Begegnung mit 650 ms Anfangsschutz und 350 ms Berührungsruhe.
-- Gedrückte und aus vorheriger Ansicht stammende Zeiger abfangen.
-- Transparente Eingabefläche während der Sperre; kein Layoutumbau.
-- Nach erfolgreich gespeicherter manueller Aufnahme zur passenden
-  Story-Aufnahmesequenz zurückkehren.
-- Kein Finale bei Speicherfehler, wartender Aufnahme oder „Später“.
-- Quellen-/Ticketprüfung und Schutz vor doppelter automatischer Rückleitung.
-- Neue Storykonfigurationen über dieselbe gemeinsame Registrierung anbinden.
-- Noch keine bestandene Nacharbeits-/iPhone-Abnahme behaupten.
-- Vor Lavados diese beiden Punkte prüfen, veröffentlichen und abnehmen.
-
-## Gemeinsame Legendären-Korrekturen — Review bestätigt
-
-Nutzerbestätigung vom 28.10.2026:
-„alles funktioniert nun wie es soll auch die Tippsperre funktioniert sehr gut“
-
-- Lokale Review-Nacharbeit zu Tippsperre und Aufnahmesequenz positiv bestätigt.
-- Die Implementierung gilt gemeinsam für Zapdos und Arktos.
-- Automatische Prüfungen für beide Profile lagen bereits vor.
-- Zapdos-Browserprüfungen um tatsächliches Finale nach Teamtausch und
-  verspäteter Boxaufnahme sowie um den Begegnungsschutz erweitern.
-- Dieselben Funktionen künftig für Lavados, Mewtu, Mew und alle weiteren
-  Legendären-Geschichten verwenden; keine abweichenden Kopien.
-- Keine separate manuelle Zapdos-iPhone-Abnahme aus der Rückmeldung ableiten.
-- Abschlussprüfungen, Veröffentlichung dieser Nacharbeit und erneute
-  iPhone-Prüfung des veröffentlichten Fixstands stehen noch aus.
-
-## Gemeinsame Legendären-Nacharbeit — Abschlussprüfungen bestanden
-
-Nutzer hat die Nacharbeit im Revisionsbrowser positiv bestätigt.
-Gemeinsame Implementierung für Zapdos und Arktos; keine getrennten Kopien.
-
-Abschlussprüfungen:
-- affected: 117 bestanden,
-  1 übersprungen, 0 unerwartete Fehler,
-  0 instabile Tests; 2 Browser-Worker.
-- full: 325 bestanden,
-  1 übersprungen, 0 unerwartete Fehler,
-  0 instabile Tests; 2 Browser-Worker.
-- Zentraler nativer Gesamtcheck bestanden.
-- Keine parallele native Ausführung aus der Workerangabe ableiten.
-- Übersprungene Prüfungen nicht als bestanden zählen.
-
-Zusammengehörige Berichte:
-- affected: itamapoke-review-iXfY27
-- full: itamapoke-review-S76Y1G
-- native: itamapoke-review-1NiBjM
-
-Quellfingerabdruck:
-e6664759ab096065e1e71aeacbdee0bd4b5eee9252fc4d03d3742bef0826adf7
-
-WASM SHA-256:
-1e4651e1a92f3bfd7622e291d83f014a0170c4154bf7c42ea161bc9cea95ecee
-
-Umfang:
-- Begegnungsschutz mit Anfangssperre, Berührungsruhe und Loslassprüfung.
-- Finale nach dauerhaft gespeicherter manueller, Box- oder späterer Aufnahme.
-- Keine Sequenz bei Speicherfehler oder „Später“.
-- Quellen-/Ticketprüfung und Schutz vor doppelter automatischer Rückleitung.
-- Gemeinsame Vorgaben für Lavados, Mewtu, Mew und spätere Geschichten.
-- Zusätzliche Node- und echte Zapdos-Browserregressionen.
-
-Veröffentlichung:
-- Zur Veröffentlichung bereit.
-- GitHub-Ergebnis und iPhone-Abnahme dieses Fixstands separat dokumentieren.
-
-## CI-Nacharbeit nach 3478b05 — Johto-Rücknavigation
-
-- Commit 3478b056ceb7b061def5f8d3bc78dc582c7a9646 erfolgreich gepusht.
-- GitHub-Browserprüfung nicht bestanden:
-  324 bestanden, einer fehlgeschlagen, einer übersprungen.
-- Fehler im Chromium-Johto-Liga-/Ehrenei-Test:
-  Rückkehr zur Karte erfolgt, abschließende Rückkehr zu idle bleibt aus.
-- Test verwendet dort bislang eine separate, nicht vollständig
-  synchronisierte Tippfolge.
-- Bestehenden synchronisierten exitToIdle-Helfer wiederverwenden.
-- Schließen von Ehrenei und Ruhmeshalle jeweils ausdrücklich abwarten.
-- Bei erneutem Fehler Zustandsdaten anhängen und Originalfehler weiterwerfen.
-- Spielcode, Sollzustand idle, Timeouts und Retryregeln unverändert.
-- Gezielte Wiederholung zur Prüfung; keine grüne CI behaupten.
-
-### Johto-CI-Testfix — gezielte Wiederholungsprüfung bestanden
-
-- Gezielter Wiederholungslauf bestanden: sechs Ausführungen.
-- Je drei Ausführungen in Chromium und WebKit, ein Worker.
-- Keine Fehler, instabilen oder übersprungenen Prüfungen.
-- Wiederholungen ausdrücklich ausgewählt; automatische Retries bleiben null.
-- Bericht: itamapoke-review-FEkcMu.
-- Vorhandenen synchronisierten Rückweg wiederverwendet.
-- Erwartung idle und alle nachfolgenden Ehrenei-/Sammlungsprüfungen erhalten.
-- Zusätzliche Zustandsdiagnose bei erneutem Fehler ergänzt.
-- Keine Änderung an Spielcode, Speicherregeln oder Timeouts.
-- Gesamte GitHub-CI nach diesem Testfix erneut bestätigen.
-
-Quellfingerabdruck des Wiederholungslaufs:
-49914491bcb1f1d900a1a8e36c5bc7adcc2975152bf0f3251691b5dfd6056a72
-
-WASM SHA-256:
-1e4651e1a92f3bfd7622e291d83f014a0170c4154bf7c42ea161bc9cea95ecee
-
-## Arktos und gemeinsame Nacharbeit — Veröffentlichung und iPhone-Abnahme, 28.10.2026
-
-Veröffentlichte Stände:
-- 24a31057f321a97362d5007798efc6a8110ef9dc:
-  Arktos-Eishöhlengeschichte und wiederverwendbarer Reviewbrowser.
-- 3478b056ceb7b061def5f8d3bc78dc582c7a9646:
-  gemeinsame Begegnungs-Tippsperre und Finale nach manueller Aufnahme.
-- c58a67cc00e7574a5dad9af1882f2c41ddcdf284:
-  synchronisierter Johto-Rückweg im Browsertest.
-
-Nutzerbestätigung:
-„build grün -> iphone abnahme erfolgt“
-
-- GitHub-Build des letzten veröffentlichten Standes grün bestätigt.
-- iPhone-Abnahme bestätigt.
-- Arktos und gemeinsame Nacharbeit damit abgeschlossen und abgenommen.
-- Keine weiteren manuellen Einzelprüfungen über die vorliegende
-  Nutzerbestätigung hinaus behaupten.
-- Keine erneuten lokalen Gesamtprüfungen allein für diese
-  Dokumentationsänderung erforderlich.
-- P06 insgesamt bleibt offen; als Nächstes Lavados.
-- Noch keine konkrete Lavados-Geschichte, Minispielregel oder
-  Begegnungslevel als freigegeben behandeln.
-- Gemeinsame Übergangs-/Aufnahmeregeln und den dokumentierten
-  interaktiven Revisionsbrowser verbindlich weiterverwenden.
-
-## Konzeptfreigabe Restpaket P06 — 28.10.2026
-
-Vom Nutzer ausdrücklich freigegeben:
-- Alle drei Begegnungen auf Level 50.
-- Kostenlose Minispielwiederholungen ohne Energieverlust bei allen drei.
-- Lavados: acht unterschiedliche Kanto-Orden; Siegesstraße;
-  Geschichte „Der versperrte Seitenpfad“; Felsenschieber-Minispiel.
-  Felsen antippen, angrenzendes freies Feld wählen; Bodenplatten belegen.
-  Blockierte Bewegungen nicht ausführen; Zurücksetzen; zunächst ohne Timer.
-  Feldaufteilung und endgültige Felsenanzahl noch auszuarbeiten.
-- Mewtu: erster vollständiger Ligasieg; Azuria-Höhle;
-  Geschichte „Die unsichtbare Barriere“; schrumpfender Psi-Ring.
-  Drei erfolgreiche Impulse im Zielbereich lösen die Barriere.
-  Fehleingaben zählen nicht; zunächst kein zusätzlicher Gesamttimer.
-- Mew: erst nach erfolgreichem Abschluss aller drei Liga-Durchläufe;
-  keine zusätzliche Aufnahme von Mewtu als Voraussetzung beschlossen.
-  Versteckte Lichtung nördlich der Nuggetbrücke;
-  Geschichte „Das Versteck hinter der Nuggetbrücke“; Versteckspiel.
-  Drei feste große Verstecke, drei richtige Entdeckungen, kein Gesamttimer.
-  Falsche Wahl wiederholt dieselbe Runde mit neuem Hinweis.
-- Hinweiszeiten, Ringgeschwindigkeit und Trefferbereich im Review abstimmen.
-- Gemeinsame Tippsperre, Aufnahmewege und Finale-Registrierung verwenden.
-- Finale erst nach dauerhaft bestätigter Aufnahme; auch nach Teamtausch,
-  Boxentscheidung oder später freiem Platz; keine doppelten Abschlüsse.
-- Nicht scrollende Storyansichten; Minispielstart über das Bild.
-- Lokal in der Reihenfolge Lavados, Mewtu, Mew umsetzen und einzeln prüfen.
-- Betroffene Tests/Helfer mitpflegen; bestehenden Revisionsbrowser nutzen.
-- Vollständige Abschlussprüfungen erst nach manueller Paketabnahme.
-- Kein zwischenzeitlicher Commit/Push; gemeinsame Veröffentlichung erst
-  nach Fertigstellung, erfolgreichen Abschlussprüfungen und Nutzerfreigabe.
-
-Erster lokaler Teilschritt:
-- Lavados-Profil im gemeinsamen JS-Storymodell ergänzen.
-- Dünnes Lavados-Modul und Modelltests ergänzen.
-- Native Freischaltung, Persistenz, Kampf, Menü, Grafik und Minispiel
-  sind damit noch nicht angebunden.
-- Prüfergebnisse erst nach tatsächlicher Ausführung nachtragen.
-
-### Lavados-Zwischenstand — Modell und JS-Anbindung
-
-- Nutzer meldet erfolgreiche Modellprüfungen für Zapdos, Arktos und
-  Lavados: jeweils 88 Assertions sowie vorhandene Profiltrennungsprüfungen.
-- Lavados im gemeinsamen Controller, strikten Spielstandprüfer und
-  gemeinsamen Aufnahmeweg ergänzt; Prüfungen dieses Schritts noch offen.
-- Neue Modell-, Speicher- und Controllerprüfungen zentral registriert.
-- Speicherprüfung um einen gemeinsamen Drei-Vogel-Spielstand erweitert.
-- Native Lavados-Profile, Duellfreigabe, App-Initialisierung, Storytexte,
-  Grafiken, Felsenschieber und Reviewspielstände weiterhin ausstehend.
-- Keine Browser-/iPhone-Abnahme, kein neuer Build und keine Veröffentlichung.
-
-### Lavados-Zwischenstand — native Anbindung vorbereitet
-
-- Nutzer meldet erfolgreiche JS-Aufnahme-, Controller- und Speicherprüfungen.
-- Lavados-Speicherprüfung: 50 akkumulierte Prüfungen einschließlich
-  Drei-Vogel-Spielstand; Controller: 42 Assertions plus Ablehnungsprüfungen.
-- Natives Lavados-Profil mit acht Kanto-Orden und eigenen mlt-Schlüsseln
-  ergänzt; vorhandenen gemeinsamen Storyduell-Einstieg für ID 146 geöffnet.
-- Native Freischaltprüfung für alle 256 Kanto-Ordensmasken ergänzt;
-  Johto-Abgrenzung, Rollback, Reload und Profilisolation mitprüfen.
-- Native Lavados-Duellprüfung und zentralen Testeintrag vorbereitet.
-- Native Ergebnisse dieses Schritts noch offen; kein neuer WASM-Build.
-- App-Anbindung, Storytexte, Grafik, Felsenschieber und Review weiterhin offen.
-- Keine Veröffentlichung und keine Browser-/iPhone-Abnahme behauptet.
-
-### Lavados-Zwischenstand — Felsenschieber als Reviewentwurf
-
-- Nutzer meldet erfolgreiche native Zugriffs-/Speicherprüfungen und
-  Zapdos-, Arktos- sowie Lavados-Duellprüfungen.
-- Felsenschieber als erster Reviewentwurf: zwei Felsen auf einem 5x5-Feld,
-  zwei Bodenplatten, Auswahl und orthogonaler Einzelfeldzug ohne Spielfigur.
-- Eigene CSS-Formen; keine neuen Bilddateien oder Mediendownloads.
-- Kostenloses Zurücksetzen, kein Timer, keine eigene Energie-/Speicherlogik.
-- Gemeinsamer Minispielvertrag: create, attach, start, solved, dispose.
-- Gelöste Aufgabe bleibt bei Speicherfehler erhalten; nach bestätigtem
-  Erfolg keine zweite Erfolgsmeldung.
-- Logik-/DOM-Double-Prüfung zentral registriert; lokales Ergebnis noch offen.
-- Minispiel noch nicht in App-/Storyoberfläche eingebunden.
-- App-Anbindung, Storygrafik, aktueller WASM-Build und Revisionsbrowser folgen.
-- Verbindlicher Arbeitsweg: direkt kopierbare Terminalbefehle; keine
-  herunterzuladenden Einbauskripte oder Dateiauswahl-Installationsschritte.
-- Bestehenden interaktiven Revisionsbrowser unverändert weiterverwenden.
-- Kein Commit/Push und keine Browser-/iPhone-Abnahme dieses Entwurfs.
-
-### Lavados-Zwischenstand — App- und Storyanbindung
-
-- Nutzer bestätigt erfolgreiche Lavados-Minispielprüfungen und weiterhin
-  erfolgreiche Arktos-Minispielprüfungen nach Korrektur des Test-Syntaxfehlers.
-- Lavados-Controller in die vorhandene Bridge-/Speicherkette eingebunden.
-- Storyroute, Katalog, Hinweis, Eingabesicherungen und Kampfsteuerung ergänzt.
-- Storytexte für de/en/es/fr und eigene Siegesstraßen-SVG-Szenerie ergänzt.
-- Minispiel startet über das Bild in eigener Storyansicht.
-- Gemeinsame Tippsperre, Portrait- und Aufnahmesequenz weiterverwendet.
-- Gemeinsame UI-/Finale-Prüfungen um Lavados erweitert;
-  separater App-Initialisierungstest zentral registriert.
-- Neue Dateien in Ladereihenfolge und Offline-Dateiliste aufgenommen.
-- Kompaktes Minispiel-Layout für den bestehenden quadratischen Spielrahmen
-  vorbereitet; tatsächliche Darstellung noch im Revisionsbrowser prüfen.
-- JS-Prüfergebnisse dieses Schritts, aktueller WASM-Build, Reviewspielstände
-  und manuelle Sicht-/Funktionsprüfung noch offen.
-- Kein Commit/Push und keine Browser-/iPhone-Abnahme behauptet.
-
-### Lavados — WASM-Build und Reviewvorbereitung
-
-- Nutzer meldet erfolgreichen Emscripten-6.0.13-Build.
-- Bestehende SDK-Umgebung: ~/Developer/emsdk/emsdk_env.sh.
-- Bekannte TPNamedPrompt-C-Linkage-Warnung weiterhin offen.
-- Bestätigter WASM-SHA-256: ca6fa9a961210591142e1777968c4157e157388c05f30e83e87a162cd576ab41.
-- Bestehenden Reviewrunner um optionale Paketkonfiguration erweitert.
-- Ohne review.json bleibt die bisherige Arktos-Auswahl erhalten.
-- Profil, Playwright-Chromium, Port, Bedienung und Aufnahmefunktionen erhalten.
-- Acht synthetische Lavados-Fälle erstellt und mit dem strikten Parser geprüft.
-- Originalvorlagen unverändert; keine neuen Medien veröffentlicht.
-- Reviewspielstände: /Users/M1dn8/Downloads/iTamaPoke-Lavados-Review-SiUqSs
-- Manuelle Browserprüfung und iPhone-Abnahme noch offen.
-- Vollständige Abschlussprüfungen und Commit/Push weiterhin ausgesetzt.
-
-### Lavados — erste manuelle Reviewkorrekturen
-
-- Nutzer bestätigt sichtbare Lavados-Grafik nach lokalem Paketimport.
-- Fünf TXT-Notizen ausgewertet; keine eigene Screenshot-Sicht behauptet.
-- Lavados im gemeinsamen Portrait und dadurch auch im Finale um 20 Prozent
-  verkleinert; Zapdos-/Arktos-Skalierung unverändert.
-- Einstieg und nähere Seitenpfadansicht grafisch gemeinsam überarbeitet.
-- Leuchtende Feder räumlich zwischen den Vordergrundfelsen verankert;
-  Schimmeranimation mit statischer Reduced-Motion-Alternative ergänzt.
-- Sichtbare seitliche Minispielerklärung entfernt; zugängliche Beschreibung
-  für assistive Technik erhalten.
-- Rätsel zentriert, Zurücksetzen darunter; Größe an verfügbaren Platz angepasst.
-- Schwierigerer Entwurf mit drei Felsen und gemeinsamem Engpass:
-  mindestens 18 Verschiebungen statt acht; weiterhin ohne Timer/Energieverlust.
-- Betroffene Logik-/DOM-Double-/Darstellungsverträge aktualisiert.
-- Lokale Ergebnisse und erneute manuelle Sichtprüfung dieses Schritts offen.
-- Nur JS-/Darstellungsänderungen; keine nativen Änderungen dieses Schritts.
-- Kein Commit/Push und keine vollständige Paketabnahme behauptet.
-
-### Mewtu — erster gemeinsamer Modell-/Controllerbaustein
-
-- Lavados-Browserabnahme durch Nutzerbestätigung „jetzt passt alles“ erteilt.
-- Dies ist keine iPhone-Abnahme oder vollständige P06-Abschlussfreigabe.
-- Mewtu-Konzept bleibt: Azuria-Höhle, unsichtbare Barriere, Level 50,
-  Freischaltung nach erstem vollständigem Kanto-Ligasieg.
-- Psi-Ring: drei erfolgreiche Impulse; zunächst kein Gesamttimer.
-- Kostenlose Wiederholungen ohne Energieverlust.
-- Eigenes mewtwo-Profil im gemeinsamen Modell/Controller/Parser ergänzt.
-- Gemeinsamen Aufnahmeweg erweitert, keine getrennte Speicherverwaltung.
-- Mewtu-Modell-, Speicher- und Controllerprüfungen zentral registriert.
-- Gemischten Vier-Profil-Spielstand samt Tickettrennung mitprüfen.
-- Prüfungen dieses Schritts noch offen.
-- Native Freischaltung/Anbindung, Minispiel, Texte, Grafik, App-Anbindung,
-  WASM-Build und Revisionsbrowser für Mewtu weiterhin ausstehend.
-- Lavados-Grafik, Rätsel und Browserprofil dieses Schritts unverändert.
-- Kein Commit/Push; Abschlussprüfungen erst nach dem gemeinsamen Restpaket.
-
-### Mewtu — native Freischaltung und Prüfduell
-
-- Nutzer meldet bestandene Mewtu-Modell-, Controller- und Speicherprüfungen:
-  88 Modell-Assertions, 42 Controller-Assertions plus Ablehnungen sowie
-  56 akkumulierte Speicherprüfungen einschließlich Vier-Profil-Verknüpfung.
-- Natives Mewtu-Profil und gemeinsamer Level-50-Duelleinstieg ergänzt.
-- Erstfreischaltung über versionierte, typgeprüfte historische
-  Kanto-Ligaabschlussmetadaten; acht Orden oder Johto-Abschluss reichen nicht.
-- Aktuelle Ordensmaske ersetzt den historischen Ligasieg nicht.
-- Bereits etablierter Storyfortschritt bleibt wie bei den anderen Profilen
-  erhalten; es wird kein erneuter Ligasieg für Wiederholungen verlangt.
-- Neue native Zugriffsprüfung in bestehenden Speichertest eingebunden;
-  Mewtu-Duellprüfung zentral registriert.
-- Native Prüfergebnisse dieses Schritts noch offen.
-- Psi-Ring, Texte, Grafik, App-Anbindung, aktueller WASM-Build und Mewtu-Review
-  weiterhin ausstehend.
-- Lavados-Browserabnahme bleibt bestehen; kein Commit/Push.
-
-### Mewtu — Psi-Ring-Minispiel vorbereitet
-
-- Nutzer meldet erfolgreiche native Mewtu-Zugriffs-/Duellprüfungen und
-  weiterhin erfolgreiche Zapdos-/Arktos-/Lavados-Regressionen.
-- Psi-Barriere als eigener flüchtiger Minispielbaustein ergänzt.
-- Drei erfolgreiche Impulse, kein Gesamttimer und keine Energiebuchung.
-- Erster Abstimmungswert: 2,4 Sekunden je Ringdurchlauf; großzügiger Zielbereich.
-- Höchstens eine gewertete Eingabe pro Durchlauf; gehaltene Zeiger/Tasten
-  und Tastaturwiederholung erzeugen keine zusätzlichen Impulse.
-- Fehleingaben zählen nicht; erfolgreiche Impulse bleiben innerhalb
-  des laufenden Versuchs erhalten.
-- Nach Speicherfehler bleibt die gelöste Aufgabe für Speichern-Retry erhalten.
-- Sichtbarer Hintergrundwechsel beendet nur einen ungelösten flüchtigen
-  Versuch; erneuter Start bleibt kostenlos.
-- Gemeinsamer Minispielvertrag create/attach/start/solved/dispose erhalten.
-- Nicht notwendige Umgebungsanimation berücksichtigt Bewegungsreduktion;
-  die für die Timing-Aufgabe wesentliche Ringbewegung bleibt sichtbar.
-- Isolierte Node-Logik-/DOM-Double-Prüfung im Assistenzwerkzeug bestanden.
-- Lokale Ergebnisse dieses Schritts und echte Touch-/Layoutprüfung noch offen.
-- Storytexte, Azuria-Höhlen-Grafik, App-Anbindung, WASM-Build und Review folgen.
-- Lavados-Darstellung und Rätsel unverändert; kein Commit/Push.
-
-### Mewtu — App-Anbindung und Höhlenansichten
-
-- Nutzer meldet bestandene Psi-Ring-Logik-/DOM-Double-Prüfungen;
-  Lavados-Minispiel weiterhin unverändert erfolgreich geprüft.
-- Mewtu in Controllerkette, Menü, Katalog, Hinweise, Eingabesicherungen
-  und gemeinsame Kampfsteuerung eingebunden.
-- Eigene Azuria-Höhlenansichten mit Wasser, schwebenden Steinen und
-  Psi-Barriere sowie freier innerer Kammer ergänzt.
-- Storytexte für de/en/es/fr und Offline-Dateiliste erweitert.
-- Gemeinsame Tippsperre, Minispielübergänge, Portrait und Finale verwendet.
-- Mewtu zunächst ebenfalls mit 80 Prozent Portraitskalierung darstellen;
-  abgenommene Zapdos-/Arktos-/Lavados-Skalierungen bleiben gleich.
-- Gemeinsame UI-/Finale-Prüfungen auf vier Profile erweitert.
-- Bestehenden Reviewrunner um Mewtu-Modell, Fallauswahl und p150 ergänzt;
-  Profil, Bedienung und Startverfahren unverändert.
-- Lokale Ergebnisse dieses Schritts, neuer WASM-Build, Mewtu-Testspielstände
-  und manuelle Mewtu-Abnahme noch offen.
-- Lavados-Browserabnahme bleibt bestehen; kein Commit/Push.
-
-### Mewtu — aktueller Build und Reviewspielstände
-
-- Nutzer meldet erfolgreiche App-/UI-/Finale-/Minispiel-Teilprüfungen.
-- Neuer WASM-Build mit Emscripten erfolgreich; bekannte
-  TPNamedPrompt-C-Linkage-Warnung bleibt offen.
-- Bestätigter WASM-SHA-256: d9361e22786c9f62ec5e6c1405cfc6aa92fde671548633f8fee48e45d9d53b35.
-- Acht synthetische Mewtu-Fälle aus unveränderten Lavados-Vorlagen erstellt.
-- Alle Fälle besitzen acht Kanto-Orden; Fälle 1/2 ohne Kanto-Ligaabschluss,
-  Fall 2 zusätzlich mit Johto-Abschluss; ab Fall 3 Kanto-Abschluss gesetzt.
-- Story-/Aufnahme-/Sammlungsverknüpfung und gespeicherte Dateien mit
-  tatsächlichen Modellen und strengem Parser geprüft.
-- Keine native Browser-Freischaltprüfung durch diese Dateierzeugung behauptet.
-- Reviewspielstände: /Users/M1dn8/Downloads/iTamaPoke-Mewtu-Review-LnWXHs
-- Bestehender Reviewrunner und gespeichertes Profil weiterverwenden.
-- Manuelle Mewtu-Abnahme und iPhone-Abnahme noch offen.
-- Kein Commit/Push; vollständiger Abschlusslauf weiterhin ausgesetzt.
-
-### Mewtu-Review — Ortsnamen und bestätigte Johto-Freischaltlücke
-
-- Nutzer bewertet Mewtus Darstellung, Minispiel, Animationen und Anschluss positiv.
-- Verbleibende Screenshotnotiz: Geschichtenbuttons dürfen das versteckte
-  Pokémon nicht vorwegnehmen.
-- Katalog-Ortsnamen in de/en/es/fr ohne Pokémonzusatz; sichtbare
-  Symbolhinweise entfernt; wartende Aufnahme in der Liste als Offen führen.
-- Dialoge, Begegnung und Aufnahmesequenz behalten ihre Pokémonbezeichnung.
-- Lokale Datenprüfung: ältere Lavados-Fälle enthalten acht Johto-Orden,
-  aber keinen gespeicherten Johto-Ligasieg; Mewtu-Fall 2 ist ein absichtlicher
-  synthetischer Johto-Liga-Negativtest.
-- Lokaler Regionaltest bestätigt fehlende native Johto-Eintrittssperre:
-  Johto-Arenen sind ohne ersten Kanto-Ligasieg startbar.
-- Verbindliche Korrektur offen: Johto-Arenen erst nach dauerhaft bestätigtem
-  ersten vollständigen Kanto-Ligasieg; UI und native Starts vor Energieabzug.
-- Vorhandene Fortschritte nicht löschen; positive Testfixtures anpassen
-  und gezielte Sperrtests ergänzen.
-- Katalogkorrektur-Prüfungen dieses Schritts noch offen.
-- Johto-Sperre durch diesen Text-/Katalogschritt noch nicht behoben.
-- Kein Commit/Push; vollständiger Abschlusslauf weiterhin ausgesetzt.
-
-### Johto — Kanto-Liga-Voraussetzung abgesichert
-
-- Nutzer meldet bestandene Ortsnamen-/Katalogprüfungen.
-- Gemeinsamen lesenden Kanto-Ligaabschlussprüfer für Mewtu und Johto eingeführt.
-- Johto-Auswahl verlangt bestätigten historischen Kanto-Ligasieg.
-- Direkte und bezahlte native Johto-Arenastarts vor Energieabzug gesperrt.
-- Fehlende/falsche/future Abschlussmetadaten schalten Johto nicht frei.
-- Vorhandene Johto-Fortschritte bleiben unverändert; keine automatische
-  Kanto-Siegvergabe und keine Migration zum Umgehen der Voraussetzung.
-- Positive Regional-/Arena-Team-/Browser-Fixtures um Kanto-Abschluss ergänzt.
-- Kanto-Teamliga-Fälle behalten ihren anfänglich fehlenden Kanto-Titel;
-  Johto-Teamliga-Fälle bewahren den vorausgesetzten historischen Kanto-Titel.
-- Native Sperrprüfungen für alle 256 Ordensmasken und ungültige Metadaten,
-  UI-Sperrprüfungen sowie gezielten echten Browser-Negativtest ergänzt.
-- Lokale Prüfungen, neuer WASM-Build und manuelle Johto-Nachprüfung noch offen.
-- Keine vollständige Paketfreigabe, kein Commit/Push.
-
-### Johto — erwartete Art im Browser-Teststart korrigiert
-
-- Gezielter Browserlauf scheiterte vor der Sperrprüfung im beforeEach:
-  importierte Johto-Fixture enthält Art 376, prepare erwartete standardmäßig 1.
-- Dieser fehlgeschlagene Lauf ist keine Browserfreigabe der Johto-Sperre.
-- prepare um optionale expectedSpecies mit unverändertem Standard 1 erweitert.
-- Johto-beforeEach übergibt ausdrücklich 376.
-- Tatsächliche Artenprüfung im Importhelfer bleibt erhalten.
-- Keine Änderung an Zeitlimits, Retries oder Spielmechanik.
-- Regressionstest für Standard-/explizite Artenweitergabe ergänzt.
-- Erneuter gezielter Browserlauf noch offen; kein neuer WASM-Build nötig.
-- Kein Commit/Push.
-
-### Mew — gemeinsamer Modell-/Controllerbaustein
-
-- Nutzer bestätigt Mewtus Funktion, Animationen und erfolgreichen Anschluss
-  sowie nachträglich Johto-Sperre und korrigierte Geschichtenbuttons.
-- Gezielter Johto-Browsertest bestanden; fehlgeschlagener vorheriger
-  Teststart bleibt als Fehler dokumentiert und wird nicht als Erfolg gezählt.
-- Keine iPhone-Abnahme oder vollständige P06-Abschlussfreigabe behauptet.
-- Mew-Konzept: versteckte Lichtung nördlich der Nuggetbrücke, Versteckspiel
-  mit Busch, Baum und Felsen; drei richtige Entdeckungen; Level 50.
-- Nach richtigem Fund neues Versteck; bei falscher Wahl gleiche Runde
-  mit neuem Hinweis; kein Gesamttimer.
-- Kostenlose Wiederholungen ohne Energieverlust.
-- Freischaltung erst nach allen drei vorhandenen Kanto-Ligavarianten;
-  vorhandene validierte Ruhmeshallen-Variantenmaske verwenden, nicht
-  bloß eine Anzahl von drei Wiederholungssiegen.
-- Eigenes mew-Profil im gemeinsamen Modell/Controller/Parser ergänzt.
-- Gemeinsamen Aufnahmeweg erweitert; keine separate Speicherverwaltung.
-- Modell-/Controller-/Speicherprüfungen einschließlich Fünf-Profil-
-  Spielstand zentral registriert; Ergebnisse dieses Schritts noch offen.
-- Native Variantenfreischaltung, Versteckspiel, Texte, Grafik, App-Anbindung,
-  aktueller Build und manueller Mew-Review weiterhin ausstehend.
-- Geschichtenbutton später nur mit Ortsnamen, ohne Mew vorwegzunehmen.
-- Bestehenden gespeicherten Revisionsbrowser weiterverwenden.
-- Kein Commit/Push; vollständiger Abschlusslauf erst nach Mew-Abnahme.
-
-### Mew — native Drei-Varianten-Freischaltung und Prüfduell
-
-- Nutzer meldet erfolgreiche Mew-Modell-, Controller- und Speicherprüfungen:
-  88 Modell-Assertions, 42 Controller-Assertions plus Ablehnungen sowie
-  62 akkumulierte Speicherprüfungen einschließlich fünf Storyprofilen.
-- Native Mew-Freischaltung verlangt gültigen Kanto-Abschluss und alle
-  drei Bits der validierten Kanto-Ruhmeshallen-Variantenmaske.
-- Vorhandenen Hall-Decoder für Version, CRC, Region und Datensätze nutzen;
-  keine zweite vereinfachte Hall-Interpretation oder bloße Siegzahlprüfung.
-- Drei Siege derselben Variante und Johto-Erfolge reichen nicht.
-- Historischer Variantenfortschritt bleibt trotz begrenzter sichtbarer
-  Eintragshistorie maßgeblich; keine alten Siege nachträglich erfinden.
-- Interne lesende Variantenabfrage ergänzt; ohne echte Hall-Anbindung
-  verweigern isolierte Testbuilds die Erstfreischaltung.
-- Gemeinsamen Level-50-Duell-/Aufnahmeweg für Mew ergänzt.
-- Neue Zugriffsprüfung nutzt echte Hall-Serialisierung/-Validierung;
-  ihre eingetragenen Hall-Siege bleiben ausdrücklich synthetische Fixtures.
-- Native Tests dieses Schritts noch offen.
-- Versteckspiel, Texte, Lichtungsgrafik, App-Anbindung, aktueller Build
-  und manueller Mew-Review folgen.
-- Kein Commit/Push; vollständiger Abschlusslauf weiterhin ausgesetzt.
-
-### Mew — Versteckspiel vorbereitet
-
-- Nutzer meldet erfolgreiche native Mew-Freischalt-/Duellprüfungen,
-  Hall-Regression, Mewtu-Duell und Johto-Sperr-/Arenaprüfungen.
-- Versteckspiel mit drei festen Verstecken: Busch, Baum und Felsen.
-- Drei richtige Entdeckungen; nach Erfolg anderes Versteck.
-- Falsche Wahl behält dieselbe Runde und Position, zeigt anderen Hinweis.
-- Kein Gesamttimer, keine Energiebuchung und keine Wiederholungskosten.
-- Rosa Schwanzspitze, Ohren oder Silhouette als visuelle und zugängliche
-  Hinweise; reduzierte Bewegung schaltet dekoratives Schimmern ab.
-- Rundenrevision und getrennte DOM-Elemente verwerfen veraltete Eingaben.
-- Nach Speicherfehler bleibt das gelöste Spiel für Speichern-Retry erhalten.
-- Gemeinsamer Minispielvertrag create/attach/start/solved/dispose erhalten.
-- Isolierte Node-Logik-/DOM-Double-Prüfung im Assistenzwerkzeug bestanden.
-- Lokale Ergebnisse und echte Touch-/Darstellungsprüfung noch offen.
-- Storytexte, Nuggetbrücken-/Lichtungsgrafik, App-Anbindung, aktueller Build
-  und Mew-Revisionsbrowser folgen.
-- Keine Änderung an Lavados-/Mewtu-Grafik und Minispielen; kein Commit/Push.
-
-### Mew — App-Anbindung und Nuggetbrücken-Lichtung
-
-- Nutzer meldet bestandene Versteckspiel-Logik-/DOM-Double-Prüfungen;
-  Mewtus Psi-Barriere weiterhin erfolgreich geprüft.
-- Mew in gemeinsame Controllerkette, Menü, Katalog, Hinweis,
-  Eingabesicherungen und Kampfsteuerung eingebunden.
-- Ortsname im Geschichtenbutton nur Nuggetbrücke, ohne Pokémon-Spoiler.
-- Eigene Brücken-/Lichtungsansichten mit Busch, Baum, Felsen und rosa Spur;
-  nach Aufgabe freie Lichtung für Begegnung und gemeinsame Aufnahmesequenz.
-- Storytexte für de/en/es/fr und Offline-Dateiliste ergänzt.
-- Mew zunächst mit 65 Prozent Portraitskalierung; übrige Skalierungen erhalten.
-- Gemeinsame UI-/Finale-Prüfungen auf alle fünf Profile erweitert.
-- Bestehender Reviewrunner um Mew-Profil, p151 und Diagnosefeld erweitert;
-  Browserprofil, Bedienung und Startverfahren unverändert.
-- Nativer Zugriffstest erzeugt zusätzlich validierte Hall-Reviewdaten:
-  zwei Varianten, drei gleiche Siege und alle drei Varianten.
-- Prüfungen dieses Schritts, aktueller WASM-Build, Reviewspielstände und
-  manuelle Mew-Abnahme noch offen.
-- Kein Commit/Push; vollständiger Abschlusslauf erst nach Mew-Abnahme.
-
-### Buildwarnung — interne Named-Prompt-Linkage korrigiert
-
-- Nutzer fordert Behebung der wiederholt gemeldeten TPNamedPrompt-Warnung.
-- Aufrufer geprüft: interner C++-Helfer in browser_glue.cpp; zwei lokale
-  const-char*-Exporte. Separate Objective-C-Implementierung unverändert.
-- Explizite C++-Linkage ausschließlich am std::string-Helfer ergänzt.
-- Funktionskörper und öffentliche C-/JavaScript-Schnittstellen unverändert.
-- WASM-Build behandelt return-type-c-linkage künftig als Fehler;
-  keine Warnungsunterdrückung hinzugefügt.
-- Zentral registrierter Regressionstest nutzt tatsächliche Funktionskörper
-  mit simulierten Pet-/Übersetzungsabhängigkeiten und separatem C-Linkage-
-  Aufrufer; prüft Namen, UTF-8, Pufferlebensdauer und Abschneiden.
-- Clang-Test prüft zusätzlich Ablehnung der alten Deklaration.
-- Lokale Regression und strikter WASM-Neubau dieses Schritts noch offen.
-- Mew-Reviewvorbereitung folgt erst nach erfolgreicher Korrekturprüfung.
-- Kein Commit/Push und keine vollständige Paketfreigabe.
-
-### Mew — Reviewvorbereitung nach behobener Linkage-Warnung
-
-- Nutzer meldet bestandene Named-Prompt-Regression und Clang-Negativkontrolle.
-- Strikter WASM-Neubau erfolgreich; bekannte C-Linkage-Warnung nicht mehr vorhanden.
-- Bestätigter WASM-SHA-256: bc9c04d3d6f6dffadf39d6cc1c7b38da2975972cabd64cc6865cc02691a4671d.
-- Acht synthetische Mew-Fälle aus unveränderten Mewtu-Vorlagen erstellt.
-- Hall-Daten durch tatsächlichen nativen Hall-Serializer erzeugt und
-  vor Export mit tatsächlicher Mew-Freischaltung validiert:
-  zwei Varianten gesperrt, drei gleiche Siege gesperrt, alle drei frei.
-- Keine zweite vereinfachte Hall-Serialisierung im JS-Vorbereiter eingeführt.
-- Modell-/Aufnahmeverknüpfung und gespeicherte Dateien strikt geprüft.
-- Reviewspielstände: /Users/M1dn8/Downloads/iTamaPoke-Mew-Review-d0vAcc
-- Manuelle Mew-Darstellungs-/Touch-/Funktionsprüfung noch offen.
-- Finale-Direktfall ist nur Sichtprüfung, kein Nachweis eines echten Anschlusses.
-- Bestehendes Reviewprofil und importierte Grafiken weiterverwenden.
-- Kein Commit/Push; gemeinsamer Abschlusslauf weiterhin ausgesetzt.
-
-### Letzte Mew-Reviewkorrektur und echte Browserabdeckung
-
-- Mew-TXT-Notiz: Nuggetbrücke mittig zwischen Busch und Felsen platzieren.
-- Brückendeck und anschließenden Weg zentriert; übrige Szenerie erhalten.
-- Audit: neue Tests registriert, Webmodule geladen/gecacht, Sammlung
-  erfolgreich; 328 Browserausführungen in 42 Dateien vor Erweiterung.
-- Fehlende echte Browserfälle für Lavados/Mewtu/Mew ergänzt:
-  sieben Freischaltfälle und zwölf Spiel-/Aufnahme-/Retryfälle.
-- Reproduzierbare native Hall-Testfixture ohne private Medien versionieren;
-  nativer Generator prüft künftig Gleichheit gegen diese Fixture.
-- Browserfixtures haben explizite Pflege-Art 1 und geprüfte F4-Identität.
-- Laufzeit-Sprites sind synthetische Farbfelder, keine Pokémon-Bilddateien.
-- Gemeinsame Tippsperre verfolgt Kontakte schon vor Aktivierung und über
-  Reset/Arm hinweg; bereits gehaltene Kontakte müssen erst beendet werden.
-- Zusätzliche echte Browser-Halteprüfung beim letzten Psi-Impuls.
-- affected-Auswahl um neue Legendären-, Johto- und Teamliga-Fälle erweitert.
-- Gezielte neue Prüfungen und manuelle Bestätigung der Brückenposition offen.
-- Noch keine vollständige Paketabnahme, kein Gesamtlauf und kein Commit/Push.
-
-### Restpaket P06 — manuelle Abnahme und eingefrorener Abschlussstand
-
-- Nutzer bestätigt Lavados, Mewtu und Mew im bestehenden Revisionsbrowser.
-- Letzte Mew-Notiz erledigt: Brücke mittig zwischen Busch und Felsen;
-  Position am 29.10.2026 ausdrücklich bestätigt.
-- Ortsnamen ohne Pokémon-Spoiler und Johto-Sperre manuell bestätigt.
-- Neue Legendären-Chromiumfälle: 19 bestanden, Bericht dUucos.
-- Letzter gemeldeter gezielter Browserlauf: 24 bestanden, Bericht AjqIH4.
-- Gezielte Prüfungen ersetzen nicht die vollständige Gesamtregression.
-- Vollständige Browserregression und zentraler nativer Gesamtcheck
-  werden auf unverändertem Stand ausgeführt; Ergebnisse noch offen.
-- Keine Timeout-Erhöhungen, abgeschwächten Assertions oder automatischen Retries.
-- Aktueller WASM-Build enthält die behobene Named-Prompt-Linkage;
-  return-type-c-linkage wird im Build als Fehler behandelt.
-- Noch keine Veröffentlichung, CI-/Deployment-Bestätigung oder iPhone-Abnahme.
-- Commit/Push erst nach erfolgreichen Abschlussprüfungen und Nutzerfreigabe.
-
-### Abschlusslauf fehlgeschlagen — Arena-Fixture und Guard-Aktualisierung
-
-- Vollständiger Browserlauf gFr5Bc fehlgeschlagen:
-  362 bestanden, 3 fehlgeschlagen, 1 übersprungen.
-- Native Gesamtprüfung wurde wegen des vorherigen Fehlers nicht gestartet.
-- Übersehene parametrisierte arena-team-Johto-Fixture erhält jetzt vor
-  Teamaufbau den vorausgesetzten historischen Kanto-Abschluss.
-- Region-0-Fixture bleibt unverändert; Artenprüfung bleibt ausdrücklich 1.
-- Tippsperre aktualisiert ihren Freigabestatus auch bei Kontaktende
-  außerhalb der momentan sichtbaren Begegnung.
-- Halteverfolgung, 650-ms-Einstiegsschutz und 350-ms-Ruhephase bleiben erhalten.
-- Neue Regression für diesen Kontaktende-Fall und read-only Guard-Diagnostik.
-- Zapdos-Test behält seine Aktivierungsassertion unverändert bei Fehlern
-  und hängt zusätzliche Zustandsdaten an.
-- affected-Auswahl um arena-team ergänzt.
-- Quellen für gezielte Korrektur geöffnet; neuer vollständiger Abschlusslauf
-  auf anschließend erneut eingefrorenem Stand erforderlich.
-- Keine Timeout-Erhöhung, keine Retries und keine Veröffentlichung.
-
-### Zapdos — verlorene Freigabebenachrichtigung an Timergrenze
-
-- Stabilitätslauf FUb6Sr fehlgeschlagen: 35 bestanden, 1 fehlgeschlagen.
-- Arena-Team-Fixture zeigte in diesem Lauf keine weiteren Fehler.
-- Neue Zapdos-Diagnose: Guard intern bereit, keine gehaltenen Kontakte,
-  alle Schreib-/Busy-Gates frei, aber data-tap-ready weiterhin false.
-- Zeitgrenzenrennen isoliert reproduziert: Uhr überschreitet Freigabegrenze
-  zwischen falscher Benachrichtigung und erneuter Timerentscheidung.
-- refresh verwendet eine gemeinsame Zeitprobe für Benachrichtigung und
-  Folgetimer; keine zusätzliche Polling-Schleife und keine erzwungene
-  Schaltflächenfreigabe.
-- Deterministischer Regressionstest simuliert den Grenzübertritt und
-  verlangt eine nachfolgende tatsächliche Freigabebenachrichtigung.
-- Kontaktverfolgung sowie 650-/350-ms-Schutzzeiten unverändert.
-- Lokale Regression und erneute gezielte Browserprüfung noch offen.
-- Gesamtlauf und native Gesamtfreigabe weiterhin offen; kein Commit/Push.
-
-### Erneut eingefrorener Abschlussstand — Guard-Zeitgrenze
-
-- Nutzer meldet erfolgreichen Stabilitätslauf aWOeQG:
-  alle 30 Browserausführungen bestanden.
-- Enthalten: Zapdos-Finale und tatsächliche Minispiel-/Begegnungsübergänge
-  in Chromium und WebKit, jeweils drei explizite Durchgänge ohne Retries.
-- Deterministische Regression für verlorene Freigabebenachrichtigung
-  an der Timergrenze ergänzt; Schutzzeiten und Halteprüfung erhalten.
-- Zuvor korrigierte Arena-Team-Johto-Fixture bleibt Bestandteil des Pakets.
-- Fehlgeschlagene Läufe gFr5Bc und FUb6Sr bleiben als fehlgeschlagen
-  dokumentiert und werden nicht durch erfolgreiche Teilprüfungen ersetzt.
-- Manuelle Abnahme von Lavados, Mewtu und Mew einschließlich der
-  Brückenposition bleibt dokumentiert.
-- Korrigierten Stand für vollständige Abschlussprüfungen erneut eingefroren.
-- Browsergesamtregression und zentraler nativer Gesamtcheck noch offen.
-- Kein Commit/Push, keine CI-/Deployment- oder iPhone-Abnahme behauptet.
-
-### Geschichtenübersicht — schrittweise Entdeckung statt gesperrter Vorschau
-
-- Veröffentlichung auf Nutzerwunsch weiter ausgesetzt; kein Commit/Push.
-- Bisheriger Abschlusslauf historisch erfolgreich, einschließlich
-  nativem Gesamtcheck ZZ60rS; gilt nicht als Prüfung dieser neuen Änderung.
-- Geschichten erscheinen erst bei erfüllter tatsächlicher Freischaltung.
-- Ohne verfügbare Geschichte erscheint:
-  „Hier ist noch nichts zu entdecken. Komm später wieder!“
-- Abgeschlossene Geschichten bleiben sichtbar und deaktiviert.
-- Keine gesperrten Ortskacheln oder Voraussetzungstexte als Vorschau.
-- Neue-Geschichten-Hinweis und Bestätigung nur für freigeschaltete,
-  noch nicht abgeschlossene Geschichten; bestehender Offen-Zähler bleibt.
-- Leertext in Deutsch, Englisch, Spanisch und Französisch.
-- Regressionen für leeren Katalog, alle fünf Freischaltstufen,
-  abgeschlossene Geschichten, Zustandswechsel, Zähler und Hinweise ergänzt.
-- Gezielte Tests und RevisionBrowser-Sichtprüfung noch offen.
-- Vollständige Abschlussprüfungen erst nach Abschluss dieser Änderung.
-
-### Geschichtenentdeckung — Browserabdeckung und Testinventur
-
-- Nutzer bestätigt Katalog-, Shared-UI- und Follow-up-Tests erfolgreich.
-- Browserprüfung der vorhandenen nativen Freischaltfälle IEa8Xw erfolgreich:
-  gesperrte Geschichten samt Ortsnamen fehlen, freigeschaltete sind bedienbar.
-- Bestehende Prüfungen abgeschlossener Kacheln und geschützter
-  Begegnungsschaltflächen bleiben unverändert erhalten.
-- Sechs zusätzliche echte Browserfälle ergänzt: kein Zugang, vier/sechs/
-  acht Kanto-Orden, Kanto-Champion und vollständige Mew-Voraussetzungen.
-- Jede Stufe prüft native Freischaltung, genaue Kachelzahl, verborgene
-  Ortsnamen, Offen-Zähler, rote Punkte und Zustand nach Neuladen.
-- Zusätzlicher Browserlauf und vollständige Sichtung weiterer
-  katalogbezogener Testfundstellen noch offen.
-- RevisionBrowser-Sichtprüfung und erneute Gesamtprüfungen noch offen.
-- Kein Commit/Push.
-
-### Geschichtenentdeckung — bestehende Tests korrigiert und Katalogreview
-
-- Erweiterte Browserprüfung y3ljQl vom Nutzer als erfolgreich gemeldet.
-- Weitere Testinventur gesichtet: veraltete Erwartungen zusätzlich
-  in stories-overview.spec.js gefunden und gezielt korrigiert.
-- Drei-Orden-Fall verlangt leeren Katalog ohne Orts-/Voraussetzungsspoiler.
-- Bestehende Vier-/Fünf-/Sechs-Orden-Matrix verlangt genaue sichtbare
-  Kachelzahl und vollständige Abwesenheit noch gesperrter Geschichten.
-- Native Zugriffsverweigerung, bestehender Fortschritt ohne Orden,
-  Speicherfehler-Wiederholung und Hinweisgestaltung unverändert geprüft.
-- Übrige gezeigte Menü-/Navigations- und statische Vertragsfundstellen
-  benötigen nach Sichtung keine geänderten Erwartungen.
-- Bestehender RevisionBrowser um strikt validiertes Katalogprofil erweitert.
-- Alte Storyprofile und deren Navigation bleiben erhalten und werden
-  zusammen mit allen acht Katalogrouten im Profiltest geprüft.
-- Gezielter Browserlauf und visuelle Katalogabnahme noch offen.
-- Frühere Gesamtläufe bleiben historische Ergebnisse; erneuter Abschluss
-  erst nach dieser Änderung. Kein Commit/Push.
-
-### Geschichtenentdeckung — visuell abgenommen und erneut eingefroren
-
-- Nutzer bestätigt gezielten Browserlauf tzLUbm:
-  46 Prüfungen bestanden, Laufzeit 1,1 Minuten.
-- Enthalten sind die angepassten bestehenden Geschichtenprüfungen,
-  native Freischaltfälle und sechs neue Katalogstufen samt Neuladen.
-- Acht synthetische Katalog-Review-Spielstände erfolgreich vorbereitet
-  und über den vorhandenen Save-Decoder unverändert geprüft.
-- Nutzer bestätigt RevisionBrowser-Abnahme:
-  alles funktioniert und sieht gut aus.
-- Leerer Anfangszustand und schrittweise sichtbare Geschichten abgenommen.
-- Bereits abgeschlossene Geschichten bleiben sichtbar und deaktiviert;
-  bestehende Fortschritts-, Speicherfehler- und Eingabeschutzprüfungen erhalten.
-- Korrigierten Stand für vollständige Abschlussprüfungen erneut eingefroren.
-- Frühere erfolgreiche Gesamtläufe bleiben historische Ergebnisse;
-  Browsergesamtregression und zentraler nativer Gesamtcheck dieses
-  abschließenden Standes noch offen.
-- Kein Commit/Push. GitHub-Build/Deployment und iPhone-Abnahme
-  dieses Gesamtpakets weiterhin nicht behauptet.
-
-### P06 — abschließende lokale Freigabe und Veröffentlichung
-
-- Nutzer bestätigt den erneuten Abschlusslauf als erfolgreich.
-- Vollständige Browserregression und anschließender zentraler
-  nativer/Logik-Gesamtcheck erfolgreich; der freigegebene Befehlsblock
-  erreichte die abschließende Diffprüfung und Statusausgabe.
-- Bericht des zuletzt ausgeführten zentralen Checks: MdbxIN.
-- Abschließendes git diff --check ohne Beanstandung.
-- Zuvor 46 gezielte Katalog-Browserprüfungen im Lauf tzLUbm bestanden.
-- RevisionBrowser-Abnahme der schrittweisen Geschichtenentdeckung
-  ausdrücklich vom Nutzer bestätigt.
-- Früher fehlgeschlagene Läufe bleiben als historische Fehler dokumentiert.
-- Gemeinsamer Paketumfang umfasst die legendären Geschichten,
-  Aufnahmewege, Fortschrittssperren, Eingabeschutz, spoilerfreie
-  Katalogentdeckung und zugehörige Regressionen/Reviewwerkzeuge.
-- Nutzer hat Dokumentation, gemeinsamen Commit und Push nach
-  M1dn8/iTamaPoke auf main ausdrücklich freigegeben.
-- Durchführung über den vereinbarten Git-Terminalablauf.
-- Synthetische Review-Spielstände, Aufnahmen und private Grafikpakete
-  sind nicht Teil des Veröffentlichungsschritts.
-- GitHub-Build/Deployment und iPhone-Abnahme dieses Gesamtstands
-  bleiben separat zu prüfen; hier keine erfolgreiche Durchführung behauptet.
-
-### P06 — Veröffentlichung und iPhone-Abnahme abgeschlossen
-
-- Paketcommit: f16802ee6628d772109a2e5c7132cbac44ee924f
-  (feat(p06): complete legendary stories and spoiler-free discovery).
-- Push nach M1dn8/iTamaPoke auf main erfolgreich.
-- Nutzer bestätigt anschließend: Build grün, iPhone-Test erfolgreich.
-- Lokale Gesamtprüfungen und RevisionBrowser-Abnahmen sind bereits
-  in den vorherigen Abschlussabschnitten dokumentiert.
-- Einschließlich der nachträglichen Katalogänderung:
-  zunächst leerer Geschichtenbereich mit Hinweistext, danach schrittweise
-  Anzeige tatsächlich freigeschalteter Geschichten ohne Ortsvorschau.
-- P06-Gesamtpaket damit einschließlich Veröffentlichung und
-  nutzerbestätigter iPhone-Abnahme abgeschlossen.
-- Dieser Nachtrag verändert ausschließlich die Projektdokumentation.
+# Projektplan — iTamaPoke
+
+## Aktueller Haltepunkt — Statusseite
+
+Stand: 01.11.2026, 18:15 CET
+
+- Nutzerbewertung am 01.11.2026 um 18:12 CET:
+  erster Entwurf ganz okay, aber Gestaltung, Bedienung und Informationen
+  müssen gemeinsam nachgearbeitet werden.
+- Vier Rubriken sind freigegeben: Profil, Werte, Heute und Erfolge.
+- Der aktuelle Prototyp ist ausdrücklich noch nicht abgenommen.
+- Nach der Pause genau hier weiterarbeiten; keine nächste Baustelle beginnen.
+- Noch keine konkreten Detailkorrekturen als bereits vereinbart erfinden.
+- Alte Karten-IDs und noch benötigte Rückwege bleiben zunächst erhalten.
+- Danach erst die übrigen alten Zugänge und betroffenen Tests migrieren.
+- Aktuelle Diffprüfung: bestanden.
+- Aktuelle Node-Startprüfung: bestanden.
+- Kein neuer Browserlauf für diese Sicherung.
+- Letztes Status-Browserergebnis nicht separat vom Nutzer gemeldet;
+  keinen bestandenen Browserlauf oder UI01-Gesamtabschluss behaupten.
+
+
+Stand: 01.11.2026, 17:53 CET
+
+## Verbindlicher aktueller Stand
+- Aktives Paket: UI01. Nicht eigenmächtig P07 beginnen.
+- Ehrenei-Seite vom Nutzer um 01:11 CET sichtbar abgenommen:
+  „sehr gut so können wir es lassen!“
+- Diese Teilabnahme ist keine Gesamtfreigabe oder Veröffentlichung von UI01.
+- Arbeitsweise: docs/ARBEITSWEISE.de.md
+- Testworkflow: docs/TEST-WORKFLOW.de.md, sofern vorhanden.
+- Einstieg nach einer Pause: docs/WEITERARBEITEN.de.md
+
+## Pakete
+| ID | Thema | Status |
+|---|---|---|
+| P00 | Kanto-/Johto-Übersichten und Trainerporträts | Abgenommen |
+| P01 | Veröffentlichungsschutz privater Medien | Abgeschlossen |
+| P02 | Dokumentation und Kontinuität | Grundlage abgenommen; fortschreiben |
+| P03 | Erweiterbare Spracharchitektur | Abgenommen; Übersetzungsumfang unter Q01 |
+| P04 | Eigenes Team mit sechs Plätzen | Abgenommen |
+| P05a | Team in Wildkämpfen | Abgenommen |
+| P05b | Team in Arenakämpfen | Abgenommen |
+| P05c | Team in Ligakämpfen | Abgenommen |
+| P06 | Legendären-Geschichten Kanto | Abgeschlossen einschließlich iPhone-Abnahme |
+| UI01 | Oberfläche, Navigation und Canvas-/Kartenbereinigung | Aktiv; Gesamtabschluss offen |
+| P07 | Legendären-Geschichten Johto | Offen; erst nach UI01 |
+| P08 | Weitere Mega-Entwicklungen | Offen; Ausbauumfang festlegen |
+| P09 | Weitere Ligen | Offen; regionalen Umfang festlegen |
+| P10 | Dynamax/Gigadynamax | Konzept offen |
+| Q01 | Englisch, Spanisch und Französisch | Vollständigkeitsarbeit offen |
+| Q02 | Rechte und private Medien | Fortlaufend |
+| Q03 | Reproduzierbare Bildvorbereitung | Offen |
+| Q04 | Tests gemeinsamer UI-Module | Offen |
+| Q05 | Ältere Roadmap mit Code abgleichen | Offen |
+
+## Nächste UI01-Arbeiten
+1. Statusprototyp gemeinsam nacharbeiten und abnehmen; danach alte Kartenzugänge migrieren.
+2. Canvas-/Kartenbereinigung: vorhandene Karten und doppelte Zugänge abgleichen.
+3. Profil, Wesen, Werte, Fortschritt, Tagesziele, Rekorde und Medaillen bündeln.
+   Endgültige Kartenanzahl und Aufteilung sind nicht beschlossen.
+4. Mega-Entwicklungsseite als eigenen UI01-Reviewpunkt bearbeiten.
+5. Pokédex-Zentrale im Ruhemodus zugänglich machen, ohne Aufwecken
+   oder Aufheben anderer Schutzsperren.
+6. Kampf-/Fang-Sonderfälle gezielt prüfen; abgenommene Gestaltung erhalten.
+7. Restliste, Übersetzungen und betroffene Tests abgleichen.
+8. Erst nach Gesamt-Abnahme: eingefrorener Stand, vollständige Regression,
+   nativer Check und gesonderte Veröffentlichungsfreigabe.
+
+## Verbindliche Ehrenei-Abnahme
+- Gedrehte Gerätehülle und aufrechte Inhalte.
+- Oben: „Soll das dein nächstes Ei werden?“
+- Pokémon-Darstellung unten ausdrücklich sehr gut; nicht neu gestalten.
+- Alle Pokémon-Kacheln und Buttons im gemeinsamen Hintergrund --tp-card.
+- Das gilt auch für ausgewählte Kacheln und Buttons nach der Auswahl.
+- Keine transparenten Rahmenbuttons und keine Displayfarbe als Kachelfarbe.
+- Haken rechts neben dem oberen Display.
+- Beide Seitenpfeile rechts neben dem unteren Display.
+- Bestehende Pflege, Anspruchsregeln und Speichertransaktion unverändert.
+
+## Weitere bestätigte Grundlagen
+- Gemeinsames Pokédex-Design, abgenommene Zentrale und Unterseiten erhalten.
+- Boxen/Teamverwaltung nicht ohne konkreten Anlass neu gestalten.
+- Pflege-Pokémon bleibt geschütztes Teammitglied; zehn Boxen mit je 24 Plätzen.
+- Arena-/Liga-B-Porträts und Ruhmeshalle V4 sind abgenommen.
+- Liga-Zwischenstand und vereinbarter Weiter-/Fortsetzen-Ablauf sind abgenommen.
+- Boxsymbol bei Fangaufnahme sitzt rechts im Rahmen und ist abgenommen.
+- „Blocken“ bleibt spätere Kampfmechanik außerhalb UI01; „Heilen“ vorläufig erhalten.
+- Canvas-Bereinigung gehört zu UI01. Ein einziger technischer Canvas
+  für sämtliche Ansichten ist damit nicht automatisch beschlossen.
+
+## Prüfnachweise
+- Ehrenei-Wiederholung nach Korrektur der Sprachregistrierung:
+  Nutzer meldete am 01.11. um 00:55 CET „test: passed“.
+- Letzte Ehrenei-Gestaltungsrunde: Nutzerabnahme um 01:11 CET.
+- Für die letzte Detailrunde wurde kein separates Testergebnis gepostet.
+- Keine vollständige UI01-Regression oder Paketabnahme behaupten.
+
+## Historie
+Vollständige vorherige Dokumentation, unverändert:
+docs/archive/UI01-20261101-011303/
+
+Frühere offene Zwischenstände nicht gegen spätere Abnahmen ausspielen.
+Bei Detailfragen gezielt das Archiv lesen, nicht den ganzen Verlauf erneut ausgeben.
+
+## UI01 — Erster Entwurf der Spieleauswahl
+
+- Links-Auswahl und Rechts-Vorschau vom Nutzer freigegeben.
+- Nicht gedrehter gemeinsamer Doppeldisplay-Rahmen.
+- Bestehende fünf Spiele, Namen, Rekorde und Startfunktionen erhalten.
+- --tp-card-Hintergrund; Auswahl startet noch kein Spiel.
+- Bei geringer Höhe seitenweise Auswahl mit mindestens 44 Pixel großen Buttons.
+- Vorschau verändert keine Minispielzustände; expliziter Startbutton.
+- Typenspiel-/Tagebuchprüfungen auf sichtbare Bedienung umgestellt.
+- Gezielte Tests und sichtbare Gestaltungsabnahme noch offen.
+- Ehrenei und andere abgenommene Ansichten unverändert.
+- Kein Spielstandwechsel, WASM-Neubau, Commit, Push oder P07-Start.
+
+## UI01 — Spieleauswahl Revision 2
+
+- Nutzer gibt Rastervariante zum gemeinsamen Test frei.
+- Links 2x3-Raster; fünfte Kachel über beide Spalten.
+- Bei ausreichendem Platz alle fünf Spiele gleichzeitig; kleiner Größenfallback.
+- Obere Rahmenleiste: vorheriges/nächstes Spiel und Spielnummer statt Seitenzahl.
+- Pfeile vollständig oberhalb der Displays und außen ausrichten.
+- Typenspiel-Vorschau mit Typ-Plakette, drei Antworten und richtiger Markierung.
+- Effektivität nur lesend aus bestehender Typentabelle; kein Minispielstart.
+- Statische richtige Antwort bei Bewegungsreduktion.
+- Spielregeln, Rekorde, Startfunktionen und Spielstände unverändert.
+- Gezielte Tests und sichtbare Abnahme dieser Revision noch offen.
+
+## UI01 — Spieleauswahl ohne Blätterpfeile
+
+- Nutzer verlangt Entfernung der jetzt überflüssigen Blätterpfeile.
+- Alle fünf Spiele dauerhaft im linken Raster; keine versteckten Spielseiten.
+- Auf kleinen Höhen bei Bedarf innerhalb des Displays erreichbar scrollen.
+- Normale Zurück-Navigation erhalten; Spielzähler entfernt.
+- Typen als vorhandene Symbole innerhalb der Vorschau-Banner statt Textnamen.
+- Grüne Auswahlkontur und Hakenanimation bleiben erhalten.
+- Symbolformen aus tatsächlicher bestehender Typauswahl übernommen und geprüft.
+- Spielregeln, Startfunktionen, Rekorde und Spielstände unverändert.
+- Scrollposition beim Raster-Neuaufbau erhalten; Prüfgrenzen unverändert.
+- Nutzer meldet Wiederholungsprüfung am 01.11.2026 um 17:29 CET als passed.
+- Sichtabnahme: „so kann es bleiben, gefällt mir gut!“
+- Spieleauswahl damit lokal abgenommen; keine UI01-Gesamtfreigabe.
+- Nächster Gestaltungsbereich: Expeditionsseite.
+
+## UI01 — Erster Expeditions-Prototyp
+
+- Grafikdetailrunde: mehr Beerensträucher, erkennbare Felsquelle mit Bach,
+  dichter Wald um eine Lichtung und Trainingsgeräte am Trainingspfad.
+- Vorschaugrafik vom Nutzer am 01.11.2026 um 17:52 CET ausdrücklich abgenommen.
+
+- Nutzer gibt vier Ziele links, Vorschau/Status rechts und Inventaricons oben frei.
+- Gemeinsamer Doppeldisplay-Rahmen und --tp-card-Hintergründe.
+- Auswahl startet nicht; bestehende Start-/Abhol-/Verbrauchsaktionen verwenden.
+- Trainingswertwahl rechts; Zurück verlässt zuerst diese Wahl.
+- Bestehende Transaktion unverändert; Sperrhinweis nur lesend freigegeben.
+- Alte Canvas-Klickwege entfernt; Tests verwenden reale DOM-Bedienung.
+- Controller-, Rollback- und Autosaveprüfungen erhalten; DOM-Renderertest ergänzt.
+- Erster Vorabtest stoppte ohne Schreibvorgang wegen fehlendem VM-Timer.
+- Testkontext um setInterval/clearInterval ergänzt; keine Spieltimer verändert.
+- Nutzer meldet die gezielten Prüfungen als passed.
+- Expeditionsseite einschließlich Vorschauszenen lokal abgenommen.
+- Keine UI01-Gesamtfreigabe oder Veröffentlichung daraus ableiten.
+- Spieleauswahl und Ehrenei bleiben abgenommen; keine Spielstände verändert.
+
+## UI01 — Statusansicht mit vier Rubriken, Schritt 1
+
+- Nutzer gibt Profil, Werte, Heute und Erfolge am 01.11.2026 um 17:59 CET frei.
+- Neue gemeinsame Statusdarstellung für die bisherigen Informationskarten.
+- Vorhandene Wesenstexte aus aktuellem Code übernehmen; Daten und Regeln erhalten.
+- Namensänderung nutzt vorhandenen Keyboard-Core.
+- Mega-Zugang bleibt beim vorhandenen Mega-Ablauf.
+- Alte interne Karten-IDs bleiben für Übergänge und Aufrufer zunächst erhalten.
+- Box-/Aufnahme-/Kampf-/Mega-Routing und deren ältere Navigationstests sind
+  ausdrücklich noch nicht vollständig migriert oder bereinigt.
+- Keine versteckten Testbuttons und keine Abschwächung bestehender Prüfungen.
+- Gezielte neue Statusprüfungen und sichtbare Abnahme noch offen.
+- Danach Schritt 2: verbliebene Kartenzugänge samt Aufrufern und Tests bereinigen.
+- Ehrenei, Spiele, Expedition, Boxen und Kampfgestaltung unverändert.
+
+## UI01 — Detailrunde Profil und Werte
+
+- Nutzer gibt Überarbeitung von Profil rechts und Werte am 01.11.2026 um 20:36 CET frei.
+- Profil links bleibt unverändert.
+- Werte links: nur feste Balkenfarben, Angriff rot, Verteidigung grün,
+  Initiative/Tempo gelb; bestehende Zahlen und Bezeichnungen bleiben.
+- Profil rechts: Wesensplakette, Bindung und kompakte Pflege-/Altersplaketten.
+- Werte rechts: Level-Fortschritt, Entwicklungsstatus und Pflegeplakette.
+- Bestehende Angaben und Bonusformulierungen vollständig erhalten.
+- Heute und Erfolge in dieser Runde unverändert; deren Neugestaltung folgt danach.
+- Gezielte Prüfungen und Sichtabnahme dieser Detailrunde noch offen.
+- Gesamte Statusansicht weiterhin nicht abschließend abgenommen.
+
+## UI01 — Profil ohne Scrollen, Alter und Pflegeserie links
+
+- Nutzer gibt neue Profilaufteilung am 01.11.2026 um 20:50 CET zur Prüfung frei.
+- Wesen und Bindung als gestalterische Grundlage erhalten; Beschriftung Bindung.
+- Alter und Pflegeserie links unter dem Pokémon, mit bestehendem Rekordwert.
+- Stift im Rahmen; reservierter Werkzeugplatz hält die Rubrikpositionen stabil.
+- Rechts Wesen, Bindung und bevorzugte Beere ohne doppelte Altersanzeige.
+- Unbekannte Beerenvorliebe nicht enthüllen; vorhandene Angabe verwenden.
+- Vollständige Wesenserklärung im rechten Display nach Antippen.
+- Zurück verlässt zuerst diese Detailansicht.
+- Profilhauptansicht und Details ausdrücklich auf Überlauf/Scrollen prüfen.
+- Werte, Heute, Erfolge und Spielregeln inhaltlich unverändert.
+- Gezielte Tests und manuelle Abnahme dieser Profilrunde noch offen.
+
+## UI01 — Stift am Namen, Tagesformen und Pflegepatzer
+
+- Nutzer stellt klar: Pokémonname bleibt links; Stift direkt rechts daneben.
+- Stift ohne sichtbaren Buttonhintergrund oder Rahmen; normale Bedienbarkeit erhalten.
+- Alter und Pflegeserie: 1 Tag, sonst 0/2/3/4 Tage.
+- Bestehende Pflegepatzer rechts im Profil neben der Beerenplakette.
+- Pflegepatzer unter Werte nicht erneut anzeigen.
+- Mega-Zugang bei Verfügbarkeit als Rahmenicon erhalten.
+- Keine Änderung an Zählregeln, Pflegewerten oder Spielständen.
+- Gezielte Tests und Sichtabnahme dieser Runde noch offen.
+
+## UI01 — Profilzentrierung und offene Umbenennungs-Tastatur
+
+- Name und Level unabhängig vom seitlichen Stiftsymbol mittig ausrichten.
+- Wesen und Bindung: Icon und Überschrift als gemeinsame Gruppe zentrieren.
+- Keine Änderung an Pflegewerten, Datensätzen oder Umbenennungsregeln.
+- Nutzer weist auf noch nicht gestaltete Umbenennungs-Tastatur hin.
+- Tastatur ausdrücklich als offenen UI01-Reviewpunkt mitführen.
+- Vor Tastaturänderung tatsächliche Eingabe-, Sprach- und Abschlusslogik lesen.
+- Zentrierung und Gesamtstatus weiterhin erst nach Prüfung abnehmen.
+
+## UI01 — Verworfener separater Umbenennungsentwurf
+
+- Nutzer gibt Systemtastatur-Prototyp am 01.11.2026 um 21:34 CET frei.
+- Links Pokémon und Namensvorschau, rechts Eingabe und Übernehmen.
+- Zurück verwirft den Entwurf; keine eigene Buchstabenkachel-Tastatur mehr.
+- C++-Namensentwurf weiterverwenden; UTF-8, Zeichen- und Bytegrenzen prüfen.
+- Übernehmen über bestehenden nativen Namen und gemeinsamen careSync-Speicherweg.
+- Bei bestätigbar nicht dauerhaftem Fehler alten Namen wiederherstellen;
+  bei unklarem/gesperrtem Speicherabschluss Neuladen verlangen.
+- Automatische Tests ersetzen keine Beurteilung der echten Handy-Systemtastatur.
+- Danach zuerst Werte gemeinsam besprechen, vor Heute und Erfolge.
+- Danach alte Kartenzugänge und Mega-Einbindung bearbeiten.
+- Mega-Vorschlag: Einstieg im Profil, aktive Form/Wertewirkung unter Werte;
+  Mega-Neugestaltung damit noch nicht umgesetzt oder abgenommen.
+- Gezielte Tests und Sichtabnahme der Umbenennung noch offen.
+
+## UI01 — Umbenennung direkt im rechten Profildisplay
+
+- Nutzer gibt Inline-Umbenennung am 01.11.2026 um 21:50 CET frei.
+- Stift schaltet nur das rechte Profildisplay auf Eingabe und Übernehmen um.
+- Links bleiben Pokémon und bisheriger Name bis zur bestätigten Speicherung.
+- Zurück/erneuter Stift/Rubrikwechsel verwerfen einen ungespeicherten Entwurf.
+- Eingabefeld während der Bearbeitung nicht laufend neu aufbauen.
+- Separate Umbenennungsseite samt CSS entfernt.
+- Bestehende alte Aufrufer führen in denselben Inline-Ablauf, nicht zu versteckter Alt-UI.
+- Namensprüfung und vorhandene Speicher-/Rücknahmelogik übernommen.
+- Tests und manuelle Abnahme dieser Runde noch offen.
+- Danach zuerst Werte besprechen, dann Heute/Erfolge.
+
+## UI01 — Werte als Wachstums- und Trainingsübersicht
+
+- Nutzer gibt die Werte-Variante am 01.11.2026 um 22:05 CET zur Prüfung frei.
+- Links bestehende Werte und Farben; gemeinsame Skala auch oberhalb von 260.
+- Rechts Wachstum statt doppelter aktueller Levelanzeige.
+- Zeitfortschritt als Medaillon; Maximallevel ohne weitere Levelankündigung.
+- Vorhandene Trainingsstände nur lesend über tp_c2_get 17/18/19.
+- Drei farbige Trainingsplaketten und kompakter Entwicklungsstatus.
+- Aktive Mega-Form nur kennzeichnen; keine zweite Aktivierungsaktion.
+- Beide Displays auf Erreichbarkeit ohne Scrollen prüfen.
+- Profil und Inline-Umbenennung inhaltlich unverändert.
+- Gezielte Tests und Sichtabnahme dieser Werte-Runde noch offen.
+
+## UI01 — Wachstum im Profil und Entwicklungs-Direkteinstieg
+
+- Nutzer gibt die Variante am 01.11.2026 um 22:25 CET zur Prüfung frei.
+- Wachstumsring in die bestehende Pokémon-Bildfläche des Profils integrieren.
+- Level und verbleibender Zeithinweis kompakt; keine weitere Kachelzeile.
+- Normale rechte Profilgruppe vertikal zentrieren; Inline-Eingabe unverändert.
+- Werte rechts: dekorative Trainingsszene, Trainingsplaketten, Entwicklung.
+- Entwicklungskachel öffnet die bestehende TPComfort-Entwicklungsansicht.
+- Kein kopierter Entwicklungsrenderer und keine Änderung an Voraussetzungen.
+- Rückkehr zur Werteansicht und unveränderte Pokémonidentität im Browser prüfen.
+- Mega bleibt kontextabhängiger Profilzugang, keine zusätzliche große Infokachel.
+- Gezielte Tests und Sichtabnahme dieser Runde noch offen.
+
+## UI01 — Entwicklungsring und Profilabstand
+
+- Nutzer bewertet letzte Darstellung positiv und wünscht zwei Details.
+- Entwicklungsseite: goldener Wachstumsring am linken Pokémonporträt.
+- Vorhandenen Zeitfortschritt und Hinweis zum nächsten Level anzeigen.
+- Aktualisierung beim Schließen/Neuaufbau beenden; keine Änderung an Entwicklungsregeln.
+- Profil: drei Pixel Abstand zwischen Name/Stift und Level-/Zeitzeile.
+- Bestehende Rendererfixtures nur um benötigte Zeitdaten ergänzen;
+  Assertions unverändert erhalten.
+- Gezielte Tests und Sichtprüfung dieser Detailrunde noch offen.
+- Anschließend Heute und Erfolge gemeinsam gestalten.
+
+## UI01 — Heute als Aufgabenbrett und Tagesblick
+
+- Vorherige Detailprüfung vom Nutzer am 01.11.2026 um 22:46 CET als passed gemeldet.
+- Heute-Entwurf am 01.11.2026 um 22:52 CET zur Prüfung freigegeben.
+- Erster Schreibversuch vor Änderungen wegen mehrdeutigem Suchanker gestoppt.
+- Korrigierter Anker ausschließlich für back(), nicht für rename().
+- Links drei Tagesziele und Tagesblick; rechts Szene oder Zieldetails.
+- Zielauswahl startet kein Spiel und vergibt keine Belohnung.
+- Bestehende Ziel-/Bonusregeln anhand aktueller Nativequellen geprüft.
+- Kein Abholbutton; keine manuellen Spielstände verändert.
+- Gezielte Tests und Sichtabnahme dieser Runde noch offen.
+- Danach Erfolge gestalten.
+
+## UI01 — Erfolge als Medaillenvitrine
+
+- Nutzer bestätigt Heute am 01.11.2026 um 23:08 CET optisch, bis auf Abschlussmarkierung.
+- Vitrinenentwurf am 01.11.2026 um 23:09 CET zur Umsetzung freigegeben.
+- Erledigte Tagesziele: salbeigrüner Grund, grüner Innenrahmen und größere Hakenplakette.
+- Auswahl weiterhin separat blau erkennbar.
+- Acht persönliche Medaillen links als kompakte Symbolplätze.
+- Rechts ausgewählte Medaille, tatsächliche Voraussetzung und gespeicherter Zustand.
+- Spielrekorde und Kampfbilanz bleiben über zwei Symbolzugänge rechts erreichbar.
+- Gespeicherte Medaillen nicht aus aktuellen Werten neu berechnen.
+- Native Bedingungen anhand lokaler Quellen vor dem Schreiben abgleichen.
+- Keine neuen Erfolgsregeln, Belohnungen oder Spielstandänderungen.
+- Gezielte Prüfungen und Sichtabnahme dieser Runde noch offen.
+- Keine Gesamtfreigabe von UI01 und kein Commit/Push.
+
+## UI01 — Spielrekorde und Kampfbilanz als Spielplaketten
+
+- Nutzer bestätigt Vitrinengestaltung am 01.11.2026 um 23:19 CET als sehr gut.
+- Gewünschte Nacharbeit ausschließlich rechte Unterseiten Spielrekorde/Kampfbilanz.
+- Fünf Rekordkarten mit Spielmotiven und hervorgehobenen bestehenden Bestwerten.
+- Drei Bilanzplaketten mit Schwert-, Flammen- und Pokalmotiv.
+- Vorhandene Native-Bilanzzeilen erhalten; doppelte zusätzliche Bestwertzeile entfernt.
+- Linke Medaillenauswahl, Vitrine, Heute, Profil und Werte unverändert.
+- Keine neuen Zähler, Rekorde, Fortschrittsprozente oder Belohnungen.
+- Gezielte Tests und Sichtabnahme dieser Nacharbeit noch offen.
+- Kein behaupteter Gesamtabschluss, Commit oder Push.
+
+## UI01 — Ergebnistafel und zentrierte Statusnavigation
+
+- Nutzer gibt Ergebnistafel-Entwurf am 01.11.2026 um 23:24 CET zur Prüfung frei.
+- Zusätzlich vier Rubrikbuttons gemeinsam über beiden Displays zentrieren.
+- Separater Mega-Werkzeugplatz zählt nicht zur Vierergruppen-Zentrierung.
+- Kampfbilanz-Icon als Ergebnistafel, nicht als Angriffsschwert.
+- Siege/Niederlagen als zwei beschriftete Zahlenfelder mit Fähnchen.
+- Aktuelle und beste Serie als eigene Plaketten mit großem Wert.
+- Vorhandene Native-Anzeigefelder in geprüfter Reihenfolge für Darstellung aufteilen.
+- Bei unerwartetem Zahlenformat vorhandenen Rohtext zeigen, keine Nullwerte erfinden.
+- Native Spielzähler, Regeln und Speicherwege unverändert.
+- Bestehende Bilanztests auf echte dargestellte Zahlen statt alte Textzeilen umstellen.
+- Gezielte Tests und Sichtabnahme dieser Runde noch offen.
+
+## UI01 — Mega-Reviewstände vorbereiten
+
+- Nutzer bestätigt Ergebnistafel und Zentrierung am 01.11.2026 um 23:28 CET.
+- Mega-Buttons und Mega-Seiten wegen fehlender Teststände noch nicht manuell abgenommen.
+- Acht separate synthetische Fälle für Glurak, Metagross und Flunkifer.
+- Normale/schillernde Varianten, Steinfreischaltung und Sperrzeit.
+- Aktive Formen über die tatsächlichen sichtbaren Aktivierungsbuttons prüfen.
+- Privater neuer Ordner Downloads/iTamaPoke-UI01-Megareview.
+- Vorhandenen seal/decode-Transport samt Rückleseprüfung verwenden.
+- Bestehenden --saves-Runner um Mega-Profil ergänzen; Browserprofil und Tasten erhalten.
+- Vorhandene manuelle Spielstände und andere Reviewordner nicht überschreiben.
+- Fall 8 besitzt eine reale, zeitlich begrenzte Sperrzeit von einer Stunde ab Vorbereitung.
+- Fehlende lokale Grafikdateien melden; keine Medien herunterladen.
+- Vorbereitung, technische Prüfungen und manuelle Mega-Abnahme getrennt behandeln.
+- Kein Commit/Push oder Gesamtabschluss von UI01.
+
+## UI01 — Mega-Review: erwartete Art beim Import übergeben
+
+- Erster gezielter Lauf: drei Zentrierungsprüfungen bestanden.
+- Fünf Mega-Fälle bei falscher Importerwartung gestoppt; drei nicht ausgeführt.
+- H.prepare ohne dritten Parameter erwartete Art 1 statt der jeweiligen Testart.
+- Testaufruf übergibt jetzt definition.dex; eigentliche Artprüfung bleibt erhalten.
+- Spielstände, Prüfhelfer, Spiellogik und Reviewrunner unverändert.
+- Erneute Mega-Prüfung und manuelle Mega-Abnahme weiterhin offen.
+- Fehlende lokale Grafikquellen bleiben ein separates Thema der Bildabnahme.
+
+## UI01 — Goldener Mega-Zugang beim Pokémon
+
+- Nutzer gibt das goldene Mega-Emblem am 01.11.2026 um 23:42 CET zur Umsetzung frei.
+- Bestehenden Mega-Zugang aus der oberen Leiste neben das Pokémon links verschieben.
+- Tatsächlichen Button/Handler erhalten; nur sichtbare Buttonhülle entfernen.
+- Goldverlauf, Bereitschaftsglanz, aktive violette Aura und Reduced-Motion-Alternative.
+- Vierergruppe oben bleibt zentriert, separater Mega-Werkzeugplatz entfällt.
+- Zweiter Mega-Testlauf erreicht Aktivierung, aber ohne importierte Mega-Grafik.
+- Bestehende Aktivierung verlangt gültige Mega-Grafik; diesen Schutz nicht umgehen.
+- Vorhandene synthetische TPK2-Funktionsfixture in isolierte Browserprüfungen übernehmen.
+- Funktionsfixture ist keine echte Mega-Grafik und wird nicht im manuellen Review installiert.
+- Zusätzliche Negativprüfung: fehlende Grafik startet weder Mega-Zeit noch Sperrzeit.
+- Vorbereitete Teststände und manuelles Reviewprofil unverändert.
+- Technische Wiederholungsprüfung, echte Grafikprüfung und manuelle Emblemabnahme offen.
+
+## UI01 — Tagesabschluss: Mega-Emblem und Pokémon-Zentrierung
+
+- Stand: 01.11.2026, 23:52 CET.
+- Mega-Emblem vom Nutzer angenommen; ursprüngliche Pokémon-Zentrierung wiederhergestellt.
+- Nur verengende/links ausrichtende CSS-Ergänzung entfernt.
+- Gezielte Emblem-, Mega-, Navigations- und Statusprüfungen erfolgreich.
+- Letzte Zentrierungs-Sichtprüfung und manuelle Mega-Abnahme getrennt offen halten.
+- Detaillierten Wiedereinstieg in docs/WEITERARBEITEN.de.md gesichert.
+- Reviewstände morgen wegen Zeitstempeln und Offlinefortschritt frisch vorbereiten.
+- Lokale Quellstand-/Differenz-/Reviewstand-Sicherung: /Users/M1dn8/Downloads/iTamaPoke-Fortsetzung-20261101-235241-785737
+- Kein Commit, Push oder UI01-Gesamtabschluss.
+
+## UI01 — Mega-Review am 02.11.2026 fortsetzen
+
+- Gesicherten Fortsetzungsstand vom 01.11.2026, 23:52 CET gelesen.
+- Dortige gezielte Emblem-, Mega-, Navigations- und Statusprüfungen bestanden.
+- Keine vollständige UI01-Freigabe daraus ableiten.
+- Acht zeitaktuelle Ausgangsstände mit vorhandenem Fixture-Modul erzeugen.
+- Neuer privater Ordner: /Users/M1dn8/Downloads/iTamaPoke-UI01-Megareview-20261102
+- Alte Teststände und ursprünglicher Sicherungsordner unverändert.
+- seal/decode und Byte-Rückleseprüfung vor Verwendung.
+- Fall 8 besitzt eine reale Sperrzeit bis ungefähr 02.11.2026, 21:42 CET.
+- Bestehenden Reviewrunner um rein lesende Grafikbestandsausgabe ergänzen.
+- Bereits importierte Grafiken im gespeicherten Profil prüfen, nichts ersetzen.
+- Gezielt neue Teststände prüfen; manuelle Zentrierungs- und Mega-Sichtprüfung offen.
+
+## UI01 — Mega-Seite im kreisförmigen Doppeldisplay
+
+- Nutzer gibt Mega-Seitenentwurf am 02.11.2026 um 20:48 CET zur Prüfung frei.
+- Rahmengeometrie und Grundhaut aus aktuellem Statusrahmen übernehmen.
+- Links normale beziehungsweise tatsächlich aktive Mega-Form in kreisförmiger Darstellung.
+- Sprite-Alphagrenzen diagonal in den Ring einpassen, keine Figur außerhalb des Kreises.
+- Rechts Steinstatus, Voraussetzungen beziehungsweise Laufzeit und tatsächliche Hauptaktion.
+- Bestehende Wertevorschau bei vorhandenem Stein erhalten.
+- Native Aktivierungs-/Grafik-/Speicherfunktion unverändert lassen.
+- Rückweg über sichtbaren gemeinsamen Pfeil direkt zum Profil.
+- Alte Canvas-Mega-Aktionsfläche nicht als versteckten Ersatz weiterverwenden.
+- Neue Mega-Reviewprüfungen auf tatsächliche DOM-Bedienelemente umstellen.
+- Profil-Emblem und bestätigte Statusrubriken unverändert.
+- Technische Prüfungen und manuelle Mega-Seitenabnahme dieser Runde offen.
+- Ältere Mega-Browserfälle vor dem späteren Gesamtlauf auf aktuelle UI-Anschlussstellen prüfen.
+
+## UI01 — Mega-Seitenstart: Englisch zuerst registrieren
+
+- Lauf vom 02.11.2026 um 21:08 CET: neun bestanden, fünf fehlgeschlagen,
+  ein Fall unterbrochen, vierzehn nicht ausgeführt.
+- Neue Mega-Texte wurden irrtümlich mit Deutsch vor Englisch registriert.
+- Echtes Sprachregister verlangt zuerst englische Schlüssel.
+- Initialisierung brach dadurch vor dem Export von TPMega ab.
+- Fehlendes Mega-Emblem und TPMega-ReferenceError als zusammenhängende Symptome behandeln.
+- Nur Reihenfolge auf en/de/es/fr korrigieren.
+- Fehler vor Schreiben mit echtem Register reproduzieren und Kandidatenstart prüfen.
+- Dauerhafte Startprüfung mit echtem de-ui.js und allen vier Mega-Katalogen ergänzen.
+- Keine Aktivierungsregeln, Speichertransaktionen, Teststände oder UI-Geometrie ändern.
+- Unterbrochenen Stift-Test nicht als gesondert nachgewiesenen Fehler behandeln.
+- Betroffener Browserlauf und manuelle Mega-Seitenabnahme weiterhin offen.
+
+## UI01 — Mega-Seite Revision 2: Aura und dauerhafte Pokémon-Darstellung
+
+- Nutzer kritisiert erste Mega-Darstellung am 02.11.2026 um 21:16 CET.
+- Zweiten Gestaltungsentwurf um 21:20 CET zur Prüfung freigegeben.
+- Pokémon-Zeichenfläche dauerhaft behalten; keine Neuerzeugung bei Zeitupdates.
+- Rechte Karten nur bei relevanten Zustandsänderungen erneuern.
+- Profil-M aus tatsächlichem Grafikquelltext unverändert übernehmen, eigene Gradient-ID.
+- Goldring mit weicher violett/magenta/cyan Aura und wandernden Energiebögen.
+- Kurze Energiewelle nur bei tatsächlichem Wechsel zur aktiven Mega-Form.
+- Rest-/Erholungszeit groß und getrennt unter dem Pokémonring.
+- Ovaler Mega-Kristall als Besitz-/Zustandssiegel im oberen freien Rahmenband.
+- Voraussetzungen als drei größere Prüfungskarten.
+- Mega-Werte mit Attributsymbol, großem Zielwert und kleinem Basiswert.
+- Während aktiver Mega-Form keinen nutzlosen deaktivierten Aktionsbutton anzeigen.
+- Grafikschutz, Aktivierungs-/Speichertransaktion und Preview-Rechnung unverändert.
+- Profilgestaltung und andere Statusseiten unverändert.
+- Neue technische Prüfung und manuelle Abnahme der Revision 2 offen.
+
+## UI01 — Mega-Revision 2: sichtbare Flächen und frische Testkopien
+
+- Lauf vom 02.11.2026 um 21:32 CET: 25 bestanden, vier fehlgeschlagen.
+- Alle Statusfälle, normale/schillernde Aktivierungen und Grafikschutz bestanden.
+- Layoutprüfung erreichte Flächenkontrolle nach M-Gleichheit und Canvas-Persistenz.
+- Absichtlich ausgeblendete Zeitplakette nicht als sichtbares Rechteck behandeln.
+- Scrollhöhe und Grenzen aller sichtbaren Kinder unverändert streng prüfen.
+- Zeitplakette in Bereitschaft verborgen und bei tatsächlicher Aktivierung sichtbar prüfen.
+- Veraltete Ausgangszeitstempel können Mega-Prüfung durch Offlinefortschritt verändern.
+- Isolierte Tests erzeugen frische Kopien über vorhandenen Generator und seal/decode.
+- Vorhandene gespeicherte Ausgangsdateien weiterhin decodieren und Art prüfen.
+- Native quest-Erwartung und Aktivierungsregeln nicht abschwächen.
+- Nach erfolgreicher Wiederholung neue manuelle Ausgangsstände in separatem R2-Ordner.
+- Keine Darstellungsänderung und keine normale Spielstandänderung in diesem Fix.
+
+## UI01 — Mega-Testvorbereitung: Buffer-Vertrag des Dateiimports
+
+- Lauf vom 02.11.2026 um 21:36 CET bereits bei setInputFiles gestoppt.
+- Frische seal/decode-Testdaten lieferten Uint8Array statt Node-Buffer.
+- Datei-Payload vor Übergabe an vorhandenen Importhelfer mit Buffer.from normalisieren.
+- Rückgabe behält sämtliche decodierten Metadaten und unveränderte Nutzdaten.
+- Buffer-Typ und Bytegleichheit vor Browserlauf prüfen.
+- Keine Änderung an Importvalidierung, Spiellogik, Grafikschutz oder Darstellung.
+- Vorheriger nachgelagerter R2-Erzeugungsschritt wurde wegen Testabbruch nicht erreicht.
+- Gezielte Wiederholung und manuelle Mega-Abnahme weiter offen.
+
+
+## Mega-Revision 2: korrigierte gezielte Prüfungen bestanden
+
+- Dateiimport erhält echte Node-Buffer mit unverändertem Byteinhalt.
+- Korrigierter Mega-, Layout- und Statuslauf erfolgreich.
+- Frische manuelle Ausgangsstände: /Users/M1dn8/Downloads/iTamaPoke-UI01-Megareview-20261102-R2
+- Fall 8: Sperrzeit bis 2026-11-02T21:39:19.000Z
+- Manuelle Gestaltungsabnahme weiterhin offen.
+
+<!-- UI01-CLOSEOUT-20261102-MEGA-ACCEPTED -->
+## UI01 — Mega-Abnahme und freigegebene Abschlussreihenfolge
+
+- Nutzer bestätigt am 02.11.2026 um 21:40 CET bestandenen gezielten Lauf
+  sowie Grafiken und Darstellung der Mega-Revision 2.
+- Gestaltungsstand erhalten; keine weitere Mega-Neugestaltung beauftragt.
+- Nutzer genehmigt um 21:49 CET folgende Reihenfolge:
+  1. Abnahme dokumentieren.
+  2. Beide horizontalen Hauptbildschirm-Gesten entfernen und sichtbaren
+     Zentralenzugang im Ruhemodus ohne Aufwecken/Pflege ermöglichen.
+  3. Herunterwischbares Verwaltungsmenü und bestehende Einstellungen
+     im gemeinsamen Design mit sachlichen Informationen gestalten.
+  4. Aktuelle UI01-Restpunkte einschließlich Ehrenei-Abgleich und älterer
+     UI-Testanschlüsse klären, danach vereinbarte Abschlussprüfungen.
+- Wischfunktionen anderer Ansichten nicht pauschal entfernen.
+- Bestehende Schutzsperren, Transaktionen und Spielregeln erhalten.
+- Schritt 2 und Schritt 3 noch nicht umgesetzt.
+- Gezielte Mega-Abnahme ist keine vollständige UI01-Freigabe.
+- Kein automatischer Commit/Push und kein P07-Start.
+
+## UI01 — Schritt 2: sichtbarer Zentralenzugang statt Idle-Wischroute
+
+- Schritt 1 mit Mega-Abnahme und freigegebener Reihenfolge dokumentiert.
+- Beide horizontalen Hauptbildschirm-Gesten entfernen, andere Seitenfunktionen erhalten.
+- Sichtbarer Pokédex-Einstieg aus der Zentrale hing intern an onSwipe.
+- Expliziten UI-Einstieg mit bestehenden Navigationssperren ergänzen und Menü darauf umstellen.
+- Nur LIGHT und POKEDEX im Ruhemodus zeichnen/bedienen; Pflegeaktionen weiter sperren.
+- Keine Schlafänderung oder Pflegeaktion durch Öffnen/Schließen der Zentrale.
+- Vertikale Gesten, Native-Regeln und Speichertransaktionen unverändert.
+- Isolierte Unit- und echte Gesten-/Icon-Browserprüfungen ergänzen.
+- Technische Prüfung und manuelle Abnahme von Schritt 2 noch offen.
+- Schritt 3 bleibt danach: bestehendes Verwaltungsmenü/Einstellungen gestalten.
+
+<!-- UI01-STEP2-ACCEPTED-MAIN-ICON-IDEA-20261102 -->
+## UI01 — Schritt 2 abgenommen, Hauptleisten-Idee und Schritt 3
+
+- Nutzer meldet am 02.11.2026 um 22:00 CET bestandenen Lauf und bestätigt:
+  Wischgesten auf dem Hauptbildschirm entfernt, Zentrale im Schlaf erreichbar.
+- Schritt 2 damit im gezielt geprüften und sichtbar bestätigten Umfang abgenommen.
+- Gesten innerhalb anderer Ansichten und bestehende Schutzsperren erhalten.
+- Schritt 3 als nächste Arbeit: vorhandenes Verwaltungsmenü/Einstellungen gestalten.
+
+### Zusätzlicher UI01-Restpunkt — Hauptbildschirm-Leiste
+
+- Nutzer beauftragt am 02.11.2026 um 22:03 CET, die Idee in UI01-Restarbeiten aufzunehmen.
+- Vorschlag: fünf Haupticons beibehalten.
+- Vergleichsreihenfolge:
+  Füttern · Saubermachen · Pokéball-Aktivitäten · Schlaf/Licht · Zentrale.
+- Direkte Pflege links, Aktivitätsmenü mittig, Schlaf/Zentrale rechts.
+- Pokéballmenü mit Spielen, Training, Kampf und Expedition vorerst erhalten.
+- Keine zusätzlichen Haupticons oder doppelten Funktionszugänge nebenbei ergänzen.
+- Erkennbarkeit des Schlaf-/Lichtmotivs bei dieser Vergleichsrunde prüfen.
+- Noch keine Reihenfolge oder Motive geändert.
+- Vor dem UI01-Abschluss gemeinsam entscheiden und gegebenenfalls gezielt umsetzen.
+
+### Aktuelle Reihenfolge
+
+1. Mega-Abnahme dokumentiert.
+2. Idle-Gesten/Ruhemodus-Zentrale gezielt geprüft und abgenommen.
+3. Jetzt Verwaltungsmenü und bestehende Einstellungen angleichen.
+4. Restarbeiten einschließlich Hauptleisten-Idee und Ehrenei-Abgleich,
+   ältere Testanschlüsse und vereinbarte Abschlussprüfungen.
+- Keine Gesamtfreigabe, kein P07-Start und kein automatischer Commit/Push.
+
+## UI01 — Schritt 3a: Verwaltungseinstieg, Einstellungen und Dateiauswahl
+
+- Schritt 2 vom Nutzer technisch und sichtbar abgenommen.
+- Erste Teilrunde Schritt 3: vorhandene Verwaltungsaktionen neu anordnen/gestalten.
+- Gemeinsame Gehäusegrundhaut und Displaypositionen verwenden.
+- Hauptmenü behält Sicherungen und Einstellungen sowie Rückkehr zum Pokémon.
+- Einstellungen: bestehende vier Alltagsaktionen links, Quellen/Rücksetzbereich rechts.
+- Dateien: vier bestehende Zugänge links, Orientierung rechts.
+- Tatsächliche Buttons und ihre bisherigen Handler erhalten, nicht nachimplementieren.
+- Tonzyklus, Sprachzyklus, Importaufrufe und geschützten Reset unverändert lassen.
+- Quellenzugang bleibt außerhalb des Aktionsrasters in eigener Displayhälfte.
+- Sicherungsdialog, Bestandsprüfung, Diagnose- und Quelleninhalte in dieser Teilrunde unverändert.
+- Diese Unterseiten bleiben weitere Punkte innerhalb Schritt 3.
+- Hauptbildschirm-Reihenfolge bleibt offene Restidee, noch nicht geändert.
+- Gezielte Prüfung und sichtbare Abnahme von Schritt 3a offen.
+
+## UI01 — Verwaltung: neue Gestaltung gegen alte Menükaskade abgrenzen
+
+- Erster Schritt-3a-Lauf: 42 bestanden, ein Flächenfehler im Verwaltungseinstieg bei 320.
+- Neue Verwaltungsregeln müssen alte globale Raster-/Schriftregeln gezielt überstimmen.
+- Ein Zeilenraster mit zwei Displayspalten explizit festlegen.
+- Beabsichtigte Button-Schriftgrößen gegen ältere priorisierte Schriftregeln abgrenzen.
+- Mindesthöhe 44 und unveränderte Displaygrenzen beibehalten.
+- Flächenprüfung nicht lockern; bei Fehler tatsächliche Maße ausgeben.
+- Keine Navigations-, Einstellungs-, Speicher- oder Rücksetzfunktion geändert.
+- Vollständiger betroffener Lauf und manuelle Schritt-3a-Abnahme noch offen.
+
+## UI01 — Dateikacheln und tatsächliche Ruf-/Textbereitstellung
+
+- Nutzer wünscht am 02.11.2026 um 22:21 CET kürzere Dateikachel-Bezeichnungen.
+- Grafikkachel sichtbar „Grafiken laden“, Prüfkachel sichtbar „Bestand“.
+- Vollständige ursprüngliche Aktionsnamen als zugängliche Beschriftung/Hinweis erhalten.
+- Tatsächliche Import-/Bestandsprüfungs-Handler unverändert.
+- Bestandsmotiv als Ordner mit Lupe.
+- Sichtbaren Kurztext und vollständigen zugänglichen Grafiknamen getrennt prüfen.
+- Vorherige Versuche vor Schreiben gestoppt: Python-Stringsyntax beziehungsweise
+  noch nicht angepasste Erwartung des sichtbaren Grafiklabels.
+- Rufe und Pokédex-Texte als konkreten UI01-Inhalts-/Importpunkt verfolgen.
+- Vor Download lokale Dateien und tatsächlich importierten Profilbestand prüfen.
+- Vorbereitungsskripte und aktuellen Arten-/Sprachumfang abgleichen.
+- Keine Medien automatisch herunterladen oder vorhandene Dateien überschreiben.
+- Import, Wiedergabe/Textanzeige, Sprachzuordnung und Erhalt nach Neuladen prüfen.
+- Private Inhalte nicht ungeprüft in öffentliches Repository/Veröffentlichung übernehmen.
+- Gezielte technische und visuelle Abnahme dieser Kachelkorrektur noch offen.
+
+<!-- UI01-ADMIN-FOUR-REMAINING-20261102 -->
+## UI01 — Verwaltung: vier verbleibende Unterseiten
+
+- Nutzer meldet am 02.11.2026 um 22:33 CET bestandenen gezielten Lauf
+  für Dateikachel-/Menüanpassungen.
+- Kurze Dateikacheln „Grafiken laden“ und „Bestand“ technisch bestätigt.
+- Innerhalb Schritt 3 verbleiben:
+  1. Bestand/Dateiverwaltung.
+  2. Diagnose.
+  3. Quellen & Nutzungsrechte.
+  4. Sicherungen.
+- Bestand zuerst anhand tatsächlicher Anzeigefunktion gestalten.
+- Nur jeweils eigene Seiten/Dialoge gestalten; andere Modalflächen nicht global ändern.
+- Bestehende Import-, Prüf-, Sicherungs-, Wiederherstellungs- und Schutzaufrufe erhalten.
+- Technische Informationen vollständig und lesbar lassen.
+- Rufe/Pokédex-Texte bleiben eigener Bereitstellungs-/Importrestpunkt.
+- Installierten Umfang nicht ohne konkrete Profilbestandsanzeige annehmen.
+- Hauptleisten-Idee bleibt weiterer offener UI01-Restpunkt.
+- Keine vollständige Abnahme von Schritt 3 oder UI01 ableiten.
+
+## UI01 — Bestandsseite mit Kategorien und erhaltenen Originalaktionen
+
+- Tatsächliche Bestands-/Dialogfunktionen anhand lokaler Ausgabe abgeglichen.
+- Nur Dateibestandsseite in gemeinsames Gehäuse überführen.
+- Links Grafiken, Trainer, Rufe und Texte mit tatsächlichen Bestandswerten.
+- Rechts kategorisierte Informationen, vorhandene Nur-fehlende-Option und Originalimportbutton.
+- Originalprüfung und Fehlendenexport als feste Symbolwerkzeuge.
+- Vollständige bisherige Hinweise über eigenes Infowerkzeug erhalten.
+- Vorhandene Buttons, Eingaben und Handler bewegen, nicht neu implementieren.
+- Dateinamenanzahl nicht mit Inhalts-/Audio-/Rechteprüfung gleichsetzen.
+- Bereichskennzeichnung bei anderen Managerseiten zurücksetzen, keine globale Modaländerung.
+- Sicherungs-/Importtransaktionen, Validator und Datenbanklesefunktion unverändert.
+- Technische Detailtexte dürfen innerhalb der rechten Informationsfläche scrollen.
+- Gezielte Tests und manuelle Bestandsabnahme offen.
+- Diagnose, Quellen und Sicherungen bleiben danach innerhalb Schritt 3 offen.
+
+<!-- UI01-CHECKPOINT-20261102-ASSETS-NOT-ACCEPTED -->
+## UI01 — Tagesabschluss: Bestandsseite noch nicht abgenommen
+
+- Stand: 02.11.2026, 22:47 CET.
+- Nutzer bestätigt um 22:44 CET bestandenen gezielten Bestands-/Import-/Verwaltungslauf.
+- Nutzer erklärt Bestandsseite ausdrücklich als noch nicht abgenommen.
+- Keine neue konkrete optische Beanstandung daraus erfinden.
+- Morgen zuerst aktuelle Bestandsseite gemeinsam ansehen und gezielt nacharbeiten.
+- Aktuelle Manager-/CSS-/Test-Anschlussstellen im Wiedereinstieg dokumentiert.
+- Danach Diagnose, Quellen & Nutzungsrechte und Sicherungen.
+- Hauptleisten-Idee, Ruf-/Textbereitstellung und weitere Abschlussrestpunkte erhalten.
+- Detaillierter Zwischenstand in docs/WEITERARBEITEN.de.md.
+- Lokale Sicherung: /Users/M1dn8/Downloads/iTamaPoke-Fortsetzung-20261102-224752-429971
+- Kein Commit/Push, P07-Start oder UI01-Gesamtabschluss.
+
+## UI01 — Bestandsrevision 2: klare Hinweise und erklärter Dateilistenexport
+
+- Nutzer gibt Bestandskorrekturen am 03.11.2026 um 16:14 CET zur Prüfung frei.
+- Beige Titelunterlage nur auf Bestandsseite entfernen.
+- Dokument-/Listenmotiv statt allgemeinem Downloadpfeil.
+- Vor Dateilistenexport kurze Erklärung im rechten Display; Originalexport bestätigt ausführen.
+- Keine Grafikdownloads behaupten oder einführen.
+- Hinweise als drei kurze Themenansichten mit sichtbarer Blätternavigation.
+- Grafikübersicht auf Normal-/Schillernd-Karten und kompakte gespeicherte Prüfergebnisse reduzieren.
+- Blau kennzeichnet Dateibestand, nicht erfolgreiche Inhaltsprüfung.
+- Einzelbild-/Animationshinweis in Hinweisansicht erhalten.
+- Standard-Grafikübersicht ohne Scrollen prüfen.
+- Bestehende Backendfunktionen und openAssets-Aufbau unverändert abgleichen.
+- Technische Wiederholungsprüfung und manuelle Abnahme dieser Revision offen.
+- Diagnose, Quellen und Sicherungen weiterhin danach.
+
+## UI01 — Gemeinsame Grafikprüf- und Importstation
+
+- Nutzer gibt am 03.11.2026 um 16:30 CET gemeinsame Prüf-/Importstation frei.
+- Gleiches Pokédex-Gehäuse während Vorbereitung, Fortschritt, Pause und Ergebnis.
+- Stabile Dateistationsszene links, tatsächlicher Fortschritt und strukturierte Zähler rechts.
+- Bestehende Verarbeitung um reine UI-Meldungen an Fortschrittsstellen ergänzen.
+- Unbekannte Gesamtmenge nicht mit erfundenen Prozenten darstellen.
+- Vorhandene Pausen-, Rückkehr- und Berichtaktionen behalten.
+- Vollständige originale Statusmeldungen, Dateinamen und Hinweise über Details erreichbar.
+- Ursprüngliche Fehler weitergeben und bereits bestätigte Dateien nicht zurückrollen.
+- Andere Fortschrittsdialoge ohne Dateioperationskennung unverändert.
+- Grafik-, Ruf- und Textimporte verwenden ihre bisherigen Prüfer und Speicherwege.
+- Gezielte Prüfung und manuelle Abnahme dieser Stationsrunde offen.
+- Bestandsseite insgesamt noch nicht manuell abgenommen.
+
+## UI01 — Ruf- und Textimport in gemeinsamer Station absichern
+
+- Nutzer bestätigt am 03.11.2026 um 16:39 CET den Animationsstil.
+- Keine pauschale Bestands-/Importseitenabnahme daraus ableiten.
+- Am 03.11.2026 um 16:44 CET Fortsetzung der vereinbarten Reihenfolge freigegeben.
+- Gezielt Ruf-/Textimport über vorhandene sichtbare Dateiauswahl prüfen.
+- Gültige stille PCM-WAV und ausdrücklich synthetischen Text nur in isolierten Tests verwenden.
+- Echte Dateispeicherung, Bytegleichheit, Audio-Dekodierung und Erhalt nach Reload prüfen.
+- Texte über tatsächliche Lese-/Anzeigeschnittstellen prüfen.
+- Nur-fehlende-Verhalten und Einzeldatei-Fehlerregel erhalten.
+- Keine Grafik-Pausenfunktion für Rufe/Texte erfinden.
+- Keine echten Pokémon-Inhalte heruntergeladen oder im manuellen Review installiert.
+- Tatsächliche private Ruf-/Textbereitstellung bleibt vom installierten Profilbestand abhängig.
+- Nach dieser Funktionsrunde Diagnose, Quellen und Sicherungen weitergestalten.
+
+## UI01 — Diagnose im gemeinsamen Verwaltungsgehäuse
+
+- Nutzer meldet Ruf-/Text-/Stationslauf am 03.11.2026 um 16:48 CET als bestanden.
+- Echte Pokémon-Inhalte dadurch nicht als bereitgestellt markieren.
+- Nächste Seite: Diagnose, mit vier Bereichen Spielstand/Dateien/Speicher/System.
+- Technische Werte vollständig in lesbaren Karten, Detailbereich darf scrollen.
+- Vorhandene Prüfung, Berichtserzeugung, Fehlererfassung und Nur-Lese-Zugriffe unverändert.
+- Hinweis auf Momentaufnahme/seit App-Start und keine automatische Reparatur/Übertragung erhalten.
+- Keine Dateianzahl mit Inhaltsprüfung und keinen Grafikcache mit Gesamt-RAM verwechseln.
+- Neue Oberflächenprüfung plus bestehende Diagnose-Backendprüfung.
+- Technische Prüfung und manuelle Diagnoseabnahme offen.
+- Danach Quellen & Nutzungsrechte und Sicherungen.
+
+## UI01 — Diagnose Revision 2: Instrumente statt Textkarten
+
+- Nutzer bestätigt am 03.11.2026 um 16:55 CET linke Diagnoseauswahl.
+- Rechte Textkarten noch nicht abgenommen; Instrumentenentwurf um 16:57 CET freigegeben.
+- Linke Kacheln unverändert lassen.
+- Spielstand: gespeicherte Kopie, Bestätigungszeit und echte Warnung getrennt.
+- Dateien: Offline-Bestand und echte Datei-/Sprachzähler, keine Inhaltsfreigabe behaupten.
+- Speicher: Webspeicherschätzung und Grafikcache klar getrennt, kein Gesamt-RAM.
+- System: Version, seit App-Start erfasste Fehler und tatsächliche Messwerte ohne Leistungsnoten.
+- Normale rechte Übersichten ohne Scrollen prüfen.
+- Vollständige bisherige Einzelwerte über sichtbaren Detailumschalter erhalten.
+- Backendprüfung, Bericht und Fehlererfassung unverändert.
+- Technische Wiederholungsprüfung und manuelle rechte Diagnoseabnahme offen.
+
+## UI01 — Quellenregister mit vollständigen Offline-Dokumenten
+
+- Nutzer bestätigt Diagnose-Darstellung am 03.11.2026 um 17:02 CET als passend.
+- Nächste Oberfläche: Quellen & Nutzungsrechte.
+- Links Quellen/Trainer/Lizenzen/Hinweise, rechts jeweils ein lesbarer Eintrag.
+- Rahmenpfeile blättern zwischen Einträgen, vollständige technische Texte rechts scrollbar.
+- Bisherigen sicheren card()-Renderer und Quelldaten unverändert erhalten.
+- Keine HTML-Injektion; Symbole mit sicheren SVG-DOM-Methoden erstellen.
+- Vollständige Lizenztexte unverändert, keine pauschalen Rechtezusagen.
+- Lokale Trainerangaben weiter ausdrücklich unbestätigt kennzeichnen.
+- Externe Links nur bewusst öffnen, weiterhin ausschließlich HTTP(S) und noopener/noreferrer.
+- Vorhandene Sicherheitstests behalten sämtliche Inhalts-/Link-/Artefaktsperrprüfungen.
+- DOM-Testmodell nur um verwendete Standard-DOM-Methoden erweitern.
+- Technische Prüfung und manuelle Quellenabnahme dieser Runde offen.
+- Danach Sicherungsseite; UI01-Restpunkte bleiben erhalten.
+
+## UI01 — Quellenpfeile und Sicherungsentwurf, 03.11.2026
+
+- Nutzer meldet den Lizenzlauf als bestanden und bestätigt beide deutschen Lesefassungen.
+- Quellenpfeile an tatsächliche hubDexLayout-Rechtecke und Zeichen < / > angleichen.
+- Sichtbare Referenzfelder 30 x 24, größere transparente Klickflächen erhalten.
+- Sicherungen: Lokal sichern, Exportieren, Datei laden und Lokale Kopien.
+- Vorhandene Speicher-, Import-, Export-, Vorschau- und Löschcallbacks weiterverwenden.
+- Lokale Kopien einzeln anzeigen; vorhandene Aktionen als zugängliche Symbolbuttons.
+- Originalhinweise über Info erhalten; beschädigte Kopien nicht als wiederherstellbar ausgeben.
+- Bestehender Download-/Wiederherstellungstest bleibt mit neuem Exportzugang erhalten.
+- Gezielte Prüfungen und Sichtabnahme der Pfeile/Sicherungsseite noch offen.
+- Keine Änderung an Speicherformat, Sicherheitskopien oder Medienumfang.
+
+## UI01 — Sicherungen Revision 2, 03.11.2026 18:44 CET
+
+- Nutzer lehnt die bisherige Sicherungsdarstellung noch ab.
+- Screenshot zeigt weiterhin beigen Dialoghintergrund und Kopf-Trennlinie.
+- Pokédex-Gehäuse aus HUB_DEX_DESIGN gegen allgemeine Dialogregeln durchsetzen.
+- Lokal sichern: Spielstand-Kapsel, Name/Level und vorhandene Aufgezogen-/Gefangen-Zähler.
+- Export: erkennbare Dateikarten; Laden: bildhafte Einlesestation.
+- Lokale Kopien als Archivkarten, vorhandene Lesefehler weiterhin vollständig sichtbar.
+- Keine vorgetäuschte Speicherbestätigung und keine neue Import-/Exportlogik.
+- Neue Prüfung für tatsächliche Gehäusefarbe, fehlende Dialog-Trennlinie und kompakte Ansichten.
+- Technische Wiederholungsprüfung und gemeinsame Sichtabnahme offen.
+
+## UI01 — Sicherungsinformationen als Bildkarten, 03.11.2026 18:50 CET
+
+- Nutzer wünscht abschließend eine bessere rechte Infoansicht der Sicherungsseite.
+- Vollständige bestehende Hinweise als einzelne bebilderte Karten darstellen.
+- Themen: Aufbewahrung, Export/Inhalt und gegebenenfalls vorhandener Leerbestandshinweis.
+- Bestehende Rahmenpfeile und Zähler auch für Info-Karten verwenden.
+- Kopienauswahl unabhängig erhalten; Info schließen kehrt zur gewählten Kachel zurück.
+- Keine Kürzung von Hinweisen oder Änderung von Sicherungsaktionen.
+- Browserprüfung vergleicht Hinweisabsätze exakt mit den ursprünglichen Texten aus openSaves.
+- Technische Prüfung und abschließende Sichtabnahme weiterhin offen.
+
+<!-- UI01-ABSCHLUSSMODUS-20261103-1920 -->
+## Verbindlicher Abschlussmodus UI01 — 03.11.2026, 19:20 CET
+
+- Nutzer gibt Aufräumen, Abschlussabgleich und Vorbereitung der Prüf-/Veröffentlichungsphase frei.
+- Ausdrücklich abgeschlossen: Pokédex-Zugang im Ruhemodus, Ehrenei-Auswahl,
+  Mega-Ansichtsreview und Kartenbereinigung.
+- Sicherungsseite einschließlich bildhafter Infoansicht am 03.11.2026 um
+  18:53 CET vom Nutzer gestalterisch abgenommen.
+- Bereits bestätigte Bestand-, Diagnose- und Quellenansichten nicht neu gestalten.
+- Entwicklungsprüfung: 1025 interne Arten, 484 Regelverbindungen,
+  keine fehlenden/zusätzlichen Verbindungen gegenüber den internen Artendaten.
+- Nativer Bindungs-Verhaltenstest: 24 Prüfungen bestanden.
+- Anschließender isolierter Web-App-Bindungstest vom Nutzer als bestanden gemeldet.
+- Frühere Handybeobachtung aktuell nicht reproduzierbar. Bei Wiederauftreten
+  konkreten Speicherstand prüfen; keine Bindungs-/Entwicklungsgrenzen auf Verdacht ändern.
+- Entwicklungsanzeige „aktueller Wert / 0“ als separaten bekannten
+  Darstellungsbefund führen; vor Abschluss ausdrücklich entscheiden beziehungsweise korrigieren.
+- Ab jetzt Umfang einfrieren: keine neuen Funktionen und keine neuen Gestaltungsvarianten.
+- Nur nachgewiesene Restfehler, sichere Bereinigung und Abschlussprüfungen bearbeiten.
+- Historische Planvermerke und unverbindliche Ideen nicht erneut als offene Pflichtaufgaben behandeln.
+- Noch nicht behaupten: vollständige Abschlussprüfung, neuer Veröffentlichungsstand
+  oder abschließende iPhone-Abnahme.
+- Nächster Schritt: Inventurergebnis auswerten, notwendige Bereinigung festlegen,
+  danach vorhandene Gesamtprüfungen und Veröffentlichung vorbereiten.
+- Kein automatischer Commit/Push; P07 bleibt zurückgestellt.

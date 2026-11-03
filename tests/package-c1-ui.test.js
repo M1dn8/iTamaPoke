@@ -1,33 +1,61 @@
-const assert=require("node:assert/strict"),fs=require("node:fs"),vm=require("node:vm");
-const source=fs.readFileSync("browser_ver/web/egg-planning.js","utf8");
-async function run(fail){
- let context;
- class Element{
-  constructor(tag){this.tagName=tag;this.children=[];this.handlers={};this.style={};this.textContent="";this.disabled=false;}
-  appendChild(node){this.children.push(node);return node;}append(...nodes){nodes.forEach(n=>this.appendChild(n));}
-  replaceChildren(){this.children=[];}setAttribute(key,value){this[key]=value;}
-  addEventListener(type,fn){(this.handlers[type]??=[]).push(fn);}focus(){context.document.activeElement=this;}
-  async click(){for(const fn of this.handlers.click||[])await fn({target:this});}
- }
- const bar=new Element("div"),body=new Element("body");body.appendChild(bar);
- const plan={generation:0,type:0,unraised:0};let reloads=0,writes=0;
- const mod={ccall(name,ret,types,args){
-  if(name==="tp_egg_plan_set"){[plan.generation,plan.type,plan.unraised]=args;return 1;}
-  if(name==="tp_egg_plan_can_set")return 1;
-  if(name.startsWith("tp_egg_used_"))return 0;
-  return plan[name.replace("tp_egg_plan_","")];
- }};
- context={Module:mod,fns:{isEgg:()=>0,evolvingNow:()=>0,ceremony:()=>0,wildPromptActive:()=>0,awaitingStarter:()=>0},screen:"idle",tpSaveReplacing:false,dragStart:null,dragNow:null,choice:"none",feedMenuUntil:0,confirmUntil:0,
-  document:{body,createElement:tag=>new Element(tag),createTextNode:text=>({textContent:text}),querySelector:()=>bar,activeElement:null},
-  console:{error(){}},alert(){},setInterval(){},window:{location:{reload(){reloads++;}}},
-  exportStateBytes:()=>new Uint8Array([1]),writeSave:async(raw,force)=>{assert.equal(force,true);writes++;if(fail)throw Error("simulated storage failure");}
+// UI01 bundled closeout test alignment.
+'use strict';
+const assert=require('node:assert/strict');
+const {setup}=require('./helpers/ui01-egg-planning.cjs');
+
+async function run(fail,unraised){
+ const e=setup({fail,unraised});
+ const mod=e.context.Module,setCalls=[];
+ const originalCall=mod.ccall;
+ mod.ccall=function(name,...args){
+  if(name==='tp_egg_plan_set')setCalls.push(Array.from(args[2]));
+  return originalCall.call(this,name,...args);
  };
- vm.createContext(context);vm.runInContext(source,context);
- function flatten(n){return [n,...(n.children||[]).flatMap(flatten)];}
- const launch=bar.children[0];await launch.click();
- const nodes=flatten(body),selects=nodes.filter(n=>n.tagName==="select");selects[0].value="9";selects[1].value="5";nodes.find(n=>n.type==="checkbox").checked=true;
- await nodes.find(n=>n.textContent==="Plan speichern und neu laden").click();assert.equal(writes,1);
- if(fail){assert.equal(plan.generation,0);assert.equal(plan.type,0);assert.equal(plan.unraised,0);assert.equal(reloads,0);assert.equal(context.Module,mod);assert.equal(context.tpSaveReplacing,false);}
- else{assert.equal(plan.generation,9);assert.equal(plan.type,5);assert.equal(plan.unraised,1);assert.equal(reloads,1);assert.equal(context.Module,null);assert.equal(context.tpSaveReplacing,true);}
+ const originalWrite=e.context.writeSave;
+ e.context.writeSave=async(bytes,force)=>{
+  assert.equal(force,true);
+  return originalWrite(bytes,force);
+ };
+ await e.byLabel('Bevorzugte Generation').click();
+ if(!e.byData('eggGeneration',9))
+  await e.byId('tp-egg-choice-next').click();
+ assert(e.byData('eggGeneration',9));
+ await e.byData('eggGeneration',9).click();
+ await e.byLabel('Bevorzugter Typ').click();
+ await e.byData('eggType',5).click();
+
+ assert.equal(e.state.generation,0);
+ assert.equal(e.state.type,0);
+ assert.equal(e.state.unraised,unraised);
+ assert.equal(e.writes,0);
+ await e.byLabel('Plan speichern und neu laden').click();
+ assert.equal(e.writes,1);
+ assert.deepEqual(setCalls[0],[9,5,unraised?1:0]);
+
+ if(fail){
+  assert.deepEqual(setCalls,[[9,5,unraised?1:0],[0,0,unraised?1:0]]);
+  assert.equal(e.state.generation,0);
+  assert.equal(e.state.type,0);
+  assert.equal(e.state.unraised,unraised);
+  assert.equal(e.reloads,0);
+  assert.equal(e.context.Module,mod);
+  assert.equal(e.context.tpSaveReplacing,false);
+  assert.equal(e.context.TPEggPlanning.busy,false);
+  assert.equal(e.alerts.length,1);
+ }else{
+  assert.equal(setCalls.length,1);
+  assert.equal(e.state.generation,9);
+  assert.equal(e.state.type,5);
+  assert.equal(e.state.unraised,unraised);
+  assert.equal(e.reloads,1);
+  assert.equal(e.context.Module,null);
+  assert.equal(e.context.tpSaveReplacing,true);
+ }
 }
-(async()=>{await run(false);await run(true);console.log("C1 UI unit checks passed: commit/reload gate and rollback on storage failure.");})().catch(e=>{console.error(e);process.exit(1);});
+(async()=>{
+ for(const unraised of [false,true]){
+  await run(false,unraised);
+  await run(true,unraised);
+ }
+ console.log('C1 UI passed: actual tile selection, forced save, reload gate, complete rollback and both preserved weighting states.');
+})().catch(error=>{console.error(error);process.exitCode=1;});

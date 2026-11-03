@@ -38,13 +38,14 @@ function blocked(){
 function report(error){
  try{window.TPDiagnostics?.record('write',error);}catch(_){}
 }
-async function start(prompt=false){
+async function start(prompt=false,from='card'){
  if(starting||saving||blocked())return false;
  const origin=screen,mod=Module;
+ const home=!prompt&&from==='activity'&&origin==='activity'&&window.TPActivities?.inContext('battle');
  if(choice!=='none'||document.visibilityState!=='visible')return false;
  if(prompt){
   if(origin!=='idle'||!fns.wildPromptActive())return false;
- }else if(origin!=='card'||cardPage!==4||fns.wildPromptActive()){
+ }else if((!home&&(from!=='card'||origin!=='card'||cardPage!==4))||fns.wildPromptActive()){
   return false;
  }
  if(!supported()){
@@ -54,12 +55,13 @@ async function start(prompt=false){
  try{
   const controller=window.TPCollection;
   await controller.act('wildPrepare');
-  if(Module!==mod||screen!==origin||choice!=='none'||
+  if(Module!==mod||screen!==origin||choice!=='none'||(home&&!window.TPActivities?.inContext('battle'))||
      document.visibilityState!=='visible'||blocked()){
    throw Error('WILD_START_CONTEXT_CHANGED');
   }
   const state=controller.read();
   TPCollectionModel.validate(state);
+   if(TPCollectionModel.needsCarePlacement(state))throw Error('CARE_TEAM_SELECTION_REQUIRED');
   const ids=state.team.length?state.team:
    state.active===null?[]:[state.active];
   if(!ids.length||ids.length>6)throw Error('WILD_TEAM_UNAVAILABLE');
@@ -86,7 +88,7 @@ async function start(prompt=false){
 
   ownedBattle=battleId();attempted=false;resultError='';reward='';
   dragStart=dragNow=null;
-  battleReturn=prompt?'idle':'card';
+  battleReturn=prompt?'idle':home?'activity':'card';
   screen='battle';
   return true;
  }catch(error){

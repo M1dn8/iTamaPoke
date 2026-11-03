@@ -41,9 +41,23 @@ async function act(action,minutes=15,route=1,item=-1,stat=-1){
  }catch(e){console.error("[expedition-c2]",e);if(begun&&!committed)call("tp_c2_finish",0);tell(committed?"Gespeichert – Seite bei Problemen neu laden":"Speichern fehlgeschlagen – Aktion zurueckgenommen");return false;}
  finally{tpSaveEpoch++;tpSaveReplacing=false;busy=false;invalidate();unlock();}
 }
-window.TPExpeditions={targets,itemNames:items,oldNames,view,tell,
+window.TPExpeditions={targets,itemNames:items,oldNames,view,tell,reason,
  start(route){const t=targets.find(t=>t.route===route);if(!t){tell("Auswahl nicht verfuegbar");return Promise.resolve(false);}return act(0,t.minutes,t.route);},
  claim:()=>act(1),use:(item,stat=-1)=>act(2,15,1,item,stat),
- get busy(){return busy;},open(){if(!busy){screen="card";cardPage=7;}}
+ get busy(){return busy;},open(from='card'){
+ if(busy)return false;
+ if(from==='idle'){
+  if(screen!=='idle'||!quiet()||fns.isEgg()!==0||
+     window.TPAppMenu?.active||window.TPCollection?.busy||
+     window.TPCollection?.blocked||window.TPCollectionGame?.dialogOpen||
+     window.TPAdmissionUI?.active||window.TPTraining?.busy||
+     window.TPMega?.busy||window.TPArena?.busy||window.TPLeague?.busy)
+   return false;
+  if(typeof expeditionTrainChoiceOpen!=='undefined')expeditionTrainChoiceOpen=false;
+  dragStart=dragNow=null;screen='expedition';return true;
+ }
+ if(from!=='card')return false;
+ screen='card';cardPage=7;return true;
+}
 };
 })();

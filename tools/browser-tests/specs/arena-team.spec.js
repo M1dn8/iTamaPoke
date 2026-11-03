@@ -1,6 +1,9 @@
  'use strict';
+const AU=require('./arena-ui-helpers');
+
 const {test,expect}=require('@playwright/test');
 const H=require('./helpers');
+const CF=require('./care-team-fixtures');
 
 async function quiet(page){
  await page.waitForFunction(()=>
@@ -9,24 +12,15 @@ async function quiet(page){
  );
 }
 async function openArena(page,region){
- await H.game(page);
- const a=await H.point(page,233,300),b=await H.point(page,233,110);
- await page.mouse.move(a.x,a.y);
- await page.mouse.down();
- await page.mouse.move(b.x,b.y,{steps:8});
- await page.mouse.up();
- await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');
- for(let i=0;i<4;i++)await H.tap(page,350,382);
- await H.tap(page,363,308);
- await expect.poll(()=>page.evaluate(()=>screen)).toBe('arena');
+ await H.openArenaSelection(page);
  if(await page.evaluate(()=>TPArena.region)!==region){
-  await H.tap(page,402,21);
+  await AU.option(page,'regions');
   await expect.poll(()=>page.evaluate(()=>TPArena.choosingRegion)).toBe(true);
   await page.waitForFunction(()=>!TPRegions.locked());
-  await H.tap(page,233,region===1?270:155);
+  await AU.region(page,region);
  }
  await expect.poll(()=>page.evaluate(()=>TPArena.region)).toBe(region);
- await H.tap(page,130,134);
+ await AU.details(page,0);
  await quiet(page);
 }
 function arenaFixture(region){
@@ -57,14 +51,17 @@ function arenaFixture(region){
 }
 
 async function setup(page,{region=0,weak=false,loss=false,allWeak=false}={}){
- if(region===1)await H.importSave(page,arenaFixture(region),1);
+ await H.importSave(page,CF.withCare(arenaFixture(region),{
+  dex:25,level:allWeak||weak?1:20,nickname:'Arena Alpha',
+  weak:allWeak||weak,loss
+ }),25);
  await H.game(page);
  const seed=await page.evaluate(async({weak,loss,allWeak})=>{
   await TPCollectionGame.ensureCurrent();
   const active=TPCollection.read().active;
   const careLevel=TPCollection.read().mons.find(m=>m.id===active).level;
-  const ids=[];
-  for(let i=0;i<2;i++){
+  const ids=[active];
+  for(let i=1;i<2;i++){
    const fragile=allWeak||(weak&&i===0);
    const stats=loss?
     (i===0?{atk:1000,def:60,spe:1000}:{atk:1,def:1,spe:1}):
@@ -78,15 +75,20 @@ async function setup(page,{region=0,weak=false,loss=false,allWeak=false}={}){
    ids.push(TPCollection.read().nextId-1);
   }
   for(const id of [...TPCollection.read().team])
-   await TPCollection.apply('unselectTeam',id);
-  for(const id of ids)await TPCollection.apply('selectTeam',id);
+   if(id!==active)await TPCollection.apply('unselectTeam',id);
+  for(const id of ids)
+   if(!TPCollection.read().team.includes(id))
+    await TPCollection.apply('selectTeam',id);
+  const team=TPCollection.read().team;
+  if(team.length!==2||team.some((id,i)=>id!==ids[i]))
+   throw Error('Arena fixture roster mismatch');
   return {active,careLevel,ids};
  },{weak,loss,allWeak});
  await openArena(page,region);
  return seed;
 }
 async function start(page){
- await H.tap(page,233,354);
+ await AU.challenge(page);
  await expect.poll(()=>page.evaluate(()=>screen)).toBe('battle');
  await expect.poll(()=>page.evaluate(()=>({
   team:TPArena.snapshot?.team,
@@ -283,7 +285,7 @@ for(const region of [0,1]){
   expect(await page.evaluate(()=>TPCollection.read().active)).toBe(seed.active);
   expect(await page.evaluate(id=>
    TPCollection.read().mons.find(m=>m.id===id).level,seed.active
-  )).toBe(seed.careLevel);
+  )).toBe(seed.careLevel+1);
 
   await page.reload();await H.waitReady(page);
   expect(await levels(page,seed.ids)).toEqual([21,31]);
@@ -425,7 +427,7 @@ test('P05b UI: repeat victory saves new bonuses and preserves badge date',
   await H.tap(page,233,435);
   await expect.poll(()=>page.evaluate(()=>screen)).toBe('arena');
   await expect(page.locator('#status')).toHaveText('Arena · Kanto-Auswahl');
-  await H.tap(page,130,134);await quiet(page);
+  await AU.details(page,0);await quiet(page);
   await start(page);
   expect(await page.evaluate(()=>TPArena.teamView.members.every(
    m=>m.hp===m.maxHp
@@ -461,7 +463,7 @@ for(const stage of ['prepare','entry']){
     return window.__arenaStartWrite(bytes,force);
    };
   },stage);
-  await H.tap(page,233,354);
+  await AU.challenge(page);
   await expect.poll(()=>page.evaluate(()=>window.__arenaStartFailure===true))
    .toBe(true);
   await expect.poll(()=>page.evaluate(()=>({

@@ -1,13 +1,17 @@
+
+const AU=require('./arena-ui-helpers');
 const {test,expect}=require('@playwright/test');const H=require('./helpers');
 function trainedFixture(){
  const base=H.fixture(),extra=[];let pos=4;for(let i=0;i<base.readUInt32LE(0);i++){const len=base[pos++],key=base.toString('utf8',pos,pos+len);pos+=len+1;const size=base.readUInt32LE(pos);pos+=4;if(key==='age')base.writeBigInt64LE(5940n,pos);pos+=size;}
  for(const key of ['tatk','tdef','tspe']){const k=Buffer.from(key),len=Buffer.alloc(4),v=Buffer.alloc(8);len.writeUInt32LE(8);v.writeBigInt64LE(100n);extra.push(Buffer.concat([Buffer.from([k.length]),k,Buffer.from([1]),len,v]));}
  const count=Buffer.alloc(4);count.writeUInt32LE(base.readUInt32LE(0)+3);return Buffer.concat([count,base.subarray(4),...extra]);
 }
-async function card(page){await H.game(page);const a=await H.point(page,233,300),b=await H.point(page,233,110);await page.mouse.move(a.x,a.y);await page.mouse.down();await page.mouse.move(b.x,b.y,{steps:8});await page.mouse.up();await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');for(let i=0;i<4;i++)await H.tap(page,350,382);await expect.poll(()=>page.evaluate(()=>cardPage)).toBe(4);}
+async function card(page){
+ await H.openBattleSelection(page);
+}
 
-async function arena(page){await H.tap(page,363,308);await expect.poll(()=>page.evaluate(()=>screen)).toBe('arena');await H.tap(page,130,134);}
-async function begin(page){await arena(page);await H.tap(page,233,354);await expect.poll(()=>page.evaluate(()=>screen)).toBe('battle');}
+async function arena(page){await H.openArenaSelection(page);await AU.details(page,0);}
+async function begin(page){await arena(page);await AU.challenge(page);await expect.poll(()=>page.evaluate(()=>screen)).toBe('battle');}
 async function match(page){for(let i=0;i<24;i++){const s=await page.evaluate(()=>({resolved:!!fns.battleResolved(),next:!!TPTrainer.get(3),phase:TPArena.snapshot?.phase}));if(s.resolved||s.phase!=='fighting')return s;await H.battleAction(page,'quick');}throw Error('Arena exceeded native turn limit');}
 const mask=page=>page.evaluate(()=>Module.ccall('tp_f3_mask','number',[],[]));
 async function portraitInfo(page){return page.evaluate(async()=>{
@@ -32,21 +36,23 @@ test('Arena: echte Serie, genau ein gespeicherter Orden, Koffer, Reload und Back
  await H.tap(page,233,435);
  await expect.poll(()=>page.evaluate(()=>screen)).toBe('arena');
  await page.waitForFunction(()=>screen==='arena'&&!TPArena.busy&&statusEl.textContent==='Arena · Kanto-Auswahl');
- await H.tap(page,233,435);
- await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');
- await page.waitForFunction(()=>screen==='card'&&cardPage===4&&statusEl.textContent===TPText.status('Card · Battle stats')&&!tpSaveReplacing&&!window.TPCollection?.busy&&!window.TPCollectionGame?.dialogOpen&&!window.TPArena?.busy&&!window.TPTraining?.busy&&!window.TPMega?.busy&&!window.TPLeague?.busy&&!window.TPExpeditions?.busy&&!window.TPAppMenu?.active&&choice==='none');
+ await AU.leave(page);
+ await expect.poll(()=>page.evaluate(()=>screen)).toBe('activity');
+ await page.waitForFunction(()=>screen==='activity'&&!tpSaveReplacing&&!window.TPCollection?.busy&&!window.TPCollectionGame?.dialogOpen&&!window.TPArena?.busy&&!window.TPTraining?.busy&&!window.TPMega?.busy&&!window.TPLeague?.busy&&!window.TPExpeditions?.busy&&!window.TPAppMenu?.active&&choice==='none');
  // Centre of the back-only area, below the page-dot row (370..394).
- await H.tap(page,233,406);
+ await page.locator('#tp-activity-page').getByRole('button',{
+   name:await H.uiText(page,'common.back'),exact:true
+  }).click();
  await expect.poll(()=>page.evaluate(()=>screen)).toBe('idle');await H.importSave(page,trainedFixture());expect(await mask(page)).toBe(0);await H.importSave(page,saved);expect(await mask(page)).toBe(1);expect(errors).toEqual([]);
 });
 test('Arena: Speicherfehler, erneute Speicherung und Hintergrundabbruch ohne weiteren Orden',async({page})=>{
  await begin(page);await match(page);await H.battleAction(page,'next');await page.evaluate(()=>{window.f3Write=writeSave;writeSave=async()=>{throw new DOMException('synthetic badge write failure','QuotaExceededError');};});await match(page);await expect.poll(()=>page.evaluate(()=>TPArena.snapshot?.phase)).toBe('failed');expect(await mask(page)).toBe(0);expect(await page.evaluate(()=>tpSaveReplacing)).toBe(false);
- await page.evaluate(()=>{writeSave=window.f3Write;});await H.tap(page,233,390);await expect.poll(()=>page.evaluate(()=>TPArena.snapshot?.phase)).toBe('done');expect(await mask(page)).toBe(1);await H.tap(page,233,435);await H.tap(page,130,134);await H.tap(page,233,354);await expect.poll(()=>page.evaluate(()=>screen)).toBe('battle');await page.evaluate(()=>{Object.defineProperty(document,'visibilityState',{configurable:true,get:()=> 'hidden'});document.dispatchEvent(new Event('visibilitychange'));});await expect.poll(()=>page.evaluate(()=>screen)).toBe('arena');expect(await mask(page)).toBe(1);expect(await page.evaluate(()=>TPArena.snapshot)).toBe(null);
+ await page.evaluate(()=>{writeSave=window.f3Write;});await H.tap(page,233,390);await expect.poll(()=>page.evaluate(()=>TPArena.snapshot?.phase)).toBe('done');expect(await mask(page)).toBe(1);await H.tap(page,233,435);await AU.details(page,0);await AU.challenge(page);await expect.poll(()=>page.evaluate(()=>screen)).toBe('battle');await page.evaluate(()=>{Object.defineProperty(document,'visibilityState',{configurable:true,get:()=> 'hidden'});document.dispatchEvent(new Event('visibilitychange'));});await expect.poll(()=>page.evaluate(()=>screen)).toBe('arena');expect(await mask(page)).toBe(1);expect(await page.evaluate(()=>TPArena.snapshot)).toBe(null);
 });
 test('Arena: Legacy-PNG-Speicherung/Fallback ohne Netzwerk oder vorzeitigen Orden',async({page})=>{
  await arena(page);const external=[];page.on('request',r=>{if(/^https?:/.test(r.url())&&!r.url().startsWith('http://127.0.0.1:8765/'))external.push(r.url());});await page.evaluate(async()=>{const bytes=Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAHUlEQVR4nGN0q4j6z0ABYKJE86gBowaMGjCYDAAAvLgCN3gxOuEAAAAASUVORK5CYII='),c=>c.charCodeAt(0));await TPArena.importPortrait(new File([bytes],'rocko.png',{type:'image/png'}),0);});await expect.poll(()=>page.evaluate(()=>TPArena.busy)).toBe(false);
  await expect.poll(()=>portraitInfo(page)).toEqual(expectedPortrait);
  expect(await mask(page)).toBe(0);expect(external).toEqual([]);await page.reload();await H.waitReady(page);expect(await mask(page)).toBe(0);await expect.poll(()=>portraitInfo(page)).toEqual(expectedPortrait);
  await card(page);await arena(page);await page.evaluate(()=>{window.f3PortraitDrawn=false;const draw=ctx.drawImage;ctx.drawImage=function(image,...args){if(image instanceof HTMLImageElement&&image.naturalWidth===16&&image.naturalHeight===16)window.f3PortraitDrawn=true;return draw.call(this,image,...args);};});
- await H.tap(page,233,354);await expect.poll(()=>page.evaluate(()=>screen)).toBe('battle');await match(page);await H.battleAction(page,'next');await match(page);await expect.poll(()=>page.evaluate(()=>TPArena.snapshot?.phase)).toBe('done');await expect.poll(()=>page.evaluate(()=>window.f3PortraitDrawn)).toBe(true);expect(await mask(page)).toBe(1);
+ await AU.challenge(page);await expect.poll(()=>page.evaluate(()=>screen)).toBe('battle');await match(page);await H.battleAction(page,'next');await match(page);await expect.poll(()=>page.evaluate(()=>TPArena.snapshot?.phase)).toBe('done');await expect.poll(()=>page.evaluate(()=>window.f3PortraitDrawn)).toBe(true);expect(await mask(page)).toBe(1);
 });

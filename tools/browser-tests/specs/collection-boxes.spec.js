@@ -1,9 +1,137 @@
 const {test,expect}=require('@playwright/test');const H=require('./helpers');
-async function openBoxes(page){await H.game(page);const a=await H.point(page,233,300),b=await H.point(page,233,110);await page.mouse.move(a.x,a.y);await page.mouse.down();await page.mouse.move(b.x,b.y,{steps:8});await page.mouse.up();await expect.poll(()=>page.evaluate(()=>screen)).toBe('card');for(let i=0;i<3;i++)await H.tap(page,350,382);await H.tap(page,233,354);await expect(page.locator('#tp-box-page')).toBeVisible();}
+
+
+
+async function verifyBoxChoices(root){
+ await root.getByRole('button',{name:'Boxen',exact:true}).click();
+ const initial=Number(await root.getAttribute('data-current-box'));
+ const visited=new Set();
+ for(let step=0;step<10;step++){
+  const current=Number(await root.getAttribute('data-current-box'));
+  expect(Number.isInteger(current)&&current>=0&&current<10).toBe(true);
+  expect(visited.has(current)).toBe(false);
+  visited.add(current);
+  const next=root.locator('#tp-box-next-box');
+  await expect(next).toBeVisible();
+  await expect(next).toBeEnabled();
+  await next.click();
+ }
+ expect([...visited].sort((a,b)=>a-b))
+  .toEqual(Array.from({length:10},(_,index)=>index));
+ await expect(root).toHaveAttribute('data-current-box',String(initial));
+}
 test.beforeEach(async({page})=>{await H.prepare(page);});
-test('F4-C: ten boxes, rename, close/reopen, reload and no extra care copies',async({page})=>{await openBoxes(page);const root=page.locator('#tp-box-page');await expect(root.getByLabel('Boxauswahl')).toHaveCount(1);await expect(root.getByLabel('Boxauswahl').locator('option')).toHaveCount(10);await expect(root.locator('.tp-box-empty')).toHaveCount(20);await root.getByLabel('Boxauswahl').selectOption('3');await root.getByRole('button',{name:'Box umbenennen',exact:true}).click();await root.getByLabel('Boxname').fill('Wasser');await root.getByRole('button',{name:'Speichern',exact:true}).click();await expect(root.getByText('Gespeichert.',{exact:true})).toBeVisible();expect(await page.evaluate(()=>TPCollection.read().boxes[3].name)).toBe('Wasser');await root.getByRole('button',{name:'Zurueck',exact:true}).click();await H.tap(page,233,354);await expect(root.getByLabel('Boxauswahl')).toHaveValue('3');await page.reload();await H.waitReady(page);expect(await page.evaluate(()=>TPCollection.read().boxes[3].name)).toBe('Wasser');expect(await page.evaluate(()=>TPCollection.read().mons.length)).toBe(1);});
-test('F4-C: synthetic stored fixture, cancel release and quota rejection preserve both individuals',async({page})=>{
- // Test-only fixture population through the existing developer controller;
- // real wild capture correctness remains covered by the capture specs.
- await H.game(page);await page.evaluate(async()=>{for(let i=0;i<2;i++)await TPCollection.apply('catchWild',{dex:25,level:17,nickname:'Blitz',shiny:false,origin:'wild',data:{stats:{atk:42,def:31,spe:60},genes:null,training:null}},0);});await openBoxes(page);const root=page.locator('#tp-box-page');await expect(root.locator('.tp-box-tile')).toHaveCount(2);await root.locator('.tp-box-tile').first().click();await root.getByRole('button',{name:'Endgueltig freilassen',exact:true}).click();await expect(root.getByRole('button',{name:'Abbrechen',exact:true})).toBeFocused();await root.getByRole('button',{name:'Abbrechen',exact:true}).click();expect(await page.evaluate(()=>TPCollection.read().mons.length)).toBe(3);
- await root.getByRole('button',{name:'Endgueltig freilassen',exact:true}).click();await page.evaluate(()=>{window.__boxWrite=writeSave;writeSave=async(bytes,force=false)=>{if(force)throw Error('intentional box quota');return window.__boxWrite(bytes,force);};});await root.getByRole('button',{name:'Dieses Exemplar endgueltig freilassen',exact:true}).click();await expect(root.getByText(/Speichern fehlgeschlagen/)).toBeVisible();expect(await page.evaluate(()=>TPCollection.read().mons.length)).toBe(3);await page.evaluate(()=>{writeSave=window.__boxWrite;});await root.getByRole('button',{name:'Dieses Exemplar endgueltig freilassen',exact:true}).click();await expect(root.getByText('Gespeichert.',{exact:true})).toBeVisible();expect(await page.evaluate(()=>TPCollection.read().mons.length)).toBe(2);});
+
+
+
+
+async function ui01CollectionSnapshot(page){
+ return page.evaluate(()=>{
+  const s=TPCollection.read();
+  return {
+   active:s.active,team:s.team,
+   mons:s.mons.map(m=>({
+    id:m.id,dex:m.dex,nickname:m.nickname,origin:m.origin,shiny:m.shiny
+   })),
+   boxes:s.boxes
+  };
+ });
+}
+async function ui01OpenCollection(page){
+ await H.openHub(page);
+ await page.locator('#tp-app-page')
+  .getByRole('button',{name:'Boxen',exact:true}).click();
+ const boxes=page.locator('#tp-box-page');
+ await expect(boxes).toBeVisible();
+ await expect(page.locator('#tp-app-page')).toBeHidden();
+ await expect(boxes.getByRole('button',{name:/^Teamplanung /}))
+  .toHaveAttribute('aria-pressed','true');
+ await boxes.getByRole('button',{name:'Boxen',exact:true}).click();
+}
+
+test('UI01 Sammlung: Zentralenzugang, Rueckweg und Reload ohne Kopien',
+ async({page})=>{
+  await H.game(page);
+  await page.evaluate(()=>TPCollectionGame.ensureCurrent());
+  const before=await ui01CollectionSnapshot(page);
+  const cardBefore=await page.evaluate(()=>cardPage);
+  await ui01OpenCollection(page);
+  expect(await page.evaluate(()=>cardPage)).toBe(cardBefore);
+  const boxes=page.locator('#tp-box-page');
+  await verifyBoxChoices(boxes);
+  await boxes.locator('.tp-box-head button').click();
+  await expect(boxes).toBeHidden();
+  await expect(page.locator('#tp-app-page.tp-pokedex-hub')).toBeVisible();
+  expect(await ui01CollectionSnapshot(page)).toEqual(before);
+
+  await ui01OpenCollection(page);
+  await boxes.locator('.tp-box-head button').click();
+  await page.reload();await H.waitReady(page);
+  await ui01OpenCollection(page);
+  expect(await ui01CollectionSnapshot(page)).toEqual(before);
+  await boxes.locator('.tp-box-head button').click();
+  await expect(page.locator('#tp-app-page.tp-pokedex-hub')).toBeVisible();
+ });
+
+test('UI01 Sammlung: Hub-Schreibfehler bleibt wiederholbar und dauerhaft',async({page})=>{
+ await H.game(page);
+ const stored=await page.evaluate(async()=>{
+  await TPCollectionGame.ensureCurrent();
+  await TPCollection.apply('catchWild',{
+   dex:25,level:17,nickname:'Vorher',shiny:false,origin:'wild',
+   data:{stats:{atk:42,def:31,spe:60},genes:null,training:null}
+  },0);
+  return TPCollection.read().nextId-1;
+ });
+ await ui01OpenCollection(page);
+ const boxes=page.locator('#tp-box-page');
+ await boxes.locator('[data-mon-id="'+stored+'"]').click();
+ await boxes.getByRole('button',{name:'Verwalten',exact:true}).click();
+ await boxes.getByRole('button',{name:'Namen ändern',exact:true}).click();
+ const input=boxes.getByLabel('Spitzname',{exact:true});
+ await input.fill('UI01-Testname');
+ const snapshot=()=>page.evaluate(()=>{
+  const size=Module.ccall('tp_f4_store_size','number',[],[]);
+  const ptr=Module.ccall('tp_f4_store_ptr','number',[],[]);
+  return {
+   model:TPCollectionModel.encode(TPCollection.read()),
+   native:Array.from(Module.HEAPU8.slice(ptr,ptr+size))
+  };
+ });
+ const before=await snapshot();
+ await page.evaluate(()=>{
+  window.__ui01BoxWrite=writeSave;
+  writeSave=async()=>{throw Error('UI01 intentional quota');};
+ });
+ try{
+  await boxes.getByRole('button',{name:'Speichern',exact:true}).click();
+  await expect(boxes.getByText(/Speichern fehlgeschlagen/)).toBeVisible();
+  expect(await snapshot()).toEqual(before);
+  expect(await page.evaluate(()=>TPCollection.blocked)).toBe(false);
+  await expect(input).toHaveValue('UI01-Testname');
+  await page.evaluate(()=>{writeSave=window.__ui01BoxWrite;});
+  await boxes.getByRole('button',{name:'Speichern',exact:true}).click();
+  await expect(boxes.getByText('Gespeichert.',{exact:true})).toBeVisible();
+  await expect.poll(()=>page.evaluate(id=>
+   TPCollection.read().mons.find(m=>m.id===id)?.nickname,stored
+  )).toBe('UI01-Testname');
+  const saved=await page.evaluate(()=>({
+   active:TPCollection.read().active,
+   ids:TPCollection.read().mons.map(m=>m.id),
+   boxes:TPCollection.read().boxes
+  }));
+  await page.reload();await H.waitReady(page);
+  expect(await page.evaluate(id=>
+   TPCollection.read().mons.find(m=>m.id===id)?.nickname,stored
+  )).toBe('UI01-Testname');
+  expect(await page.evaluate(()=>({
+   active:TPCollection.read().active,
+   ids:TPCollection.read().mons.map(m=>m.id),
+   boxes:TPCollection.read().boxes
+  }))).toEqual(saved);
+ }finally{
+  await page.evaluate(()=>{
+   if(window.__ui01BoxWrite)writeSave=window.__ui01BoxWrite;
+  }).catch(()=>{});
+ }
+});

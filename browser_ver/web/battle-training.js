@@ -6,14 +6,18 @@ const call=(name,...args)=>Module.ccall(name,'number',args.map(()=> 'number'),ar
 const get=key=>call('tp_f1_get',key);
 function owns(){return !!state&&screen==='game'&&gameMode>=5&&gameMode<=7;}
 function tell(text){notice=text;noticeUntil=Date.now()+5000;}
-function canStart(){try{return !!Module&&!!fns&&screen==='card'&&cardPage===4&&!busy&&!tpSaveReplacing&&!window.TPMega?.busy&&!window.TPExpeditions?.busy&&choice==='none'&&!!call('tp_f1_can');}catch(_e){return false;}}
-function start(kind,now=performance.now()){
- if(!canStart())return false;const c=config.find(x=>x.kind===kind);if(!c)return false;
+function canStart(from='card'){try{return !!Module&&!!fns&&((from==='card'&&screen==='card'&&cardPage===4)||(from==='activity'&&screen==='activity'&&window.TPActivities?.inContext('training')))&&!busy&&!tpSaveReplacing&&!window.TPMega?.busy&&!window.TPExpeditions?.busy&&choice==='none'&&!!call('tp_f1_can');}catch(_e){return false;}}
+function start(kind,now=performance.now(),from='card'){
+ if(!canStart(from))return false;const c=config.find(x=>x.kind===kind);if(!c)return false;
  const id=call('tp_f1_start',kind,now>>>0);if(!id){tell('Training gerade nicht verfügbar.');return false;}
- state={id,kind,config:c,mod:Module,start:now,lastStep:now,lastHit:-1e9,hits:0,before:get(8),record:get(4),phase:'running',gain:0,after:get(8),newHigh:false,error:''};
+ state={id,kind,returnTo:from,config:c,mod:Module,start:now,lastStep:now,lastHit:-1e9,hits:0,before:get(8),record:get(4),phase:'running',gain:0,after:get(8),newHigh:false,error:''};
  dragStart=dragNow=null;holdFired=false;gameMode=5+kind;screen='game';ensureSprite(fns.speciesId());return true;
 }
-function leave(){screen='card';cardPage=4;dragStart=dragNow=null;}
+function leave(){
+ screen=state?.returnTo||'card';
+ if(screen==='card')cardPage=4;
+ dragStart=dragNow=null;
+}
 function abort(message='Training abgebrochen – keine Punkte oder Kosten.'){
  if(!state||busy)return false;if(state.phase==='running'&&Module===state.mod)call('tp_f1_cancel',state.id);state.phase='aborted';tell(message);leave();return true;
 }

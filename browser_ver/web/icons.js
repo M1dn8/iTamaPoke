@@ -255,7 +255,10 @@ const TPIcon = {
 // corner. `silhouette` paints every pixel ink-black -- the evolution-flash
 // effect reuses the same function this way. Rows are batched into runs of
 // the same colour so a 32x32 heart is a few dozen fills, not a thousand.
-function drawIcon(map, x, y, scale, silhouette = false) {
+function drawIcon(map,x,y,scale,silhouette=false){
+ drawIconOn(ctx,map,x,y,scale,silhouette);
+}
+function drawIconOn(target,map,x,y,scale,silhouette=false) {
   const pal = iconPalette();
   for (let r = 0; r < map.length; r++) {
     const row = map[r];
@@ -267,10 +270,77 @@ function drawIcon(map, x, y, scale, silhouette = false) {
       while (run < row.length && row[run] === ch) run++;
       const col = silhouette ? UI.ink : pal[ch];
       if (col) {
-        ctx.fillStyle = col;
-        ctx.fillRect(x + c * scale, y + r * scale, (run - c) * scale, scale);
+        target.fillStyle = col;
+        target.fillRect(x + c * scale, y + r * scale, (run - c) * scale, scale);
       }
       c = run;
     }
   }
 }
+
+
+/* UI01 shared back glyph: presentation only, never replaces a navigation handler. */
+(function(root){
+ 'use strict';
+ if(root.TPNavBack)return;
+ const marked=new WeakMap();
+ const path='M4 8H12C22 8 23 19 14 21C8 23 3 19 4 15M8 4L4 8L8 12';
+ function isBackLabel(value){
+  const text=String(value||'').trim();
+  const translated=root.TPText?.t?.('common.back');
+  const home=root.TPText?.t?.('menu.home');
+  return !!text&&(
+   (translated!=='common.back'&&text===translated)||
+   (home!=='menu.home'&&text===home)||
+   /^(Zurück|Zurueck|Back|Retour|Atrás)(?:\s|$)/.test(text)||
+   ['Zur Ruhmeshalle','Zur Ligaübersicht'].includes(text));
+ }
+ function decorate(button,label){
+  if(!button||!isBackLabel(label))return button;
+  const previous=marked.get(button);
+  if(previous&&previous.icon.parentNode===button&&previous.copy.parentNode===button&&
+     previous.copy.textContent===label&&button.textContent===label)return button;
+  const doc=button.ownerDocument||root.document;
+  const icon=doc.createElement('span');icon.className='tp-nav-back-icon';
+  icon.setAttribute('aria-hidden','true');
+  icon.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" '+
+   'stroke="currentColor" stroke-width="2.2" stroke-linecap="round" '+
+   'stroke-linejoin="round" focusable="false"><path d="'+path+'"/></svg>';
+  const copy=doc.createElement('span');copy.className='tp-nav-back-label';
+  copy.textContent=label;
+  button.setAttribute('aria-label',label);
+  button.setAttribute('data-tp-nav-back','true');
+  button.replaceChildren(icon,copy);marked.set(button,{icon,copy});return button;
+ }
+ function draw(p,x,y,size=24,color='#315b83'){
+  p.save();p.translate(x,y);p.scale(size/24,size/24);
+  p.strokeStyle=color;p.lineWidth=2.2;p.lineCap='round';p.lineJoin='round';
+  p.beginPath();p.moveTo(4,8);p.lineTo(12,8);
+  p.bezierCurveTo(22,8,23,19,14,21);p.bezierCurveTo(8,23,3,19,4,15);p.stroke();
+  p.beginPath();p.moveTo(8,4);p.lineTo(4,8);p.lineTo(8,12);p.stroke();p.restore();
+ }
+ const selector=[
+  '.tp-app-head button','.tp-app-home','#tp-dex-back',
+  '.tp-modal-head button','.tp-box-head button','.tp-activity-head button',
+  '.tp-f4-care-head button','.tp-box-action-grid button','.tp-box-detail-actions button'
+ ].join(',');
+ function scan(shell){
+  for(const button of shell.querySelectorAll(selector)){
+   if(button.closest('#tp-hall-page'))continue;
+   const visible=String(button.textContent||'').trim().replace(/[←‹↶↩]\s*$/,'').trim();
+   const label=isBackLabel(visible)?visible:button.getAttribute('aria-label');
+   if(isBackLabel(label))decorate(button,label);
+  }
+ }
+ function attach(){
+  const shell=root.document?.getElementById?.('tp-game-shell');
+  if(!shell||typeof root.MutationObserver!=='function')return;
+  const observer=new root.MutationObserver(()=>scan(shell));
+  observer.observe(shell,{childList:true,subtree:true,characterData:true});
+  scan(shell);
+ }
+ root.TPNavBack=Object.freeze({decorate,draw,isBackLabel});
+ if(root.document?.readyState==='loading')
+  root.document.addEventListener('DOMContentLoaded',attach,{once:true});
+ else attach();
+})(typeof globalThis!=='undefined'?globalThis:this);

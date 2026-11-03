@@ -321,16 +321,25 @@ function wildPromptTap(x, y) {
 (function(){'use strict';
 const call=(name,...args)=>Module.ccall(name,'number',args.map(()=> 'number'),args);
 const get=k=>call('tp_f2_get',k);
+let entryReturn='card';
 function active(){return !!get(0);}
-function canOpen(){try{return screen==='card'&&cardPage===4&&choice==='none'&&!tpSaveReplacing&&!window.TPTraining?.busy&&!window.TPMega?.busy&&!window.TPExpeditions?.busy&&!!call('tp_f2_can');}catch(_e){return false;}}
-function open(){if(!canOpen())return false;dragStart=dragNow=null;screen='trainer';return true;}
-function back(){dragStart=dragNow=null;screen='card';cardPage=4;}
+function canOpen(from='card'){try{return ((from==='card'&&screen==='card'&&cardPage===4)||(from==='activity'&&screen==='activity'&&window.TPActivities?.inContext('battle')))&&choice==='none'&&!tpSaveReplacing&&!window.TPTraining?.busy&&!window.TPMega?.busy&&!window.TPExpeditions?.busy&&!!call('tp_f2_can');}catch(_e){return false;}}
+function open(from='card'){
+ if(!canOpen(from))return false;
+ entryReturn=from;dragStart=dragNow=null;screen='trainer';return true;
+}
+function back(){
+ dragStart=dragNow=null;screen=entryReturn;
+ if(entryReturn==='card')cardPage=4;
+}
 function abort(){if(window.TPArena?.busy)return;if(window.TPArena?.active()){window.TPArena.abort();return;}if(active())Module._tp_battle_close();back();}
-function button(label,y,color){ctx.fillStyle=color;roundRect(118,y,230,52,12);ctx.fill();ctx.fillStyle=UI.bgDay;ctx.textAlign='center';ctx.font='bold 16px monospace';ctx.fillText(label,TP.cx,y+32);}
+function button(label,y,color){ctx.fillStyle=color;roundRect(118,y,230,52,12);ctx.fill();ctx.fillStyle=UI.bgDay;ctx.textAlign='center';ctx.font='bold 16px monospace';if(window.TPNavBack?.isBackLabel(label))
+ window.TPNavBack.draw(ctx,TP.cx-12,y+14,24);
+ else ctx.fillText(label,TP.cx,y+32);}
 function start(team){
  if(screen!=='trainer'||tpSaveReplacing||document.visibilityState!=='visible'||window.TPTraining?.busy||window.TPMega?.busy||window.TPExpeditions?.busy)return false;
  if(!call('tp_f2_start',team))return false;
- dragStart=dragNow=null;battleReturn='card';screen='battle';return true;
+ dragStart=dragNow=null;battleReturn=entryReturn;screen='battle';return true;
 }
 function draw(){
  const {ink}=drawGameScene();ctx.fillStyle=ink;ctx.textAlign='center';ctx.font='bold 24px monospace';ctx.fillText('Trainerkämpfe',TP.cx,58);

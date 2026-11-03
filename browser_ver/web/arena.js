@@ -2,6 +2,7 @@
 (function(){'use strict';
 let data=window.TPKantoArena,region=0,choosingRegion=false;
 let selected=0,tab='leaders',detail=false,origin='leaders',session=null,saving=false,artBusy=false,message='';
+let entryReturn='card';
 const pictures=new Map(),loading=new Set();let artGeneration=0;
 const call=(name,...args)=>Module.ccall(name,'number',args.map(()=> 'number'),args);
 const scoped=(mod,r,name,...args)=>window.TPRegions?TPRegions.call(mod,r,name,'number',args):r===0?mod.ccall(name,'number',args.map(()=> 'number'),args):0;
@@ -13,10 +14,12 @@ function regionPicker(){ctx.fillStyle=UI.bgDay;ctx.fillRect(0,0,466,466);text('R
 
 function active(){try{return typeof Module!=='undefined'&&!!Module&&!!get(0);}catch(_e){return false;}}
 function busy(){return saving||artBusy;}
-function canOpen(){return !busy()&&!!window.TPTrainer?.canOpen();}
-function open(){if(!canOpen())return false;session=null;message='';tab='leaders';detail=false;dragStart=dragNow=null;screen='arena';const wanted=window.TPRegions?.selected||0;if(!chooseRegion(wanted))chooseRegion(0);return true;}
+function canOpen(from='card'){
+ return !busy()&&!!window.TPTrainer?.canOpen(from);
+}
+function open(from='card'){if(!canOpen(from))return false;entryReturn=from;arenaPageKey='';session=null;message='';tab='leaders';detail=false;dragStart=dragNow=null;screen='arena';const wanted=window.TPRegions?.selected||0;if(!chooseRegion(wanted))chooseRegion(0);return true;}
 function back(){if(busy())return;Module._tp_battle_close();session=null;screen='arena';detail=false;dragStart=dragNow=null;}
-function leave(){if(busy())return;Module._tp_battle_close();session=null;screen='card';cardPage=4;dragStart=dragNow=null;}
+function leave(){if(busy())return;Module._tp_battle_close();session=null;screen=entryReturn;if(entryReturn==='card')cardPage=4;dragStart=dragNow=null;}
 function abort(){if(saving)return false;const saved=session?.phase==='done';if(active())Module._tp_battle_close();session=null;screen='arena';detail=false;message=saved?'Arena beendet – Orden gespeichert.':'Arena beendet; kein weiterer Orden vergeben.';dragStart=dragNow=null;return true;}
 
 function teamView(){
@@ -189,8 +192,562 @@ async function complete(){
   }
  }
 }
+
+let arenaPage=null,arenaPageKey='';
+let arenaPagePortrait=null,arenaPagePaintAt=-Infinity;
+let arenaPageBadges=[];
+
+function arenaPageHide(){if(arenaPage)arenaPage.hidden=true;}
+
+function arenaPageNode(tag,text,cls){
+ const el=document.createElement(tag);
+ if(text!==undefined)el.textContent=text;
+ if(cls)el.className=cls;
+ return el;
+}
+function arenaPageButton(text,action,disabled=false){
+ const el=arenaPageNode('button',text);el.type='button';el.disabled=disabled;
+ el.addEventListener('click',()=>{
+  if(screen!=='arena'||arenaPage?.hidden||busy()||tpSaveReplacing||
+   document.visibilityState!=='visible'||el.disabled||!el.isConnected)return;
+  action();
+  if(screen==='arena')draw();else arenaPageHide();
+ });
+ return el;
+}
+
+function arenaPageActionIcon(kind){
+ const symbol=arenaPageNode('canvas',undefined,'tp-arena-action-icon');
+ symbol.width=24;symbol.height=24;symbol.setAttribute('aria-hidden','true');
+ const paint=symbol.getContext('2d');
+ if(!paint)return symbol;
+ paint.strokeStyle='#315b83';paint.fillStyle='#315b83';paint.lineWidth=2;
+ paint.lineCap='round';paint.lineJoin='round';
+ if(kind==='region'){
+  paint.beginPath();paint.arc(12,12,8,0,Math.PI*2);paint.stroke();
+  paint.beginPath();paint.ellipse(12,12,4,8,0,0,Math.PI*2);paint.stroke();
+  paint.beginPath();paint.moveTo(4,12);paint.lineTo(20,12);paint.stroke();
+ }else if(kind==='case'){
+  paint.strokeRect(3,7,18,14);paint.strokeRect(9,3,6,4);
+  for(let row=0;row<2;row++)for(let col=0;col<4;col++)
+   paint.fillRect(5+col*4,10+row*5,2,2);
+ }else if(kind==='league'){
+  paint.fillStyle='#d7b768';paint.fillRect(7,4,10,9);
+  paint.strokeRect(7,4,10,9);
+  paint.beginPath();
+  paint.moveTo(7,6);paint.lineTo(3,6);paint.lineTo(3,10);paint.lineTo(7,12);
+  paint.moveTo(17,6);paint.lineTo(21,6);paint.lineTo(21,10);paint.lineTo(17,12);
+  paint.stroke();
+  paint.beginPath();paint.moveTo(12,13);paint.lineTo(12,19);paint.stroke();
+  paint.fillStyle='#315b83';paint.fillRect(7,20,10,2);
+ }
+ if(kind==='challenge'){
+  symbol.setAttribute('data-arena-icon','challenge-vs');
+  paint.fillStyle='#315b83';
+  paint.font='700 16px monospace';
+  paint.textAlign='left';
+  paint.textBaseline='alphabetic';
+  const vsMetrics=paint.measureText('VS')||{};
+  const vsWidth=Number.isFinite(vsMetrics.width)?vsMetrics.width:19;
+  const vsLeft=Number.isFinite(vsMetrics.actualBoundingBoxLeft)?
+   vsMetrics.actualBoundingBoxLeft:0;
+  const vsRight=Number.isFinite(vsMetrics.actualBoundingBoxRight)?
+   vsMetrics.actualBoundingBoxRight:vsWidth;
+  const vsAscent=Number.isFinite(vsMetrics.actualBoundingBoxAscent)?
+   vsMetrics.actualBoundingBoxAscent:12;
+  const vsDescent=Number.isFinite(vsMetrics.actualBoundingBoxDescent)?
+   vsMetrics.actualBoundingBoxDescent:0;
+  paint.fillText('VS',
+   symbol.width/2+(vsLeft-vsRight)/2,
+   symbol.height/2+(vsAscent-vsDescent)/2);
+ }
+ return symbol;
+}
+
+function arenaPagePaint(){
+ if(!arenaPagePortrait||arenaPage?.hidden)return;
+ const now=performance.now();
+ if(now-arenaPagePaintAt<140)return;
+ arenaPagePaintAt=now;
+ for(const item of arenaPageBadges){
+  const target=item.canvas.getContext('2d');
+  if(!target)continue;
+  target.clearRect(0,0,64,64);
+  const painter=region===1?window.TPBadgeUI?.drawJohto:window.TPBadgeUI?.draw;
+  if(typeof painter==='function')
+   painter(item.index,32,32,25,true,target);
+ }
+ const paint=arenaPagePortrait.getContext('2d');if(!paint)return;
+ paint.clearRect(0,0,224,112);paint.imageSmoothingEnabled=false;
+ paint.fillStyle='#f6f9fa';paint.fillRect(0,0,224,112);
+ const image=picture(selected);
+ if(image){
+  const scale=Math.min(1.5,116/image.width,104/image.height);
+  paint.drawImage(image,112-image.width*scale/2,108-image.height*scale,
+   image.width*scale,image.height*scale);
+ }else{
+  paint.fillStyle='#526574';paint.textAlign='center';paint.font='12px monospace';
+  paint.fillText('Lokale Grafik fehlt',112,62);
+ }
+}
+function arenaPageEnsure(host){
+ if(!arenaPage){
+  arenaPage=arenaPageNode('section');arenaPage.id='tp-arena-page';
+  arenaPage.setAttribute('role','dialog');
+  arenaPage.setAttribute('aria-modal','true');
+  host.appendChild(arenaPage);
+  arenaPage.addEventListener('keydown',event=>{
+   if(screen!=='arena'||arenaPage.hidden)return;
+   if(event.key==='Escape'&&!busy()&&!tpSaveReplacing){
+    event.preventDefault();event.stopPropagation();
+    if(detail||tab==='badges'){
+     arenaSubBack();draw();
+    }else{leave();arenaPageHide();}
+    return;
+   }
+   if(event.key!=='Tab')return;
+   const items=Array.from(arenaPage.querySelectorAll('button'))
+    .filter(el=>!el.disabled);
+   const first=items[0],last=items[items.length-1];
+   if(event.shiftKey&&document.activeElement===first){
+    event.preventDefault();last?.focus();
+   }else if(!event.shiftKey&&document.activeElement===last){
+    event.preventDefault();first?.focus();
+   }
+  });
+ }
+}
+
+
+let arenaSubCards=[],arenaSubCanvas=null,arenaSubCaption=null;
+let arenaSubAt=-Infinity,arenaSubBuffer=null;
+
+
+function arenaCaseRegions(){
+ return [0,1].filter(id=>id===0||!!window.TPRegions?.available(id));
+}
+function arenaCaseMove(step){
+ if(screen!=='arena'||detail||tab!=='badges'||busy()||tpSaveReplacing||
+  ![-1,1].includes(step)||window.TPRegions?.locked())return false;
+ const regions=arenaCaseRegions(),index=regions.indexOf(region);
+ const wanted=regions[index+step];
+ if(index<0||wanted===undefined||!chooseRegion(wanted))return false;
+ tab=origin='badges';arenaPageKey='';return true;
+}
+const arenaSubCropCache=new WeakMap();
+function arenaSubBounds(image){
+ if(arenaSubCropCache.has(image))return arenaSubCropCache.get(image);
+ let left=image.width,top=image.height,right=-1,bottom=-1;
+ for(let y=0;y<image.height;y++)for(let x=0;x<image.width;x++){
+  if(image.data[(y*image.width+x)*4+3]){
+   left=Math.min(left,x);right=Math.max(right,x);
+   top=Math.min(top,y);bottom=Math.max(bottom,y);
+  }
+ }
+ const result=right>=left?{
+  x:left,y:top,w:right-left+1,h:bottom-top+1
+ }:null;
+ arenaSubCropCache.set(image,result);return result;
+}
+
+function arenaSubBack(){
+ if(busy()||tpSaveReplacing)return;
+ if(detail){detail=false;tab=origin;}else tab='leaders';
+ choosingRegion=false;message='';arenaPageKey='';
+}
+function arenaSubMember(dex,level){
+ const card=arenaPageNode('article',undefined,'tp-arena-member');
+ card.setAttribute('data-arena-member',String(dex));
+ const image=arenaPageNode('canvas');
+ image.width=96;image.height=96;
+ image.setAttribute('aria-hidden','true');
+ arenaSubCards.push({canvas:image,dex});
+ const info=arenaPageNode('div');
+ info.append(arenaPageNode('p',fns.dexName(dex)),
+  arenaPageNode('small','Lv. '+level));
+ const types=arenaPageNode('div',undefined,'tp-arena-types');
+ for(const type of [...new Set(
+  [fns.dexType1(dex),fns.dexType2(dex)].filter(n=>n>0)
+ )]){
+  const chip=arenaPageNode('span',TYPE_NAMES[type]||String(type));
+  const raw=typeColor565(type),red=((raw>>11)&31)*255/31;
+  const green=((raw>>5)&63)*255/63,blue=(raw&31)*255/31;
+  chip.style.backgroundColor=rgb565(raw);
+  chip.style.color=red*.299+green*.587+blue*.114>145?'#202820':'#ffffff';
+  types.append(chip);
+ }
+ info.append(types);card.append(image,info);return card;
+}
+function arenaSubPaint(){
+ const now=performance.now();
+ if(now-arenaSubAt<140)return;
+ arenaSubAt=now;
+ if(arenaSubCaption){
+  const p=arenaSubCaption.getContext('2d');
+  p.clearRect(0,0,48,44);
+  const image=picture(selected);
+  if(image){
+   const scale=Math.min(44/image.width,44/image.height);
+   p.imageSmoothingEnabled=false;
+   p.drawImage(image,24-image.width*scale/2,
+    44-image.height*scale,image.width*scale,image.height*scale);
+  }
+ }
+ for(const item of arenaSubCards){
+  const p=item.canvas.getContext('2d');
+  if(!p)continue;
+  p.clearRect(0,0,96,96);
+  const sprite=spriteFor(item.dex,false);
+  if(!sprite){ensureSprite(item.dex);continue;}
+  const action=sprite.actions[TPAct.idle];
+  if(!action)continue;
+  const image=frameImageData(
+   sprite,TPAct.idle,frameIndexAt(action,now,true)
+  );
+  if(!image)continue;
+  if(!arenaSubBuffer)arenaSubBuffer=document.createElement('canvas');
+  arenaSubBuffer.width=image.width;
+  arenaSubBuffer.height=image.height;
+  arenaSubBuffer.getContext('2d').putImageData(image,0,0);
+  const crop=arenaSubBounds(image);
+  if(!crop)continue;
+  const scale=Math.min(4,92/crop.w,92/crop.h);
+  p.imageSmoothingEnabled=false;
+  p.drawImage(arenaSubBuffer,crop.x,crop.y,crop.w,crop.h,
+   48-crop.w*scale/2,48-crop.h*scale/2,
+   crop.w*scale,crop.h*scale);
+ }
+ if(arenaSubCanvas){
+  const p=arenaSubCanvas.getContext('2d');
+  p.clearRect(0,0,224,112);
+  const painter=region===1?window.TPBadgeUI?.drawJohto:window.TPBadgeUI?.draw;
+  if(typeof painter==='function')
+   painter(selected,112,56,40,owned(selected),p);
+ }
+ for(const item of arenaPageBadges){
+  const p=item.canvas.getContext('2d');
+  if(!p)continue;
+  p.clearRect(0,0,64,64);
+  const painter=region===1?window.TPBadgeUI?.drawJohto:window.TPBadgeUI?.draw;
+  if(typeof painter==='function')
+   painter(item.index,32,32,25,owned(item.index),p);
+ }
+}
+function arenaSubpageDraw(){
+ if(screen!=='arena'||choosingRegion||(!detail&&tab!=='badges')||
+  typeof document.createElement!=='function'||
+  typeof document.getElementById!=='function')return false;
+ const host=document.getElementById('tp-game-shell');
+ if(!host)return false;
+ arenaPageEnsure(host);arenaPage.hidden=false;
+ const mode=detail?'detail':'case',m=mask(),leader=data.leaders[selected];
+ const energy=window.TPBattleEnergy?.line('arena')||'';
+ const caseRegions=arenaCaseRegions();
+ const casesLocked=!!window.TPRegions?.locked();
+ const canStart=m>=0&&!busy()&&!tpSaveReplacing&&
+  !window.TPCollection?.blocked&&
+  (!window.TPBattleEnergy||!!window.TPBattleEnergy.view?.arena.can);
+ const key=JSON.stringify([
+  'arena-sub',mode,region,selected,m,busy(),tpSaveReplacing,
+  message,energy,canStart,caseRegions.join(','),casesLocked
+ ]);
+ if(key!==arenaPageKey){
+  arenaPageKey=key;arenaPage.replaceChildren();arenaPagePortrait=null;
+  arenaPageBadges=[];arenaSubCards=[];arenaSubCanvas=null;
+  arenaSubCaption=null;arenaSubAt=-Infinity;
+  arenaPage.setAttribute('data-arena-view',mode);
+  arenaPage.setAttribute('data-arena-region',String(region));
+  const title=detail?leader.name:'Orden · '+label();
+  arenaPage.setAttribute('aria-label',title);
+  if(typeof window.hubDexDesignTokens==='function')
+   for(const [name,value]of Object.entries(window.hubDexDesignTokens()))
+    host.style.setProperty(name,value);
+
+  const head=arenaPageNode('header',undefined,'tp-activity-head');
+  const heading=arenaPageNode('h2',title);
+  heading.id='tp-arena-title';
+  arenaPage.setAttribute('aria-labelledby',heading.id);
+  const back=arenaPageButton('Zurück',arenaSubBack,busy()||tpSaveReplacing);
+  back.setAttribute('data-arena-subback','');
+  head.append(heading,back);
+
+  const frame=arenaPageNode('div',undefined,'tp-activity-frame');
+  frame.setAttribute('aria-hidden','true');
+  for(const cls of ['tp-pokedex-display tp-pokedex-display-left',
+   'tp-pokedex-display tp-pokedex-display-right','tp-pokedex-spine'])
+   frame.append(arenaPageNode('span',undefined,cls));
+
+  const caption=arenaPageNode('div',undefined,'tp-arena-sub-caption');
+  if(detail){
+   arenaSubCaption=arenaPageNode('canvas');
+   arenaSubCaption.width=48;arenaSubCaption.height=44;
+   arenaSubCaption.setAttribute('aria-hidden','true');
+   caption.append(arenaSubCaption,
+    arenaPageNode('span',leader.city+' · '+leader.badge));
+  }else caption.append(arenaPageNode('span',
+   m<0?'Ordensstand nicht lesbar':
+   Array.from({length:8},(_,i)=>owned(i,m)?1:0)
+    .reduce((a,b)=>a+b,0)+' von 8 Orden'));
+
+  const body=arenaPageNode('div',undefined,'tp-activity-body');
+  const left=arenaPageNode('div',undefined,'tp-activity-column tp-activity-left');
+  const right=arenaPageNode('div',undefined,'tp-activity-column tp-activity-right');
+
+  const footer=arenaPageNode('div',undefined,'tp-arena-sub-footer');
+  const detailActions=arenaPageNode('div',undefined,'tp-arena-detail-actions');
+  if(detail){
+   const columns=[
+    arenaPageNode('div',undefined,'tp-arena-team-list'),
+    arenaPageNode('div',undefined,'tp-arena-team-list')
+   ];
+   leader.team.forEach(([dex,level],i)=>
+    columns[i%2].append(arenaSubMember(dex,level)));
+   for(const column of columns)
+    column.style.setProperty('--tp-arena-team-rows',
+     '3');
+   left.append(columns[0]);right.append(columns[1]);
+   const challengeLabel=owned(selected,m)?
+    'Erneut herausfordern':'Herausfordern';
+   const fight=arenaPageButton('',()=>{
+     const task=start(selected);
+     if(task&&typeof task.then==='function')
+      task.then(()=>{
+       if(screen==='arena')draw();else arenaPageHide();
+      }).catch(error=>{
+       message=error.message||'Kampfstart fehlgeschlagen.';
+       if(screen==='arena')draw();
+      });
+    },!canStart);
+   fight.setAttribute('data-arena-challenge','');
+   fight.setAttribute('aria-label',challengeLabel);
+   fight.setAttribute('title',challengeLabel);
+   fight.className='tp-arena-detail-action';
+   fight.append(arenaPageActionIcon('challenge'));
+   detailActions.append(fight);
+  }else{
+   const grid=arenaPageNode('div',undefined,'tp-arena-list');
+   grid.setAttribute('data-arena-list','badges');
+   for(let i=0;i<8;i++){
+    const item=data.leaders[i],got=owned(i,m);
+    const pick=arenaPageButton('',()=>{
+     selected=i;message='';
+    },busy()||tpSaveReplacing);
+    pick.setAttribute('data-arena-case-badge',String(i));
+    pick.setAttribute('data-arena-leader',String(i));
+    pick.setAttribute('data-owned',String(got));
+    pick.setAttribute('aria-pressed',String(i===selected));
+    pick.setAttribute('aria-label',
+     item.badge+' · '+(got?'Erhalten':'Noch offen'));
+    const symbol=arenaPageNode('canvas',undefined,'tp-arena-badge-symbol');
+    symbol.width=64;symbol.height=64;
+    symbol.setAttribute('aria-hidden','true');
+    pick.append(symbol);grid.append(pick);
+    arenaPageBadges.push({canvas:symbol,index:i});
+   }
+   left.append(grid);
+   const card=arenaPageNode('article',undefined,'tp-activity-card');
+   const info=arenaPageNode('div',undefined,'tp-activity-info');
+   info.tabIndex=0;
+   arenaSubCanvas=arenaPageNode('canvas',undefined,'tp-arena-portrait');
+   arenaSubCanvas.width=224;arenaSubCanvas.height=112;
+   arenaSubCanvas.setAttribute('role','img');
+   arenaSubCanvas.setAttribute('aria-label',leader.badge);
+   info.append(arenaPageNode('h3',leader.badge),arenaSubCanvas,
+    arenaPageNode('p',leader.name),
+    arenaPageNode('p',m<0?'Stand nicht lesbar':
+     owned(selected,m)?date(selected):'Noch nicht erhalten'));
+   const open=arenaPageButton('Arena ansehen',()=>{
+    origin='badges';detail=true;
+   },busy()||tpSaveReplacing||m<0);
+   open.setAttribute('data-arena-open','');
+   card.append(info,open);right.append(card);
+   const pager=arenaPageNode('div',undefined,'tp-arena-case-pager');
+   const position=caseRegions.indexOf(region);
+   const previous=arenaPageButton('',()=>arenaCaseMove(-1),
+    busy()||tpSaveReplacing||casesLocked||position<=0);
+   previous.className='tp-arena-case-nav';
+   previous.setAttribute('data-arena-case-prev','');
+   previous.setAttribute('aria-label','Vorheriger Ordenkoffer');
+   previous.setAttribute('title','Vorheriger Ordenkoffer');
+   previous.append(arenaPageNode('span','‹','tp-arena-arrow-face'));
+   const next=arenaPageButton('',()=>arenaCaseMove(1),
+    busy()||tpSaveReplacing||casesLocked||
+    position<0||position>=caseRegions.length-1);
+   next.className='tp-arena-case-nav';
+   next.setAttribute('data-arena-case-next','');
+   next.setAttribute('aria-label','Nächster Ordenkoffer');
+   next.setAttribute('title','Nächster Ordenkoffer');
+   next.append(arenaPageNode('span','›','tp-arena-arrow-face'));
+   const current=arenaPageNode('span',
+    label()+'\\n'+(position+1)+' / '+caseRegions.length,
+    'tp-arena-case-label');
+   current.textContent=label()+'\n'+(position+1)+' / '+caseRegions.length;
+   pager.append(previous,current,next);footer.append(pager);
+  }
+
+  body.append(left,right);
+  const status=arenaPageNode('p',
+   message||(detail?energy:''),'tp-arena-frame-status');
+  status.setAttribute('role','status');
+  footer.append(status);
+  arenaPage.append(head,frame,caption,body,footer);
+  if(detail)arenaPage.append(detailActions);
+ }
+ statusEl.textContent=detail?'Arena · '+leader.name:'Arena · Ordenkoffer';
+ arenaSubPaint();return true;
+}
+
+function arenaPageDraw(){
+ if(screen!=='arena'||detail||tab!=='leaders'||
+  typeof document.createElement!=='function'||
+  typeof document.getElementById!=='function'){
+  arenaPageHide();return false;
+ }
+ const host=document.getElementById('tp-game-shell');
+ if(!host){arenaPageHide();return false;}
+ arenaPageEnsure(host);
+ arenaPage.hidden=false;
+ const m=mask(),leader=data.leaders[selected];
+ const key=JSON.stringify([
+  region,selected,choosingRegion,m,busy(),tpSaveReplacing,message
+ ]);
+ if(key!==arenaPageKey){
+  arenaPageKey=key;arenaPage.replaceChildren();
+  arenaPagePortrait=null;arenaPagePaintAt=-Infinity;arenaPageBadges=[];
+  arenaPage.setAttribute('data-arena-view','leaders');
+  arenaPage.setAttribute('data-arena-region',String(region));
+  arenaPage.setAttribute('aria-label','Arenen · '+label());
+  if(typeof window.hubDexDesignTokens==='function')
+   for(const [name,value]of Object.entries(window.hubDexDesignTokens()))
+    host.style.setProperty(name,value);
+
+  const head=arenaPageNode('header',undefined,'tp-activity-head');
+  const title=arenaPageNode('h2','Arenen · '+label());
+  title.id='tp-arena-title';
+  arenaPage.setAttribute('aria-labelledby',title.id);
+  const exit=arenaPageButton('Zurück',()=>leave(),busy()||tpSaveReplacing);
+  exit.setAttribute('data-arena-exit','');
+
+  const regionButton=arenaPageButton('',()=>{
+   choosingRegion=!choosingRegion;
+  },busy()||tpSaveReplacing||!!window.TPRegions?.locked());
+  regionButton.append(arenaPageActionIcon('region'),arenaPageNode('span',label()));
+  regionButton.setAttribute('data-arena-region-toggle','');
+  regionButton.setAttribute('data-arena-option','regions');
+  regionButton.setAttribute('aria-label','Region auswählen · '+label());
+  regionButton.setAttribute('title','Region auswählen · '+label());
+  regionButton.setAttribute('aria-expanded',String(choosingRegion));
+
+  const badgeCase=arenaPageButton('',()=>{
+   choosingRegion=false;tab='badges';
+  },busy()||tpSaveReplacing);
+  badgeCase.append(arenaPageActionIcon('case'));
+  badgeCase.setAttribute('data-arena-option','badges');
+  badgeCase.setAttribute('aria-label','Ordenkoffer · '+label());
+  badgeCase.setAttribute('title','Ordenkoffer · '+label());
+
+  const leagueReady=m>=0&&(m&255)===255;
+  const leagueButton=arenaPageButton('',()=>{
+   const current=mask();
+   if(current>=0&&(current&255)===255)
+    window.TPLeague?.open(region);
+  },busy()||tpSaveReplacing||!leagueReady);
+  leagueButton.append(arenaPageActionIcon('league'));
+  leagueButton.setAttribute('data-arena-option','league');
+  leagueButton.setAttribute('aria-label','Liga · '+label()+
+   (leagueReady?'':' · benötigt alle acht Orden'));
+  leagueButton.setAttribute('title',leagueReady?
+   'Liga · '+label():'Erst alle acht '+label()+'-Orden erhalten');
+
+  head.append(title,exit);
+  const actions=arenaPageNode('div',undefined,'tp-arena-actions');
+  actions.setAttribute('role','group');
+  actions.setAttribute('aria-label','Arena-Aktionen');
+  actions.append(regionButton,badgeCase,leagueButton);
+
+
+  const frame=arenaPageNode('div',undefined,'tp-activity-frame');
+  frame.setAttribute('aria-hidden','true');
+  for(const cls of ['tp-pokedex-display tp-pokedex-display-left',
+   'tp-pokedex-display tp-pokedex-display-right','tp-pokedex-spine'])
+   frame.append(arenaPageNode('span',undefined,cls));
+
+  const body=arenaPageNode('div',undefined,'tp-activity-body');
+  const left=arenaPageNode('div',undefined,'tp-activity-column tp-activity-left');
+  const right=arenaPageNode('div',undefined,'tp-activity-column tp-activity-right');
+  const list=arenaPageNode('div',undefined,'tp-arena-list');
+
+
+  if(choosingRegion){
+   list.setAttribute('data-arena-list','regions');
+   for(const id of [0,1]){
+    const enabled=id===0||!!window.TPRegions?.available(id);
+    const pick=arenaPageButton(id===0?'Kanto':'Johto',()=>{
+     if(chooseRegion(id)){
+      arenaPageKey='';
+     }
+    },busy()||tpSaveReplacing||!enabled||!!window.TPRegions?.locked());
+    pick.setAttribute('data-arena-region',String(id));
+    pick.setAttribute('aria-pressed',String(region===id));
+    list.append(pick);
+   }
+  }else{
+   list.setAttribute('data-arena-list','badges');
+   for(let i=0;i<data.leaders.length;i++){
+    const item=data.leaders[i],got=m>=0&&owned(i,m);
+    const pick=arenaPageButton('',()=>{
+     selected=i;origin='leaders';message='';
+    },busy()||tpSaveReplacing);
+    const description=item.badge+' · '+item.name+' · '+
+     (m<0?'Stand nicht lesbar':got?'Orden erhalten':'Noch offen');
+    pick.setAttribute('data-arena-leader',String(i));
+    pick.setAttribute('aria-pressed',String(i===selected));
+    pick.setAttribute('data-owned',String(got));
+    pick.setAttribute('aria-label',description);
+    pick.setAttribute('title',description);
+    const symbol=arenaPageNode('canvas',undefined,'tp-arena-badge-symbol');
+    symbol.width=64;symbol.height=64;
+    symbol.setAttribute('aria-hidden','true');
+    pick.append(symbol);
+    arenaPageBadges.push({canvas:symbol,index:i});
+    list.append(pick);
+   }
+  }
+  left.append(list);
+
+  const card=arenaPageNode('article',undefined,'tp-activity-card');
+  const info=arenaPageNode('div',undefined,'tp-activity-info');
+  info.tabIndex=0;
+  arenaPagePortrait=arenaPageNode('canvas',undefined,'tp-arena-portrait');
+  arenaPagePortrait.width=224;arenaPagePortrait.height=112;
+  arenaPagePortrait.setAttribute('role','img');
+  arenaPagePortrait.setAttribute('aria-label','Arenaleiter '+leader.name);
+  arenaPagePortrait.setAttribute('data-arena-portrait-id',leader.id);
+  info.append(arenaPageNode('h3',leader.name),arenaPagePortrait,
+   arenaPageNode('p',leader.city,'tp-arena-city'),
+   arenaPageNode('p',leader.badge));
+
+  const open=arenaPageButton('Arena ansehen',()=>{
+   detail=true;origin='leaders';message='';
+  },busy()||tpSaveReplacing||m<0);
+  open.setAttribute('data-arena-open','');
+  card.append(info,open);right.append(card);
+  body.append(left,right);
+
+  const status=arenaPageNode('p',
+   message||(m<0?'Ordensstand nicht unterstützt.':''),
+   'tp-activity-status');
+  status.setAttribute('role','status');
+  arenaPage.append(head,frame,actions,body,status);
+ }
+ statusEl.textContent='Arena · '+label()+'-Auswahl';
+ arenaPagePaint();return true;
+}
+
 function text(value,x,y,size=16,color=UI.ink,max=390){ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.fillStyle=color;ctx.font=`${size}px monospace`;ctx.fillText(String(value),x,y,max);}
-function button(label,x,y,w=326,h=42,enabled=true){ctx.fillStyle=enabled?UI.white:'#e5e5df';roundRect(x,y,w,h,10);ctx.fill();ctx.strokeStyle=enabled?UI.ink:UI.track;ctx.lineWidth=1;ctx.stroke();text(label,x+w/2,y+h/2+6,16,enabled?UI.ink:'#747474',w-16);}
+function button(label,x,y,w=326,h=42,enabled=true){ctx.fillStyle=enabled?UI.white:'#e5e5df';roundRect(x,y,w,h,10);ctx.fill();ctx.strokeStyle=enabled?UI.ink:UI.track;ctx.lineWidth=1;ctx.stroke();if(window.TPNavBack?.isBackLabel(label))
+ window.TPNavBack.draw(ctx,x+w/2-12,y+h/2-12,24,enabled?'#315b83':'#747474');
+ else text(label,x+w/2,y+h/2+6,16,enabled?UI.ink:'#747474',w-16);}
 function badge(id,x,y,r=24,owned=true){
  if(region===1){if(window.TPBadgeUI?.drawJohto)window.TPBadgeUI.drawJohto(Number(id),x,y,r,owned);else{ctx.strokeStyle=UI.ink;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.stroke();}return;}if(window.TPBadgeUI){window.TPBadgeUI.draw(Number(id),x,y,r,owned);return;}
  const l=data.leaders[id];ctx.save();ctx.translate(x,y);ctx.scale(r/30,r/30);ctx.strokeStyle=owned?l.color:'#8f9292';ctx.fillStyle=owned?l.color:'#dedfda';ctx.lineWidth=2;
@@ -208,6 +765,8 @@ function badge(id,x,y,r=24,owned=true){
 function owned(id,m=mask()){return m>=0&&!!(m&(1<<id));}
 function date(id){const value=regional(region,'tp_f3_date',id);return value?new Date(value*1000).toLocaleDateString('de-DE'):'Datum nicht hinterlegt';}
 function draw(){
+ if(arenaSubpageDraw())return;
+ if(arenaPageDraw())return;
  if(choosingRegion){regionPicker();return;}
  ctx.fillStyle='#f7efe6';ctx.fillRect(0,0,466,466);const m=mask();
  if(m<0){button('Regionen',348,6,108,30);text('Ordensstand nicht unterstützt',233,170,20);text('Keine Arena-Vergabe möglich.',233,205,16);button('Zurück',70,410);return;}
@@ -334,8 +893,11 @@ function portraitBlob(value){
  if(value instanceof ArrayBuffer||ArrayBuffer.isView(value))return new Blob([value],{type:'image/png'});
  throw Error('Gespeicherte Leitergrafik hat ein unbekanntes Format.');
 }
-function invalidatePortraits(){artGeneration++;pictures.clear();loading.clear();}
-function picture(id){
+function invalidatePortraits(){
+ artGeneration++;pictures.clear();loading.clear();
+ arenaPortraitBImages.clear();arenaPortraitBLoading.clear();
+}
+function pictureOriginal(id){
  if(region!==0)return TPOpponentTeam.portrait('johto-arena-'+data.leaders[id].id);
  if(pictures.has(id))return pictures.get(id);
  if(!loading.has(id)){const generation=artGeneration;loading.add(id);(async()=>{let image=null;try{
@@ -344,6 +906,32 @@ function picture(id){
   if(generation===artGeneration&&!pictures.has(id))pictures.set(id,image);
  }catch(_){if(generation===artGeneration&&!pictures.has(id))pictures.set(id,null);}finally{if(generation===artGeneration)loading.delete(id);}})();}return null;
 }
+
+const arenaPortraitVariant='B';
+const arenaPortraitBImages=new Map(),arenaPortraitBLoading=new Set();
+function picture(id){
+ if(arenaPortraitVariant!=='B')return pictureOriginal(id);
+ const leader=data.leaders[id];
+ if(!leader)return null;
+ const key=(region===0?'kanto-arena-':'johto-arena-')+leader.id+'-portrait-b';
+ if(arenaPortraitBImages.has(key))
+  return arenaPortraitBImages.get(key)||pictureOriginal(id);
+ if(!arenaPortraitBLoading.has(key)&&window.TPTrainerArt){
+  const generation=artGeneration;
+  arenaPortraitBLoading.add(key);
+  window.TPTrainerArt.picture(key).then(result=>{
+   if(generation===artGeneration)
+    arenaPortraitBImages.set(key,result?.image||null);
+  }).catch(error=>{
+   if(generation===artGeneration)arenaPortraitBImages.set(key,null);
+   try{window.TPDiagnostics?.record('manager',error);}catch(_){}
+  }).finally(()=>{
+   if(generation===artGeneration)arenaPortraitBLoading.delete(key);
+  });
+ }
+ return pictureOriginal(id);
+}
+
 async function importPortrait(file,id){
  if(region!==0)throw Error('Johto-Leitergrafiken sind noch nicht importierbar; Platzhalter bleibt sichtbar.');
  if(artBusy||saving||screen!=='arena'||active()||tpSaveReplacing||!Number.isInteger(id)||id<0||id>=8)throw Error('Grafikimport gerade gesperrt');artBusy=true;message='';
@@ -359,5 +947,5 @@ function pickPortrait(id){
  if(busy())return;picker?.remove();const input=document.createElement('input');picker=input;input.type='file';input.accept='image/png,.png';input.hidden=true;input.setAttribute('data-tp-arena-portrait','');document.body.appendChild(input);input.addEventListener('change',()=>{const file=input.files?.[0];input.remove();if(file)importPortrait(file,id).catch(e=>window.TPDiagnostics?.record('manager',e));},{once:true});input.addEventListener('cancel',()=>input.remove(),{once:true});input.click();
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'&&active()&&!saving)abort();});window.addEventListener('pagehide',()=>{if(active()&&!saving)abort();});
-window.TPArena=Object.freeze({open,chooseRegion,get region(){return region;},get choosingRegion(){return choosingRegion;},canOpen,start,active,abort,draw,tap,intercept,battleTap,checkEnd,complete,badge,importPortrait,invalidatePortraits,get busy(){return busy();},get teamView(){return teamView();},switchTo,get snapshot(){return session?{region:session.region??0,id:session.id,token:session.token,team:!!session.team,phase:session.phase,error:session.error,rewards:session.rewards||[]}:null;}});
+window.TPArena=Object.freeze({open,chooseRegion,hidePage:arenaPageHide,get region(){return region;},get choosingRegion(){return choosingRegion;},canOpen,start,active,abort,draw,tap,intercept,battleTap,checkEnd,complete,badge,importPortrait,invalidatePortraits,get busy(){return busy();},get teamView(){return teamView();},switchTo,get snapshot(){return session?{region:session.region??0,id:session.id,token:session.token,team:!!session.team,phase:session.phase,error:session.error,rewards:session.rewards||[]}:null;}});
 })();

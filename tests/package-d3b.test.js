@@ -26,6 +26,173 @@ for(const hasComfort of [true,false])for(const atlas of [true,false])for(const l
 const a=env(baseline),b=env(optimized);for(const e of [a,b])e.configure({query:'',gen:0,type:0,status:'all'});
 const old=a.draw(),fresh=b.draw();assert.equal(old.counts.lookup,19);assert.equal(fresh.counts.lookup,1);assert.equal(old.counts.registered,19);assert.equal(fresh.counts.registered,1);assert.equal(old.counts.caught,19);assert.equal(fresh.counts.caught,1);
 const ids=b.c.tpComfortDexIds();Object.freeze(ids);b.draw();assert.equal(b.c.dexGridSnapshot().ids,ids);assert.equal(ids.length,1025);
-function suffix(s){return s.slice(s.indexOf('function drawDexDetail()'));}assert.equal(suffix(optimized),suffix(baseline));
+function suffix(s){
+ return s.slice(s.indexOf('function drawDexDetail()')).replace(
+  '  if(globalThis.TPAppMenu?.dexFromHub){drawHubDexDetail();return;}\n',''
+ );
+}// UI01 closeout: narrowly allow the approved shared back glyph.
+const approvedBackBranch=
+ '  if(window.TPNavBack)window.TPNavBack.draw(ctx,TP.cx-12,404,24);\n'+
+ '  else ctx.fillText(fns.detailBackText(), TP.cx, 424);';
+const formerBackLine='  ctx.fillText(fns.detailBackText(), TP.cx, 424);';
+const actualDetailSuffix=suffix(optimized);
+const baselineDetailSuffix=suffix(baseline);
+
+assert.equal(actualDetailSuffix.split(approvedBackBranch).length-1,1,
+ 'Exactly the approved shared back-glyph branch must be present.');
+assert.equal(baselineDetailSuffix.includes(approvedBackBranch),false);
+assert.equal(baselineDetailSuffix.split(formerBackLine).length-1,1);
+
+// Everything except this one explicitly approved replacement stays byte-identical.
+assert.equal(
+ actualDetailSuffix.replace(approvedBackBranch,formerBackLine),
+ baselineDetailSuffix
+);
+
+// Execute the branch extracted from the actual compared source.
+const branchStart=actualDetailSuffix.indexOf(approvedBackBranch);
+const actualBackBranch=actualDetailSuffix.slice(
+ branchStart,branchStart+approvedBackBranch.length
+);
+{
+ const draws=[],texts=[];
+ const drawingContext={fillText(...args){texts.push(args);}};
+ const state={
+  window:{TPNavBack:{draw(...args){draws.push(args);}}},
+  ctx:drawingContext,TP:{cx:233},
+  fns:{detailBackText:()=> 'Zurück'}
+ };
+ vm.runInNewContext(actualBackBranch,state);
+ assert.equal(draws.length,1);
+ assert.deepEqual(draws[0],[drawingContext,221,404,24]);
+ assert.deepEqual(texts,[]);
+}
+{
+ const texts=[];
+ const state={
+  window:{},
+  ctx:{fillText(...args){texts.push(args);}},
+  TP:{cx:233},
+  fns:{detailBackText:()=> 'Zurück'}
+ };
+ vm.runInNewContext(actualBackBranch,state);
+ assert.deepEqual(texts,[['Zurück',233,424]]);
+}
 function prefix(s){return s.slice(0,s.indexOf('// D3b:')>=0?s.indexOf('// D3b:'):s.indexOf('function drawDexGrid()'));}assert.equal(prefix(optimized),prefix(baseline));
+
+// Additional hub layout: single list lookup and balanced transforms.
+{
+ const hub=env(optimized);
+ hub.c.TPAppMenu={dexFromHub:true};
+ const rendered=hub.draw();
+ assert.equal(rendered.counts.lookup,1);
+ assert.equal(rendered.trace.filter(x=>x[0]==='save').length,1);
+ assert.equal(rendered.trace.filter(x=>x[0]==='restore').length,1);
+ for(const width of [304,374,414]){
+  const g=hub.c.hubDexLayout(width);
+  assert.equal(g.cells.length,16);
+  assert.equal(g.displays.length,2);
+  for(const r of [...g.filters,...g.cells,g.previous,g.next]){
+   assert(r.w>0&&r.h>0);
+   assert(r.x>=0&&r.y>=0);
+   assert(r.x+r.w<=466+1e-8);
+   assert(r.y+r.h<=466+1e-8);
+  }
+  for(let i=0;i<16;i++){
+   const r=g.cells[i],display=g.displays[Math.floor(i/8)];
+   assert(r.x>=display.x&&r.y>=display.y);
+   assert(r.x+r.w<=display.x+display.w+1e-8);
+   assert(r.y+r.h<=display.y+display.h+1e-8);
+  }
+  assert(g.filters[0].y+g.filters[0].h<g.panel.y);
+  assert(g.previous.y>g.panel.y+g.panel.h);
+  assert(Math.abs(g.art.w/g.artBase.w-.65)<1e-9);
+  assert(Math.abs(g.art.h/g.artBase.h-.65)<1e-9);
+  assert(Math.abs(g.art.x+g.art.w/2-g.artBase.x-g.artBase.w/2)<1e-9);
+  assert(Math.abs(g.art.y+g.art.h/2-g.artBase.y-g.artBase.h/2)<1e-9);
+ }
+ const pixels=new Uint8ClampedArray(8*6*4);
+ for(const [x,y] of [[1,1],[2,1],[1,2],[2,2]])pixels[(y*8+x)*4+3]=255;
+ const image={width:8,height:6,data:pixels};
+ assert.deepEqual(JSON.parse(JSON.stringify(hub.c.hubDexBounds(image))),
+  {x:1,y:1,w:2,h:2});
+ const box={x:10,y:20,w:80,h:60};
+ const p=hub.c.hubDexImagePlacement(image,box);
+ assert.equal(p.x+p.w/2,box.x+box.w/2);
+ assert.equal(p.y+p.h/2,box.y+box.h/2);
+ assert.equal(p.w,60);assert.equal(p.h,60);
+ assert.equal(hub.c.hubDexBounds({
+  width:2,height:2,data:new Uint8ClampedArray(16)
+ }),null);
+}
+
+
+// UI01: entry navigation follows the current filter and updates raster return.
+{
+ const hub=env(optimized);
+ hub.c.TPAppMenu={dexFromHub:true};
+ hub.configure({query:"",gen:0,type:0,status:"all"},1,0);
+ vm.runInContext('dexDetailDex=16;dexDetailPage=1;',hub.c);
+ assert.equal(hub.c.hubDexMoveDetail(1),true);
+ assert.equal(vm.runInContext('dexDetailDex',hub.c),17);
+ assert.equal(vm.runInContext('dexDetailPage',hub.c),0);
+ assert.equal(vm.runInContext('dexPage',hub.c),1);
+ assert.equal(hub.c.hubDexMoveDetail(-1),true);
+ assert.equal(vm.runInContext('dexDetailDex',hub.c),16);
+ assert.equal(vm.runInContext('dexPage',hub.c),0);
+ vm.runInContext('dexDetailDex=1;',hub.c);
+ assert.equal(hub.c.hubDexDetailNavigation().canPrevious,false);
+ assert.equal(hub.c.hubDexMoveDetail(-1),false);
+ vm.runInContext('dexDetailDex=25;',hub.c);
+ assert.equal(hub.c.hubDexDetailNavigation().canNext,false);
+ assert.equal(hub.c.hubDexMoveDetail(1),false);
+ assert.equal(vm.runInContext('dexFilter',hub.c),1);
+}
+
+
+// UI01: an empty caught view stays inside the two displays.
+{
+ const empty=env(optimized);
+ empty.c.TPAppMenu={dexFromHub:true};
+ empty.c.ctx.measureText=text=>({width:Array.from(String(text)).length*7});
+ empty.caught.clear();
+ empty.configure({query:"",gen:0,type:0,status:"all"},2,0);
+ const beforeRaised=empty.raised.size;
+ const rendered=empty.draw();
+ const texts=rendered.trace.filter(x=>x[0]==="fillText").map(x=>String(x[1]));
+ assert(texts.includes("Keine Einträge"));
+ assert(texts.some(text=>text.includes("Gefangene")));
+ assert(!texts.includes("Keine Treffer"));
+ assert.equal(rendered.trace.filter(x=>x[0]==="clip").length,2);
+ assert.equal(rendered.trace.filter(x=>x[0]==="save").length,3);
+ assert.equal(rendered.trace.filter(x=>x[0]==="restore").length,3);
+ assert.equal(empty.raised.size,beforeRaised);
+ assert.equal(empty.caught.size,0);
+}
+
+
+// UI01: changing view must not change the housing/display/control geometry.
+{
+ const example=env(optimized);
+ for(const width of [304,374,414]){
+  vm.runInContext('dexScreen="grid";',example.c);
+  const grid=example.c.hubDexLayout(width);
+  vm.runInContext('dexScreen="detail";',example.c);
+  const detail=example.c.hubDexLayout(width);
+  const plain=value=>JSON.parse(JSON.stringify(value));
+
+  assert.deepEqual(plain(detail),plain(grid));
+  assert.deepEqual(plain(detail.detailPrevious),plain(detail.previous));
+  assert.deepEqual(plain(detail.detailNext),plain(detail.next));
+
+  assert(detail.previous.y>detail.panel.y+detail.panel.h);
+  assert(detail.filters[0].y+detail.filters[0].h<detail.panel.y);
+
+  assert(detail.cry.x>=detail.left.x);
+  assert(detail.cry.x+detail.cry.w<=detail.left.x+detail.left.w+1e-8);
+  assert(detail.cry.y>=detail.left.y);
+  assert(detail.cry.y+detail.cry.h<=detail.left.y+detail.left.h+1e-8);
+ }
+}
+
 console.log(`D3b: ${comparisons} identical raster render traces plus next-frame collection changes; lookup/count rounds 19 -> 1. Details, input and thumbnails unchanged. No wall-time speedup asserted.`);

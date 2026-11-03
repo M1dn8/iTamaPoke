@@ -49,18 +49,19 @@ function tpComfortDexIds(){
   function updateButtons(){const ok=safe();evoButton.disabled=!ok||!!fns.isEgg();dexButton.disabled=!ok;}
   evoButton.disabled=dexButton.disabled=true;
   setInterval(updateButtons,1000);
-  function close(){overlay.hidden=true;document.body.style.overflow="";if(previousFocus&&previousFocus.focus)previousFocus.focus();}
+  function close(){stopEvolutionGrowth();evolutionView=null;overlay.hidden=true;document.body.style.overflow="";if(previousFocus&&previousFocus.focus)previousFocus.focus();}
   function begin(title){
     if(!safe()){alert("Bitte zuerst Spiel, Kampf oder Dialog beenden.");return false;}
-    previousFocus=document.activeElement;panel.replaceChildren();
+    stopEvolutionGrowth();evolutionView=null;overlay.className="tp-modal";panel.className="tp-panel";previousFocus=document.activeElement;panel.replaceChildren();
     const row=el("div",undefined,"tp-modal-head");const h=el("h2",title);h.id="tp-modal-title";
-    const exit=button("Schliessen",close);row.append(h,exit);panel.appendChild(row);
+    const exit=button("Schliessen",()=>{if(evolutionView?.infoOpen)showEvolutionInfo(evolutionView,false);else close();});row.append(h,exit);panel.appendChild(row);
     overlay.hidden=false;document.body.style.overflow="hidden";
     dragStart=null;dragNow=null;choice="none";feedMenuUntil=0;confirmUntil=0;
     exit.focus();return true;
   }
   overlay.addEventListener("click",e=>{if(e.target===overlay)close();});
   overlay.addEventListener("keydown",e=>{
+    if(evolutionView)return;
     if(e.key==="Escape"){e.preventDefault();close();return;}
     if(e.key!=="Tab")return;
     const nodes=Array.from(panel.querySelectorAll("button:not(:disabled),input,select,[tabindex='0']")).filter(n=>!n.hidden);
@@ -71,38 +72,389 @@ function tpComfortDexIds(){
   function name(id){const m=TP_DEX_META[id-1];const lang=langCodes[fns.language()]||"en";return m?(m.names[lang]||m.names.en):String(id);}
   function field(from,i,f){return Module.ccall("tp_evo_rule_field","number",["number","number","number"],[from,i,f]);}
   function check(text,ok){return el("p",(ok?"✓ ":"○ ")+text,ok?"tp-ok":"tp-no");}
-  function openEvolution(){
-    if(!begin("Entwicklungen"))return;
-    const from=fns.speciesId();
-    panel.appendChild(el("p",name(from)+" · Level "+fns.level()+" · Bindung "+fns.bond()));
-    panel.appendChild(el("p","Sonderentwicklungen nutzen unsere vereinfachten Spielregeln. Regionale Sonderfaelle sind teilweise auf Artebene abgebildet. Zeitbedingungen folgen der internen Spielzeit (UTC).","tp-small"));
-    const setting=el("label");const box=el("input");box.type="checkbox";box.checked=auto;
-    box.addEventListener("change",()=>{auto=box.checked;try{localStorage.setItem("tp-auto-evolve",auto?"1":"0");}catch(_e){}});
-    setting.append(box,document.createTextNode("Automatische Zielwahl beim bisherigen Entwicklungsdialog"));panel.appendChild(setting);
-    panel.appendChild(button("Voraussetzungen aktualisieren",openEvolution));
-    const n=Module.ccall("tp_evo_rule_count","number",["number"],[from]);
-    if(!n){panel.appendChild(el("p","Diese Art besitzt keine weitere Entwicklung."));return;}
-    for(let i=0;i<n;i++){
-      const to=field(from,i,0),lvl=field(from,i,1),bond=field(from,i,2),time=field(from,i,3);
-      const card=el("article",undefined,"tp-card");card.appendChild(el("h3",name(from)+" → "+name(to)));
-      card.appendChild(check("Level "+fns.level()+" / "+lvl,!!field(from,i,4)));
-      card.appendChild(check("Bindung "+fns.bond()+" / "+bond,!!field(from,i,5)));
-      card.appendChild(check("Zeit: "+["beliebig","tagsueber","nachts","abends"][time],!!field(from,i,6)));
-      const min=Math.min(fns.fullness(),fns.joy(),fns.energy(),fns.hygiene());
-      card.appendChild(check("Niedrigster Pflegewert "+min+" / 40",!!field(from,i,7)));
-      card.appendChild(check("Wach",!!field(from,i,8)));
-      if(lvl>field(from,i,10))card.appendChild(el("p","Pflegefehler sind im benoetigten Level bereits beruecksichtigt.","tp-small"));
-      const act=button("Zu "+name(to)+" entwickeln",async()=>{
+
+let evolutionView=null;
+/* UI01 closeout: noBond belongs to the initial locale dictionaries */
+const evolutionWords={
+ en:{
+  noBond:"No minimum bond",
+  title:"Evolution",level:"Level",bond:"Bond",care:"Care",awake:"Awake",
+  time:"Time",any:"Any",day:"Day",night:"Night",evening:"Evening",
+  refresh:"Refresh requirements",auto:"Main-game target selection",
+  manualState:"Choose yourself",autoState:"Automatic",info:"Info",
+  previous:"Previous evolution target",next:"Next evolution target",
+  target:"Target",none:"This species has no further evolution.",
+  current:"Current Pokémon",infoLeft:"Care",infoRight:"You decide",
+  careInfo:"Level, bond and care must meet the requirements.",
+  confirmInfo:"Here you choose and confirm the target.",
+  rules:"Simplified game rules · Time conditions use UTC.",
+  penalty:"Care mistakes are already included in the required level."
+ },
+ de:{
+  noBond:"Keine Mindestbindung",
+  title:"Entwicklung",level:"Level",bond:"Bindung",care:"Pflege",awake:"Wach",
+  time:"Zeit",any:"Beliebig",day:"Tagsüber",night:"Nachts",evening:"Abends",
+  refresh:"Voraussetzungen aktualisieren",auto:"Zielwahl im Hauptspiel",
+  manualState:"Selbst wählen",autoState:"Automatisch",info:"Info",
+  previous:"Vorheriges Entwicklungsziel",next:"Nächstes Entwicklungsziel",
+  target:"Ziel",none:"Diese Art besitzt keine weitere Entwicklung.",
+  current:"Aktuelles Pokémon",infoLeft:"Pflegen",infoRight:"Du entscheidest",
+  careInfo:"Level, Bindung und Pflege müssen passen.",
+  confirmInfo:"Hier wählst und bestätigst du das Ziel.",
+  rules:"Vereinfachte Spielregeln · Zeitbedingungen nach UTC.",
+  penalty:"Pflegefehler sind im benötigten Level bereits berücksichtigt."
+ },
+ es:{
+  noBond:"Sin vínculo mínimo",
+  title:"Evolución",level:"Nivel",bond:"Vínculo",care:"Cuidado",awake:"Despierto",
+  time:"Hora",any:"Cualquiera",day:"Día",night:"Noche",evening:"Tarde",
+  refresh:"Actualizar requisitos",auto:"Elección del objetivo en el juego principal",
+  manualState:"Elegir",autoState:"Automático",info:"Info",
+  previous:"Objetivo anterior",next:"Siguiente objetivo",
+  target:"Objetivo",none:"Esta especie no tiene otra evolución.",
+  current:"Pokémon actual",infoLeft:"Cuidar",infoRight:"Tú decides",
+  careInfo:"El nivel, el vínculo y los cuidados deben ser suficientes.",
+  confirmInfo:"Aquí eliges y confirmas el objetivo.",
+  rules:"Reglas simplificadas · Las condiciones horarias usan UTC.",
+  penalty:"Los errores de cuidado ya están incluidos en el nivel requerido."
+ },
+ fr:{
+  noBond:"Aucun lien minimal",
+  title:"Évolution",level:"Niveau",bond:"Lien",care:"Soins",awake:"Éveillé",
+  time:"Heure",any:"Libre",day:"Jour",night:"Nuit",evening:"Soir",
+  refresh:"Actualiser les conditions",auto:"Choix de cible dans le jeu principal",
+  manualState:"Choisir",autoState:"Automatique",info:"Info",
+  previous:"Cible précédente",next:"Cible suivante",
+  target:"Cible",none:"Cette espèce n’a pas d’autre évolution.",
+  current:"Pokémon actuel",infoLeft:"Prendre soin",infoRight:"Tu décides",
+  careInfo:"Le niveau, le lien et les soins doivent convenir.",
+  confirmInfo:"Ici, tu choisis et confirmes la cible.",
+  rules:"Règles simplifiées · Les horaires utilisent UTC.",
+  penalty:"Les erreurs de soin sont déjà incluses dans le niveau requis."
+ }
+};
+const evolutionGrowthWords={"en": {"growth": "Growth", "growthMaximum": "Maximum level"}, "de": {"growth": "Wachstum", "growthMaximum": "Maximallevel"}, "es": {"growth": "Crecimiento", "growthMaximum": "Nivel máximo"}, "fr": {"growth": "Croissance", "growthMaximum": "Niveau maximal"}};
+for(const code of ["en","de","es","fr"])Object.assign(evolutionWords[code],evolutionGrowthWords[code]);
+if(typeof TPText!=="undefined")
+ for(const code of ["en","de","es","fr"])
+  TPText.registerLocale(code,Object.fromEntries(
+   Object.entries(evolutionWords[code]).map(([key,value])=>["evolution.view."+key,value])
+  ));
+function evolutionText(key){
+ return typeof TPText!=="undefined"?
+  TPText.t("evolution.view."+key):evolutionWords.de[key];
+}
+function evolutionIcon(kind){
+ const paths={
+  evolution:'<path d="M12 21V4m-6 6 6-6 6 6M4 17h4m8 0h4"/>',
+  level:'<path d="m5 14 7-8 7 8M12 6v15"/>',
+  bond:'<path d="M12 21 3 12C-2 5 7 0 12 6c5-6 14-1 9 6Z"/>',
+  care:'<path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/>',
+  awake:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+  time:'<circle cx="12" cy="12" r="9"/><path d="M12 5v7l4 3"/>',
+  refresh:'<path d="M20 9a8 8 0 1 0 0 6M20 3v6h-6"/>',
+  auto:'<path d="M12 21V12L5 5M12 12l7-7M5 10V5h5M14 5h5v5"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 10v7M12 6v1"/>',
+  confirm:'<path d="m4 12 5 5L20 5"/><path d="M21 13v7H3V3h12"/>',
+  pokemon:'<circle cx="12" cy="12" r="9"/><path d="M3 12h6m6 0h6"/><circle cx="12" cy="12" r="3"/>'
+ };
+ const icon=el("span",undefined,"tp-evo-icon");
+ icon.setAttribute("aria-hidden","true");
+ icon.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
+  'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+
+  paths[kind]+'</svg>';
+ return icon;
+}
+function applyEvolutionDesign(){
+ const shell=document.getElementById("tp-game-shell");
+ if(!shell||typeof hubDexDesignTokens!=="function")return;
+ for(const [key,value]of Object.entries(hubDexDesignTokens()))
+  shell.style.setProperty(key,value);
+}
+function evolutionLive(view){
+ return evolutionView===view&&!overlay.hidden&&Module===view.mod;
+}
+
+/* UI01 evolution growth portrait */
+function stopEvolutionGrowth(){
+ if(evolutionView&&evolutionView.growthTimer!==undefined){
+  clearInterval(evolutionView.growthTimer);
+  delete evolutionView.growthTimer;
+ }
+}
+function evolutionGrowthFraction(level,into,per){
+ return level>=100?1:Math.max(0,Math.min(1,into/Math.max(1,per)));
+}
+function attachEvolutionGrowth(view,portrait,subjectCard){
+ const ring=el("span",undefined,"tp-evo-growth-ring");
+ ring.setAttribute("role","progressbar");
+ ring.setAttribute("aria-label",evolutionText("growth"));
+ ring.setAttribute("aria-valuemin","0");
+ ring.setAttribute("aria-valuemax","100");
+ const caption=el("p",undefined,"tp-evo-growth-caption");
+ portrait.className+=" tp-evo-growth-portrait";
+ portrait.appendChild(ring);
+ subjectCard.appendChild(caption);
+ let previous="";
+ function refresh(){
+  const level=fns.level(),into=fns.minutesIntoLevel(),per=fns.minutesPerLevel();
+  const ratio=evolutionGrowthFraction(level,into,per);
+  const text=level>=100?evolutionText("growthMaximum"):fns.nextLevelLine();
+  const key=JSON.stringify([ratio,text]);
+  if(key===previous)return;
+  previous=key;
+  ring.setAttribute("aria-valuenow",String(Math.round(ratio*100)));
+  const circumference=2*Math.PI*21;
+  ring.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true">'+
+   '<circle cx="24" cy="24" r="21" fill="none" stroke="#ded2bd" stroke-width="2"/>'+
+   '<circle cx="24" cy="24" r="21" fill="none" stroke="#c4a246" stroke-width="2" '+
+   'stroke-linecap="round" transform="rotate(-90 24 24)" '+
+   'stroke-dasharray="'+circumference+' '+circumference+'" '+
+   'stroke-dashoffset="'+circumference*(1-ratio)+'"/>'+
+   '</svg>';
+  caption.textContent=text;
+ }
+ refresh();
+ view.growthTimer=setInterval(()=>{
+  if(!evolutionLive(view)||fns.speciesId()!==view.from){
+   clearInterval(view.growthTimer);
+   delete view.growthTimer;
+   return;
+  }
+  refresh();
+ },1000);
+}
+
+function evolutionPortrait(target){
+ const fallback=()=>{
+  target.replaceChildren(evolutionIcon("pokemon"));
+  target.dataset.art="fallback";
+ };
+ try{
+  if(typeof currentSprite==="undefined"||!currentSprite||
+     typeof frameImageData!=="function"||typeof TPAct==="undefined"){
+   fallback();return;
+  }
+  const image=frameImageData(currentSprite,TPAct.idle,0);
+  if(!image?.data||!image.width||!image.height){fallback();return;}
+  let left=image.width,top=image.height,right=-1,bottom=-1;
+  for(let y=0;y<image.height;y++)for(let x=0;x<image.width;x++)
+   if(image.data[(y*image.width+x)*4+3]){
+    left=Math.min(left,x);right=Math.max(right,x);
+    top=Math.min(top,y);bottom=Math.max(bottom,y);
+   }
+  if(right<left){fallback();return;}
+  const source=el("canvas");source.width=image.width;source.height=image.height;
+  const sourceContext=source.getContext?.("2d");
+  if(!sourceContext){fallback();return;}
+  sourceContext.putImageData(image,0,0);
+  const canvas=el("canvas");canvas.width=96;canvas.height=96;
+  const c=canvas.getContext("2d");c.imageSmoothingEnabled=false;
+  const w=right-left+1,h=bottom-top+1,scale=78/Math.hypot(w,h);
+  c.drawImage(source,left,top,w,h,(96-w*scale)/2,(96-h*scale)/2,w*scale,h*scale);
+  target.replaceChildren(canvas);target.dataset.art="ready";
+ }catch(_e){fallback();}
+}
+function showEvolutionInfo(view,shown){
+ if(!evolutionLive(view))return;
+ view.infoOpen=shown;
+ view.subject.hidden=shown;view.goal.hidden=shown;
+ view.info.hidden=!shown;
+ view.previous.hidden=shown||view.targets.length<=1;
+ view.next.hidden=shown||view.targets.length<=1;
+ view.counter.hidden=shown||view.targets.length<=1;
+ view.infoButton.setAttribute("aria-pressed",String(shown));
+ view.status.textContent=shown?evolutionText("rules"):"";
+ view.infoButton.focus();
+}
+function paintEvolutionAuto(view){
+ view.autoButton.setAttribute("aria-checked",String(auto));
+ view.autoButton.setAttribute("title",evolutionText("auto")+": "+
+  evolutionText(auto?"autoState":"manualState"));
+ view.autoMark.textContent=auto?"A":"M";
+}
+function paintEvolutionTarget(view,index){
+ if(!evolutionLive(view))return;
+ view.index=Math.max(0,Math.min(Math.max(0,view.targets.length-1),index));
+ view.goal.replaceChildren();
+ view.previous.disabled=view.index===0;
+ view.next.disabled=view.index>=view.targets.length-1;
+ view.previous.hidden=view.next.hidden=view.counter.hidden=
+  view.infoOpen||view.targets.length<=1;
+ view.counter.textContent=evolutionText("target")+" "+(view.index+1)+" / "+view.targets.length;
+ if(!view.targets.length){
+  view.goal.dataset.target="";
+  const empty=el("div",undefined,"tp-evo-empty");
+  empty.append(evolutionIcon("evolution"),el("p",evolutionText("none")));
+  view.goal.appendChild(empty);
+  return;
+ }
+ const target=view.targets[view.index];
+ view.goal.dataset.target=String(target.to);
+ view.goal.dataset.ruleIndex=String(target.index);
+ const card=el("div",undefined,"tp-evo-goal-card");
+ const title=el("h3",name(target.to));
+ const checks=el("div",undefined,"tp-evo-checks");
+ checks.tabIndex=0;
+ const rows=[
+  ["level",evolutionText("level")+" "+view.level+" / "+target.level,target.flags[0]],
+  ["bond",target.bond===0?evolutionText("noBond"):evolutionText("bond")+" "+view.bond+" / "+target.bond,target.flags[1]],
+  ["time",evolutionText("time")+": "+evolutionText(
+   ["any","day","night","evening"][target.time]||"any"),target.flags[2]],
+  ["care",evolutionText("care")+" "+view.care+" / 40",target.flags[3]],
+  ["awake",evolutionText("awake"),target.flags[4]]
+ ];
+ rows.forEach(([kind,label,ok],index)=>{
+  const row=el("div",undefined,"tp-evo-check");
+  row.dataset.evoCheck=String(index);row.dataset.ok=String(ok);
+  row.append(evolutionIcon(kind),el("span",label,"tp-evo-check-label"),
+   el("span",ok?"✓":"○","tp-evo-check-mark"));
+  checks.appendChild(row);
+ });
+ if(target.level>target.baseLevel)
+  checks.appendChild(el("p",evolutionText("penalty"),"tp-evo-penalty"));
+ const act=button("Zu "+name(target.to)+" entwickeln",async()=>{
+  if(!evolutionLive(view))return;
+  await performEvolution(view.from,target.to);
+ });
+ act.dataset.evoChoose=String(target.to);
+ act.disabled=!target.ready;
+ card.append(title,checks,act);view.goal.appendChild(card);
+}
+function readEvolutionTargets(from){
+ const targets=[],count=Module.ccall("tp_evo_rule_count","number",["number"],[from]);
+ for(let index=0;index<count;index++)
+  targets.push({
+   index,to:field(from,index,0),level:field(from,index,1),
+   bond:field(from,index,2),time:field(from,index,3),
+   flags:[4,5,6,7,8].map(key=>!!field(from,index,key)),
+   ready:!!field(from,index,9),baseLevel:field(from,index,10)
+  });
+ return targets;
+}
+function openEvolution(){
+ const retained=evolutionView?.targets[evolutionView.index]?.to;
+ if(!begin(evolutionText("title")))return;
+ applyEvolutionDesign();
+ overlay.className="tp-modal tp-evolution-modal";
+ panel.className="tp-panel tp-evolution-panel";
+ const from=fns.speciesId();
+ const frame=el("div",undefined,"tp-evo-frame");
+ frame.setAttribute("aria-hidden","true");
+ for(const cls of [
+  "tp-pokedex-display tp-pokedex-display-left",
+  "tp-pokedex-display tp-pokedex-display-right",
+  "tp-pokedex-spine"
+ ]){
+  const part=el("span",undefined,cls);
+  part.setAttribute("aria-hidden","true");frame.appendChild(part);
+ }
+ const subject=el("div",undefined,"tp-evo-subject");
+ const goal=el("div",undefined,"tp-evo-goal");
+ goal.id="tp-evolution-goal";
+ const actions=el("div",undefined,"tp-evo-actions");
+ const info=el("div",undefined,"tp-evo-info");info.hidden=true;
+ const statusLine=el("p",undefined,"tp-evo-status");statusLine.setAttribute("role","status");
+ const view={
+  mod:Module,from,subject,goal,info,infoOpen:false,status:statusLine,
+  level:fns.level(),bond:fns.bond(),
+  care:Math.min(fns.fullness(),fns.joy(),fns.energy(),fns.hygiene()),
+  targets:readEvolutionTargets(from),index:0
+ };
+ evolutionView=view;
+ const subjectCard=el("div",undefined,"tp-evo-subject-card");
+ const portrait=el("div",undefined,"tp-evo-portrait");
+ portrait.setAttribute("role","img");portrait.setAttribute("aria-label",name(from));
+ evolutionPortrait(portrait);
+ const stats=el("div",undefined,"tp-evo-subject-stats");
+ const bond=el("span",undefined,"tp-evo-subject-bond");
+ bond.setAttribute("aria-label",evolutionText("bond")+" "+view.bond);
+ bond.append(evolutionIcon("bond"),el("span",String(view.bond)));
+ stats.append(el("span","Lv. "+view.level),bond);
+ subjectCard.append(portrait,el("h3",name(from)),stats);
+ attachEvolutionGrowth(view,portrait,subjectCard);
+ subject.appendChild(subjectCard);
+ view.refresh=button("",()=>openEvolution());
+ view.refresh.setAttribute("aria-label",evolutionText("refresh"));
+ view.refresh.setAttribute("title",evolutionText("refresh"));
+ view.refresh.appendChild(evolutionIcon("refresh"));
+ view.autoButton=button("",()=>{
+  if(!evolutionLive(view))return;
+  auto=!auto;
+  try{localStorage.setItem("tp-auto-evolve",auto?"1":"0");}catch(_e){}
+  paintEvolutionAuto(view);
+ });
+ view.autoButton.dataset.evoAuto="true";
+ view.autoButton.setAttribute("role","switch");
+ view.autoButton.setAttribute("aria-label",evolutionText("auto"));
+ view.autoMark=el("span",undefined,"tp-evo-auto-mark");
+ view.autoButton.append(evolutionIcon("auto"),view.autoMark);
+ view.infoButton=button("",()=>showEvolutionInfo(view,!view.infoOpen));
+ view.infoButton.setAttribute("aria-label",evolutionText("info"));
+ view.infoButton.setAttribute("title",evolutionText("info"));
+ view.infoButton.setAttribute("aria-pressed","false");
+ view.infoButton.appendChild(evolutionIcon("info"));
+ actions.append(view.refresh,view.autoButton,view.infoButton);
+ for(const [titleKey,iconKey,copyKey]of [
+  ["infoLeft","care","careInfo"],["infoRight","confirm","confirmInfo"]
+ ]){
+  const column=el("div",undefined,"tp-evo-info-column");
+  column.tabIndex=0;
+  column.append(evolutionIcon(iconKey),el("h3",evolutionText(titleKey)),
+   el("p",evolutionText(copyKey)));
+  info.appendChild(column);
+ }
+ view.previous=button("",()=>paintEvolutionTarget(view,view.index-1));
+ view.next=button("",()=>paintEvolutionTarget(view,view.index+1));
+ view.previous.id="tp-evolution-prev";view.next.id="tp-evolution-next";
+ view.previous.className=view.next.className="tp-evo-nav";
+ view.previous.setAttribute("aria-label",evolutionText("previous"));
+ view.next.setAttribute("aria-label",evolutionText("next"));
+ for(const [node,label]of [[view.previous,"<"],[view.next,">"]])
+  node.appendChild(el("span",label,"tp-evo-nav-face"));
+ view.counter=el("span",undefined,"tp-evo-counter");
+ view.counter.setAttribute("role","status");
+ panel.append(frame,subject,goal,actions,info,statusLine,
+  view.previous,view.counter,view.next);
+ paintEvolutionAuto(view);
+ const selected=view.targets.findIndex(target=>target.to===retained);
+ paintEvolutionTarget(view,selected>=0?selected:0);
+ if(typeof requestAnimationFrame==="function")
+  requestAnimationFrame(()=>{
+   if(evolutionLive(view))panel.querySelector(".tp-modal-head button")?.focus();
+  });
+}
+const evolutionKeyTarget=typeof window.addEventListener==="function"?window:overlay;
+evolutionKeyTarget.addEventListener("keydown",event=>{
+ const view=evolutionView;
+ if(!view||!evolutionLive(view))return;
+ if(event.key==="Escape"){
+  event.preventDefault();event.stopPropagation?.();event.stopImmediatePropagation?.();
+  if(view.infoOpen)showEvolutionInfo(view,false);else close();
+  return;
+ }
+ if(event.key!=="Tab")return;
+ const nodes=Array.from(panel.querySelectorAll(
+  "button:not(:disabled),[tabindex='0']"
+ )).filter(n=>typeof n.getClientRects!=="function"||n.getClientRects().length>0);
+ const first=nodes[0],last=nodes[nodes.length-1];
+ if(event.shiftKey&&document.activeElement===first){
+  event.preventDefault();last?.focus();
+ }else if(!event.shiftKey&&document.activeElement===last){
+  event.preventDefault();first?.focus();
+ }
+},true);
+
+async function performEvolution(from,to){
+
         if(!safe()||fns.speciesId()!==from){close();return;}
         if(!confirm(name(from)+" wirklich zu "+name(to)+" entwickeln?"))return;
         const ok=Module.ccall("tp_evo_choose","number",["number"],[to]);
         if(!ok){alert("Die Voraussetzungen sind nicht mehr erfuellt.");openEvolution();return;}
         close();screen="idle";choice="none";await saveNow(Module);
-      });
-      act.disabled=!field(from,i,9);card.appendChild(act);panel.appendChild(card);
-    }
-  }
-  function status(id){return {raised:!!fns.dexRegistered(id),caught:!!fns.dexCaught(id)};}
+}
+
+function status(id){return {raised:!!fns.dexRegistered(id),caught:!!fns.dexCaught(id)};}
   function showInDex(id){
     tpDexFilter={query:"",gen:0,type:0,status:"all"};tpDexCacheKey="";
     dexFilter=0;dexPage=Math.floor((id-1)/16);dexDetailDex=id;dexDetailPage=0;dexScreen="detail";screen="dex";close();

@@ -46,12 +46,14 @@ function mainGrid(healing=true){
  for(const action of ['quick','heavy','dodge','back'])
   assert.equal(c.TPBattleView.target(action),null);
 }
-function movesGrid(){
+function movesGrid(healing=true){
  position('heavy',137,371);
  position('dodge',329,371);
  position('quick',137,425);
- position('back',329,425);
- for(const action of ['rest','fight','info','abort'])
+ position('back',30,26);
+ if(healing)position('rest',329,425);
+ else assert.equal(c.TPBattleView.target('rest'),null);
+ for(const action of ['fight','info','abort'])
   assert.equal(c.TPBattleView.target(action),null);
 }
 
@@ -74,6 +76,18 @@ assert.equal(c.TPBattleView.menu,'moves');
 c.TPBattleView.draw(base);
 movesGrid();
 
+// Healing on the moves page routes exactly like main-page healing.
+const movesRest=c.TPBattleView.target('rest');
+assert.equal(c.TPBattleView.tapLeague(movesRest.x,movesRest.y,view),'rest');
+assert.equal(c.TPBattleView.menu,'main');
+c.TPBattleView.draw(base);
+mainGrid();
+const reopenMoves=c.TPBattleView.target('fight');
+assert.equal(c.TPBattleView.tapLeague(reopenMoves.x,reopenMoves.y,view),null);
+assert.equal(c.TPBattleView.menu,'moves');
+c.TPBattleView.draw(base);
+movesGrid();
+
 const heavy=c.TPBattleView.target('heavy');
 assert.equal(c.TPBattleView.tapLeague(heavy.x,heavy.y,view),'heavy');
 const back=c.TPBattleView.target('back');
@@ -81,6 +95,16 @@ assert.equal(c.TPBattleView.tapLeague(back.x,back.y,view),null);
 assert.equal(c.TPBattleView.menu,'main');
 c.TPBattleView.draw(base);
 mainGrid();
+c.TPBattleView.draw({...base,rests:0});
+mainGrid(false);
+const zeroRestFight=c.TPBattleView.target('fight');
+assert.equal(c.TPBattleView.tapLeague(zeroRestFight.x,zeroRestFight.y,view),null);
+assert.equal(c.TPBattleView.menu,'moves');
+c.TPBattleView.draw({...base,rests:0});
+movesGrid(false);
+const zeroRestBack=c.TPBattleView.target('back');
+assert.equal(c.TPBattleView.tapLeague(zeroRestBack.x,zeroRestBack.y,view),null);
+assert.equal(c.TPBattleView.menu,'main');
 c.TPBattleView.draw({...base,rests:0});
 mainGrid(false);
 
@@ -114,6 +138,6 @@ for(const action of ['quick','heavy','dodge','fight','rest','back'])
 
 console.log('Shared battle UI passed: actual drawn Mega/name/level, numeric '+
  'HP, shiny routing, 75% Metagross scale, five distinct scenery traces, '+
- 'two four-button grids, main-page healing, no moves-page healing, regular '+
+ 'main grid, three moves plus healing, header back, healing on both pages, '+
  'back routing, zero-rest lock, five presentation-mode layouts and no '+
  'stale combat targets on results. Isolated renderer, not native combat.');

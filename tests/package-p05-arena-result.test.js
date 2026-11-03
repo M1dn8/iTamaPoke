@@ -49,8 +49,11 @@ function environment(options={}){
  initial=M.catchWild(initial,snapshot('wild',99));
  initial=M.selectTeam(initial,2);
  initial=M.selectTeam(initial,3);
- if(options.fallback){
-  for(const id of initial.team.slice())initial=M.unselectTeam(initial,id);
+ if(options.careOnly){
+  for(const id of initial.team.slice()){
+   if(id!==initial.active)initial=M.unselectTeam(initial,id);
+  }
+  assert.deepEqual(initial.team,[initial.active]);
  }
  const ids=initial.team.length?initial.team:[initial.active];
  const gains=options.gains??ids.map(id=>Math.min(
@@ -189,7 +192,7 @@ function environment(options={}){
   {careLevel:100,storedLevel:100},
   {careLevel:99,storedLevel:99},
   {gains:[0,0,0]},
-  {fallback:true}
+  {careOnly:true}
  ]){
   const e=environment(options);
   await e.result.complete();
@@ -235,7 +238,7 @@ function environment(options={}){
  console.log('P05b arena result adapter passed: '+checks+
   ' assertions plus rejection checks; actual model/controller/save parser, '+
   'multiple individual gains, care identity, both regions, win/repeat/loss, '+
-  'date stability, cap100, empty-team fallback, quota rollback/retry, '+
+  'date stability, cap100, care-only roster, quota rollback/retry, '+
   'duplicate refusal, publication gate and unsafe-confirmation blocking. '+
   'Mock native backend; not browser/IndexedDB integration.');
 })().catch(error=>{console.error(error);process.exit(1);});

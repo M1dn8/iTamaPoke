@@ -1,11 +1,8 @@
 const {test,expect}=require('@playwright/test');
-const fs=require('node:fs'),path=require('node:path'),os=require('node:os');
 const H=require('./helpers');
 const F=require('./mega-review-fixtures');
 const T=require('../../../browser_ver/web/storage-tools.js');
-const directory=process.env.TP_MEGA_REVIEW_SAVES?
- path.resolve(process.env.TP_MEGA_REVIEW_SAVES):
- path.join(os.homedir(),'Downloads','iTamaPoke-UI01-Megareview');
+
 
 
 // UI01 Mega functional sprite fixture: isolated tests only, not Pokémon artwork.
@@ -22,9 +19,9 @@ async function importFunctionalMegaSprite(page,definition){
 
 for(const definition of F.definitions){
  test('Mega-Review: '+definition.name,async({page})=>{
-  const stored=await T.decode(fs.readFileSync(path.join(directory,definition.name+'.tpsave')));
-  expect(stored.values.get('dexn').value).toBe(definition.dex);
   const decoded=await F.createFreshCase(definition);
+  expect(decoded.values.get('dexn').value).toBe(definition.dex);
+  expect(Buffer.isBuffer(decoded.raw)).toBe(true);
   await H.prepare(page,decoded.raw,definition.dex);
   await importFunctionalMegaSprite(page,definition);
   const root=await H.openStatus(page);
@@ -84,9 +81,9 @@ for(const definition of F.definitions){
 
 test('Mega-Grafikschutz bleibt ohne Funktionsgrafik wirksam',async({page})=>{
  const definition=F.definitions[1];
- const stored=await T.decode(fs.readFileSync(path.join(directory,definition.name+'.tpsave')));
-  expect(stored.values.get('dexn').value).toBe(definition.dex);
   const decoded=await F.createFreshCase(definition);
+  expect(decoded.values.get('dexn').value).toBe(definition.dex);
+  expect(Buffer.isBuffer(decoded.raw)).toBe(true);
  await H.prepare(page,decoded.raw,definition.dex);
  const root=await H.openStatus(page);
  await root.locator('.tp-status-portrait [data-status-mega]').click();

@@ -1,3 +1,16 @@
+## P07 — Planungsgrundlage freigegeben
+
+<!-- P07-PLAN-FREIGEGEBEN-20261105 -->
+Nutzerfreigabe: 05.11.2026, 23:13 CET.
+UI01 abgenommen. Nächstes Paket: Legendären-Geschichten Johto.
+Teilfolge: P07a Suicune, P07b Raikou/Entei, P07c Lugia/Ho-Oh,
+P07d Celebi und Abschluss.
+Storyideen und Gestaltungsrichtung angenommen; konkrete Regeln und
+Geschichten morgen finalisieren. Keine Umsetzung bereits behaupten.
+Verbindliche Details: [P07-UEBERGABE.de.md](P07-UEBERGABE.de.md).
+
+---
+
 ## UI01 abgenommen — 05.11.2026, 23:06 CET
 
 <!-- UI01-ABGENOMMEN-20261105 -->
@@ -180,7 +193,7 @@ Stand: 01.11.2026, 17:53 CET
 | P05c | Team in Ligakämpfen | Abgenommen |
 | P06 | Legendären-Geschichten Kanto | Abgeschlossen einschließlich iPhone-Abnahme |
 | UI01 | Oberfläche, Navigation und Canvas-/Kartenbereinigung | Abgenommen am 05.11.2026; Build und iPhone bestätigt |
-| P07 | Legendären-Geschichten Johto | Offen; erst nach UI01 |
+| P07 | Legendären-Geschichten Johto | Planungsgrundlage freigegeben am 05.11.2026; Start mit P07a/Suicune; Umsetzung offen |
 | P08 | Weitere Mega-Entwicklungen | Offen; Ausbauumfang festlegen |
 | P09 | Weitere Ligen | Offen; regionalen Umfang festlegen |
 | P10 | Dynamax/Gigadynamax | Konzept offen |

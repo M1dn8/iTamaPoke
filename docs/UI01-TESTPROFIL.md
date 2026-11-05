@@ -38,3 +38,7 @@ geschützten Pflegeplatz, Kapazität, Reload und rücknehmbare Schreibfehler.
 - Liga-Pflichtwechsel: ein gezielter Fall in WebKit.
 - Erwartete Fallzahlen bleiben verbindlich; keine stillen Auslassungen.
 - Automatische Funktionsnachweise ersetzen keine iPhone-Sichtabnahme.
+
+## Abnahme vom 05.11.2026
+
+Nutzer bestätigt grünen GitHub-Build und iPhone-Abnahme einschließlich Grafiken, Wildfang und Pflichtwechsel in Arena/Liga. UI01 im vereinbarten Umfang abgenommen. Keine zusätzliche optionale Gesamtregression daraus behaupten.

@@ -1,188 +1,157 @@
-# UI01 — aktuelle Übergabe
+# UI01 — verbindlicher Veröffentlichungsstand
 
-<!-- UI01-ABSCHLUSSMODUS-20261103-1920 -->
-## Verbindlicher Abschlussmodus UI01 — 03.11.2026, 19:20 CET
+## Veröffentlichungsstand UI01 — 05.11.2026
 
-- Nutzer gibt Aufräumen, Abschlussabgleich und Vorbereitung der Prüf-/Veröffentlichungsphase frei.
-- Ausdrücklich abgeschlossen: Pokédex-Zugang im Ruhemodus, Ehrenei-Auswahl,
-  Mega-Ansichtsreview und Kartenbereinigung.
-- Sicherungsseite einschließlich bildhafter Infoansicht am 03.11.2026 um
-  18:53 CET vom Nutzer gestalterisch abgenommen.
-- Bereits bestätigte Bestand-, Diagnose- und Quellenansichten nicht neu gestalten.
-- Entwicklungsprüfung: 1025 interne Arten, 484 Regelverbindungen,
-  keine fehlenden/zusätzlichen Verbindungen gegenüber den internen Artendaten.
-- Nativer Bindungs-Verhaltenstest: 24 Prüfungen bestanden.
-- Anschließender isolierter Web-App-Bindungstest vom Nutzer als bestanden gemeldet.
-- Frühere Handybeobachtung aktuell nicht reproduzierbar. Bei Wiederauftreten
-  konkreten Speicherstand prüfen; keine Bindungs-/Entwicklungsgrenzen auf Verdacht ändern.
-- Entwicklungsanzeige „aktueller Wert / 0“ als separaten bekannten
-  Darstellungsbefund führen; vor Abschluss ausdrücklich entscheiden beziehungsweise korrigieren.
-- Ab jetzt Umfang einfrieren: keine neuen Funktionen und keine neuen Gestaltungsvarianten.
-- Nur nachgewiesene Restfehler, sichere Bereinigung und Abschlussprüfungen bearbeiten.
-- Historische Planvermerke und unverbindliche Ideen nicht erneut als offene Pflichtaufgaben behandeln.
-- Noch nicht behaupten: vollständige Abschlussprüfung, neuer Veröffentlichungsstand
-  oder abschließende iPhone-Abnahme.
-- Nächster Schritt: Inventurergebnis auswerten, notwendige Bereinigung festlegen,
-  danach vorhandene Gesamtprüfungen und Veröffentlichung vorbereiten.
-- Kein automatischer Commit/Push; P07 bleibt zurückgestellt.
+<!-- UI01-VEROEFFENTLICHUNGSSTAND-20261105 -->
+Dokumentiert: 2026-11-05T22:46:26+01:00
 
+### Lokal bestätigt
+- Fangabschluss und Wiederaufnahme: vier Browserfälle in Chromium/WebKit bestanden.
+- Offene Aufnahme nach Reload nutzt die bestehende Gerätehülle.
+- Aufnahme genau einmal; Team/Pflegeidentität erhalten; Weiter wieder erreichbar.
+- Arena-Sechserteam: acht Fälle in Kanto/Johto und Chromium/WebKit bestanden.
+- Frischer Liga-Team-Pflichtwechsel in WebKit bestanden.
+- Kanto-Variantenanzeige: acht Fälle für Masken 0, 1, 3 und 7 bestanden.
+- Variantenanzeige liest gespeicherte Nachweise; Mew-Regeln nicht geändert.
+- Nutzer bestätigt Grafikpakete erstellt und auf dem iPhone importiert.
+- Neue gezielte Browsergruppen sind in der verbindlichen Freigabeauswahl.
+- Kurze Syntax-/Vertrags-/Erfassungsprüfung für diesen Veröffentlichungsstand bestanden.
 
-/* UI01 assets revision 2: concise overview and explained list export */
-## Aktuell — Bestandsrevision 2 zur Prüfung
+### Veröffentlichung und Abnahme
+- Dieser Stand wird für Commit/Push vorbereitet.
+- Neuer GitHub-Lauf und Deployment sind noch separat zu bestätigen.
+- Kein vollständiger lokaler Browser- oder Native-Gesamtlauf wiederholt.
+- Keine vollständige iPhone- oder UI01-Gesamtabnahme behaupten.
+- P07 bleibt bis zum UI01-Abschluss zurückgestellt.
 
-- Stand: 03.11.2026, Freigabe der Korrekturrunde um 16:14 CET.
-- Bestandsseite weiterhin NICHT manuell abgenommen.
-- Korrekturen: Titelunterlage, erklärter Listenexport, kurze Hinweis-Seiten,
-  kompakte Grafikübersicht.
-- Technische Prüfung und Sichtprüfung dieser neuen Revision noch offen.
-- Vorherige Backendfunktionen, Importoption und Exportinhalt erhalten.
-- Nächster Schritt nach bestandenem Lauf: im bestehenden Review r,
-  Bestand öffnen und gezielt diese Korrekturen ansehen.
-- Danach erst Diagnose, Quellen & Nutzungsrechte und Sicherungen bearbeiten.
-- Frühere gesicherte Zwischenstände darunter bleiben historische Ausgangslage.
+### Verbleibender gezielter iPhone-Abgleich nach Veröffentlichung
+1. Erfolgreicher Fang mit vollem Team: Entscheidung, Boxablage und Weiter.
+2. Offene Aufnahme nach vollständigem Schließen/Neustart: aktuelle Hülle,
+   bedienbare Entscheidung und keine doppelte Aufnahme.
+3. Kanto-Variantenanzeige sowie Liga-/Top-Vier-Grafiken sichtbar prüfen.
+4. Ursprünglichen Pflegeabgleich Metagross/Aerodactyl und Liga-Abbruch
+   bei Wiederauftreten mit konkretem Spielstand eingrenzen.
+   Nicht allein wegen grüner frischer Testteams als behoben markieren.
 
+Bestätigte Gestaltung erhalten. Keine Originalmedien oder echten Spielstände
+zurücksetzen; Grafikpakete bleiben außerhalb des Repositorys.
 
-<!-- UI01-CHECKPOINT-20261102-ASSETS-NOT-ACCEPTED -->
-## Aktuell — Bestandsseite technisch geprüft, noch nicht sichtbar abgenommen
+## Historie — vorheriger lokaler Abschlussabgleich
 
-- Nutzer bestätigt am 02.11.2026 um 22:44 CET bestandenen gezielten Lauf.
-- Neue Bestandsseite ausdrücklich noch NICHT manuell abgenommen.
-- Morgen genau dort im bestehenden Review fortsetzen.
-- Keine neue Gestaltungsrichtung ohne Nutzerfeedback annehmen.
-- Verbindlicher detaillierter Wiedereinstieg:
-  oberster aktueller Abschnitt in docs/WEITERARBEITEN.de.md.
-- Danach verbleiben Diagnose, Quellen & Nutzungsrechte und Sicherungen.
-- Rufe/Texte, Hauptleisten-Vergleich und weitere UI01-Abschlussrestpunkte bleiben offen.
-- Lokale Sicherung: /Users/M1dn8/Downloads/iTamaPoke-Fortsetzung-20261102-224752-429971
-- Keine UI01-Gesamtfreigabe, kein P07-Start, kein Commit/Push.
+# UI01 — verbindliche Übergabe
 
+## Aktueller Abschlussabgleich UI01 — 05.11.2026
 
-<!-- UI01-ADMIN-FOUR-REMAINING-20261102 -->
-## Aktuell — Vier Verwaltungsunterseiten
+<!-- UI01-ABSCHLUSSABGLEICH-20261105 -->
+Dokumentiert: 2026-11-05T22:03:26+01:00
+Basis-HEAD: b62b538fb12e5f654d747a46d5573c8e3ee96dcd
 
-- Dateikachel-/Menüprüfungen vom Nutzer als bestanden bestätigt.
-- Schritt 3 fortsetzen: Bestand, Diagnose, Quellen & Nutzungsrechte, Sicherungen.
-- Nächste konkrete Oberfläche: Bestand.
-- Vor Änderung aktuelle Anzeigefunktionen und Dialogbesitzer lesen.
-- Bestehende Import-/Speicherwege und Schutzprüfungen erhalten.
-- Detaillierter Wiedereinstieg in docs/WEITERARBEITEN.de.md.
+### Bestätigte Ergebnisse dieser Sitzung
+- Fang-Aufnahmereihenfolge: Fehler am alten Code reproduziert, Korrektur geprüft.
+- Rückgabe nach Aufnahme: Neuzeichnung der Kampfknöpfe abgesichert.
+- Vier Fang-Browserfälle in Chromium/WebKit bestanden:
+  volles Team, verzögerte Speicherung, Boxentscheidung, Weiter,
+  offene Aufnahme nach Reload und genau einmalige Ablage.
+- Acht Arena-Sechserteam-Fälle in Kanto/Johto und Chromium/WebKit bestanden:
+  alle Mitglieder auswählbar, Pflichtwechsel ohne Extrazug,
+  besiegtes Mitglied gesperrt, Fortsetzung gegen nächsten Gegner.
+- Frischer Liga-Team-Pflichtwechsel in WebKit bestanden.
+- Keine zusätzliche Team-Erweiterung für Wild- oder normale Trainerkämpfe beschlossen.
+- Arena-Kampflogik nicht neu implementiert; vorhandenen Sechserteam-Pfad geprüft.
+- Änderungen dieser Sitzung noch nicht veröffentlicht.
 
+### Verbindliche Restreihenfolge
+1. Aufnahme-Wiederansicht nach Reload an die bestehende UI01-Gerätehülle anschließen.
+   Funktionsnachweis ist keine sichtbare Abnahme dieser Wiederansicht.
+2. Pflegeabgleich Metagross/Aerodactyl und ursprünglichen Liga-Befund gezielt klären.
+   Keine Spielstandidentitäten oder alten Läufe auf Verdacht verändern.
+3. Grafikpaketwerkzeug an die vollständige bestehende Trainerregistrierung anbinden.
+   Danach vorhandene echte BINs außerhalb des Repositorys neu verpacken.
+4. Gezielte restliche Sichtprüfung, Veröffentlichung über das Releaseprofil,
+   anschließend iPhone-Prüfung von Fang, Wiederaufnahme und Liga-/Top-Vier-Grafiken.
+5. UI01 erst nach Klärung beziehungsweise ausdrücklicher Entscheidung über die
+   verbleibenden Befunde abschließen. P07 bleibt zurückgestellt.
 
-<!-- UI01-STEP2-ACCEPTED-MAIN-ICON-IDEA-20261102 -->
-## Aktuell — Schritt 3: Verwaltung und Einstellungen
+### Freigabe und Arbeitsweise
+- Neue Fang-, Arena-Sechserteam- und Liga-Pflichtwechselgruppen in Releaseauswahl.
+- Native-/Speicher-/Medien- und Kandidatenschutz unverändert.
+- Kein zusätzlicher vollständiger lokaler Browser- und Native-Gesamtlauf.
+- Erweiterte Gesamtregression bleibt ausdrücklich separat und manuell.
+- Bestehenden Revisionsbrowser und dessen gespeichertes Profil verwenden.
+- Keine Originalmedien, Spielstände oder bisherigen Sicherungen überschreiben.
+- Bereits bestätigte Gestaltungen nicht erneut bearbeiten.
 
-- Schritt 2 am 02.11.2026 um 22:00 CET vom Nutzer abgenommen.
-- Seitliche Idle-Wischzugänge entfernt; Zentrale im Schlaf erreichbar.
-- Jetzt bestehendes herunterwischbares Verwaltungsmenü/Einstellungen gestalten.
-- Funktionen, Rückwege und Schutzbestätigungen erhalten.
-- Hauptleisten-Idee als offener UI01-Restpunkt im Projektplan gesichert.
-- Keine Haupticon-Positionen geändert und keine neue Funktion freigegeben.
-- Verbindliche Details: docs/WEITERARBEITEN.de.md.
+## Historie — gesicherte Übergabe vom 03.11.2026
 
+# UI01 — verbindliche Übergabe nach dem Tagesabschluss
 
-<!-- UI01-CLOSEOUT-20261102-MEGA-ACCEPTED -->
-## Aktuell — Mega-Abnahme und nächste UI01-Schritte
+Nutzerstand: 03.11.2026, 23:06 CET.
+Dokumentiert: 2026-11-03T23:11:07+01:00
+Branch: main
+Quell-HEAD vor dem Dokumentationsabschluss: b62b538fb12e5f654d747a46d5573c8e3ee96dcd
 
-- Mega-Revision 2 am 02.11.2026 um 21:40 CET technisch und visuell bestätigt.
-- Detaillierter Wiedereinstieg: oberster aktueller Abschnitt in
-  docs/WEITERARBEITEN.de.md.
-- Reihenfolge freigegeben:
-  1. Abnahme dokumentieren.
-  2. Horizontale Hauptbildschirm-Gesten entfernen und Ruhemodus-Zentralenzugang.
-  3. Bestehendes Verwaltungsmenü und Einstellungen gestalterisch angleichen.
-  4. UI01-Restpunkte und Abschlussprüfungen abgleichen.
-- Jetzt Schritt 1 dokumentieren und Anschlussstellen für Schritt 2 lesen.
-- Noch keine Gameplay-/Gestenänderung und keine UI01-Gesamtfreigabe.
-- Kein Commit, Push oder P07-Start.
+## Bestätigt
+- Nutzer meldet GitHub grün.
+- Erste iPhone-Prüfung positiv: geprüfte Funktionen und Grafiken funktionieren.
+- Keine vollständige iPhone- oder UI01-Gesamtabnahme daraus ableiten.
+- Heute keine weiteren Tests, Änderungen oder Paketarbeiten.
 
+## Priorität 1: Pflege-/Sammlungsabgleich untersuchen
+Nutzerbeobachtung:
+Das vorherige Metagross musste in der Box angetippt werden.
+Daraufhin wurde es durch das aktuelle Aerodactyl ersetzt.
+Erst anschließend konnten Wildkämpfe gestartet werden.
 
-## Aktuell — Zeitaktueller Mega-Review vom 02.11.2026
+- Ursache unbekannt; nicht als behoben markieren.
+- Mögliche veraltete Pflege-/Sammlungszuordnung nur als Arbeitshypothese führen.
+- Nicht pauschal auf Grafikcache, Migration oder Bedienfehler festlegen.
+- Bei erneutem Auftreten den Zustand vor dem Boxen-Workaround sichern.
+- Keine echten Individuen löschen, austauschen oder Identitäten auf Verdacht korrigieren.
+- Zuerst native aktuelle Pflege, Sammlungs-ID, Team und Startschutz vergleichen.
+- Anschlussstellen: collection-model.js, collection-lifecycle.js,
+  collection-boxes.js und wild-team.js.
+- Vorhandene Testhelfer setzen den Pflegezustand ausdrücklich auf;
+  das ersetzt keinen Nachweis für einen übernommenen echten iPhone-Spielstand.
 
-- Verbindlicher Wiedereinstieg: docs/WEITERARBEITEN.de.md.
-- Vorabendprüfungen bestanden; heutige Vorbereitung getrennt behandeln.
-- Neue Mega-Ausgangsstände: /Users/M1dn8/Downloads/iTamaPoke-UI01-Megareview-20261102
-- Bestehenden Runner und gespeichertes Browserprofil weiterverwenden.
-- Profilgrafiken nur lesen und melden, nichts ersetzen.
-- Zentrierungs-Sichtbestätigung und manuelle Mega-Abnahme offen.
+## Priorität 2: private Grafikpakete
+- Aus allen verfügbaren echten Grafik-BINs wieder Importpakete zusammenstellen.
+- Bestehendes Paketformat und vorhandene Werkzeuge wiederverwenden.
+- Zuerst Originalbestände, Dateitypen, Namen und Dubletten abgleichen.
+- Keine synthetischen Testpixel oder Review-Fixtures als echte Grafik übernehmen.
+- Vorhandene Originale und frühere Pakete nicht überschreiben.
+- Private Medien und daraus erzeugte Pakete nicht ins öffentliche Repository übernehmen.
+- Heute noch keine Pakete erstellt; Quellordner noch nicht neu inventarisiert.
 
+## Priorität 3: iPhone-Abnahme fortsetzen
+- Einige Grafiken der Liga/Top Vier genauer prüfen.
+- Konkrete betroffene Gegner/Grafikdateien noch nicht benannt.
+- Kein pauschales Grafikproblem und keine vollständige Grafikabnahme behaupten.
+- Weitere Funktionsprüfungen bleiben offen; bereits bestätigte Gestaltung erhalten.
+- UI01 bleibt bis zum gezielten Restabgleich offen; P07 bleibt zurückgestellt.
 
-## Aktuell — Gesicherter Statusstand und Mega-Fortsetzung
+## Technischer Freigabestand
+- GitHub verwendet das begrenzte Releaseprofil.
+- Erweiterte Browserregression ist separat manuell abrufbar.
+- Native-/Speicher-/Medien- und Kandidatenschutz bleiben erhalten.
+- Browserassertionen werden in helpers.js erst bei Bedarf aus Playwright geladen.
+- Mega-Pflichtfälle erzeugen frische Fixtures und lesen keine Downloads-Spielstände.
+- Integrationsprüfungen über ihre zuständigen Vorbereitungsläufer starten:
+  nicht pauschal sämtliche *.test.js isoliert ausführen.
+- Kein erneuter lokaler Gesamtlauf ohne konkreten Anlass.
+- Fehlgeschlagene Schreibblöcke nicht wiederholen.
 
-- Verbindlicher detaillierter Wiedereinstieg: docs/WEITERARBEITEN.de.md,
-  Abschnitt „Aktuell — Gesicherter Wiedereinstieg: Status und Mega-Review“.
-- Gold-Emblem vom Nutzer angenommen; letzte Pokémon-Zentrierungskorrektur angewandt.
-- Gezielte Emblem-, Mega-, Navigations- und Statusprüfungen erfolgreich.
-- Echte Mega-Grafikprüfung und manuelle Mega-Seitenabnahme bleiben offen.
-- Morgen Reviewstände wegen Offlinefortschritt und Sperrzeit zeitaktuell vorbereiten.
-- Lokale Sicherung: /Users/M1dn8/Downloads/iTamaPoke-Fortsetzung-20261101-235241-785737
-- Kein Commit/Push, keine Gesamtfreigabe von UI01.
+## Arbeitsweise morgen
+1. Diese Übergabe und den kurzen Einstieg WEITERARBEITEN.de.md lesen.
+2. Bestehenden lokalen Stand und gespeicherten Revisionsbrowser erhalten.
+3. Pflege-/Sammlungsbefund gezielt eingrenzen; nicht zuerst einen Testmarathon starten.
+4. Grafikpakete aus vorhandenen Originalen vorbereiten.
+5. Liga-/Top-Vier-Grafiken und verbleibende iPhone-Punkte prüfen.
+6. Nur nachgewiesene Restfehler ändern und passende gezielte Prüfungen verwenden.
 
-## Aktuell — Wachstum im Profil, Werte mit Entwicklungszugang
-
-- Wachstum als Ring um das Pokémon im Profil, kein zusätzlicher Kachelstapel.
-- Rechte Profilgruppe zentrieren.
-- Werte rechts: Trainingsszene und antippbare Entwicklungskachel.
-- Vorhandene Entwicklungsansicht verwenden; zurück zu Werte.
-- Tests und Sichtabnahme dieser Runde noch offen.
-
-## Aktuell — Namensänderung innerhalb des Profils
-
-- Separate Umbenennungsseite wurde vom Nutzer abgelehnt.
-- Jetzt rechter Profilbereich als Inline-Eingabe mit Übernehmen.
-- Links unverändert bis zur erfolgreichen Speicherung.
-- Tests und Sichtabnahme dieser Runde offen.
-- Danach Werte gemeinsam besprechen, vor Heute und Erfolge.
-
-
-## Aktuelle Reihenfolge — Umbenennung und Werte
-
-- Jetzt Umbenennung mit Systemtastatur als Prototyp prüfen.
-- Danach Werte erneut gemeinsam besprechen.
-- Anschließend Heute und Erfolge, danach alte Kartenzugänge/Mega-Einbindung.
-- Mega-Idee: Profil als Einstieg, Werte als Anzeige der tatsächlichen Wirkung.
-- Umbenennung und gesamte Statusseite noch nicht abschließend abgenommen.
-
-
-## Aktueller Profilreview — Aufteilung ohne Scrollen
-
-- Aktuell: Profil mit Alter/Pflegeserie links und Wesen/Bindung/Beere rechts.
-- Stift direkt rechts neben dem Pokémonnamen links; Pflegepatzer rechts neben Beere. Wesensdetails bleiben erhalten.
-- Tests und Sichtabnahme dieser Runde offen.
-- Danach Werte beurteilen; Heute und Erfolge noch nicht neu gestaltet.
-
-
-## Aktueller Detailreview — Profil und Werte
-
-- Freigegeben: Profil rechts und Werte überarbeiten.
-- Profil links unverändert; Werte links nur Balkenfarben.
-- Rechts bildhafte Plaketten statt bloßer Textfolge.
-- Heute und Erfolge bleiben zunächst unverändert.
-- Prototyp und diese Detailrunde noch nicht sichtbar abgenommen.
-- Nach Prüfung zuerst diese Runde beurteilen, dann Heute und Erfolge angehen.
-
-
-Stand: 01.11.2026, 18:15 CET
-
-## Genau hier fortsetzen
-Statusseite mit Profil, Werte, Heute und Erfolge.
-
-Der erste Entwurf ist vorhanden, aber noch nicht abgenommen.
-Nutzer möchte nach der Pause Gestaltung, Bedienung und Informationen
-gemeinsam nacharbeiten. Keine konkreten Detailänderungen vorwegnehmen.
-
-## Einstieg
-docs/WEITERARBEITEN.de.md
-
-Dort stehen der aktuelle technische Stand, Prüfstatus, Arbeitsregeln,
-Review-Aufruf und Quellfingerabdruck für einen kurzen Standvergleich.
-
-## Erhalten
-- Ehrenei, Spieleauswahl und Expedition sind lokal abgenommen.
-- Andere abgenommene Ansichten nicht nebenbei verändern.
-- UI01 bleibt aktiv; kein P07, kein Commit/Push ohne gesonderte Freigabe.
-- Vollständige Browserregression und nativer Paketabschluss weiterhin offen.
-
-## Historie
-Vollständige ältere Dokumentation: docs/archive/
-Zusätzliche lokale Sicherung dieser Pause:
-/Users/M1dn8/Downloads/iTamaPoke-Status-Pause-20261101-181521
+## Sicherungsgrenzen
+Die lokale Tagesabschlusssicherung enthält Quellstand, Git-Differenzen,
+Prüfsummen und diese Übergabe.
+Sie ist kein vollständiges Backup ignorierter Medien, Browserprofile,
+installierter Abhängigkeiten oder des iPhone-Spielstands.
+Es wurden keine Spielstände exportiert, Medien gelöscht oder Profile zurückgesetzt.
+Dieser Abschluss führt weder Tests noch Commit, Push oder Veröffentlichung aus.

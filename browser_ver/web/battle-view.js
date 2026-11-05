@@ -528,8 +528,21 @@ window.TPBattleView=Object.freeze({draw,drawStandard,tapStandard,drawLeague:(v,e
    root.TPLeague.state.index===savedIndex&&!root.TPLeague.state.live&&
    savedOwner?.getAttribute('data-league-view')==='victory';
  }
+
+ // UI01 admission recovery device
+ let admissionRecovery=false,recoveryTicket=null;
+ function recoveryAlive(){
+  if(!admissionRecovery||owner!==Module||!root.TPAdmissionUI?.active||
+     !['idle','card','settings'].includes(game()))return false;
+  try{
+   return root.TPAdmission?.read()?.pending?.ticket===recoveryTicket;
+  }catch(_){return false;}
+ }
+
  function restoreAdmission(){
+   admissionRecovery=false;recoveryTicket=null;
   if(admissionPage){
+    key=''; // Rebuild controls after admission.
    admissionPage.inert=false;
    if(admissionPage.parentNode===content)host.append(admissionPage);
   }
@@ -579,10 +592,10 @@ window.TPBattleView=Object.freeze({draw,drawStandard,tapStandard,drawLeague:(v,e
 
   function watch(){
    if(!page.hidden){
-    if(!live(model)&&!savedAlive())hide();
+    if(!live(model)&&!savedAlive()&&!recoveryAlive())hide();
     else{
      measure();
-     if(root.TPAdmissionUI?.active&&game()==='battle'){
+     if(root.TPAdmissionUI?.active&&(game()==='battle'||recoveryAlive())){
       const p=document.getElementById('tp-admission-page');
       if(p){
        let mon=null;
@@ -740,11 +753,11 @@ window.TPBattleView=Object.freeze({draw,drawStandard,tapStandard,drawLeague:(v,e
  }
 
  function paint(){
-  if(!scene||!buffer)return;
+  if(!scene||(!buffer&&!admissionRecovery))return;
   const p=scene.getContext('2d'),w=scene.width,h=scene.height;
   p.clearRect(0,0,w,h);p.imageSmoothingEnabled=false;
   const cap=root.TPBattleView?.capture;
-  const mon=cap?.committed&&cap.success?(incoming||preview):null;
+  const mon=admissionRecovery?incoming:cap?.committed&&cap.success?(incoming||preview):null;
   if(mon){
    scene.setAttribute('data-caught-dex',String(mon.dex));
    scene.setAttribute('data-battle-paint','caught');
@@ -963,7 +976,39 @@ window.TPBattleView=Object.freeze({draw,drawStandard,tapStandard,drawLeague:(v,e
  let admissionQueued=false,admissionBack=null,admissionBox=null;
 
  function admission(element,mon){
-  if(!page||page.hidden||game()!=='battle'||model?.mode!=='wild')return false;
+  if(game()!=='battle'){
+    if(!root.TPAdmissionUI?.active||
+       !['idle','card','settings'].includes(game())||
+       typeof Module==='undefined'||!Module)return false;
+    let pending;
+    try{pending=root.TPAdmission?.read()?.pending;}catch(_){return false;}
+    if(!pending?.pokemon||!Number.isInteger(pending.pokemon.dex))return false;
+    mon=pending.pokemon;
+    const fresh=!admissionRecovery||recoveryTicket!==pending.ticket||owner!==Module;
+    if(!ensure())return false;
+    if(fresh){
+     restoreAdmission();
+     owner=Module;model=null;
+     admissionRecovery=true;recoveryTicket=pending.ticket;
+     battleTeamThumbs=[];key='';
+     page.querySelector('.tp-battle-frame-back-slot').replaceChildren();
+     page.querySelector('.tp-battle-frame-box-slot').replaceChildren();
+    }
+    page.hidden=false;
+    host.setAttribute('data-battle-device','true');
+    page.setAttribute('data-battle-state','admission');
+    page.setAttribute('data-battle-mode','admission');
+    page.setAttribute('data-battle-menu','admission');
+    page.removeAttribute('data-league-view');
+    const title=root.TPAdmissionText.t('title');
+    page.setAttribute('aria-label',title);
+    page.querySelector('.tp-battle-frame-title').textContent=title;
+    page.querySelector('.tp-battle-frame-menu').textContent=title;
+    summary.textContent=root.TPAdmissionText.t('member',{
+     name:mon.nickname||fns.dexName(mon.dex),level:mon.level
+    });
+    detail.textContent='';
+   }else if(!page||page.hidden||model?.mode!=='wild')return false;
   admissionPage=element;if(mon)incoming=mon;
   page.setAttribute('data-battle-admission','true');
   if(element.parentNode!==content){

@@ -2,16 +2,46 @@
 """Create local size-bounded graphics .bin packages from your own asset folder.
 No downloads, artwork distribution, source changes or game-save access.
 """
-import argparse,hashlib,json,os,re,shutil,struct,subprocess,sys,uuid
+import argparse,ast,hashlib,json,os,re,shutil,struct,subprocess,sys,uuid
 from pathlib import Path
 from datetime import datetime,timezone
 HEADER=64;MAX_ENTRY=16*1048576;MAX_COUNT=4096;MAX_MANIFEST=1048576
 LEADERS=('rocko','misty','major-bob','erika','koga','sabrina','pyro','giovanni')
+
+# UI01 full trainer registry
+def registered_trainer_names():
+ registry=Path(__file__).resolve().parents[1]/'pack-trainer-bin.py'
+ tree=ast.parse(registry.read_text(encoding='utf-8'),filename=str(registry))
+ values={}
+ for node in tree.body:
+  if isinstance(node,ast.Assign):
+   for target in node.targets:
+    if isinstance(target,ast.Name) and target.id in ('IDS','EXTRA'):
+     if target.id in values:
+      raise RuntimeError('Doppelte Trainerregistrierung: '+target.id)
+     values[target.id]=ast.literal_eval(node.value)
+ if set(values)!=set(('IDS','EXTRA')):
+  raise RuntimeError('Vorhandene Trainerregistrierung unvollstaendig')
+ for group in values.values():
+  if not isinstance(group,list) or any(
+   not isinstance(value,str) or not re.fullmatch(r'[a-z0-9-]+',value)
+   for value in group
+  ):
+   raise RuntimeError('Trainerregistrierung ungueltig')
+ ids=values['IDS']+values['EXTRA']
+ if len(ids)!=len(set(ids)):
+  raise RuntimeError('Doppelte Trainerkennung')
+ return frozenset(
+  ['trainer-kanto-'+value+'.bin' for value in values['IDS']]+
+  ['trainer-'+value+'.bin' for value in values['EXTRA']]
+ )
+
+TRAINER_NAMES=registered_trainer_names()
+
 def canonical(name):
  name=name.lower()
  if name=='thumbs.bin':return name
- m=re.fullmatch(r'trainer-kanto-('+ '|'.join(LEADERS)+r')\.bin',name)
- if m:return name
+ if name in TRAINER_NAMES:return name
  m=re.fullmatch(r'(p|ps)(\d{1,4})(-mega(?:-x)?)?\.bin',name)
  if not m:return None
  prefix,number,form=m.groups();dex=int(number)

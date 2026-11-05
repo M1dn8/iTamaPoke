@@ -1,3 +1,15 @@
+# Aktuell verbindlich: UI01-Releaseprofil
+
+<!-- UI01-ABSCHLUSSABGLEICH-20261105 -->
+Die am 03.11.2026 vereinbarte Releaseauswahl gilt für den UI01-Abschluss.
+Lokal nur unmittelbar betroffene Prüfungen; der verbindliche Freigabelauf
+läuft auf GitHub. Kein verpflichtender doppelter lokaler Gesamtlauf.
+Maßgeblich sind docs/UI01-TESTPROFIL.md und tools/quality/release-browser.cjs.
+Die nachfolgenden älteren Gesamtlauf-Vorgaben gelten nicht entgegen dieser
+späteren UI01-Entscheidung. Integrationsprüfungen behalten ihre Vorbereitungsläufer.
+
+---
+
 # Gestufte Testschleife nach dem UI-Review
 
 ## Verbindliche Reihenfolge

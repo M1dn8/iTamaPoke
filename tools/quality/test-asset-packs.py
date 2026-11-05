@@ -1,8 +1,85 @@
 #!/usr/bin/env python3
-import base64,hashlib,importlib.util,json,re,struct,subprocess,sys,tempfile
+import base64,hashlib,importlib.util,json,re,struct,subprocess,sys,tempfile,zlib
 sys.dont_write_bytecode=True
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
+
+def check_registered_trainers(producer):
+ spec=importlib.util.spec_from_file_location(
+  'trainer_registry_test',ROOT/'tools/pack-trainer-bin.py'
+ )
+ trainer=importlib.util.module_from_spec(spec)
+ spec.loader.exec_module(trainer)
+ def chunk(kind,data):
+  return (
+   struct.pack('>I',len(data))+kind+data+
+   struct.pack('>I',zlib.crc32(kind+data)&0xffffffff)
+  )
+ png=(
+  b'\x89PNG\r\n\x1a\n'+
+  chunk(b'IHDR',struct.pack('>IIBBBBB',1,1,8,6,0,0,0))+
+  chunk(b'IDAT',zlib.compress(bytes([0,70,120,90,255])))+
+  chunk(b'IEND',b'')
+ )
+ with tempfile.TemporaryDirectory(prefix='all-trainer-pack-test-') as td:
+  root=Path(td)
+  source=root/'synthetic-trainers'
+  source.mkdir()
+  keys=[]
+  for leader in trainer.ALL_IDS:
+   key=(
+    'trainer-kanto-'+leader+'.bin'
+    if leader in trainer.IDS else 'trainer-'+leader+'.bin'
+   )
+   assert producer.canonical(key)==key
+   assert producer.canonical(key.upper())==key
+   keys.append(key)
+   (source/key).write_bytes(trainer.build(leader,png,{
+    'author':'Synthetic registry test',
+    'source':'https://example.invalid/fixture',
+    'license':'Fixture only',
+    'changes':''
+   }))
+  assert producer.canonical('trainer-kanto-unbekannt.bin') is None
+  assert producer.canonical('../trainer-kanto-rocko.bin') is None
+  assert producer.canonical('trainer-johto-unknown.bin') is None
+  output,report=producer.build(source,root/'output')
+  assert report['files']==len(keys)
+  assert report['ignored_bin_names']==0
+  assert len(report['packages'])==1
+  script=r"""
+const assert=require('node:assert/strict'),fs=require('node:fs');
+global.crypto=require('node:crypto').webcrypto;
+global.TPStoreTools=require('./browser_ver/web/storage-tools.js');
+const A=global.TPTrainerArt=require('./browser_ver/web/trainer-art.js');
+const P=require('./browser_ver/web/asset-packs.js');
+(async()=>{
+ const bytes=fs.readFileSync(process.argv[1]);
+ const pack={
+  name:'grafikpaket-001.bin',size:bytes.length,
+  slice:(a,z)=>new Blob([bytes.subarray(a,z)])
+ };
+ const result=await P.prepare([pack]);
+ assert.equal(result.files.length,Number(process.argv[2]));
+ const seen=[];
+ for(const file of result.files){
+  const entry=A.canonical(file.name);
+  assert(entry,'App must accept '+file.name);
+  const decoded=await A.inspect(await file.arrayBuffer(),entry.leader);
+  assert.equal(decoded.key,file.name);
+  seen.push(file.name);
+ }
+ assert.deepEqual(seen.sort(),A.entries.map(entry=>entry.key).sort());
+ console.log('All registered trainer portraits passed producer -> actual package reader -> TPTR/PNG/hash validation.');
+})().catch(error=>{console.error(error);process.exit(1);});
+"""
+  package=output/report['packages'][0]['name']
+  subprocess.run(
+   ['node','-e',script,str(package),str(len(keys))],
+   cwd=ROOT,check=True
+  )
+ print('Trainer registry package coverage:',len(trainer.ALL_IDS),'entries.')
+
 def main():
  # Private asset packages must never enter the publishable web tree.
  for asset in (ROOT/'browser_ver/web').rglob('*.bin'):
@@ -37,6 +114,7 @@ def main():
   # Cross-language parity through the actual JS bundle reader, not only a second encoder.
   script="const fs=require('fs');global.crypto=require('crypto').webcrypto;global.TPStoreTools=require('./browser_ver/web/storage-tools.js');global.TPTrainerArt=require('./browser_ver/web/trainer-art.js');const P=require('./browser_ver/web/asset-packs.js');const b=fs.readFileSync(process.argv[1]);P.prepare([{name:'grafikpaket-001.bin',size:b.length,slice:(a,z)=>new Blob([b.subarray(a,z)])}]).then(async x=>{for(const f of x.files)TPStoreTools.inspectSprite(await f.arrayBuffer());console.log('Python->actual JS reader parity passed');}).catch(e=>{console.error(e);process.exit(1);});"
   subprocess.run(['node','-e',script,str(out/report['packages'][0]['name'])],cwd=ROOT,check=True)
+ check_registered_trainers(p)
  subprocess.run(['node','tests/asset-packs.test.js'],cwd=ROOT,check=True)
  print('Pack producer passed: source preservation, canonical rules, SHA/header parity, existing-output/duplicate refusal; no source artwork in tests.')
 if __name__=='__main__':main()

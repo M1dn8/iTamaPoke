@@ -6766,3 +6766,24 @@
 #tp-game-shell [data-manager-layout="saves"] .tp-saves-info-card[hidden]{
  display:none!important;
 }
+
+/* UI01 Kanto league completion indicators */
+#tp-league-page .tp-league-completed-mark{
+ position:absolute;top:2px;right:2px;z-index:1;
+ display:inline-flex;align-items:center;justify-content:center;
+ width:16px;height:16px;border:1px solid #87a482;border-radius:50%;
+ background:#e5efdf;color:#315d38;font:700 12px monospace;
+ pointer-events:none;box-sizing:border-box;
+}
+#tp-league-page [data-league-completed="false"]>.tp-league-completed-mark{
+ display:none;
+}
+#tp-league-page [data-league-completed="unknown"]>.tp-league-completed-mark{
+ background:#eee9df;color:#655d51;border-color:#a99e89;
+}
+#tp-league-page .tp-league-progress-count{
+ display:inline-flex;align-items:center;margin-inline-start:6px;
+ padding:2px 4px;border:1px solid #8b9f88;border-radius:5px;
+ background:#e5efdf;color:#315d38;font:700 10px monospace;
+ vertical-align:middle;white-space:nowrap;
+}

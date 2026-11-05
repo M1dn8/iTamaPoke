@@ -11,7 +11,11 @@ Mac-Helfer aus eigenem Grafikordner, Standard32MiB Payload je Paket, konfigurier
 Dateinamen normalisieren, unterschiedliche Duplikate verweigern. Ausgabe ausser-
 halb Git/Quellordner. Keine Downloads. Es entstehen grafikpaket-001.bin usw und
 ein lokaler JSON-Bericht. Nur Pakete aufs iPhone, nicht ins Repository/Pages.
-Unterstuetzt Normal/Shiny/Mega/Atlas und acht bestehende Kanto-Trainer-BINs.
+Unterstuetzt Normal/Shiny/Mega/Atlas und alle registrierten Trainer-BINs:
+Kanto/Johto, Top Vier, Champions und vorhandene B-Portraets.
+Die Namen stammen aus der bestehenden Trainerregistrierung; unbekannte
+Namen bleiben unzulaessig. Die Registrierung ist keine Aussage darueber,
+welche Originalgrafiken im ausgewaehlten lokalen Ordner vorhanden sind.
 
 64Byte Kopf: TPAK, u16 Version1, u16 Flags0, u32 Manifestlaenge, u32 Payload-
 laenge, u32 Eintragszahl, 32Byte Manifest-SHA256, 12Byte Null. Danach UTF8JSON

@@ -31,3 +31,10 @@ Aktuelle Navigation, Status-/Seitenlayouts, Pflegeabschluss, Boxenaktionen,
 Quellen und Speicherverhalten werden von den aktuellen Prüfungen abgedeckt.
 collection-team prüft ausschließlich die heutige Teamoberfläche,
 geschützten Pflegeplatz, Kapazität, Reload und rücknehmbare Schreibfehler.
+
+## Ergänzung vom 05.11.2026
+- Fangabschluss: zwei Fälle in Chromium und WebKit.
+- Arena-Sechserteam: vier Fälle je Browser, Kanto und Johto.
+- Liga-Pflichtwechsel: ein gezielter Fall in WebKit.
+- Erwartete Fallzahlen bleiben verbindlich; keine stillen Auslassungen.
+- Automatische Funktionsnachweise ersetzen keine iPhone-Sichtabnahme.

@@ -15,7 +15,8 @@
    !collection()?.busy&&!collection()?.blocked&&!tpSaveReplacing&&
    !root.TPArena?.busy&&!root.TPLeague?.busy&&choice==='none'&&
    (['idle','card','settings'].includes(screen)||
-    screen==='battle'&&!!fns.battleResolved()&&
+    screen==='battle'&&!root.TPBattleView?.capture?.busy&&
+     !!fns.battleResolved()&&
      !!fns.battleCatchDone()&&!!fns.battleCatchSuccess());
  }
  function node(tag,text,cls){

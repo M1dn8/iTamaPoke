@@ -28,6 +28,10 @@ const rules=[
  ['Quellen','rights-layout.spec.js','^Quellen: .*Lizenztexte.*extern',1],
  ['Lokale Sicherung','saves-layout.spec.js','^Sicherungen: vorhandene lokale Speicheraktion',1],
  ['Entwicklungsanzeige','evolution-bond-label.spec.js','^Entwicklung: keine Mindestbindung',1],
+ ['Fangabschluss','capture-admission-flow.spec.js','^UI01 Fangabschluss:',2],
+ ['Arena-Sechserteam','arena-team.spec.js','^UI01 Arena-Team6:',4],
+ ['Liga-Pflichtwechsel','league-team.spec.js','^P05c UI: forced replacement adds no turn/damage',1,['webkit-mobil']],
+ ['Kanto-Variantenfortschritt','league-variant-progress.spec.js','^UI01 Kanto-Varianten:',4],
  ['Liga-Gesamtablauf','league-flow.spec.js','.*',1,['webkit-mobil']]
 ].map(([name,file,title,count,projects=both])=>({name,file,title,count,projects}));
 

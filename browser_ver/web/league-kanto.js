@@ -157,6 +157,88 @@ function saveWin(){
   return ok;
  });
 }
+
+/* UI01 Kanto league completion indicators */
+let leagueCompletionCache=null;
+function leagueCompletionEvidence(mod){
+ try{
+  let raw;
+  if(typeof mod?._tp_region_hall_view==='function')
+   raw=mod.ccall('tp_region_hall_view','string',['number'],[0]);
+  else if(typeof mod?._tp_hall_view==='function')
+   raw=mod.ccall('tp_hall_view','string',[],[]);
+  else return {mask:null,legacy:false};
+  const hall=JSON.parse(raw);
+  if(!hall||(hall.supported!==1&&hall.supported!==true)||
+     !Number.isInteger(hall.variants)||hall.variants<0||hall.variants>7)
+   return {mask:null,legacy:false};
+  return {
+   mask:hall.variants,
+   legacy:!!hall.legacy&&hall.variants===0
+  };
+ }catch(_){return {mask:null,legacy:false};}
+}
+function leagueCompletionDecorate(){
+ if(region!==0||!leaguePage||leaguePage.hidden)return;
+ const now=Date.now();
+ if(!leagueCompletionCache||leagueCompletionCache.mod!==Module||
+    now-leagueCompletionCache.at>=250){
+  leagueCompletionCache={
+   mod:Module,at:now,value:leagueCompletionEvidence(Module)
+  };
+ }
+ const evidence=leagueCompletionCache.value;
+ const count=evidence.mask===null?null:
+  [0,1,2].filter(index=>!!(evidence.mask&(1<<index))).length;
+ const targets=Array.from(leaguePage.querySelectorAll('[data-league-variant]'))
+  .map(button=>({button,index:Number(button.getAttribute('data-league-variant'))}));
+ const selector=leaguePage.querySelector('[data-league-variants]');
+ if(selector)targets.push({button:selector,index:variant});
+
+ for(const {button,index}of targets){
+  if(!Number.isInteger(index)||index<0||index>2)continue;
+  const done=evidence.mask===null?null:!!(evidence.mask&(1<<index));
+  const status=done===null?'Abschlussdaten nicht lesbar':
+   done?'Abgeschlossen · erneut spielbar':
+   evidence.legacy?'Abschluss dieser Variante nicht nachgewiesen':'Noch offen';
+  button.setAttribute('data-league-completed',
+   done===null?'unknown':String(done));
+  button.setAttribute('aria-label',D.variants[index]+' · '+status);
+  button.setAttribute('title',D.variants[index]+' · '+status);
+  if(typeof getComputedStyle==='function'&&
+     getComputedStyle(button).position==='static')
+   button.style.position='relative';
+  let badge=button.querySelector('.tp-league-completed-mark');
+  if(!badge){
+   badge=leaguePageNode('span',undefined,'tp-league-completed-mark');
+   badge.setAttribute('aria-hidden','true');
+   button.append(badge);
+  }
+  const glyph=done===true?'✓':done===null?'?':'';
+  if(badge.textContent!==glyph)badge.textContent=glyph;
+ }
+
+ const heading=leaguePage.querySelector('h2');
+ if(heading){
+  let progress=heading.querySelector('[data-league-progress-count]');
+  if(!progress){
+   progress=leaguePageNode('small',undefined,'tp-league-progress-count');
+   progress.setAttribute('data-league-progress-count','');
+   heading.append(progress);
+  }
+  const value=count===null?'–/3':count+'/3';
+  if(progress.textContent!==value)progress.textContent=value;
+  progress.setAttribute('aria-label',count===null?
+   'Kanto-Ligaabschlüsse nicht lesbar':
+   count+' von 3 Kanto-Varianten nachgewiesen');
+  progress.setAttribute('title',evidence.legacy?
+   'Früherer Titel vorhanden, aber ohne zugeordnete Variante.':
+   count===null?'Keine geschätzten Abschlussdaten.':
+   'Drei verschiedene Varianten zählen; Wiederholungen erhöhen diesen Stand nicht.');
+ }
+}
+/* End UI01 Kanto league completion indicators */
+
 function leaguePageNode(tag,text,cls){
  const el=document.createElement(tag);
  if(text!==undefined)el.textContent=text;
@@ -860,7 +942,7 @@ function button(s,x,y,w=326,h=36,on=true){ctx.fillStyle=on?UI.white:UI.track;rou
 function heading(i){return i<4?'Top Vier · '+D.names[i]:'Champ · '+champ();}
 function team(i){return i<4?D.elite[i]:D.champions[variant];}
 function sprite(dex,x,y,form=0,shiny=false){const s=form?megaSpriteFor(shiny,form):spriteFor(dex,shiny);if(!s){text('?',x,y,34);return;}const a=s.actions[TPAct.idle];if(!a)return;const img=frameImageData(s,TPAct.idle,frameIndexAt(a,performance.now(),true));if(!img)return;frameCanvas.width=a.w;frameCanvas.height=a.h;frameCtx.putImageData(img,0,0);const z=Math.min(3,130/a.w,120/a.h);ctx.imageSmoothingEnabled=false;ctx.drawImage(frameCanvas,x-a.w*z/2,y-a.h*z,a.w*z,a.h*z);}
-function draw(){if(leaguePageDraw())return;if(window.TPHall?.active){window.TPHall.draw();return;}ctx.fillStyle='#f7efe6';ctx.fillRect(0,0,466,466);text(label()+' · Pokémon-Liga',233,30,23);if(!ready()){text(error||'Neuen WASM-Kern bauen.',233,180);button('Zurück',70,416);return;}let v;try{v=view();}catch(e){error=e.message;text(error,233,180);button('Zurück',70,416);return;}
+function draw(){if(leaguePageDraw()){leagueCompletionDecorate();return;}if(window.TPHall?.active){window.TPHall.draw();return;}ctx.fillStyle='#f7efe6';ctx.fillRect(0,0,466,466);text(label()+' · Pokémon-Liga',233,30,23);if(!ready()){text(error||'Neuen WASM-Kern bauen.',233,180);button('Zurück',70,416);return;}let v;try{v=view();}catch(e){error=e.message;text(error,233,180);button('Zurück',70,416);return;}
  if(phase==='fatal'){text(error,233,160,14,UI.barBad);button('App neu laden',70,414);return;}
  if(v.live&&window.TPBattleView){if(!v.actor){command('tp_lg_abort');phase='choose';error='Pflege-Pokemon nicht mehr passend.';return;}if(v.resolved&&v.won&&!busy&&phase!=='retry'&&phase!=='fatal')saveWin();window.TPBattleView.drawLeague(v,error,phase==='retry');return;}
  if(v.live){phase=phase==='retry'?'retry':'fight';const trainer=Math.min(4,Math.floor(v.index/5)),slot=trainer===4?v.index-20:v.index%5;text(heading(trainer)+' · '+(slot+1)+' / '+(trainer===4?6:5),233,61,15);text(fns.dexName(v.playerDex),123,88,14);text(fns.dexName(v.dex)+' · Lv. '+v.level,343,88,14);drawBattleHpBar(58,110,v.hp,v.maxHp,UI.barOK);drawBattleHpBar(278,110,v.enemyHp,v.enemyMaxHp,UI.barBad);sprite(v.playerDex,123,285,v.form,!!v.shiny);sprite(v.dex,343,285);text('Heilungen im gesamten Lauf: '+v.rests+' / 5',233,310,13);

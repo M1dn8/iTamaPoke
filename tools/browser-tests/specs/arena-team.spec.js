@@ -50,24 +50,26 @@ function arenaFixture(region){
  })]);
 }
 
-async function setup(page,{region=0,weak=false,loss=false,allWeak=false}={}){
+async function setup(page,{region=0,weak=false,loss=false,allWeak=false,count=2}={}){
+ if(!Number.isInteger(count)||count<2||count>6)
+  throw Error('Invalid arena fixture team size');
  await H.importSave(page,CF.withCare(arenaFixture(region),{
   dex:25,level:allWeak||weak?1:20,nickname:'Arena Alpha',
   weak:allWeak||weak,loss
  }),25);
  await H.game(page);
- const seed=await page.evaluate(async({weak,loss,allWeak})=>{
+ const seed=await page.evaluate(async({weak,loss,allWeak,count})=>{
   await TPCollectionGame.ensureCurrent();
   const active=TPCollection.read().active;
   const careLevel=TPCollection.read().mons.find(m=>m.id===active).level;
   const ids=[active];
-  for(let i=1;i<2;i++){
+  for(let i=1;i<count;i++){
    const fragile=allWeak||(weak&&i===0);
    const stats=loss?
     (i===0?{atk:1000,def:60,spe:1000}:{atk:1,def:1,spe:1}):
     fragile?{atk:1,def:1,spe:1}:{atk:1000,def:1000,spe:1000};
    await TPCollection.apply('catchWild',{
-    dex:25,level:loss?(i===0?20:1):fragile?1:i===0?20:30,
+    dex:count===6?[25,9,68,94,149,376][i]:25,level:loss?(i===0?20:1):fragile?1:i===0?20:30,
     nickname:i===0?'Arena Alpha':'Arena Beta',
     shiny:false,origin:'wild',
     data:{stats,genes:null,training:null}
@@ -80,21 +82,21 @@ async function setup(page,{region=0,weak=false,loss=false,allWeak=false}={}){
    if(!TPCollection.read().team.includes(id))
     await TPCollection.apply('selectTeam',id);
   const team=TPCollection.read().team;
-  if(team.length!==2||team.some((id,i)=>id!==ids[i]))
+  if(team.length!==count||team.some((id,i)=>id!==ids[i]))
    throw Error('Arena fixture roster mismatch');
   return {active,careLevel,ids};
- },{weak,loss,allWeak});
+ },{weak,loss,allWeak,count});
  await openArena(page,region);
  return seed;
 }
-async function start(page){
+async function start(page,count=2){
  await AU.challenge(page);
  await expect.poll(()=>page.evaluate(()=>screen)).toBe('battle');
  await expect.poll(()=>page.evaluate(()=>({
   team:TPArena.snapshot?.team,
   count:TPBattleView.current?.wildTeam?.count,
   busy:TPArena.busy,gate:tpSaveReplacing
- }))).toEqual({team:true,count:2,busy:false,gate:false});
+ }))).toEqual({team:true,count,busy:false,gate:false});
 }
 
 // A native opponent change precedes its next rendered Canvas frame.
@@ -477,5 +479,118 @@ for(const stage of ['prepare','entry']){
   expect(await mask(page,0)).toBe(0);
   await page.evaluate(()=>{writeSave=window.__arenaStartWrite;});
   await start(page);
+ });
+}
+
+
+// UI01 Arena-Team6 regression
+for(const region of [0,1]){
+ test(`UI01 Arena-Team6: region ${region}, all six members selectable`,
+ async({page})=>{
+  const seed=await setup(page,{region,count:6});
+  await start(page,6);
+  const initial=await page.evaluate(()=>TPArena.teamView);
+  expect(initial.members.map(m=>m.id)).toEqual(seed.ids);
+  expect(initial.members.map(m=>m.dex)).toEqual([25,9,68,94,149,376]);
+
+  await menu(page);
+  const choices=page.locator(
+   '#tp-battle-page button[data-battle-action^="member"]'
+  );
+  await expect(choices).toHaveCount(6);
+  await expect(page.locator(
+   '#tp-battle-page [data-battle-action="member0"]'
+  )).toBeDisabled();
+  for(let i=1;i<6;i++){
+   await expect(page.locator(
+    '#tp-battle-page [data-battle-action="member'+i+'"]'
+   )).toBeEnabled();
+  }
+
+  for(let i=1;i<6;i++){
+   await menu(page);
+   const before=await page.evaluate(()=>fns.battleRound());
+   await action(page,'member'+i);
+   expect(await page.evaluate(()=>TPArena.teamView.active)).toBe(i);
+   expect(await page.evaluate(()=>fns.battleRound())).toBe(before+1);
+   expect(await page.evaluate(()=>TPArena.teamView.members.map(m=>m.id)))
+    .toEqual(seed.ids);
+  }
+  expect(await page.evaluate(()=>TPCollection.read().team)).toEqual(seed.ids);
+  expect(await page.evaluate(()=>TPCollection.read().active)).toBe(seed.active);
+
+  await H.battleAction(page,'abort');
+  await expect.poll(()=>page.evaluate(()=>screen)).toBe('arena');
+  expect(await mask(page,region)).toBe(0);
+ });
+
+ test(`UI01 Arena-Team6: region ${region}, KO permits last reserve without extra turn`,
+ async({page})=>{
+  const seed=await setup(page,{region,weak:true,count:6});
+  await start(page,6);
+  // All members start with the same arena healing budget.
+  // Member 5 stays unused until the forced switch below.
+  const reserveRestBudget=await page.evaluate(()=>Module.ccall(
+   'tp_battle_rest_uses_left','number',[],[]
+  ));
+  expect(Number.isInteger(reserveRestBudget)).toBe(true);
+  expect(reserveRestBudget).toBeGreaterThan(0);
+
+  for(let i=0;i<40;i++){
+   if(await page.evaluate(()=>TPArena.teamView.needsSwitch))break;
+   await action(page,'heavy');
+  }
+  await expect.poll(()=>page.evaluate(()=>TPArena.teamView.needsSwitch))
+   .toBe(true);
+  expect(await page.evaluate(()=>TPArena.snapshot.phase)).toBe('fighting');
+  expect(await page.evaluate(()=>!!fns.battleResolved())).toBe(false);
+  expect(await page.evaluate(()=>TPArena.teamView.members[0].hp)).toBe(0);
+
+  const choices=page.locator(
+   '#tp-battle-page button[data-battle-action^="member"]'
+  );
+  await expect(choices).toHaveCount(6);
+  await expect(page.locator(
+   '#tp-battle-page [data-battle-action="member0"]'
+  )).toBeDisabled();
+  for(let i=1;i<6;i++){
+   await expect(page.locator(
+    '#tp-battle-page [data-battle-action="member'+i+'"]'
+   )).toBeEnabled();
+  }
+
+  const before=await page.evaluate(restBudget=>({
+   round:fns.battleRound(),
+   enemyHp:fns.battleEnemyHp(),
+   hp:TPArena.teamView.members[5].hp,
+   rests:restBudget
+  }),reserveRestBudget);
+  await action(page,'member5');
+  expect(await page.evaluate(()=>({
+   round:fns.battleRound(),
+   enemyHp:fns.battleEnemyHp(),
+   hp:fns.battlePlayerHp(),
+   rests:Module.ccall('tp_battle_rest_uses_left','number',[],[])
+  }))).toEqual(before);
+  expect(await page.evaluate(()=>TPArena.teamView.active)).toBe(5);
+  expect(await page.evaluate(()=>TPArena.teamView.needsSwitch)).toBe(false);
+
+  await beatCurrent(page);
+  await action(page,'next');
+  expect(await page.evaluate(()=>TPArena.snapshot.phase)).toBe('fighting');
+  expect(await page.evaluate(()=>TPArena.teamView.members[0].hp)).toBe(0);
+  expect(await page.evaluate(()=>TPArena.teamView.members.map(m=>m.id)))
+   .toEqual(seed.ids);
+
+  await menu(page);
+  await expect(page.locator(
+   '#tp-battle-page [data-battle-action="member0"]'
+  )).toBeDisabled();
+  expect(await page.evaluate(()=>TPBattleView.target('member0'))).toBe(null);
+  expect(await page.evaluate(()=>TPCollection.read().active)).toBe(seed.active);
+
+  await H.battleAction(page,'abort');
+  await expect.poll(()=>page.evaluate(()=>screen)).toBe('arena');
+  expect(await mask(page,region)).toBe(0);
  });
 }

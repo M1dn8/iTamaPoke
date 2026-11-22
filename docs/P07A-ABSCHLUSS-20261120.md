@@ -2,6 +2,26 @@
 
 ## Aktueller Freigabestand — 22.11.2026
 
+### Nachtrag — Liga-Testvorbereitung, 22.11.2026, 23:18 CET
+
+<!-- P07A-LIGA-SETUP-CI-FIX-20261122 -->
+- GitHub-Lauf für f06798e erreichte 116 bestandene Browserprüfungen.
+  WebKit-Liga-Fall scheiterte beim Testteamaufbau; 37 Fälle liefen nicht.
+- Gezielte Zustandsprüfung belegte die offene Entwicklungsentscheidung
+  choice=evolve bei ansonsten freier Sammlung.
+- Liga-Testvorbereitung lehnt die angebotene Entwicklung über den sichtbaren
+  Nein-Button ab und prüft unveränderte Art und aktive Pflege-Identität.
+- Vollständiger Bereitschaftsnachweis vor Sammlungsänderungen ergänzt.
+- Keine produktive Sperre umgangen; keine Liga-Assertion entfernt,
+  keine Timeout-Erhöhung und keine Test-Retries ergänzt.
+- Gezielter WebKit-Liga-Fall bestanden: 1 Test, 11 Sekunden Gesamtlaufzeit.
+- Bericht: itamapoke-review-Vl2cwj; zusätzlich außerhalb des Repositorys gesichert.
+- Nur Testvorbereitung geändert; Spielcode und bestätigte Gestaltung unverändert.
+- Dieser Nachtrag und die Liga-Spec bilden den nächsten Korrekturcommit.
+- Vollständiger 154er-GitHub-Nachweis, Veröffentlichung und iPhone-Abnahme offen.
+- P07b–d nicht begonnen.
+
+
 ### Nachtrag — Reviewprofil-Test, 22.11.2026, 22:46 CET
 
 <!-- P07A-REVIEWPROFIL-CI-FIX-20261122 -->

@@ -60,6 +60,49 @@ async function openLeague(page,region){
 async function setup(page,{region=0,weakFirst=false,allWeak=false}={}){
  if(region===1)await H.importSave(page,fixture(1),1);
  await H.game(page);
+ // Team fixture writes require a quiet game, not only completed navigation.
+ await quiet(page);
+ // This mature care fixture offers evolution; decline through the real UI.
+ const careBefore=await page.evaluate(()=>({
+  dex:fns.speciesId(),active:TPCollection.read().active
+ }));
+ const evolution=page.locator('#tp-home-evolution');
+ await expect(evolution).toBeVisible();
+ await evolution.getByRole('button',{name:'Nein',exact:true}).click();
+ await expect(evolution).toBeHidden();
+ await expect.poll(()=>page.evaluate(()=>({
+  choice,wants:!!fns.wantsEvolve(),evolving:!!fns.evolvingNow()
+ }))).toEqual({choice:'none',wants:false,evolving:false});
+ expect(await page.evaluate(()=>({
+  dex:fns.speciesId(),active:TPCollection.read().active
+ }))).toEqual(careBefore);
+ await quiet(page);
+ await expect.poll(()=>page.evaluate(()=>({
+  screen,
+  choice,
+  collectionReady:!!TPCollectionGame.ready,
+  replacing:!!tpSaveReplacing,
+  collectionBusy:!!TPCollection.busy,
+  collectionBlocked:!!TPCollection.blocked,
+  leagueBusy:!!window.TPLeague?.busy,
+  megaBusy:!!window.TPMega?.busy,
+  trainingBusy:!!window.TPTraining?.busy,
+  arenaBusy:!!window.TPArena?.busy,
+  expeditionBusy:!!window.TPExpeditions?.busy,
+  admission:!!window.TPAdmissionUI?.active,
+  careDialog:!!TPCollectionGame.dialogOpen,
+  ceremony:!!fns.ceremony(),
+  evolving:!!fns.evolvingNow(),
+  wildPrompt:!!fns.wildPromptActive(),
+  nativePending:!!Module.ccall('tp_f4_store_pending','number',[],[])
+ })),{message:'League fixture requires an idle, writable collection'}).toEqual({
+  screen:'idle',choice:'none',collectionReady:true,
+  replacing:false,collectionBusy:false,collectionBlocked:false,
+  leagueBusy:false,megaBusy:false,trainingBusy:false,
+  arenaBusy:false,expeditionBusy:false,admission:false,
+  careDialog:false,ceremony:false,evolving:false,
+  wildPrompt:false,nativePending:false
+ });
  const seed=await page.evaluate(async({weakFirst,allWeak})=>{
   await TPCollectionGame.ensureCurrent();
   const active=TPCollection.read().active,ids=[active];

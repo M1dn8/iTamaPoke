@@ -1,5 +1,35 @@
 # P07a — lokaler Abschluss vom 20.11.2026
 
+## Aktueller Freigabestand — 22.11.2026
+
+<!-- P07A-CI-KORREKTUR-20261122 -->
+Diese Aktualisierung hat bei zeitabhängigen Status- und Freigabeangaben
+Vorrang vor dem darunter erhaltenen Abschlussstand vom 20.11.
+
+- Nutzer hat den bestehenden Commit-/Push-/Veröffentlichungsweg am 22.11.
+  ausdrücklich freigegeben.
+- P07a-Ausgangsstand als 47db00a5728421135abbd048c2308774abe156dd
+  committed und auf origin/main gepusht.
+- GitHub-Qualitätslauf im zentralen Check an retro-ui.test.js gestoppt;
+  kein erfolgreicher 154er-Release-Nachweis aus diesem Lauf.
+- Vier Schriftdefinitionen des Suicune-Wasserkampfs auf die gemeinsame
+  Monospace-Variable korrigiert; Größen, Farben und Abstände nicht geändert.
+- Bestehende eingebettete Reisebuch-SVG unverändert erhalten.
+- Retro-UI-Test akzeptiert ausschließlich die geprüfte Grafikregel per
+  festem SHA-256; zusätzliche Imports, externe URLs und andere Data-URLs
+  werden durch Negativprüfungen weiterhin abgelehnt.
+- Gezielter Retro-UI-Test einschließlich Negativprüfungen bestanden.
+- Nutzer bestätigt am 22.11. um 22:33 CET den Browser-Sichtcheck:
+  „Ja, im Browser geprüft und alles sieht sauber aus“.
+- Diese Korrekturen werden mit dieser Statusaktualisierung zusammengeführt.
+  Erneuter GitHub-Freigabelauf und Veröffentlichung noch nicht bestätigt.
+- Historischer 68er-Abschlusslauf bleibt dokumentiert; er wird nicht als
+  erneuter Lauf auf dem schriftkorrigierten Stand ausgegeben.
+- Endgültige P07a-Freigabe und iPhone-Gegencheck weiterhin offen.
+- P07b–d nicht begonnen.
+
+## Erhaltener Abschlussstand vom 20.11.2026
+
 <!-- P07A-LOKALER-ABSCHLUSS-20261120 -->
 Dokumentiert: 2026-11-20T23:28:28+01:00
 Branch: main

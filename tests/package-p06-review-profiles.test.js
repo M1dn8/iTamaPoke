@@ -1,4 +1,6 @@
 'use strict';
+
+(async()=>{
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const source=fs.readFileSync('tools/review/manual-review.cjs','utf8');
@@ -81,8 +83,9 @@ assert(!source.includes('channel:'));
  for(const story of ['articuno','moltres','mewtwo','mew','catalogue']){
   for(let current=1;current<=8;current++){
    let routed=null;
-   vm.runInNewContext(routing+'\nopenStory();',{
+   await vm.runInNewContext(routing+'\nopenStory();',{
     reviewStory:story,current,
+    names:Array.from(legacy.names),finishReviewNames:[],
     page:{evaluate(_callback,target){routed=target;}}
    });
    assert.equal(
@@ -92,6 +95,21 @@ assert(!source.includes('channel:'));
    );
   }
  }
+
+ // Direct finish-review cases must delegate once and not open a story route.
+ {
+  let delegated=0,routed=false;
+  await vm.runInNewContext(routing+'\nopenStory();',{
+   reviewStory:'suicune-preview',current:1,
+   names:['10-kanto-ordenuebergabe'],
+   finishReviewNames:['10-kanto-ordenuebergabe'],
+   async openFinishReview(){delegated++;},
+   page:{evaluate(){routed=true;}}
+  });
+  assert.equal(delegated,1,'Finish case must delegate exactly once');
+  assert.equal(routed,false,'Finish case must not fall through to story routing');
+ }
+
  // UI01 bundled closeout test alignment.
  const startups=[...source.matchAll(/await loadCase\(([^;\n]+)\);/g)]
   .map(match=>match[1]).filter(expression=>expression.includes('reviewStory'));
@@ -108,3 +126,8 @@ console.log(
  'strict names/schema validation, existing persistent Playwright profile, '+
  'local sprites, screenshot diagnostics and catalogue routing. No browser launched.'
 );
+
+})().catch(error=>{
+ console.error(error);
+ process.exitCode=1;
+});

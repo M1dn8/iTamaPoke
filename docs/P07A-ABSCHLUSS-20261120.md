@@ -2,6 +2,24 @@
 
 ## Aktueller Freigabestand — 22.11.2026
 
+### Nachtrag — Reviewprofil-Test, 22.11.2026, 22:46 CET
+
+<!-- P07A-REVIEWPROFIL-CI-FIX-20261122 -->
+- Der weitere GitHub-Lauf stoppte im zentralen Check am simulierten
+  Reviewprofil-Routentest; noch kein erfolgreicher 154er-Release-Nachweis.
+- Testkontext um names und finishReviewNames vervollständigt.
+- Asynchrones openStory wird im Test jetzt mit await ausgewertet;
+  Fehler werden an den Testprozess weitergereicht.
+- Bestehende Routenerwartungen unverändert; zusätzlicher Test für einmalige
+  Delegation direkter Sichtfälle ohne Rückfall in die Storyroute.
+- Nutzer meldet gezielten Reviewprofil-Test und Diff-Check als bestanden.
+- Runner, Spielverhalten und bestätigte Darstellung unverändert.
+- Testkorrektur und dieser Nachtrag bilden den nächsten Korrekturcommit.
+  GitHub-Freigabelauf, Veröffentlichung und iPhone-Abnahme bleiben offen.
+- P07b–d nicht begonnen.
+
+### Vorheriger Korrekturstand
+
 <!-- P07A-CI-KORREKTUR-20261122 -->
 Diese Aktualisierung hat bei zeitabhängigen Status- und Freigabeangaben
 Vorrang vor dem darunter erhaltenen Abschlussstand vom 20.11.

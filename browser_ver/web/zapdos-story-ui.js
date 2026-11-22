@@ -4,7 +4,7 @@
  const storyUIs=new Set();
  function create(config){
  const tr=(key,params={})=>config.text(key,params);
- const standaloneChallenge=config.dex===144||config.dex===146||config.dex===150||config.dex===151;
+ const standaloneChallenge=config.dex!==145;
  const svc=config.service,collection=()=>root.TPCollection;
  const call=(name,args=[])=>{
   if(standaloneChallenge&&name==='tp_zpd_get'){
@@ -189,8 +189,13 @@
    body.className='tp-app-list tp-zapdos-encounter tp-zapdos-finale';
    if(Number.isSafeInteger(cached.ticket))lastFinaleTicket=cached.ticket;
    encounterArt=config.finale(tr);
-   body.append(node('h3',tr('completeTitle')),encounterArt.element,
-    node('p',tr('completeText')),node('p',tr('level')));
+   body.append(node('h3',tr(config.completeTitleKey||'completeTitle')),encounterArt.element,
+    node('p',tr(config.completeTextKey||'completeText')),node('p',tr('level')));
+    if(config.completeAction){
+     const onward=button(tr(config.completeAction.label),config.completeAction.run,disabled);
+     onward.dataset.storyReturn=config.route;
+     body.append(onward);
+    }
   }
  }
  function mount(host){
@@ -309,7 +314,9 @@
     mon.data.admission.source===config.source&&
     mon.data.admission.ticket===pending.ticket);
    if(!joined)return false;
-   showStory();return true;
+    /* Clear previous feedback only after verified admission. */
+    message='';
+    showStory();return true;
   }catch(error){report(error);return false;}
  }
  function showStory(){root.TPAppMenu.show(config.route);}
@@ -456,6 +463,27 @@
   gameText:(...a)=>root.TPMewHideGame.text(...a),
   portrait:text=>root.TPZapdosPortrait.create(text,mewArtOptions()),
   finale:text=>root.TPZapdosFinale.create(text,mewArtOptions())
+ });
+
+
+ /* P07a Suicune shared encounter. */
+ const sourceArtOptions=()=>({
+  dex:245,scene:()=>root.TPSourceStoryStage.createScene()
+ });
+ root.TPSuicuneUI=create({
+  /* P07a source journey ending. */
+  dex:245,source:'story:johto:suicune',
+  completeTitleKey:'journeyTitle',completeTextKey:'journeyText',
+  completeAction:{
+   label:'journeyContinue',run:()=>root.TPAppMenu.show('stories')
+  },
+  route:'suicune',pageId:'tp-suicune-page',
+  text:(...a)=>root.TPSuicuneText.t(...a),
+  service:()=>root.TPSuicune,
+  accessText:(...a)=>root.TPSuicuneText.t(...a),
+  scene:()=>root.TPSourceStoryStage.createScene(),
+  portrait:text=>root.TPZapdosPortrait.create(text,sourceArtOptions()),
+  finale:text=>root.TPZapdosFinale.create(text,sourceArtOptions())
  });
 
 })(typeof globalThis!=='undefined'?globalThis:this);

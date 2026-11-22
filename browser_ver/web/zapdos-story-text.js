@@ -204,6 +204,77 @@
   ready=true;
  }
  function t(key,params={}){register();return root.TPText.t('zapdos.'+key,params);}
+
+ const sourceOverrides={
+  en:{
+   title:'Johto · The hidden spring',duelTitle:'Suicune',
+   duelText:'Suicune waits on the opposite bank.',
+   completeTitle:'The hidden spring',
+   journeyTitle:'A new travelling companion',
+   journeyText:'The stream flows again.\nSuicune joins you on your journey.',
+   journeyContinue:'Keep travelling',
+   finaleAnimating:'Suicune is coming with you!',
+   finaleCaptured:'Our journey continues together.',
+   locked:'Requires accessible Johto and four different Johto badges ({count}/4).'
+  },
+  de:{
+   title:'Johto · Die verborgene Quelle',duelTitle:'Suicune',
+   duelText:'Am anderen Ufer wartet Suicune.',
+   completeTitle:'Die verborgene Quelle',
+   journeyTitle:'Ein neuer Weggefährte',
+   journeyText:'Der Bach fließt wieder.\nSuicune begleitet dich auf deiner Reise.',
+   journeyContinue:'Weiterreisen',
+   finaleAnimating:'Suicune kommt mit!',
+   finaleCaptured:'Gemeinsam geht die Reise weiter.',
+   locked:'Benötigt zugängliches Johto und vier unterschiedliche Johto-Orden ({count}/4).'
+  },
+  es:{
+   title:'Johto · El manantial oculto',duelTitle:'Suicune',
+   duelText:'Suicune espera en la otra orilla.',
+   completeTitle:'El manantial oculto',
+   journeyTitle:'Un nuevo compañero',
+   journeyText:'El arroyo vuelve a fluir.\nSuicune te acompaña en tu viaje.',
+   journeyContinue:'Seguir viajando',
+   finaleAnimating:'¡Suicune viene contigo!',
+   finaleCaptured:'El viaje continúa juntos.',
+   locked:'Requiere acceso a Johto y cuatro medallas diferentes de Johto ({count}/4).'
+  },
+  fr:{
+   title:'Johto · La source cachée',duelTitle:'Suicune',
+   duelText:'Suicune attend sur l’autre rive.',
+   completeTitle:'La source cachée',
+   journeyTitle:'Un nouveau compagnon',
+   journeyText:'Le ruisseau coule à nouveau.\nSuicune t’accompagne dans ton voyage.',
+   journeyContinue:'Poursuivre le voyage',
+   finaleAnimating:'Suicune vient avec toi !',
+   finaleCaptured:'Le voyage continue ensemble.',
+   locked:'Nécessite l’accès à Johto et quatre badges différents de Johto ({count}/4).'
+  }
+ };
+ let sourceReady=false;
+ function registerSource(){
+  if(sourceReady)return;
+  const preparationKeys=new Set([
+   'introTitle','intro','investigate','secureTitle','secureText','secure',
+   'gameTime','gameExpired','gameComplete'
+  ]);
+  for(const code of ['en','de','es','fr']){
+   const shared=Object.fromEntries(
+    Object.entries(locales[code])
+     .filter(([key])=>!preparationKeys.has(key))
+     .map(([key,value])=>[key,value.replace(/Zapdos|Électhor/g,'Suicune')])
+   );
+   root.TPText.registerLocale(code,Object.fromEntries(
+    Object.entries({...shared,...sourceOverrides[code]})
+     .map(([key,value])=>['suicune.'+key,value])
+   ));
+  }
+  sourceReady=true;
+ }
+ root.TPSuicuneText=Object.freeze({
+  t(key,params={}){registerSource();return root.TPText.t('suicune.'+key,params);}
+ });
+
  root.TPZapdosText=Object.freeze({t});
  if(root.TPText?.registerLocale)register();
 })(typeof globalThis!=='undefined'?globalThis:this);

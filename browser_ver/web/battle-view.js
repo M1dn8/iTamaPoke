@@ -2,7 +2,8 @@
  * Native snapshots own stats/damage; this module only renders and routes taps.
  */
 (function(){'use strict';let key='',menu='main',last=null,targets={},feedbackAt=0,feedbackKey='',captureFx=null,captureView=null;
-const activeStoryUI=()=>window.TPMewUI?.owns()?window.TPMewUI:
+const activeStoryUI=()=>window.TPSuicuneUI?.owns()?window.TPSuicuneUI:
+ window.TPMewUI?.owns()?window.TPMewUI:
  window.TPMewtuUI?.owns()?window.TPMewtuUI:
  window.TPLavadosUI?.owns()?window.TPLavadosUI:
  window.TPArktosUI?.owns()?window.TPArktosUI:window.TPZapdosUI;
@@ -246,7 +247,7 @@ function standard(){
   region:arena>=0?arenaRegion:0,
   mode:story?'zapdos':trainer?(arena>=0?'arena':'trainer'):'wild',
   id:b(0),
-  theme:story&&fns.battleWildDex()===150?'psychic':story&&fns.battleWildDex()===146?'rock':arena>=0?(arenaRegion===1?
+  theme:story&&fns.battleWildDex()===144?'ice':story&&fns.battleWildDex()===150?'psychic':story&&fns.battleWildDex()===146?'rock':arena>=0?(arenaRegion===1?
    ['field','field','field','ghost','rock','rock','ice','dragon']:
    ['rock','ice','field','field','ghost','ghost','champ','rock'])[arena]:'field',
   title:story?activeStoryUI().text('battleTitle'):
@@ -283,7 +284,7 @@ function standard(){
  };
 }
 function supported(){try{return !!Module&&typeof Module._tp_bv_get==='function';}catch(_){return false;}}
-function drawStandard(){if(!supported())return false;if(!call('tp_battle_is_open')){captureFx=null;captureView=null;targets={};screen=battleReturn;return true;}if(window.TPTrainer.active()&&(!call('tp_f2_can_actor')||document.visibilityState!=='visible')){window.TPTrainer.abort();return true;}window.TPZapdosUI?.poll();window.TPArktosUI?.poll();window.TPLavadosUI?.poll();window.TPMewtuUI?.poll();window.TPMewUI?.poll();window.TPWildTeam?.poll();draw(standard());return true;}
+function drawStandard(){if(!supported())return false;if(!call('tp_battle_is_open')){captureFx=null;captureView=null;targets={};screen=battleReturn;return true;}if(window.TPTrainer.active()&&(!call('tp_f2_can_actor')||document.visibilityState!=='visible')){window.TPTrainer.abort();return true;}window.TPZapdosUI?.poll();window.TPArktosUI?.poll();window.TPLavadosUI?.poll();window.TPMewtuUI?.poll();window.TPMewUI?.poll();window.TPSuicuneUI?.poll();window.TPWildTeam?.poll();draw(standard());return true;}
 function abort(m){
  const leave=()=>{
   if(m.mode==='trainer'||m.mode==='arena')window.TPTrainer.abort();
@@ -869,6 +870,17 @@ window.TPBattleView=Object.freeze({draw,drawStandard,tapStandard,drawLeague:(v,e
   page.hidden=false;host.setAttribute('data-battle-device','true');
   page.setAttribute('data-battle-state','live');
   page.setAttribute('data-battle-mode',m.mode);
+   /* P07a source story battle paper. */
+   const sourcePaper=m.mode==='zapdos'&&m.enemy?.dex===245;
+   if(sourcePaper){
+    root.TPSourceStoryStage.ensureTheme();
+    page.dataset.storyPaper='water';
+    page.dataset.storyOutcome=!m.resolved?'battle':
+     m.resultPending||m.resultSaving?'saving':m.won?'won':'lost';
+   }else{
+    delete page.dataset.storyPaper;
+    delete page.dataset.storyOutcome;
+   }
   page.setAttribute('data-battle-menu',m.wildTeam?.needsSwitch?'team':root.TPBattleView.menu);
   page.removeAttribute('data-league-view');
   frameText(m);
@@ -876,8 +888,12 @@ window.TPBattleView=Object.freeze({draw,drawStandard,tapStandard,drawLeague:(v,e
 
   const cap=root.TPBattleView.capture;
   page.setAttribute('data-capture-phase',cap?.phase||'');
-  summary.textContent=cap?.headline||title||m.title;
-  detail.textContent=cap?.detail||m.reward||m.note||'';
+  summary.textContent=sourcePaper?
+    (m.headline||root.TPSuicuneText.t('artName')):
+    (cap?.headline||title||m.title);
+  detail.textContent=sourcePaper?
+    (m.error||m.reward||m.note||''):
+    (cap?.detail||m.reward||m.note||'');
   if(drawNoCatch(m))return;
   page.removeAttribute('data-no-catch-confirm');
   if(root.TPAdmissionUI?.active&&admissionPage){
@@ -907,6 +923,17 @@ window.TPBattleView=Object.freeze({draw,drawStandard,tapStandard,drawLeague:(v,e
    const button=node('button','',entry.action==='leave'?deviceText('noCatch'):entry.label);
    button.type='button';button.disabled=!entry.enabled;
    button.setAttribute('data-battle-action',entry.action);
+    if(sourcePaper&&entry.action==='ok'&&m.resolved&&m.won){
+     button.dataset.storyContinue='';
+     const sign=node('span','tp-story-continue-sign');
+     sign.setAttribute('aria-hidden','true');
+     sign.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2C9 7 6 9 6 13a6 6 0 0 0 12 0c0-4-3-6-6-11Z"/><path d="M9 14q0 3 3 3"/></svg>';
+     const label=node('span','tp-story-continue-label',button.textContent);
+     const arrow=node('span','tp-story-continue-arrow');
+     arrow.setAttribute('aria-hidden','true');
+     arrow.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>';
+     button.replaceChildren(sign,label,arrow);
+    }
    if(/^member[0-5]$/.test(entry.action)){
     const index=Number(entry.action.slice(6));
     const mon=m.wildTeam?.members?.[index];
@@ -974,6 +1001,16 @@ window.TPBattleView=Object.freeze({draw,drawStandard,tapStandard,drawLeague:(v,e
 
 
  let admissionQueued=false,admissionBack=null,admissionBox=null;
+
+
+ /* Story admissions keep their existing postpone action. */
+ function storyAdmissionMayWait(){
+  try{
+   const pending=root.TPAdmission?.read()?.pending;
+   return pending?.kind==='join'&&
+    typeof pending.source==='string'&&pending.source.startsWith('story:');
+  }catch(_){return false;}
+ }
 
  function admission(element,mon){
   if(game()!=='battle'){
@@ -1046,7 +1083,7 @@ window.TPBattleView=Object.freeze({draw,drawStandard,tapStandard,drawLeague:(v,e
      const kind=child.getAttribute('data-admission-action');
      if(kind==='boxes'){child.remove();continue;}
      if(kind==='later'){
-      if(exceptional&&!child.disabled){
+      if((exceptional||storyAdmissionMayWait())&&!child.disabled){
        admissionBack=child;
        root.TPNavBack?.decorate(child,root.TPText.t('common.back'));
        page.querySelector('.tp-battle-frame-back-slot').append(child);

@@ -27,7 +27,11 @@
    dex:150,source:'story:kanto:mewtwo',
    schema:'itamapoke.story.mewtwo',format:'ITT1',code:'MEWTWO'
   }),
-  mew:Object.freeze({
+  suicune:Object.freeze({
+    dex:245,source:'story:johto:suicune',
+    schema:'itamapoke.story.suicune',format:'ITS1',code:'SUICUNE'
+   }),
+   mew:Object.freeze({
    dex:151,source:'story:kanto:mew',
    schema:'itamapoke.story.mew',format:'ITW1',code:'MEW'
   })

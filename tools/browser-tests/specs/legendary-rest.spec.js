@@ -3,7 +3,9 @@ const {test,expect}=require('@playwright/test');
 const H=require('./helpers');
 const F=require('./legendary-fixtures');
 
-const pageRoot=(page,p)=>page.locator('#tp-'+p.id+'-page');
+const pageRoot=(page,p)=>page.locator(
+ p.id==='suicune'?'#tp-story-stage':'#tp-'+p.id+'-page'
+);
 const admission=page=>page.locator('#tp-admission-page');
 async function quiet(page){
  await page.waitForFunction(()=>
@@ -21,7 +23,7 @@ async function state(page,p){
    phase:window[p.service].view().phase,
    pending:TPAdmission.read().pending,
    team:s.team,active:s.active,total:s.mons.length,
-   joined:s.mons.filter(m=>m.data.admission?.source==='story:kanto:'+p.id),
+   joined:s.mons.filter(m=>m.data.admission?.source===(p.source||'story:kanto:'+p.id)),
    wins:values.get('bwin')?.value||0,
    journal:entries.filter(e=>e.k===4&&e.s===p.dex&&(e.f&2)).length
   };
@@ -38,6 +40,28 @@ async function seedArt(page,p){
   )]);
  },{dex:p.dex,raw:Array.from(bytes)});
 }
+
+/* P07a Suicune in shared admission tests. */
+async function sourceAction(page,label){
+ const stage=page.locator('#tp-story-stage');
+ const action=stage.getByRole('button',{name:label,exact:true});
+ const card=stage.locator('.tp-story-card');
+ await expect(card).toHaveAttribute('data-pages',/^[1-9][0-9]*$/);
+ const pages=Number(await card.getAttribute('data-pages'));
+ for(let i=0;i<pages&&!await action.isVisible();i++){
+  const next=card.locator('[data-story-next]');
+  await expect(next).toBeEnabled();
+  await next.click();
+ }
+ await expect(action).toBeVisible();
+ await action.click();
+}
+async function enterSourceEncounter(page){
+ await sourceAction(page,'Zum anderen Ufer');
+ await expect(page.locator('#tp-story-stage'))
+  .toHaveAttribute('data-story','suicune');
+}
+
 async function setup(page,p,{step=0,full=false}={}){
  await page.emulateMedia({reducedMotion:'reduce'});
  await H.prepare(page,F.fixture(H.fixture(0),p.id,{step}),1);
@@ -50,11 +74,16 @@ async function setup(page,p,{step=0,full=false}={}){
    data:{stats:{atk:3000,def:3000,spe:3000},genes:null,training:null}
   },0);
   const alpha=TPCollection.read().nextId-1;
-  for(const id of [...TPCollection.read().team])
-   await TPCollection.apply('unselectTeam',id);
+  /* P07a pinned care retained in shared test setup. */
+  for(const id of [...TPCollection.read().team]){
+   if(id!==care)await TPCollection.apply('unselectTeam',id);
+  }
   await TPCollection.apply('selectTeam',alpha);
+  while(TPCollection.read().team.indexOf(alpha)>0)
+   await TPCollection.apply('moveTeam',alpha,-1);
   if(full){
-   await TPCollection.apply('selectTeam',care);
+   if(!TPCollection.read().team.includes(care))
+    throw Error('TEST_CARE_MEMBER_MUST_REMAIN_SELECTED');
    for(let i=0;i<4;i++){
     await TPCollection.apply('catchWild',{
      dex:25,level:20,nickname:'Reserve '+i,shiny:false,origin:'wild',
@@ -63,6 +92,12 @@ async function setup(page,p,{step=0,full=false}={}){
     await TPCollection.apply('selectTeam',TPCollection.read().nextId-1);
    }
   }
+  const preparedTeam=TPCollection.read();
+  if(preparedTeam.active!==care||
+     preparedTeam.team[0]!==alpha||
+     preparedTeam.team[1]!==care||
+     preparedTeam.team.length!==(full?6:2))
+   throw Error('TEST_TEAM_ORDER_OR_PINNED_CARE_INVALID');
   Module.ccall('tp_seed_random',null,['number'],[314159]);
  },full);
  await seedArt(page,p);
@@ -71,9 +106,23 @@ async function setup(page,p,{step=0,full=false}={}){
  await expect(tile).toBeEnabled();
  await expect(tile).toContainText(p.place);
  await H.startStory(page,p.id);
+ if(p.id==='suicune'&&step===2)await enterSourceEncounter(page);
  await expect(pageRoot(page,p)).toBeVisible();
 }
 async function solve(page,p){
+ if(p.id==='suicune'){
+  await sourceAction(page,'Wasserlauf verbinden');
+  const stage=page.locator('#tp-story-stage');
+  await expect(stage).toHaveAttribute('data-sui-phase','puzzle');
+  await expect(stage).toHaveAttribute('data-sui-saving','false');
+  for(const index of [0,0,1,1,1,2])
+   await stage.locator('[data-sui-tile="'+index+'"]').click();
+  await expect(stage).toHaveAttribute('data-sui-phase','clear');
+  await expect(stage).toHaveAttribute('data-sui-saving','false');
+  await enterSourceEncounter(page);
+  await expect(stage.locator('.tp-zapdos-challenge')).toBeEnabled();
+  return;
+ }
  const root=pageRoot(page,p);
  const label=await page.evaluate(p=>window[p.text].t('investigate'),p);
  await root.getByRole('button',{name:label,exact:true}).click();
@@ -130,6 +179,14 @@ async function solve(page,p){
  }
  await expect(root.locator('.tp-zapdos-challenge')).toBeEnabled();
 }
+async function expectSourcePanelOrientation(page){
+ const panel=page.locator('#tp-battle-page[data-story-paper="water"] .tp-battle-panel');
+ await expect(panel).toBeVisible();
+ await expect.poll(()=>panel.evaluate(element=>{
+  const matrix=new DOMMatrixReadOnly(getComputedStyle(element).transform);
+  return [matrix.a,matrix.b,matrix.c,matrix.d];
+ })).toEqual([0,-1,1,0]);
+}
 async function begin(page,p){
  const root=pageRoot(page,p);
  await expect(root.locator('.tp-zapdos-challenge')).toBeEnabled();
@@ -143,6 +200,13 @@ async function begin(page,p){
   'tp_battle_wild_level','number',[],[]
  ))).toBe(50);
  expect(await page.evaluate(()=>TPBattleView.target('catch'))).toBeNull();
+ if(p.id==='suicune'){
+  const device=page.locator('#tp-battle-page[data-story-paper="water"]');
+  await expect(device).toBeVisible();
+  await expectSourcePanelOrientation(page);
+  await expect(device.locator('.tp-battle-panel'))
+   .toHaveCSS('background-color','rgb(216, 229, 197)');
+ }
 }
 async function fight(page){
  for(let turn=0;turn<30;turn++){
@@ -157,8 +221,37 @@ async function saved(page,p){
   'tp_story_duel_get','number',['number','number'],[dex,2]
  ),p.dex)).toBe(1);
  await quiet(page);
+ if(p.id==='suicune'){
+  const next=page.locator('#tp-battle-page button[data-story-continue]');
+  await expect(next).toBeVisible();
+  await expect(next).toBeEnabled();
+  await expect(next).toHaveAttribute('data-battle-action','ok');
+  await expectSourcePanelOrientation(page);
+  await expect(next.locator('svg')).toHaveCount(2);
+ }
 }
 async function completed(page,p,before){
+ if(p.id==='suicune'){
+  const stage=pageRoot(page,p);
+  const art=stage.locator('.tp-zapdos-finale-art');
+  await expect(art).toBeVisible();
+  const card=stage.locator('.tp-story-card');
+  await expect(card).toBeVisible();
+  await expect(card).toHaveCSS('background-color','rgb(216, 229, 197)');
+  await expect(card.locator('.tp-story-card-body'))
+   .toContainText('Suicune begleitet dich auf deiner Reise.');
+  await expect(card).toHaveAttribute('data-journey','true');
+  await expect(card).not.toContainText(
+   'Speichern fehlgeschlagen. Bitte erneut versuchen.'
+  );
+  await expect(card.locator('.tp-story-card-head h3'))
+   .toHaveText('Ein neuer Weggefährte');
+  await expect(card.locator('[data-story-return="suicune"]')).toHaveCount(1);
+  await expect(art.locator(
+   '.tp-zapdos-finale-caption,.tp-zapdos-finale-note'
+  )).toHaveCount(0);
+  await expect(art.locator('p:visible')).toHaveCount(0);
+ }
  await expect(pageRoot(page,p).locator('.tp-zapdos-finale-art')).toBeVisible();
  const done=await state(page,p);
  expect(done.phase).toBe('complete');
@@ -174,6 +267,24 @@ async function completed(page,p,before){
   catch(error){return error.code;}
  });
  expect(duplicate).toBe('NO_PENDING_ADMISSION');
+ /* P07a exercise onward navigation before reloading the page. */
+ if(p.id==='suicune'){
+  await page.evaluate(()=>{
+   window.p07aJourneyWrite=writeSave;
+   window.p07aJourneyWrites=0;
+   writeSave=async(...args)=>{
+    window.p07aJourneyWrites++;
+    return window.p07aJourneyWrite(...args);
+   };
+  });
+  try{
+   await sourceAction(page,'Weiterreisen');
+   await expect(page.locator('#tp-stories-page')).toBeVisible();
+   expect(await page.evaluate(()=>window.p07aJourneyWrites)).toBe(0);
+  }finally{
+   await page.evaluate(()=>{writeSave=window.p07aJourneyWrite;});
+  }
+ }
  await page.reload();await H.waitReady(page);await quiet(page);
  const restored=await state(page,p);
  expect(restored.joined).toEqual(done.joined);
@@ -225,15 +336,34 @@ for(const p of F.profiles){
    await expect(pageRoot(page,p).locator('.tp-zapdos-finale-art')).toHaveCount(0);
    if(mode==='replace'){
     await admission(page).getByRole('button',{name:'Ins Team aufnehmen',exact:true}).click();
-    await expect(admission(page).getByRole('button',{name:/Pflege-Pokémon — fest/})).toBeDisabled();
-    await admission(page).getByRole('button',{name:/^Reserve 0 ·/}).click();
+    const careChoice=admission(page).locator(
+      'button[data-admission-action="replace"][data-admission-member-id="'+before.active+'"]'
+     );
+     await expect(careChoice).toBeVisible();
+     await expect(careChoice).toBeDisabled();
+    const outgoingId=before.team[2];
+     expect(outgoingId).not.toBe(before.active);
+     const outgoingChoice=admission(page).locator(
+      'button[data-admission-action="replace"][data-admission-member-id="'+outgoingId+'"]'
+     );
+     await expect(outgoingChoice).toBeVisible();
+     await expect(outgoingChoice).toBeEnabled();
+     await outgoingChoice.click();
    }else{
-    await admission(page).getByRole('button',{name:'Später',exact:true}).click();
+    const laterChoice=page.locator(
+      '#tp-battle-page .tp-battle-frame-back-slot button[data-admission-action="later"]'
+     );
+     await expect(laterChoice).toBeVisible();
+     await expect(laterChoice).toBeEnabled();
+     await laterChoice.click();
     expect((await state(page,p)).phase).toBe('waiting');
     expect((await state(page,p)).total).toBe(before.total);
     await page.reload();await H.waitReady(page);await H.game(page);
     await expect(admission(page)).toBeVisible();
-    await admission(page).getByRole('button',{name:'In einer Box ablegen',exact:true}).click();
+    const boxChoice=admission(page).locator('button[data-admission-action="box"]');
+     await expect(boxChoice).toBeVisible();
+     await expect(boxChoice).toBeEnabled();
+     await boxChoice.click();
    }
    const done=await completed(page,p,before);
    if(mode==='late-box')expect(done.team).toEqual(before.team);
@@ -278,21 +408,217 @@ for(const p of F.profiles){
    writeSave=async()=>{throw Error('intentional legendary admission quota');};
   });
   await H.battleAction(page,'ok');
-  await expect(pageRoot(page,p).getByText(
+  /* P07a assert rendered story feedback, not the hidden original. */
+   if(p.id==='suicune'){
+    const visibleFeedback=pageRoot(page,p).locator('.tp-story-card-body');
+    await expect(visibleFeedback).toBeVisible();
+    await expect(visibleFeedback).toContainText(
+     'Speichern fehlgeschlagen. Bitte erneut versuchen.'
+    );
+   }else{
+    await expect(pageRoot(page,p).getByText(
    'Speichern fehlgeschlagen. Bitte erneut versuchen.',{exact:true}
   )).toBeVisible();
+   }
   const failed=await state(page,p);
   expect(failed.phase).toBe('waiting');
   expect(failed.total).toBe(before.total);
   expect(failed.journal).toBe(0);
   await expect(pageRoot(page,p).locator('.tp-zapdos-finale-art')).toHaveCount(0);
   await page.evaluate(()=>{writeSave=window.__legendaryWrite;});
-  await pageRoot(page,p).getByRole('button',{name:'Aufnahme fortsetzen',exact:true}).click();
-  await admission(page).getByRole('button',{name:'Jetzt aufnehmen',exact:true}).click();
+  if(p.id==='suicune'){
+    await sourceAction(page,'Aufnahme fortsetzen');
+   }else{
+    await pageRoot(page,p).getByRole('button',{name:'Aufnahme fortsetzen',exact:true}).click();
+   }
+  const acceptChoice=admission(page).locator('button[data-admission-action="accept"]');
+   await expect(acceptChoice).toBeVisible();
+   await expect(acceptChoice).toBeEnabled();
+   await acceptChoice.click();
   const done=await completed(page,p,before);
   expect(done.wins).toBe(before.wins+1);
  });
 }
+
+/* P07a full storage admission proof. */
+test('suicune: full storage retains admission until a slot is freed',async({page})=>{
+ const p=F.profiles.find(profile=>profile.id==='suicune');
+ expect(p).toBeTruthy();
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await H.prepare(page,F.capacityFixture(H.fixture(0)),1);
+ await H.game(page);
+ await seedArt(page,p);
+ await H.openStories(page);
+ await H.startStory(page,p.id);
+ await enterSourceEncounter(page);
+
+ const occupancy=()=>page.evaluate(()=>{
+  const s=TPCollection.read();
+  const sum=TPCollectionModel.summary(s);
+  return {
+   stored:sum.stored,capacity:sum.capacity,
+   team:s.team,active:s.active,
+   ids:s.mons.map(m=>m.id),
+   free:s.boxes.flatMap(b=>b.slots).filter(id=>id===null).length
+  };
+ });
+ const full=await occupancy();
+ expect(full.capacity).toBe(240);
+ expect(full.stored).toBe(full.capacity);
+ expect(full.free).toBe(0);
+ expect(full.team).toHaveLength(6);
+ expect(full.team).toContain(full.active);
+ const before=await state(page,p);
+ expect(before.pending).toBeNull();
+ expect(before.joined).toHaveLength(0);
+
+ await begin(page,p);
+ await fight(page);
+ await saved(page,p);
+ await H.battleAction(page,'ok');
+ await expect(admission(page)).toBeVisible();
+ for(const kind of ['accept','box','team'])
+  await expect(admission(page).locator(
+   '[data-admission-action="'+kind+'"]'
+  )).toHaveCount(0);
+ await expect(page.locator('.tp-zapdos-finale-art')).toHaveCount(0);
+
+ const waiting=await state(page,p);
+ expect(waiting.phase).toBe('waiting');
+ expect(waiting.pending).not.toBeNull();
+ expect(waiting.pending.source).toBe(p.source);
+ expect(waiting.total).toBe(before.total);
+ expect(waiting.joined).toHaveLength(0);
+ expect(waiting.team).toEqual(before.team);
+ expect(waiting.active).toBe(before.active);
+ expect(waiting.journal).toBe(0);
+ expect(waiting.wins).toBe(before.wins+1);
+
+ const later=page.locator(
+  '#tp-battle-page .tp-battle-frame-back-slot '+
+  'button[data-admission-action="later"]'
+ );
+ await expect(later).toBeVisible();
+ await expect(later).toBeEnabled();
+ await later.click();
+
+ await page.reload();
+ await H.waitReady(page);
+ await H.game(page);
+ await expect(admission(page)).toBeVisible();
+ const restored=await state(page,p);
+ expect(restored.phase).toBe('waiting');
+ expect(restored.pending).toEqual(waiting.pending);
+ expect(restored.total).toBe(before.total);
+ expect(restored.team).toEqual(before.team);
+ expect(restored.active).toBe(before.active);
+ expect(restored.journal).toBe(0);
+ expect(restored.wins).toBe(waiting.wins);
+ expect((await occupancy()).free).toBe(0);
+ await expect(page.locator('.tp-zapdos-finale-art')).toHaveCount(0);
+
+ await expect(later).toBeVisible();
+ await expect(later).toBeEnabled();
+ await later.click();
+ await expect(admission(page)).toBeHidden();
+
+ const released=await page.evaluate(async()=>{
+  const s=TPCollection.read();
+  const id=s.boxes.flatMap(b=>b.slots).find(
+   id=>id!==null&&id!==s.active&&!s.team.includes(id)
+  );
+  if(!Number.isSafeInteger(id))
+   throw Error('NO_UNSELECTED_CAPACITY_FIXTURE_MEMBER');
+  await TPCollection.apply('releaseStored',id,{confirmed:true});
+  return id;
+ });
+ await quiet(page);
+ const available=await occupancy();
+ expect(available.free).toBe(1);
+ expect(available.stored).toBe(full.capacity-1);
+ expect(available.ids).toEqual(full.ids.filter(id=>id!==released));
+ expect(available.team).toEqual(full.team);
+ expect(available.active).toBe(full.active);
+
+ const beforeAdmission=await state(page,p);
+ expect(beforeAdmission.phase).toBe('waiting');
+ expect(beforeAdmission.pending).toEqual(waiting.pending);
+ expect(beforeAdmission.joined).toHaveLength(0);
+ expect(beforeAdmission.journal).toBe(0);
+ await expect(page.locator('.tp-zapdos-finale-art')).toHaveCount(0);
+
+ await H.openStories(page);
+ await H.startStory(page,p.id);
+ await sourceAction(page,'Aufnahme fortsetzen');
+ const boxChoice=admission(page).locator(
+  'button[data-admission-action="box"]'
+ );
+ await expect(boxChoice).toBeVisible();
+ await expect(boxChoice).toBeEnabled();
+ await boxChoice.click();
+
+ const done=await completed(page,p,beforeAdmission);
+ expect(done.team).toEqual(before.team);
+ expect(done.active).toBe(before.active);
+ expect(done.total).toBe(before.total);
+ expect(done.wins).toBe(before.wins+1);
+ expect(done.joined[0].data.admission.ticket)
+  .toBe(waiting.pending.ticket);
+ const final=await occupancy();
+ expect(final.stored).toBe(full.capacity);
+ expect(final.free).toBe(0);
+ expect(final.ids).not.toContain(released);
+});
+
+/* P07a normal-motion admission proof. */
+test('suicune: normal motion admission reaches journey ending',async({page})=>{
+ const p=F.profiles.find(profile=>profile.id==='suicune');
+ expect(p).toBeTruthy();
+ await setup(page,p,{step:2});
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ expect(await page.evaluate(()=>
+  matchMedia('(prefers-reduced-motion: reduce)').matches
+ )).toBe(false);
+
+ const before=await state(page,p);
+ await begin(page,p);
+ await fight(page);
+ await saved(page,p);
+ await H.battleAction(page,'ok');
+
+ const stage=pageRoot(page,p);
+ const art=stage.locator('.tp-zapdos-finale-art');
+ const card=stage.locator('.tp-story-card');
+ await expect(art).toBeVisible();
+ await expect(art).toHaveAttribute('data-capture','playing');
+ await expect(card.locator('.tp-story-card-body'))
+  .toHaveText('Suicune kommt mit!');
+ await expect(card.locator('.tp-story-card-body'))
+  .not.toContainText('Suicune begleitet dich auf deiner Reise.');
+
+ const ball=art.locator('.tp-zapdos-capture-ball');
+ await expect(ball).toHaveCount(1);
+ await expect(ball).toHaveCSS('animation-name','tp-zapdos-capture-ball');
+ await expect(ball).toHaveCSS('animation-duration','7.2s');
+
+ const admitted=await state(page,p);
+ expect(admitted.phase).toBe('complete');
+ expect(admitted.pending).toBeNull();
+ expect(admitted.total).toBe(before.total+1);
+ expect(admitted.joined).toHaveLength(1);
+ expect(admitted.journal).toBe(1);
+ expect(admitted.wins).toBe(before.wins+1);
+
+ await expect(art).toHaveAttribute('data-capture','done');
+ const settled=await state(page,p);
+ expect(settled.joined).toEqual(admitted.joined);
+ expect(settled.team).toEqual(admitted.team);
+ expect(settled.total).toBe(admitted.total);
+ expect(settled.journal).toBe(1);
+ expect(settled.wins).toBe(admitted.wins);
+
+ await completed(page,p,before);
+});
 
 for(const [id,options,allowed] of [
  ['moltres',{kanto:127},false],

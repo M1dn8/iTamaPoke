@@ -56,7 +56,8 @@
      const storyDex=completed?.source==='story:kanto:articuno'?144:
       completed?.source==='story:kanto:moltres'?146:
       completed?.source==='story:kanto:mewtwo'?150:
-      completed?.source==='story:kanto:mew'?151:0;
+      completed?.source==='story:kanto:mew'?151:
+       completed?.source==='story:johto:suicune'?245:0;
      if(state.pending===null&&completed?.kind==='join'&&storyDex){
       if(completed.pokemon.dex!==storyDex||
          typeof mod._tp_story_ticket!=='function'||

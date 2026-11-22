@@ -5,6 +5,11 @@
  root.TPBoxes=api.create({model:root.TPCollectionModel,getController:()=>root.TPCollection,getHost:()=>document.getElementById('tp-game-shell'),
   canOpen:origin=>!!root.TPCollectionGame?.supported&&!!root.TPAppMenu?.ready&&fns.ceremony()===0&&!fns.evolvingNow()&&!root.TPCollection?.busy&&!root.TPCollectionGame?.dialogOpen&&!root.TPAdmissionUI?.active&&!tpSaveReplacing&&choice==='none'&&(
    origin==='card'&&screen==='card'&&cardPage===3||
+   origin==='activity'&&screen==='activity'&&
+    root.TPActivities?.inContext('battle')&&
+    ['wild','arena','league'].includes(root.TPActivities.battleKind)&&
+    !root.TPCollection?.blocked&&
+    root.TPCollectionModel.needsCarePlacement(root.TPCollection.read())||
    origin==='pokedex'&&screen==='settings'&&
     root.TPAppMenu?.active&&root.TPAppMenu?.page==='pokedex'&&
     !root.TPCollection?.blocked
@@ -13,7 +18,10 @@
    returnTo=origin;
    if(origin==='pokedex')root.TPAppMenu.close();
    screen='settings';dragStart=null;dragNow=null;feedMenuUntil=confirmUntil=0;},onClose:reason=>{
-   if(returnTo==='pokedex'&&reason==='back'){
+   if(returnTo==='activity'){
+    screen='activity';
+    canvas.focus?.();
+   }else if(returnTo==='pokedex'&&reason==='back'){
     screen='idle';root.TPAppMenu.show('pokedex');
    }else{
     screen='card';
@@ -93,7 +101,7 @@ function create({model:M,getController,getHost,canOpen=()=>true,getWarning=()=>'
   selected=args[0];teamPick=null;tab='team';page=0;subview='overview';
  }}catch(e){message=e.code==='RELOAD_REQUIRED'?'Speicherabschluss unklar – bitte neu laden.':'Speichern fehlgeschlagen – Aenderung nicht gespeichert. '+(e.code||e.message);}finally{busy=false;render();}}
  function open(origin='card'){
-  if(!['card','pokedex'].includes(origin)||active||!canOpen(origin))return false;const host=getHost();if(!host)return false;if(!root){root=node('section',undefined,'tp-box-page');root.id='tp-box-page';root.setAttribute('aria-label','Individuelle Boxen und Teamplanung');host.appendChild(root);root.addEventListener('keydown',e=>{if(e.key==='Escape'&&!locked()){e.preventDefault();if(modal){modal=null;render();}else if(subview!=='overview'){subview='overview';render();}else if(selected!==null){selected=null;render();}else close();}});}active=true;subview='overview';teamPick=null;if(origin==='pokedex'){tab='team';page=0;selected=null;}root.hidden=false;onOpen(origin);render();root.querySelectorAll('button')[0]?.focus();raf=schedule(animate);timer=repeat(refresh);return true;}
+  if(!['card','pokedex','activity'].includes(origin)||active||!canOpen(origin))return false;const host=getHost();if(!host)return false;if(!root){root=node('section',undefined,'tp-box-page');root.id='tp-box-page';root.setAttribute('aria-label','Individuelle Boxen und Teamplanung');host.appendChild(root);root.addEventListener('keydown',e=>{if(e.key==='Escape'&&!locked()){e.preventDefault();if(modal){modal=null;render();}else if(subview!=='overview'){subview='overview';render();}else if(selected!==null){selected=null;render();}else close();}});}active=true;subview='overview';teamPick=null;if(origin==='pokedex'){tab='team';page=0;selected=null;}root.hidden=false;onOpen(origin);render();root.querySelectorAll('button')[0]?.focus();raf=schedule(animate);timer=repeat(refresh);return true;}
  function close(reason='back'){if(!active||locked())return;active=false;root.hidden=true;if(raf!==null)cancel(raf);if(timer!==null)stop(timer);raf=timer=null;modal=null;selected=null;teamPick=null;onClose(reason);}
  function animate(t){if(!active)return;if(t-lastDraw>=140){lastDraw=t;for(const x of thumbs){try{drawSprite(x.canvas,x.mon,t);}catch(_){}}}raf=schedule(animate);}
  function refresh(){if(!active||busy||modal)return;try{if(controller().busy)return;const s=read();if(s.revision!==revision)render();}catch(e){fail(e);}}

@@ -72,11 +72,13 @@ int f4AdmissionTransport(bool *pending=nullptr){
 }
 // P06 fixed Zapdos pilot: typed scalar transport, no speculative migration.
 // Absent old profile = step 0. Partial/future data is never treated as absent.
+/* P07a Suicune regional preparation and verified source completion. */
 enum class StoryUnlock { Badges, FirstLeague, AllLeagueVariants };
 struct StoryProfile {
  const char *versionKey,*stepKey,*ticketKey,*noticeVersion,*noticeRead;
  int badges;
  StoryUnlock unlock=StoryUnlock::Badges;
+ int region=0;
 };
 constexpr StoryProfile ZAPDOS_PROFILE{
  "zpdver","zpdstep","zpdtick","stynver","stynread",4
@@ -95,12 +97,17 @@ constexpr StoryProfile MEW_PROFILE{
  "mewver","mewstep","mewtick","mewnver","mewnread",0,
  StoryUnlock::AllLeagueVariants
 };
+constexpr StoryProfile SUICUNE_PROFILE{
+ "suiver","suistep","suitick","suinver","suinread",4,
+ StoryUnlock::Badges,1
+};
 const StoryProfile *storyProfile(int dex){
  return dex==145?&ZAPDOS_PROFILE:
   dex==144?&ARKTOS_PROFILE:
   dex==146?&LAVADOS_PROFILE:
   dex==150?&MEWTWO_PROFILE:
-  dex==151?&MEW_PROFILE:nullptr;
+  dex==151?&MEW_PROFILE:
+  dex==245?&SUICUNE_PROFILE:nullptr;
 }
 int storyState(const StoryProfile &profile,uint32_t *ticket=nullptr){
  const auto &s=Preferences::store();
@@ -145,9 +152,10 @@ int storyNoticeState(const StoryProfile &profile){
  return v==1&&r>=0&&r<=1?int(r):-1;
 }
 int zpdNoticeState(){return storyNoticeState(ZAPDOS_PROFILE);}
-int zpdKantoMask(){
+int storyRegionMask(int region){
+ if(region!=0&&region!=1)return -1;
  const auto &s=Preferences::store();
- const auto &keys=TP_KANTO_KEYS;
+ const auto &keys=region==0?TP_KANTO_KEYS:TP_JOHTO_KEYS;
  const auto ver=s.find(keys.arenaVersion);
  if(ver==s.end()){
   if(s.count(keys.arenaMask))return -1;
@@ -162,13 +170,15 @@ int zpdKantoMask(){
  const auto value=std::get<int64_t>(mask->second);
  return value>=0&&value<=255?int(value):-1;
 }
-int zpdKantoBadges(){
- const int mask=zpdKantoMask();
+int zpdKantoMask(){return storyRegionMask(0);}
+int storyRegionBadges(int region){
+ const int mask=storyRegionMask(region);
  if(mask<0)return -1;
  int count=0;
  for(unsigned bit=0;bit<8;bit++)if(mask&(1<<bit))count++;
  return count;
 }
+int zpdKantoBadges(){return storyRegionBadges(0);}
 // Historical Kanto completion metadata is shared by single/team runs.
 // No writes or repair; an unfinished later run does not erase past completion.
 int storyKantoLeagueCompleted(){return tpKantoLeagueCompletionState();}
@@ -176,6 +186,10 @@ int storyKantoLeagueCompleted(){return tpKantoLeagueCompletionState();}
 int storyAccess(const StoryProfile &profile){
  const int step=storyState(profile);
  if(step<0||storyNoticeState(profile)<0)return -1;
+ if(profile.region!=0){
+  const int access=tpRegionAccessState(profile.region);
+  if(access!=1)return access;
+ }
  if(step>0)return 1;
  if(profile.unlock==StoryUnlock::FirstLeague)
   return storyKantoLeagueCompleted();
@@ -185,7 +199,7 @@ int storyAccess(const StoryProfile &profile){
   const int variants=tpHallCompletedVariantsFor(0);
   return variants<0?-1:variants==7?1:0;
  }
- const int badges=zpdKantoBadges();
+ const int badges=storyRegionBadges(profile.region);
  return badges<0?-1:badges>=profile.badges?1:0;
 }
 int zpdAccess(){return storyAccess(ZAPDOS_PROFILE);}
@@ -197,10 +211,39 @@ int storyNoticeMark(const StoryProfile &profile,uint32_t token){
  p.putUChar(profile.noticeVersion,1);p.putUChar(profile.noticeRead,1);
  return 1;
 }
+
+// Same three pieces and ports as the existing source model.
+// Validation only: no rotation state, timing, rewards or persistence here.
+bool suicuneSourceConnected(int first,int second,int third){
+ const int rotations[3]={first,second,third};
+ for(const int value:rotations)if(value<0||value>3)return false;
+ constexpr int row[3]={0,1,1},column[3]={0,0,1};
+ constexpr int dr[4]={-1,0,1,0},dc[4]={0,1,0,-1};
+ int index=0,entry=3,visited=0;
+ for(int turn=0;turn<4;turn++){
+  if(visited&(1<<index))return false;
+  visited|=1<<index;
+  const int a=((index==2?1:0)+rotations[index])%4;
+  const int b=((index==2?3:1)+rotations[index])%4;
+  if(entry!=a&&entry!=b)return false;
+  const int exit=entry==a?b:a;
+  if(index==2&&exit==1)return true;
+  const int nextRow=row[index]+dr[exit];
+  const int nextColumn=column[index]+dc[exit];
+  int next=-1;
+  for(int i=0;i<3;i++)
+   if(row[i]==nextRow&&column[i]==nextColumn)next=i;
+  if(next<0)return false;
+  index=next;entry=(exit+2)%4;
+ }
+ return false;
+}
+
 int storyAdvance(const StoryProfile &profile,uint32_t token,int expectedStep){
  if(!undo||undo->token!=token||tp_battle_is_open()||
     expectedStep<0||expectedStep>1||storyState(profile)!=expectedStep||
     storyNoticeState(profile)<0||(expectedStep==0&&storyAccess(profile)!=1))return 0;
+ if(profile.region!=0&&storyAccess(profile)!=1)return 0;
  storyWrite(profile,expectedStep+1,0);return 1;
 }
 
@@ -305,7 +348,23 @@ EMSCRIPTEN_KEEPALIVE int tp_story_notice_mark(uint32_t token,int dex){
 EMSCRIPTEN_KEEPALIVE int tp_story_advance(
  uint32_t token,int dex,int expectedStep){
  const auto *p=storyProfile(dex);
+ if(dex==245&&expectedStep==1)return 0;
  return p?storyAdvance(*p,token,expectedStep):0;
+}
+
+// P07a read-only regional metadata; legacy Kanto exports stay unchanged.
+EMSCRIPTEN_KEEPALIVE int tp_story_region(int dex){
+ const auto *p=storyProfile(dex);return p?p->region:-1;
+}
+EMSCRIPTEN_KEEPALIVE int tp_story_badges(int dex){
+ const auto *p=storyProfile(dex);
+ return p?storyRegionBadges(p->region):-1;
+}
+// Only a complete connection may advance Suicune from preparation to duel.
+EMSCRIPTEN_KEEPALIVE int tp_suicune_source_complete(
+ uint32_t token,int first,int second,int third){
+ if(!suicuneSourceConnected(first,second,third))return 0;
+ return storyAdvance(SUICUNE_PROFILE,token,1);
 }
 
 // Internal pairing for the upcoming verified Zapdos-result adapter.

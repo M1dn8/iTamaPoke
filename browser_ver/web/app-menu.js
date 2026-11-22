@@ -35,7 +35,7 @@ const root=document.createElement("section");root.id="tp-app-page";root.hidden=t
 const overlays=new Set(),watched=new WeakSet();
 function visible(n){if(n.hidden||n.style.display==="none")return false;const c=typeof getComputedStyle==="function"?getComputedStyle(n):null;return !c||(c.display!=="none"&&c.visibility!=="hidden");}
 function ready(){return coreReady&&!!Module&&!!fns;}
-function quiet(){return !window.TPActions?.active&&!window.TPActions?.busy&&screen!=='expedition'&&screen!=='activity'&&!window.TPActivities?.active&&!window.TPActivities?.busy&&ready()&&!window.TPCollection?.busy&&!window.TPZapdosUI?.busy&&!window.TPArktosUI?.busy&&!window.TPLavadosUI?.busy&&!window.TPMewtuUI?.busy&&!window.TPMewUI?.busy&&!window.TPStoriesUI?.busy&&!window.TPBoxes?.active&&!window.TPCollectionGame?.dialogOpen&&!tpSaveReplacing&&!(window.TPExpeditions&&window.TPExpeditions.busy)&&!["game","gamemenu","battle","trainer","keyboard","arena","league"].includes(screen)&&!fns.ceremony()&&!fns.evolvingNow()&&!fns.wildPromptActive()&&choice==="none";}
+function quiet(){return !window.TPActions?.active&&!window.TPActions?.busy&&screen!=='expedition'&&screen!=='activity'&&!window.TPActivities?.active&&!window.TPActivities?.busy&&ready()&&!window.TPCollection?.busy&&!window.TPZapdosUI?.busy&&!window.TPArktosUI?.busy&&!window.TPLavadosUI?.busy&&!window.TPMewtuUI?.busy&&!window.TPMewUI?.busy&&!window.TPSuicuneUI?.busy&&!window.TPStoriesUI?.busy&&!window.TPBoxes?.active&&!window.TPCollectionGame?.dialogOpen&&!tpSaveReplacing&&!(window.TPExpeditions&&window.TPExpeditions.busy)&&!["game","gamemenu","battle","trainer","keyboard","arena","league"].includes(screen)&&!fns.ceremony()&&!fns.evolvingNow()&&!fns.wildPromptActive()&&choice==="none";}
 function el(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=menuText(text);if(cls)n.className=cls;return n;}
 function button(text,fn,cls){const b=el("button",text,cls);b.type="button";b.addEventListener("click",e=>{if(Date.now()<suppressClickUntil){e.preventDefault();return;}try{fn();}catch(err){notice(err.message||String(err));}});return b;}
 // UI01 hub icons: local vector paths, no external media or extra labels.
@@ -70,7 +70,7 @@ function notice(text){
 let n=root.querySelector(".tp-app-notice");if(!n){n=el("p",undefined,"tp-app-notice");n.setAttribute("role","status");root.appendChild(n);}n.textContent=menuText(text);}
 function remember(value){try{if(value)sessionStorage.setItem("tp-app-return",value);else sessionStorage.removeItem("tp-app-return");}catch(_e){}}
 function parentPage(which){
- if(["zapdos","articuno","moltres","mewtwo","mew"].includes(which))return "stories";
+ if(["zapdos","articuno","moltres","mewtwo","mew","suicune"].includes(which))return "stories";
  if(which==="stories")return "pokedex";
  if(which==="journal")return sectionOrigin;
  return ["files","diagnostics","rights"].includes(which)?"settings":"main";
@@ -201,10 +201,20 @@ function decorateAdministration(which){
  body.append(left.column,right.column);root.append(frame,body);
 }
 
-function show(which="main"){
+function show(which="main",options={}){
+ if(which==="suicune"){
+  if(!quiet())return;
+  const phase=window.TPSuicune.view().phase;
+  const nativePage=phase==='waiting'||phase==='complete'||
+   (options?.encounter===true&&phase==='duel');
+  if(!nativePage){
+   window.TPSourceStoryStage.openLive();
+   return;
+  }
+ }
  if(!quiet())return;disposeJournal();hideDexNavigation();if(which==="main"||which==="pokedex")sectionOrigin=which;const tpPage=window.TPPerformance?.begin();active=true;page=which;screen="settings";root.hidden=false;TPText.refresh();root.setAttribute("lang",TPText.language());root.setAttribute("aria-label",TPText.t("menu.aria"));canvas.setAttribute("aria-label",TPText.t("menu.ariaCanvas"));root.replaceChildren();root.className=which==="pokedex"?"tp-app-main tp-pokedex-hub":which==="stories"?"tp-pokedex-stories":which==="journal"?"tp-pokedex-journal":which==="main"?"tp-app-main":"";
  dragStart=null;dragNow=null;choice="none";feedMenuUntil=0;confirmUntil=0;
- const head=el("header",undefined,"tp-app-head");head.appendChild(el("h2",{stories:"Geschichten",pokedex:"Pokédex-Zentrale",main:"Menü",journal:"Tagebuch",settings:"Einstellungen",files:"Dateien",diagnostics:"Diagnose",rights:"Quellen & Nutzungsrechte",zapdos:TPText.t("zapdos.title"),articuno:window.TPArktosText?.t("title"),moltres:window.TPLavadosText?.t("title"),mewtwo:window.TPMewtuText?.t("title"),mew:window.TPMewText?.t("title")}[which]||"Menü"));
+ const head=el("header",undefined,"tp-app-head");head.appendChild(el("h2",{stories:"Geschichten",pokedex:"Pokédex-Zentrale",main:"Menü",journal:"Tagebuch",settings:"Einstellungen",files:"Dateien",diagnostics:"Diagnose",rights:"Quellen & Nutzungsrechte",zapdos:TPText.t("zapdos.title"),articuno:window.TPArktosText?.t("title"),moltres:window.TPLavadosText?.t("title"),mewtwo:window.TPMewtuText?.t("title"),mew:window.TPMewText?.t("title"),suicune:window.TPSuicuneText?.t("title")}[which]||"Menü"));
  if(which!=="main")head.appendChild(button("Zurück",()=>which==="pokedex"?close():show(parentPage(which))));
  root.appendChild(head);
  if(which==="main"){
@@ -271,7 +281,15 @@ function show(which="main"){
   navigation.hidden=true;
   root.append(frame,body,preview,navigation);
   window.TPStoriesUI.mount(body,{preview,navigation});
- }else if(which==="mew"){
+ }else if(which==="suicune"){
+   const body=el("div");root.appendChild(body);
+   window.TPSuicuneUI.mount(body);
+   window.TPArticunoStoryStage.resume(body,{
+    story:'suicune',pageId:'tp-suicune-page',
+    title:window.TPSuicuneText.t('artName'),
+    kind:'water',introTitle:window.TPSuicuneText.t('completeTitle')
+   });
+  }else if(which==="mew"){
   const body=el("div");root.appendChild(body);window.TPMewUI.mount(body);
  }else if(which==="mewtwo"){
   const body=el("div");root.appendChild(body);window.TPMewtuUI.mount(body);
@@ -279,6 +297,7 @@ function show(which="main"){
   const body=el("div");root.appendChild(body);window.TPLavadosUI.mount(body);
  }else if(which==="articuno"){
   const body=el("div");root.appendChild(body);window.TPArktosUI.mount(body);
+  window.TPArticunoStoryStage?.resume?.(body);
  }else if(which==="zapdos"){
   const body=el("div");root.appendChild(body);window.TPZapdosUI.mount(body);
  }else if(which==="journal"){

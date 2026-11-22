@@ -32,7 +32,14 @@ const rules=[
  ['Arena-Sechserteam','arena-team.spec.js','^UI01 Arena-Team6:',4],
  ['Liga-Pflichtwechsel','league-team.spec.js','^P05c UI: forced replacement adds no turn/damage',1,['webkit-mobil']],
  ['Kanto-Variantenfortschritt','league-variant-progress.spec.js','^UI01 Kanto-Varianten:',4],
- ['Liga-Gesamtablauf','league-flow.spec.js','.*',1,['webkit-mobil']]
+ ['Liga-Gesamtablauf','league-flow.spec.js','.*',1,['webkit-mobil']],
+ // P07a final scope: retain all previous mandatory release groups.
+ ['P07a Quellenpfad','suicune-preparation.spec.js','^P07a Suicune:',7],
+ ['P07a gemeinsame Buehne','suicune-source-preview.spec.js','^P07a ',6],
+ ['P07a Suicune-Aufnahme','legendary-rest.spec.js','^suicune:',6],
+ ['Pflegewechsel und Kampfzugang','care-cycle-combat.spec.js','^care cycle:',8],
+ ['Direkte Hauptbildschirm-Entwicklung','evolution-home-flow.spec.js','^home evolution:',4],
+ ['Regionale Ordenuebergabe','arena-award-device.spec.js','^arena award device:',3]
 ].map(([name,file,title,count,projects=both])=>({name,file,title,count,projects}));
 
 const base=require(basePath);
@@ -109,7 +116,7 @@ try{
  if(collected.error)throw collected.error;
  if(collected.status!==0)throw Error(collected.stderr||collected.stdout);
  const expected=verify(JSON.parse(collected.stdout));
- console.log(`UI01-Pflichtprofil: ${expected} Browserprüfungen; genau ein vollständiger Liga-Flow.`);
+ console.log(`Release-Pflichtprofil: ${expected} Browserprüfungen; genau ein vollständiger Liga-Flow.`);
  for(const rule of rules)
   console.log(`- ${rule.name}: ${rule.count} Fall/Fälle × ${rule.projects.length} Browser`);
  if(!listOnly){
@@ -125,7 +132,7 @@ try{
   if(report.stats.expected!==expected||report.stats.skipped||
      report.stats.unexpected||report.stats.flaky)
    throw Error('Pflichtprofil nicht vollständig ohne Auslassungen bestanden.');
-  console.log('UI01-Pflichtprofil vollständig bestanden. Keine Aussage zur optionalen Gesamtregression.');
+  console.log('Release-Pflichtprofil vollständig bestanden. Keine Aussage zur optionalen Gesamtregression.');
  }
 }catch(error){
  console.error(error.message);process.exitCode=1;

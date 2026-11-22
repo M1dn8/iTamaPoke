@@ -114,6 +114,12 @@ function parseLegacy(input){
    name:'Mew',keys:['mewver','mewstep','mewtick'],
    notice:['mewnver','mewnread'],
    source:'story:kanto:mew',model:root.TPMewModel
+   },
+   {
+    name:'Suicune',keys:['suiver','suistep','suitick'],
+    notice:['suinver','suinread'],
+    source:'story:johto:suicune',
+    model:root.TPSuicuneModel||root.TPZapdosModel?.forStory?.('suicune')
   }
  ]){
   const [noticeVersion,noticeRead]=config.notice;

@@ -239,7 +239,8 @@
   const entries=[];
   for(const [id,order,service] of [
    ['zapdos',1,root.TPZapdos],['articuno',2,root.TPArktos],
-   ['moltres',3,root.TPLavados],['mewtwo',4,root.TPMewtu],['mew',5,root.TPMew]
+   ['moltres',3,root.TPLavados],['mewtwo',4,root.TPMewtu],['mew',5,root.TPMew],
+    ['suicune',6,root.TPSuicune]
   ]){
    if(!service?.noticeSupported)continue;
    entries.push({id,order,service,...service.access()});
@@ -297,7 +298,23 @@
   root.TPText.registerLocale(code,Object.fromEntries(
    Object.entries(previewLocales[code]).map(([key,value])=>['stories.'+key,value])
   ));
+ /* P07a Suicune catalogue route. */
+ const sourceLocales={
+  en:{sourcePlace:'The hidden spring',
+   'teaser.suicune':'A blue shimmer lies over the water.'},
+  de:{sourcePlace:'Die verborgene Quelle',
+   'teaser.suicune':'Ein blauer Schimmer liegt über dem Wasser.'},
+  es:{sourcePlace:'El manantial oculto',
+   'teaser.suicune':'Un brillo azul se extiende sobre el agua.'},
+  fr:{sourcePlace:'La source cachée',
+   'teaser.suicune':'Un reflet bleu flotte sur l’eau.'}
+ };
+ for(const code of ['en','de','es','fr'])
+  root.TPText.registerLocale(code,Object.fromEntries(
+   Object.entries(sourceLocales[code]).map(([key,value])=>['stories.'+key,value])
+  ));
  function storyPlace(entry){
+   if(entry.id==='suicune')return tr('sourcePlace');
   const text={
    articuno:root.TPArktosText,moltres:root.TPLavadosText,
    mewtwo:root.TPMewtuText,mew:root.TPMewText
@@ -322,7 +339,8 @@
    articuno:['#315b83','<path d="M4 20V12a8 8 0 0 1 16 0v8Z" fill="#dbe9f5"/><path d="M12 7v12M7 10l10 6M7 16l10-6"/>'],
    moltres:['#963c45','<path d="m3 20 4-13 5-4 5 4 4 13Z" fill="#f4dadd"/><path d="M9 16c6 0 7-6 6-8-4 0-7 3-6 8Zm0 1 6-8"/>'],
    mewtwo:['#71538a','<path d="M4 18V12a8 8 0 0 1 16 0v6Z" fill="#ece2f5"/><path d="M9 17v-5a3 3 0 0 1 6 0v5M3 21h18"/>'],
-   mew:['#3e7455','<path d="M3 14h18v4H3Z" fill="#dceedd"/><path d="M5 8v13M19 8v13M5 11h14M9 14v4M15 14v4"/>']
+   suicune:['#347b88','<path d="M4 7c3-3 5 3 8 0s5 3 8 0M4 13c3-3 5 3 8 0s5 3 8 0M4 19c3-3 5 3 8 0s5 3 8 0"/>'],
+    mew:['#3e7455','<path d="M3 14h18v4H3Z" fill="#dceedd"/><path d="M5 8v13M19 8v13M5 11h14M9 14v4M15 14v4"/>']
   }[id];
   const icon=node('span');
   icon.className='tp-story-place-icon';
@@ -537,7 +555,11 @@
    const mewNew=typeof Module._tp_story_step==='function'&&
     mewCall('tp_story_step')===0&&mewCall('tp_story_access')===1&&
     mewCall('tp_story_notice_read')===0;
-   if(!zapdosNew&&!arktosNew&&!moltresNew&&!mewtwoNew&&!mewNew)return;
+   const sourceCall=name=>Module.ccall(name,'number',['number'],[245]);
+    const suicuneNew=!!root.TPSuicune?.noticeSupported&&
+     sourceCall('tp_story_step')===0&&sourceCall('tp_story_access')===1&&
+     sourceCall('tp_story_notice_read')===0;
+    if(!zapdosNew&&!arktosNew&&!moltresNew&&!mewtwoNew&&!mewNew&&!suicuneNew)return;
    ctx.save();
    ctx.fillStyle='#17375e';ctx.strokeStyle='#fff7eb';ctx.lineWidth=1.5;
    ctx.beginPath();ctx.arc(x+18,y-18,8,0,Math.PI*2);

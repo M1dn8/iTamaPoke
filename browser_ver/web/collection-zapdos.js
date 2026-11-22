@@ -16,7 +16,8 @@
    articuno:{dex:144,code:'ARTICUNO'},
    moltres:{dex:146,code:'MOLTRES'},
    mewtwo:{dex:150,code:'MEWTWO'},
-   mew:{dex:151,code:'MEW'}
+   mew:{dex:151,code:'MEW'},
+    suicune:{dex:245,code:'SUICUNE'}
   });
   const config=Object.prototype.hasOwnProperty.call(profiles,profile)?
    profiles[profile]:null;
@@ -30,7 +31,9 @@
    'tp_zpd_step':['tp_story_step',0],
    'tp_zpd_ticket':['tp_story_ticket',0],
    'tp_zpd_access':['tp_story_access',0],
-   'tp_zpd_kanto_badges':['tp_story_kanto_badges',0],
+   'tp_zpd_kanto_badges':[
+     profile==='suicune'?'tp_story_badges':'tp_story_kanto_badges',0
+    ],
    'tp_zpd_notice_read':['tp_story_notice_read',0],
    'tp_zpd_notice_mark':['tp_story_notice_mark',1],
    'tp_zpd_advance':['tp_story_advance',1],
@@ -48,7 +51,10 @@
    'tp_zpd_get','tp_zpd_snapshot','tp_zpd_result_begin',
    'tp_zpd_result_apply','tp_zpd_result_finish','tp_wt_view',
    'tp_wt_stage_begin','tp_wt_stage_entry'
-  ].every(name=>typeof mod['_'+nativeName(name)]==='function');
+  ].every(name=>typeof mod['_'+nativeName(name)]==='function')&&
+    (profile!=='suicune'||[
+     'tp_story_region','tp_story_badges','tp_suicune_source_complete'
+    ].every(name=>typeof mod['_'+name]==='function'));
   function call(name,args=[],type='number'){
    const route=routes[name];
    const actual=args.slice();
@@ -85,7 +91,9 @@
    if(!noticeSupported)fail('ZAPDOS_ACCESS_CORE_UNAVAILABLE');
    const story=read(),waiting=admission.read();
    Z.validateProfile(story,waiting,controller.read());
-   const unlocked=call('tp_zpd_access');
+   if(profile==='suicune'&&call('tp_story_region',[config.dex])!==1)
+     fail('INVALID_ZAPDOS_REGION');
+    const unlocked=call('tp_zpd_access');
    const badges=call('tp_zpd_kanto_badges');
    const notice=call('tp_zpd_notice_read');
    if(![0,1].includes(unlocked)||![0,1].includes(notice)||
@@ -132,7 +140,15 @@
     return base.finish(token,commit);
    }
   });
-  const nativeActions=Object.freeze({
+  function sourceProof(value){
+    if(!Array.isArray(value))fail('INVALID_ZAPDOS_SOURCE_PROOF');
+    const copy=Array.from(value);
+    if(copy.length!==3||copy.some(
+     n=>!Number.isInteger(n)||n<0||n>3
+    ))fail('INVALID_ZAPDOS_SOURCE_PROOF');
+    return Object.freeze(copy);
+   }
+   const nativeActions=Object.freeze({
    [actionName('Notice')](before,token){
     M.validate(before);snapshotBefore(before);
     if(!noticeSupported||call('tp_zpd_notice_mark',[token])!==1||
@@ -141,10 +157,26 @@
     return before;
    },
    [actionName('Advance')](before,token,action){
+    let rotations=null;
+    if(profile==='suicune'&&action!==null&&typeof action==='object'){
+     if(Object.getPrototypeOf(action)!==Object.prototype||
+        Object.keys(action).length!==2||
+        !Object.hasOwn(action,'action')||
+        !Object.hasOwn(action,'rotations')||
+        action.action!=='secure')
+      fail('INVALID_ZAPDOS_SOURCE_PROOF');
+     rotations=sourceProof(action.rotations);
+     action=action.action;
+    }
+    if(profile==='suicune'&&action==='secure'&&rotations===null)
+     fail('INVALID_ZAPDOS_SOURCE_PROOF');
     before=reconcile(before,token);M.validate(before);
     const {story}=snapshotBefore(before);
     const next=Z.advance(story,action);
-    if(call('tp_zpd_advance',[token,story.step])!==1)
+    const advanced=profile==='suicune'&&action==='secure'?
+     call('tp_suicune_source_complete',[token,...rotations]):
+     call('tp_zpd_advance',[token,story.step]);
+    if(advanced!==1)
      fail('NATIVE_ZAPDOS_ADVANCE_REFUSED');
     if(Z.encode(load())!==Z.encode(next))
      fail('ZAPDOS_ADVANCE_MISMATCH');
@@ -210,9 +242,11 @@
     Z.validateProfile(story,waiting,controller.read());
     return Z.view(story,waiting);
    },
-   advance(action){
+   advance(action,proof){
     guard();Z.advance(read(),action);admission.read();
-    return controller.act(actionName('Advance'),action);
+    const payload=profile==='suicune'&&action==='secure'?
+     Object.freeze({action,rotations:sourceProof(proof)}):action;
+    return controller.act(actionName('Advance'),payload);
    },
    prepare(){
     guard();

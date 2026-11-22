@@ -466,7 +466,12 @@ function details(){
   busy=true;message='';render(true);
   let result=false;
   try{
-   if(view.page==='training')
+   /* Offer existing care placement before entering a team battle. */
+   if(view.page==='battle'&&
+      ['wild','arena','league'].includes(data.selected.id)&&
+      root.TPCollectionModel.needsCarePlacement(root.TPCollection.read())){
+    result=root.TPBoxes?.open('activity')===true;
+   }else if(view.page==='training')
     result=root.TPTraining.start(data.selected.kind,performance.now(),'activity');
    else if(data.selected.id==='wild')
     result=await root.TPWildTeam.start(false,'activity');

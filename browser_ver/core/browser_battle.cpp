@@ -1007,7 +1007,7 @@ EMSCRIPTEN_KEEPALIVE int tp_story_duel_get(int dex,int key){
 }
 
 EMSCRIPTEN_KEEPALIVE int tp_story_duel_start(int dex){
- if(dex!=144&&dex!=145&&dex!=146&&dex!=150&&dex!=151)return 0;
+ if(dex!=144&&dex!=145&&dex!=146&&dex!=150&&dex!=151&&dex!=245)return 0;
 #if defined(__EMSCRIPTEN__) || defined(TP_ZPD_TEST)
  if(gOpen||leagueOwned()||gArenaUndo||!wtStoreFree()||
     !tp_battle_can_start()||tp_battle_pet().evolving()||

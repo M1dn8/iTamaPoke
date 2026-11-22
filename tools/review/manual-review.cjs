@@ -33,7 +33,8 @@ for(const [globalName,file] of [
  ['TPArktosModel','articuno-story-model.js'],
  ['TPLavadosModel','moltres-story-model.js'],
  ['TPMewtuModel','mewtwo-story-model.js'],
- ['TPMewModel','mew-story-model.js']
+ ['TPMewModel','mew-story-model.js'],
+ ['TPSuicuneModel','suicune-story-model.js']
 ]){
  globalThis[globalName]=require(
   path.join(ROOT,'browser_ver/web',file)
@@ -64,7 +65,7 @@ if(hasManifest){
     !['schema','story','names'].every(key=>
      Object.prototype.hasOwnProperty.call(manifest,key))||
     manifest.schema!==1||
-    !['articuno','moltres','mewtwo','mew','catalogue','journal','mega'].includes(manifest.story)||
+    !['articuno','moltres','mewtwo','mew','catalogue','journal','mega','suicune-preview'].includes(manifest.story)||
     !Array.isArray(manifest.names)||manifest.names.length!==8||
     manifest.names.some((name,index)=>
      typeof name!=='string'||name.length>96||
@@ -74,7 +75,27 @@ if(hasManifest){
   throw Error('Ungueltiges Reviewprofil.');
 }
 const reviewStory=hasManifest?manifest.story:'articuno';
-const names=Object.freeze([...(hasManifest?manifest.names:defaultNames)]);
+/* P07a live source review slot 9. */
+const liveSourceName='09-suicune-live';
+const hasLiveSource=reviewStory==='suicune-preview'&&
+ manifest.names[7]==='08-arktos-vergleich'&&
+ fs.existsSync(path.join(saves,liveSourceName+'.tpsave'));
+/* Existing review: direct award and home-evolution cases. */
+const finishReviewNames=reviewStory==='suicune-preview'?[
+ '10-kanto-ordenuebergabe',
+ '11-johto-ordenuebergabe',
+ '12-entwicklung-hauptbildschirm'
+].filter(name=>fs.existsSync(path.join(saves,name+'.tpsave'))):[];
+const finishReviewKeys={
+ o:'10-kanto-ordenuebergabe',
+ j:'11-johto-ordenuebergabe',
+ e:'12-entwicklung-hauptbildschirm'
+};
+const names=Object.freeze([
+ ...(hasManifest?manifest.names:defaultNames),
+ ...(hasLiveSource?[liveSourceName]:[]),
+ ...finishReviewNames
+]);
 // End P06 review profile configuration
 
 let context,server,page,output,origin;
@@ -97,6 +118,19 @@ function event(kind,data){
  }
 }
 function help(){
+ if(finishReviewNames.length)
+  console.log('\nSichtprüfung: o = Kanto-Orden · j = Johto-Orden · e = Entwicklung.\n'+
+   'Bei diesen Fällen setzt r den Testausgang zurück und öffnet die Ansicht erneut.');
+ if(reviewStory==='suicune-preview'){
+  console.log(names[7]==='08-arktos-vergleich'?'\nP07a-Vergleich: 1–7 Vorschau ohne Speicherung; 8 echte Arktos-Testgeschichte.':'\nP07a · Suicune-Szenenprototyp, ohne Storyspeicherung');
+  if(hasLiveSource)
+   console.log('Zusätzlich Fall 9: produktive Suicune-Quelle mit Speicherung im Testprofil.');
+  console.log(names.map((n,i)=>(i+1)+' = '+n.slice(3).replaceAll('-',' ')).join('\n'));
+  if(hasLiveSource)
+   console.log('9 setzt den Ausgang zurück; r behält den gespeicherten Quellenfortschritt.');
+  console.log('s: Screenshot/Notiz · r: Vorschau neu laden · w: Größe · h: Hilfe · q: Ende');
+  return;
+ }
  console.log('\n1–8: Testspielstand neu starten');
  console.log('s: Screenshot + Notiz');
  console.log('r: neu laden, Fortschritt behalten');
@@ -167,7 +201,98 @@ async function reportMegaProfileGraphics(){
  megaGraphicsReported=true;
 }
 
+async function openFinishReview(){
+ const name=names[current-1];
+ const H=require(path.join(ROOT,'tools/browser-tests/specs/helpers.js'));
+ await H.game(page);
+ if(name==='12-entwicklung-hauptbildschirm'){
+  await page.locator('#tp-home-evolution').waitFor({state:'visible'});
+  return;
+ }
+ const region=name==='11-johto-ordenuebergabe'?1:0;
+ const AU=require(path.join(ROOT,'tools/browser-tests/specs/arena-ui-helpers.js'));
+ const arena=await H.openArenaSelection(page);
+ if(await page.evaluate(()=>TPArena.region)!==region){
+  await arena.locator('[data-arena-region-toggle]').click();
+  await AU.region(page,region);
+ }
+ await AU.details(page,0);
+ if(!await AU.challenge(page))throw Error('Review-Arena nicht startbereit.');
+ for(let opponent=0;opponent<6;opponent++){
+  for(let turn=0;turn<30;turn++){
+   if(await page.evaluate(()=>
+    TPArena.snapshot?.phase!=='fighting'||!!fns.battleResolved()
+   ))break;
+   await H.battleAction(page,'quick');
+  }
+  if(await page.evaluate(()=>TPArena.snapshot?.phase!=='fighting'))break;
+  if(!await page.evaluate(()=>!!fns.battleResolved()))
+   throw Error('Review-Kampf hat seine Rundengrenze erreicht.');
+  if(await page.evaluate(()=>TPTrainer.get(3)===1)){
+   await H.battleAction(page,'next');
+  }else{
+   await page.waitForFunction(()=>TPArena.snapshot?.phase!=='fighting');
+   break;
+  }
+ }
+ await page.waitForFunction(()=>TPArena.snapshot?.phase==='done');
+ await page.locator('#tp-story-stage[data-story="arena-award"]')
+  .waitFor({state:'visible'});
+}
 async function openStory(){
+ if(finishReviewNames.includes(names[current-1])){
+  await openFinishReview();
+  return;
+ }
+  // P07a shared story stage review loader
+  if(reviewStory==='suicune-preview'){
+   for(const [globalName,file]of [
+    ['TPStoryStage','story-stage.js'],
+    ['TPStoryNarrative','story-narrative.js'],
+    ['TPSuicuneSourcePreview','suicune-source-preview.js'],
+    ['TPSourceStoryStage','suicune-story-stage.js'],
+    ['TPArticunoStoryStage','articuno-story-stage.js']
+   ]){
+    if(!await page.evaluate(name=>!!window[name],globalName))
+     await page.addScriptTag({path:path.join(ROOT,'browser_ver/web',file)});
+   }
+  }
+
+ // P07a existing-story comparison
+ if(reviewStory==='suicune-preview'&&names[current-1]==='08-arktos-vergleich'){
+  await page.evaluate(()=>{
+    window.TPAppMenu.show('articuno');
+    window.TPArticunoStoryStage.open();
+   });
+  return;
+ }
+
+ if(reviewStory==='suicune-preview'){
+  const exists=await page.evaluate(()=>!!window.TPSuicuneSourcePreview);
+  if(!exists)await page.addScriptTag({
+   path:path.join(ROOT,'browser_ver/web/suicune-source-preview.js')
+  });
+  const file=path.join(ROOT,'Resources/mons/p245.bin');
+  if(fs.existsSync(file)&&fs.statSync(file).size<=16*1024*1024){
+   await page.evaluate(async bytes=>{
+    if(typeof loadSpriteAsset==='function'&&await loadSpriteAsset('p245.bin'))return;
+    await importSpriteFiles([new File([Uint8Array.from(bytes)],'p245.bin')]);
+   },Array.from(fs.readFileSync(file)));
+  }
+  if(hasLiveSource&&current===9){
+   const H=require(path.join(ROOT,'tools/browser-tests/specs/helpers.js'));
+   await H.game(page);
+   await page.waitForFunction(()=>window.TPSuicune?.supported===true);
+   await page.evaluate(async()=>{await TPCollectionGame.ensureCurrent();});
+   await page.waitForFunction(()=>
+    !tpSaveReplacing&&!TPCollection.busy&&!TPCollection.blocked
+   );
+   await page.evaluate(()=>TPAppMenu.show('stories'));
+  }else{
+   await page.evaluate(number=>TPSuicuneSourcePreview.open(number),current);
+  }
+  return;
+ }
  /* UI01 Mega review profile */
  if(reviewStory==='mega'){
   const H=require(path.join(ROOT,'tools/browser-tests/specs/helpers.js'));
@@ -183,7 +308,7 @@ async function openStory(){
 async function graphics(){
  const files=[];
  for(const name of [...new Set([...[
-  'p001.bin','p003.bin','p006.bin','p009.bin','ps009.bin',
+  'p001.bin','p002.bin','p003.bin','p006.bin','p009.bin','ps009.bin',
   'p025.bin','p094.bin','p149.bin',
   'p144.bin','p145.bin','p146.bin','p150.bin','p151.bin','p376.bin'
  ],...(reviewStory==='mega'?["p006.bin", "ps006.bin", "p376.bin", "ps376.bin", "p303.bin", "ps303.bin", "p006-mega-x.bin", "ps006-mega-x.bin", "p376-mega.bin", "ps376-mega.bin", "p303-mega.bin", "ps303-mega.bin"]:[])])]){
@@ -314,6 +439,9 @@ async function screenshot(){
   };
   return {
    screen:typeof screen==='string'?screen:'',
+   suicunePreview:read(()=>window.TPSuicuneSourcePreview?.state()),
+    suicune:read(()=>window.TPSuicune?.read()),
+    storyStage:read(()=>window.TPStoryStage?.state()),
    arktos:read(()=>window.TPArktos?.read()),
    lavados:read(()=>window.TPLavados?.read()),
    mewtu:read(()=>window.TPMewtu?.read()),
@@ -360,15 +488,42 @@ async function keyHandler(value,key={}){
  if(busy||closing)return;
  busy=true;
  try{
-  if(/^[1-8]$/.test(value||'')){
+  const extra=finishReviewKeys[value];
+  if(extra&&finishReviewNames.includes(extra)){
+   const writing=await page.evaluate(()=>
+    !!window.TPCollection?.busy||
+    (typeof tpSaveReplacing!=='undefined'&&!!tpSaveReplacing));
+   if(writing){
+    console.log('Speicherung läuft; bitte kurz warten.');
+    return;
+   }
+   await loadCase(names.indexOf(extra)+1);
+   return;
+  }
+  if(hasLiveSource&&current===9&&/^[1-9rq]$/.test(value||'')){
+    const saving=await page.evaluate(()=>
+     !!window.TPCollection?.busy||
+     (typeof tpSaveReplacing!=='undefined'&&!!tpSaveReplacing)
+    );
+    if(saving){
+     console.log('Speicherung läuft. Bitte Abschluss abwarten und Taste danach erneut drücken.');
+     return;
+    }
+   }
+   if(/^[1-9]$/.test(value||'')&&Number(value)<=names.length){
    await loadCase(Number(value));
   }else if(value==='s'){
    await screenshot();
   }else if(value==='r'){
+   if(finishReviewNames.includes(names[current-1])){
+    await loadCase(current);
+    console.log('Sichtfall aus geprüftem Testausgang erneut geöffnet.');
+    return;
+   }
    await page.reload();
    await ready();
    await openStory();
-   console.log('Neu geladen, Fortschritt behalten.');
+   console.log(reviewStory==='suicune-preview'&&current!==9&&names[current-1]!=='08-arktos-vergleich'?'Vorschau neu geladen; Wasserweg nicht gespeichert.':'Neu geladen, Fortschritt behalten.');
   }else if(value==='w'){
    const sizes=[
  {width:320,height:844},{width:390,height:844},{width:430,height:844},
@@ -480,7 +635,10 @@ console.log('Review-Größe:',size.width+' × '+size.height,
  console.log('Aufnahmen:',output);
  console.log('Profil:',profile);
 
- await loadCase(['catalogue','journal','mega'].includes(reviewStory)?1:5);
+ if(finishReviewNames.length)
+  await loadCase(names.indexOf(finishReviewNames[0])+1);
+ else if(reviewStory==='suicune-preview')await loadCase(1);
+ else await loadCase(['catalogue','journal','mega'].includes(reviewStory)?1:5);
 
  readline.emitKeypressEvents(process.stdin);
  process.stdin.setRawMode(true);

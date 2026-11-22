@@ -1,153 +1,22 @@
-## P07 — Planungsgrundlage freigegeben
-
-<!-- P07-PLAN-FREIGEGEBEN-20261105 -->
-Nutzerfreigabe: 05.11.2026, 23:13 CET.
-UI01 abgenommen. Nächstes Paket: Legendären-Geschichten Johto.
-Teilfolge: P07a Suicune, P07b Raikou/Entei, P07c Lugia/Ho-Oh,
-P07d Celebi und Abschluss.
-Storyideen und Gestaltungsrichtung angenommen; konkrete Regeln und
-Geschichten morgen finalisieren. Keine Umsetzung bereits behaupten.
-Verbindliche Details: [P07-UEBERGABE.de.md](P07-UEBERGABE.de.md).
-
----
-
-## UI01 abgenommen — 05.11.2026, 23:06 CET
-
-<!-- UI01-ABGENOMMEN-20261105 -->
-Dokumentiert: 2026-11-05T23:07:36+01:00
-Lokaler Quell-HEAD zum Zeitpunkt der Abnahmedokumentation: c1d4dc20858935748a03f45e51bd061ef61ea596
-
-### Verbindliche Nutzerrückmeldung
-- GitHub-Build grün.
-- Abnahme auf dem iPhone bestätigt.
-- Grafiken funktionieren.
-- Wildkampf und Fangen funktionieren.
-- In Arena- und Ligakämpfen können nach einem K. o. andere
-  einsatzfähige Teammitglieder eingewechselt werden.
-
-UI01 ist damit für den vereinbarten Umfang abgenommen.
-Keine zusätzliche Team-Erweiterung für normale Trainerkämpfe beschlossen.
-Die Bestätigung ist keine Aussage, dass jede optionale Regression,
-jedes Gerät oder jede denkbare Spielsituation geprüft wurde.
-
-### Erhalten
-- Fang-/Aufnahmesicherheit und genau einmalige Speicherung.
-- Wiederaufnahme in der bestehenden Gerätehülle.
-- Arena-Sechserteam und Pflichtwechsel.
-- Kanto-Variantenanzeige aus gespeicherten Nachweisen.
-- Private Grafikpakete einschließlich registrierter Trainer/B-Porträts.
-- Vereinbartes Releaseprofil sowie Speicher-, Medien- und Kandidatenschutz.
-
-### Nachverfolgung
-Die frühere Beobachtung Metagross/Aerodactyl wird nicht als
-ursächlich geklärt behauptet. Bei erneutem Auftreten den konkreten
-Zustand vor dem Boxen-Workaround sichern und separat untersuchen.
-Bereits abgenommene Oberflächen nicht deshalb erneut umgestalten.
-
-### Weiterarbeit
-- Keine erneute UI01-Gesamttestschleife ohne konkreten neuen Fehler.
-- Nächstes vorgesehenes Paket: P07, Legendären-Geschichten Johto.
-- P07 ist noch nicht begonnen; zuerst Umfang und vorhandene Grundlagen abgleichen.
-- Bestehende Arbeitsweise, Revisionsbrowser und gesichertes Profil erhalten.
-- Keine privaten Medien oder echten Spielstände veröffentlichen.
-
----
-
-## Veröffentlichungsstand UI01 — 05.11.2026
-
-<!-- UI01-VEROEFFENTLICHUNGSSTAND-20261105 -->
-Dokumentiert: 2026-11-05T22:46:26+01:00
-
-### Lokal bestätigt
-- Fangabschluss und Wiederaufnahme: vier Browserfälle in Chromium/WebKit bestanden.
-- Offene Aufnahme nach Reload nutzt die bestehende Gerätehülle.
-- Aufnahme genau einmal; Team/Pflegeidentität erhalten; Weiter wieder erreichbar.
-- Arena-Sechserteam: acht Fälle in Kanto/Johto und Chromium/WebKit bestanden.
-- Frischer Liga-Team-Pflichtwechsel in WebKit bestanden.
-- Kanto-Variantenanzeige: acht Fälle für Masken 0, 1, 3 und 7 bestanden.
-- Variantenanzeige liest gespeicherte Nachweise; Mew-Regeln nicht geändert.
-- Nutzer bestätigt Grafikpakete erstellt und auf dem iPhone importiert.
-- Neue gezielte Browsergruppen sind in der verbindlichen Freigabeauswahl.
-- Kurze Syntax-/Vertrags-/Erfassungsprüfung für diesen Veröffentlichungsstand bestanden.
-
-### Veröffentlichung und Abnahme
-- Dieser Stand wird für Commit/Push vorbereitet.
-- Neuer GitHub-Lauf und Deployment sind noch separat zu bestätigen.
-- Kein vollständiger lokaler Browser- oder Native-Gesamtlauf wiederholt.
-- Keine vollständige iPhone- oder UI01-Gesamtabnahme behaupten.
-- P07 bleibt bis zum UI01-Abschluss zurückgestellt.
-
-### Verbleibender gezielter iPhone-Abgleich nach Veröffentlichung
-1. Erfolgreicher Fang mit vollem Team: Entscheidung, Boxablage und Weiter.
-2. Offene Aufnahme nach vollständigem Schließen/Neustart: aktuelle Hülle,
-   bedienbare Entscheidung und keine doppelte Aufnahme.
-3. Kanto-Variantenanzeige sowie Liga-/Top-Vier-Grafiken sichtbar prüfen.
-4. Ursprünglichen Pflegeabgleich Metagross/Aerodactyl und Liga-Abbruch
-   bei Wiederauftreten mit konkretem Spielstand eingrenzen.
-   Nicht allein wegen grüner frischer Testteams als behoben markieren.
-
-Bestätigte Gestaltung erhalten. Keine Originalmedien oder echten Spielstände
-zurücksetzen; Grafikpakete bleiben außerhalb des Repositorys.
-
----
-
-## Aktueller Abschlussabgleich UI01 — 05.11.2026
-
-<!-- UI01-ABSCHLUSSABGLEICH-20261105 -->
-Dokumentiert: 2026-11-05T22:03:26+01:00
-Basis-HEAD: b62b538fb12e5f654d747a46d5573c8e3ee96dcd
-
-### Bestätigte Ergebnisse dieser Sitzung
-- Fang-Aufnahmereihenfolge: Fehler am alten Code reproduziert, Korrektur geprüft.
-- Rückgabe nach Aufnahme: Neuzeichnung der Kampfknöpfe abgesichert.
-- Vier Fang-Browserfälle in Chromium/WebKit bestanden:
-  volles Team, verzögerte Speicherung, Boxentscheidung, Weiter,
-  offene Aufnahme nach Reload und genau einmalige Ablage.
-- Acht Arena-Sechserteam-Fälle in Kanto/Johto und Chromium/WebKit bestanden:
-  alle Mitglieder auswählbar, Pflichtwechsel ohne Extrazug,
-  besiegtes Mitglied gesperrt, Fortsetzung gegen nächsten Gegner.
-- Frischer Liga-Team-Pflichtwechsel in WebKit bestanden.
-- Keine zusätzliche Team-Erweiterung für Wild- oder normale Trainerkämpfe beschlossen.
-- Arena-Kampflogik nicht neu implementiert; vorhandenen Sechserteam-Pfad geprüft.
-- Änderungen dieser Sitzung noch nicht veröffentlicht.
-
-### Verbindliche Restreihenfolge
-1. Aufnahme-Wiederansicht nach Reload an die bestehende UI01-Gerätehülle anschließen.
-   Funktionsnachweis ist keine sichtbare Abnahme dieser Wiederansicht.
-2. Pflegeabgleich Metagross/Aerodactyl und ursprünglichen Liga-Befund gezielt klären.
-   Keine Spielstandidentitäten oder alten Läufe auf Verdacht verändern.
-3. Grafikpaketwerkzeug an die vollständige bestehende Trainerregistrierung anbinden.
-   Danach vorhandene echte BINs außerhalb des Repositorys neu verpacken.
-4. Gezielte restliche Sichtprüfung, Veröffentlichung über das Releaseprofil,
-   anschließend iPhone-Prüfung von Fang, Wiederaufnahme und Liga-/Top-Vier-Grafiken.
-5. UI01 erst nach Klärung beziehungsweise ausdrücklicher Entscheidung über die
-   verbleibenden Befunde abschließen. P07 bleibt zurückgestellt.
-
-### Freigabe und Arbeitsweise
-- Neue Fang-, Arena-Sechserteam- und Liga-Pflichtwechselgruppen in Releaseauswahl.
-- Native-/Speicher-/Medien- und Kandidatenschutz unverändert.
-- Kein zusätzlicher vollständiger lokaler Browser- und Native-Gesamtlauf.
-- Erweiterte Gesamtregression bleibt ausdrücklich separat und manuell.
-- Bestehenden Revisionsbrowser und dessen gespeichertes Profil verwenden.
-- Keine Originalmedien, Spielstände oder bisherigen Sicherungen überschreiben.
-- Bereits bestätigte Gestaltungen nicht erneut bearbeiten.
-
----
-
-<!-- UI01-TAGESABSCHLUSS-20261103-2306 -->
-## Aktueller UI01-Stand — 03.11.2026, 23:06 CET
-
-GitHub grün laut Nutzer; erste iPhone-Prüfung positiv.
-Vollständige iPhone-Abnahme noch offen.
-Verbindliche Restpunkte: Pflege-/Sammlungsabgleich Metagross/Aerodactyl
-vor Wildkampfstart, private Grafikpakete und gezielte Liga-/Top-Vier-Grafikprüfung.
-P07 bleibt zurückgestellt. Heute keine weiteren Tests oder Änderungen.
-Maßgeblich: [aktuelle Übergabe](UI01-UEBERGABE.de.md).
-Ältere Planstände darunter nicht als erneut offene Pflichtliste behandeln.
-
----
-
 # Projektplan — iTamaPoke
+
+<!-- P07A-STAND-20261120 -->
+## Aktueller verbindlicher Arbeitsstand — 20.11.2026
+Maßgeblich: [P07A-ABSCHLUSS-20261120.md](P07A-ABSCHLUSS-20261120.md).
+
+- Aktives Paket P07a; Suicune-Reisebuch funktional und visuell abgenommen.
+- Vier gemeinsame Aufnahmefälle heute zusammen bestanden.
+- Normalbewegung und vollständige Boxbelegung mit späterer Aufnahme
+  zusätzlich jeweils einzeln bestanden.
+- Keine vollständige P07a-/iPhone-/Veröffentlichungsfreigabe.
+- Bestätigte Arktos-Referenz nicht erneut als offenen Darstellungsfehler führen.
+- P07b–d nicht begonnen; kein Commit oder Push freigegeben.
+
+## Erhaltene Gesamtplanung und frühere Statusangaben
+Der folgende Bestand bleibt als Planungs- und Nachweishistorie erhalten.
+Bei zeitabhängigen Aussagen gilt der oben verlinkte aktuelle Fortsetzungsstand.
+Die zuvor vorangestellte Änderungschronik ist vollständig archiviert:
+[Projektplan vor Abgleich](archive/P07a-vor-Standabgleich-20261120-215446-492828/PROJECT-PLAN.de.md).
 
 ## Aktueller Haltepunkt — Statusseite
 

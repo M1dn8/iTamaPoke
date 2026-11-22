@@ -1316,7 +1316,7 @@ function draw() {
   }
   if (now < feedMenuUntil) drawFeedMenu(ink);
   if (now < confirmUntil) drawReleaseDialog();
-  if (choice !== "none") drawChoiceDialog();
+  if (choice !== "none"&&!window.TPHomeEvolution?.active) drawChoiceDialog();
 
   // Wild-encounter prompt, checked once a frame while the idle screen is
   // genuinely the front-most thing -- mirrors PetScreen.swift's
@@ -1336,7 +1336,7 @@ function draw() {
 
 function handleTap(x, y) {
   if(window.TPActions?.busy||window.TPActivities?.busy)return;
-  if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy||window.TPLavadosUI?.busy||window.TPMewtuUI?.busy||window.TPMewUI?.busy)return;
+  if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy||window.TPLavadosUI?.busy||window.TPMewtuUI?.busy||window.TPMewUI?.busy||window.TPSuicuneUI?.busy)return;
   if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return;
   if(window.TPLeague?.busy)return;
   if(window.TPBoxes?.active)return;
@@ -1495,7 +1495,7 @@ function handleTap(x, y) {
 function swipeAllowed() {
   if(window.TPActions?.active||window.TPActions?.busy||screen==='expedition'||screen==='activity')return false;
 
-  if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy||window.TPLavadosUI?.busy||window.TPMewtuUI?.busy||window.TPMewUI?.busy)return false;
+  if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy||window.TPLavadosUI?.busy||window.TPMewtuUI?.busy||window.TPMewUI?.busy||window.TPSuicuneUI?.busy)return false;
   if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return false;
   if(window.TPBoxes?.active)return false;
   if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen)return false;
@@ -1515,7 +1515,7 @@ function swipeAllowed() {
 function onSwipe(dir) {
   if(window.TPActions?.active||window.TPActions?.busy||screen==='expedition'||screen==='activity')return ;
 
-  if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy||window.TPLavadosUI?.busy||window.TPMewtuUI?.busy||window.TPMewUI?.busy)return;
+  if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy||window.TPLavadosUI?.busy||window.TPMewtuUI?.busy||window.TPMewUI?.busy||window.TPSuicuneUI?.busy)return;
   if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return;
   if(window.TPBoxes?.active)return;
   if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen)return;
@@ -1546,7 +1546,7 @@ function onSwipe(dir) {
 function openPokedexFromIdle() {
   if(window.TPActions?.active||window.TPActions?.busy||screen==='expedition'||screen==='activity')return false;
 
-  if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy||window.TPLavadosUI?.busy||window.TPMewtuUI?.busy||window.TPMewUI?.busy)return false;
+  if(window.TPZapdosUI?.busy||window.TPArktosUI?.busy||window.TPLavadosUI?.busy||window.TPMewtuUI?.busy||window.TPMewUI?.busy||window.TPSuicuneUI?.busy)return false;
   if(window.TPAdmissionUI?.active||window.TPAdmissionUI?.busy)return false;
   if(window.TPBoxes?.active)return false;
   if(window.TPCollection?.busy||window.TPCollectionGame?.dialogOpen)return false;
@@ -2147,19 +2147,26 @@ createTPCore({
         window.TPAdmissionModel,admission,psiBridge,
         life?life.reconcile:undefined,'mew'
       ):null;
-    const collectionBridge=mew?mew.bridge:psiBridge;
+    const previousStoryBridge=mew?mew.bridge:psiBridge;
+    const suicune=window.TPSuicuneModel?
+      window.TPCollectionZapdos?.create(
+        mod,window.TPCollectionModel,window.TPSuicuneModel,
+        window.TPAdmissionModel,admission,previousStoryBridge,
+        life?life.reconcile:undefined,'suicune'
+      ):null;
+    const collectionBridge=suicune?suicune.bridge:previousStoryBridge;
     const journal=window.TPCollectionJournal?.create(mod,window.TPCollectionModel);
     window.TPCollection=window.TPCollectionPersistence.create({
       model:window.TPCollectionModel,
       bridge:admission?admission.wrapBridge(collectionBridge):collectionBridge,
-      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{}),...(wildResult?wildResult.nativeActions:{}),...(arenaResult?arenaResult.nativeActions:{}),...(leagueStart?leagueStart.nativeActions:{}),...(admission?admission.nativeActions:{}),...(zapdos?zapdos.nativeActions:{}),...(articuno?articuno.nativeActions:{}),...(moltres?moltres.nativeActions:{}),...(mewtwo?mewtwo.nativeActions:{}),...(mew?mew.nativeActions:{}),...(journal?journal.nativeActions:{})},
+      nativeActions:{...(life?life.nativeActions:{}),...(capture?capture.nativeActions:{}),...(wildResult?wildResult.nativeActions:{}),...(arenaResult?arenaResult.nativeActions:{}),...(leagueStart?leagueStart.nativeActions:{}),...(admission?admission.nativeActions:{}),...(zapdos?zapdos.nativeActions:{}),...(articuno?articuno.nativeActions:{}),...(moltres?moltres.nativeActions:{}),...(mewtwo?mewtwo.nativeActions:{}),...(mew?mew.nativeActions:{}),...(suicune?suicune.nativeActions:{}),...(journal?journal.nativeActions:{})},
       acquire:(context)=>{
         const admissionContext=context==="admissionComplete";
         const leagueContext=[
           "leaguePrepare","leagueStart","leagueResume","leagueWin"
         ].includes(context);
         const arenaContext=context==="arenaPrepare"||context==="arenaResult";
-        const battleContext=["wildCapture","wildResult","arenaResult","zapdosResult","articunoResult","moltresResult","mewtwoResult","mewResult"].includes(context);
+        const battleContext=["wildCapture","wildResult","arenaResult","zapdosResult","articunoResult","moltresResult","mewtwoResult","mewResult","suicuneResult"].includes(context);
         const wildPreparationActivity=context==="wildPrepare"&&
           screen==="activity"&&
           !!window.TPActivities?.inContext("battle")&&
@@ -2212,6 +2219,10 @@ createTPCore({
       mew.bind(window.TPCollection);
       window.TPMew=mew;
     }
+    if(suicune){
+      suicune.bind(window.TPCollection);
+      window.TPSuicune=suicune;
+    }
     if(admission){
       admission.bind(window.TPCollection);
       window.TPAdmission=admission;
@@ -2260,6 +2271,7 @@ createTPCore({
     tpPerf?.tick(tpSample,choice==="none"&&!window.TPMega?.busy&&!window.TPTraining?.busy&&!window.TPArena?.busy);
     if(window.TPAppMenu)window.TPAppMenu.markReady();
     if(window.TPCollectionGame?.poll()){tpPerf?.frameEnd(tpSample,false,true);requestAnimationFrame(frame);return;}
+    window.TPHomeEvolution?.poll();
     // The rest of GameModel.tick(): the idle creature's pose scheduler, the
     // bath timer (which is what actually washes the creature when it ends),
     // and the long-press check -- all on the tick, never in a draw.

@@ -99,7 +99,7 @@ async function preflight(){
    if(mode==='quick')await browser('quick',quickSelection);
    if(mode==='affected')await browser('affected',[
     'specs/app.spec.js','specs/dex-raster.spec.js','specs/i18n.spec.js',
-    'specs/battle-controls.spec.js',
+    'specs/battle-controls.spec.js','specs/suicune-preparation.spec.js',
     'specs/journal-unread.spec.js','specs/stories-overview.spec.js',
     'specs/power-plant-scenes.spec.js','specs/power-plant-game.spec.js',
     'specs/zapdos-encounter.spec.js','specs/zapdos-story.spec.js',

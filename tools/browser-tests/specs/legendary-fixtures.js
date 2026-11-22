@@ -7,7 +7,8 @@ const models={
  articuno:require('../../../browser_ver/web/articuno-story-model.js'),
  moltres:require('../../../browser_ver/web/moltres-story-model.js'),
  mewtwo:require('../../../browser_ver/web/mewtwo-story-model.js'),
- mew:require('../../../browser_ver/web/mew-story-model.js')
+ mew:require('../../../browser_ver/web/mew-story-model.js'),
+ suicune:require('../../../browser_ver/web/suicune-story-model.js')
 };
 const halls=require('../fixtures/p06-mew-hall.json');
 const scope={
@@ -15,13 +16,18 @@ const scope={
  TPCollectionModel:M,TPAdmissionModel:A,
  TPZapdosModel:models.zapdos,TPArktosModel:models.articuno,
  TPLavadosModel:models.moltres,TPMewtuModel:models.mewtwo,
- TPMewModel:models.mew
+ TPMewModel:models.mew,TPSuicuneModel:models.suicune
 };
 vm.createContext(scope);
 vm.runInContext(fs.readFileSync(
  path.resolve(__dirname,'../../../browser_ver/web/storage-tools.js'),'utf8'
 ),scope);
 const profiles=Object.freeze([
+ Object.freeze({
+  id:'suicune',dex:245,prefix:'sui',
+  service:'TPSuicune',ui:'TPSuicuneUI',text:'TPSuicuneText',
+  place:'Die verborgene Quelle',source:'story:johto:suicune'
+ }),
  Object.freeze({id:'moltres',dex:146,prefix:'mlt',service:'TPLavados',ui:'TPLavadosUI',text:'TPLavadosText',place:'Siegesstraße'}),
  Object.freeze({id:'mewtwo',dex:150,prefix:'mtw',service:'TPMewtu',ui:'TPMewtuUI',text:'TPMewtuText',place:'Azuria-Höhle'}),
  Object.freeze({id:'mew',dex:151,prefix:'mew',service:'TPMew',ui:'TPMewUI',text:'TPMewText',place:'Nuggetbrücke'})
@@ -59,7 +65,7 @@ function fixture(base,id,{step=0,kanto=255,league=true,hall=2}={}){
   dexn:1,eggT2:1,age:540,lang:3,full:100,joy:100,ene:100,hyg:100,bond:80,
   gatk:100,gdef:100,gspe:100,tatk:0,tdef:0,tspe:0,
   f4lver:1,f4life:1,agver:1,agmask:kanto,
-  lgver:1,lgkdate:league?1700000000:0,jagver:1,jagmask:0,
+  lgver:1,lgkdate:league?1700000000:0,jagver:1,jagmask:id==='suicune'?15:0,
   jlgver:1,jlgdate:0
  }))number(key,value);
  bool('init',true);bool('shy',false);bool('stpk',false);
@@ -87,7 +93,40 @@ function fixture(base,id,{step=0,kanto=255,league=true,hall=2}={}){
  );
  return raw;
 }
+/* P07a full storage admission proof. */
+function capacityFixture(base){
+ const fields=unpack(fixture(base,'suicune',{step:2}));
+ let collection=M.decode(fields.get('f4col')[1].toString('utf8'));
+ const care=collection.active;
+ const add=(nickname,strong=false)=>{
+  collection=M.catchWild(collection,{
+   dex:strong?376:25,level:strong?100:20,
+   nickname,shiny:false,origin:'wild',
+   data:{stats:strong?{atk:3000,def:3000,spe:3000}:
+    {atk:50,def:50,spe:50},genes:null,training:null}
+  },0);
+  return collection.nextId-1;
+ };
+ const alpha=add('Trial Alpha',true);
+ collection=M.selectTeam(collection,alpha);
+ collection=M.moveTeam(collection,alpha,-1);
+ for(let i=0;i<4;i++){
+  const reserve=add('Reserve '+i);
+  collection=M.selectTeam(collection,reserve);
+ }
+ while(M.summary(collection).stored<M.summary(collection).capacity)
+  add('Capacity '+collection.nextId);
+ M.validate(collection);
+ if(collection.team.length!==6||collection.active!==care||
+    collection.team[0]!==alpha||collection.team[1]!==care)
+  throw Error('INVALID_FULL_STORAGE_TEAM');
+ fields.set('f4col',[3,Buffer.from(M.encode(collection))]);
+ const raw=pack(fields);
+ scope.TPStoreTools.parseLegacy(new Uint8Array(raw));
+ return raw;
+}
+
 module.exports={
- profiles,fixture,
+ profiles,fixture,capacityFixture,
  inspect:buffer=>scope.TPStoreTools.parseLegacy(new Uint8Array(buffer))
 };

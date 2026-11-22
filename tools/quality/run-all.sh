@@ -9,6 +9,9 @@ node tools/quality/test-review-contracts.cjs
 python3 tools/quality/test-named-prompt-linkage.py
 node tests/package-battle-helper.test.js
 node tests/package-browser-prepare.test.js
+node tests/package-p07a-source-preview.test.js
+python3 tools/quality/test-p07a-suicune-store.py
+node tests/package-p07a-suicune-js.test.js
 node tests/package-battle-league-transition.test.js
 
 # UI01 closeout: include every UI01 Node contract in the central gate.

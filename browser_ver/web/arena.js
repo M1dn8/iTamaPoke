@@ -810,7 +810,234 @@ function drawLeader(id,x,y,w,h){
  ctx.fillStyle='#a9b5ae';ctx.beginPath();ctx.arc(x+w/2,y+29,21,0,Math.PI*2);ctx.fill();roundRect(x+w/2-27,y+54,54,h-54,14);ctx.fill();ctx.strokeStyle='#83938a';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(x+w/2+20,y+65);ctx.lineTo(x+w+10,y+80);ctx.stroke();text('Grafik nicht geladen',x+w/2,y+h+16,10,UI.ink,136);
 }
 
+
+/* Pokedex arena handover: presentation only, original result actions. */
+let awardStage=null,awardSession=null,awardKey='',awardCanvas=null;
+let awardBody=null,awardActions=null;
+const awardSpriteBounds=new WeakMap();
+function awardDispose(){
+ const current=awardStage;
+ awardStage=null;awardSession=null;awardKey='';
+ current?.dispose();
+}
+function awardAllowed(s){
+ return session===s&&s.mod===Module&&screen==='battle'&&active()&&
+  !saving&&!tpSaveReplacing&&!window.TPCollection?.busy&&
+  !window.TPCollection?.blocked&&s.phase!=='unsafe'&&
+  document.visibilityState==='visible';
+}
+function awardAction(s,primary){
+ if(!awardAllowed(s))return;
+ battleTap(233,primary?389:435);
+ if(session!==s||screen!=='battle')awardDispose();
+}
+function awardStyle(){
+ if(document.getElementById('tp-arena-award-style'))return;
+ const style=document.createElement('style');
+ style.id='tp-arena-award-style';
+ style.textContent=`
+ #tp-story-stage[data-story="arena-award"] .tp-story-copy{
+  padding:7px;gap:5px;background:#f5efda;color:#35443d;
+ }
+ #tp-story-stage[data-story="arena-award"] .tp-award-body{
+  flex:1;min-height:0;overflow:auto;text-align:center;
+ }
+ #tp-story-stage[data-story="arena-award"] .tp-award-body h3{
+  color:#71551f;font-size:15px;margin:0 0 5px;
+ }
+ #tp-story-stage[data-story="arena-award"] .tp-award-body p{
+  margin:4px 0;font-size:11px;line-height:1.3;
+ }
+ #tp-story-stage[data-story="arena-award"] .tp-award-actions{
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:none;
+ }
+ #tp-story-stage[data-story="arena-award"] .tp-award-actions button{
+  min-height:44px;min-width:44px;margin:0;padding:4px;
+  border:1px solid #8d7948;border-radius:9px;
+  background:#fffaf0;color:#35443d;font-weight:700;
+ }
+ #tp-story-stage[data-story="arena-award"]
+ [data-arena-award-action="primary"]{background:#e9d59b}
+ #tp-story-stage[data-story="arena-award"] button:disabled{opacity:.55}
+ #tp-story-stage[data-story="arena-award"] [data-arena-award-scene]{
+  display:block;width:100%;height:100%;
+ }
+ `;
+ document.head.append(style);
+}
+function awardMember(p,m,x,bottom,maxW,maxH,now){
+ if(!m)return;
+ const sprite=m.form?megaSpriteFor(!!m.shiny,m.form):spriteFor(m.dex,!!m.shiny);
+ const action=sprite?.actions?.[TPAct.idle];
+ if(!action){ensureSprite(m.dex);return;}
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const image=frameImageData(sprite,TPAct.idle,
+  reduced?0:frameIndexAt(action,now,true));
+ if(!image)return;
+ let box=awardSpriteBounds.get(image);
+ if(box===undefined){
+  let l=image.width,t=image.height,r=-1,b=-1;
+  for(let y=0;y<image.height;y++)for(let x=0;x<image.width;x++)
+   if(image.data[(y*image.width+x)*4+3]){
+    l=Math.min(l,x);t=Math.min(t,y);r=Math.max(r,x);b=Math.max(b,y);
+   }
+  box=r<l?null:{x:l,y:t,w:r-l+1,h:b-t+1};
+  awardSpriteBounds.set(image,box);
+ }
+ if(!box)return;
+ const off=document.createElement('canvas');
+ off.width=image.width;off.height=image.height;
+ off.getContext('2d').putImageData(image,0,0);
+ const z=Math.min(maxW/box.w,maxH/box.h,5);
+ p.imageSmoothingEnabled=false;
+ p.drawImage(off,box.x,box.y,box.w,box.h,
+  x-box.w*z/2,bottom-box.h*z,box.w*z,box.h*z);
+}
+function awardPaint(s,l,player,now,awarded){
+ const w=Math.max(1,awardStage.upper.clientWidth);
+ const h=Math.max(1,awardStage.upper.clientHeight);
+ if(awardCanvas.width!==Math.round(w*2)||awardCanvas.height!==Math.round(h*2)){
+  awardCanvas.width=Math.round(w*2);awardCanvas.height=Math.round(h*2);
+ }
+ const p=awardCanvas.getContext('2d');
+ p.setTransform(2,0,0,2,0,0);
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const progress=awarded?(reduced?1:
+  Math.max(0,Math.min(1,(now-s.since)/1400))):0;
+ const sky=p.createLinearGradient(0,0,0,h);
+ sky.addColorStop(0,awarded?'#253f50':'#3d5159');
+ sky.addColorStop(1,awarded?'#71806b':'#87918a');
+ p.fillStyle=sky;p.fillRect(0,0,w,h);
+ p.fillStyle='#263e43';p.fillRect(0,h*.83,w,h*.17);
+ p.fillStyle='#b8bda0';p.beginPath();
+ p.ellipse(w*.5,h*.85,w*.45,h*.08,0,0,Math.PI*2);p.fill();
+
+ const portrait=picture(s.id);
+ if(portrait){
+  const z=Math.min(w*.27/portrait.width,h*.58/portrait.height);
+  p.imageSmoothingEnabled=false;
+  p.drawImage(portrait,w*.16-portrait.width*z/2,
+   h*.84-portrait.height*z,portrait.width*z,portrait.height*z);
+ }
+ awardMember(p,player,w*.84,h*.84,w*.29,h*.57,now);
+
+ const cx=w*.5,cy=h*.43,r=Math.min(w*.22,h*.29);
+ if(awarded){
+  const glow=p.createRadialGradient(cx,cy,0,cx,cy,r*1.85);
+  glow.addColorStop(0,'#fff5b9');
+  glow.addColorStop(.5,'#ebd18499');
+  glow.addColorStop(1,'#ebd18400');
+  p.fillStyle=glow;p.fillRect(cx-r*2,cy-r*2,r*4,r*4);
+  p.save();p.translate(cx,cy);
+  p.rotate(reduced?0:progress*.35);
+  for(let i=0;i<12;i++){
+   const a=i*Math.PI/6;
+   p.strokeStyle=i%2?'#f8efb477':'#fff6cfaa';
+   p.lineWidth=i%2?2:3;
+   p.beginPath();p.moveTo(Math.cos(a)*r*1.08,Math.sin(a)*r*1.08);
+   p.lineTo(Math.cos(a)*r*1.65,Math.sin(a)*r*1.65);p.stroke();
+  }
+  p.restore();
+  p.save();p.shadowColor='#ffe9a2';p.shadowBlur=10;
+  const draw=region===1?window.TPBadgeUI?.drawJohto:window.TPBadgeUI?.draw;
+  draw?.(s.id,cx,cy,r*(.55+.45*(1-(1-progress)**3)),true,p);
+  p.restore();
+  p.strokeStyle='#fff9d8';p.lineWidth=1.5;
+  for(const [x,y]of [[.35,.19],[.67,.26],[.61,.66]]){
+   const px=w*x,py=h*y;
+   p.beginPath();p.moveTo(px-4,py);p.lineTo(px+4,py);
+   p.moveTo(px,py-4);p.lineTo(px,py+4);p.stroke();
+  }
+ }else{
+  p.strokeStyle='#d6dfd3';p.lineWidth=2;
+  p.beginPath();p.arc(cx,cy,r*.7,0,Math.PI*2);p.stroke();
+  p.fillStyle='#f6f3df';p.font='bold '+Math.max(13,Math.round(h*.12))+'px monospace';
+  p.textAlign='center';p.fillText(s.phase==='failed'?'!':'·',cx,cy+5);
+ }
+ p.fillStyle='#fff7de';p.textAlign='center';
+ p.font='bold '+Math.max(9,Math.min(12,w*.045))+'px monospace';
+ p.fillText(awarded?'DEIN ORDEN':s.phase==='repeat'?'BEREITS ERHALTEN':
+  s.phase==='lost'?'NÄCHSTES MAL':'ERGEBNIS',cx,h*.1,w*.9);
+ p.font=Math.max(8,Math.min(10,w*.035))+'px monospace';
+ p.fillText(l.name,w*.17,h*.95,w*.31);
+ if(player)p.fillText(player.nick||fns.dexName(player.dex),w*.83,h*.95,w*.31);
+}
+function awardPresentation(now){
+ if(!window.TPStoryStage?.mount)return false;
+ const s=session,l=data.leaders[s.id];
+ const current=()=>session===s&&s.mod===Module&&screen==='battle'&&active()&&
+  ['saving','done','repeat','lost','failed','unsafe'].includes(s.phase);
+ if(!current())return false;
+ if(awardSession!==s||!awardStage?.page.isConnected){
+  awardDispose();awardStyle();awardSession=s;
+  awardStage=window.TPStoryStage.mount({
+   story:'arena-award',title:'Arena-Ergebnis',caption:label(),
+   isCurrent:current,canClose:()=>awardAllowed(s),
+   onClose:()=>awardAction(s,false),
+   onDispose:()=>{awardStage=null;awardSession=null;awardKey='';}
+  });
+  awardCanvas=document.createElement('canvas');
+  awardCanvas.setAttribute('data-arena-award-scene','');
+  awardCanvas.setAttribute('role','img');
+  awardCanvas.setAttribute('aria-label',l.badge+' · '+l.name);
+  awardStage.upper.append(awardCanvas);
+  awardBody=document.createElement('div');awardBody.className='tp-award-body';
+  awardActions=document.createElement('div');awardActions.className='tp-award-actions';
+  awardStage.lower.append(awardBody,awardActions);
+ }
+ const m=mask(),awarded=s.phase==='done'&&m>=0&&owned(s.id,m);
+ awardStage.page.dataset.awarded=String(awarded);
+ awardStage.page.dataset.arenaResult=s.phase;
+ const blocked=!awardAllowed(s);
+ const key=JSON.stringify([s.phase,s.error,s.rewards,blocked,awarded]);
+ if(key!==awardKey){
+  awardKey=key;
+  const title=awarded?'Orden erhalten!':
+   s.phase==='repeat'?'Erneuter Arenasieg':
+   s.phase==='lost'?'Arena beendet':
+   s.phase==='failed'?'Noch nicht gespeichert':
+   s.phase==='unsafe'?'Speicherstand prüfen':'Ergebnis speichern …';
+  awardStage.page.querySelector('.tp-story-frame-title').textContent=title;
+  const back=awardStage.page.querySelector('.tp-story-frame-back-slot button');
+  if(back)back.disabled=blocked;
+  awardBody.replaceChildren();awardActions.replaceChildren();
+  const heading=document.createElement('h3');
+  heading.textContent=awarded?l.badge:title;
+  const line=document.createElement('p');
+  line.textContent=awarded?l.name+' überreicht dir diesen Orden!':
+   s.phase==='repeat'?l.badge+' bleibt in deinem Ordenskoffer.':
+   s.phase==='lost'?'Heute kein Orden. Dein Fortschritt bleibt erhalten.':
+   s.phase==='failed'?'Bitte speichere das Ergebnis erneut.':
+   s.phase==='unsafe'?'Bitte App neu öffnen.':'Bitte kurz warten.';
+  awardBody.append(heading,line);
+  if(s.error){
+   const error=document.createElement('p');error.textContent=s.error;
+   error.setAttribute('role','status');awardBody.append(error);
+  }else if(s.rewards?.length){
+   const rewards=document.createElement('p');
+   rewards.textContent=s.rewards.map(r=>r.name+' · Lv. '+r.level).join(' / ');
+   awardBody.append(rewards);
+  }
+  for(const primary of [true,false]){
+   const button=document.createElement('button');button.type='button';
+   button.dataset.arenaAwardAction=primary?'primary':'secondary';
+   button.disabled=blocked;
+   button.textContent=primary?
+    s.phase==='failed'?'Speichern erneut versuchen':
+    s.phase==='lost'?'Arenaübersicht':'Ordenkoffer öffnen':
+    s.phase==='failed'?'Arena verlassen':'Weiter';
+   button.addEventListener('click',()=>awardAction(s,primary));
+   awardActions.append(button);
+  }
+ }
+ const roster=teamView();
+ awardPaint(s,l,roster?.members[roster.active],now,awarded);
+ statusEl.textContent='Arena · '+s.phase;
+ return true;
+}
+
 function handover(now){
+ if(awardPresentation(now))return;
  const s=session,l=data.leaders[s.id],v=teamView();
  const player=v?.members[v.active];
  const headline=s.phase==='saving'?'Arena-Ergebnis speichern …':

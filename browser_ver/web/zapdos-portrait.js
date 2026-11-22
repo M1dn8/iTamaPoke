@@ -52,7 +52,7 @@
  document.head.appendChild(style);
 
  function create(text,options={}){
-  const dex=[144,145,146,150,151].includes(options.dex)?options.dex:145;
+  const dex=[144,145,146,150,151,245].includes(options.dex)?options.dex:145;
   let disposed=false;
   const element=document.createElement('div');
   element.className='tp-zapdos-portrait';
